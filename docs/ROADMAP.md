@@ -88,78 +88,82 @@ flowchart TB
 
 ## Phasing
 
+### Recommended next implementation
+
+**Condition reports — in-app reader (step 1):** add a Callable such as `listConditionReports(launchId, limit)`, relax or bypass client Firestore reads safely, and show **recent submitted messages** on launch detail. You already write reports and have Firebase patterns; this unlocks the data for paddlers without starting Phase C (routes/GPX), which is a larger product slice. **Step 2** in the same epic: **`summarizeLaunchReports`** (daily digest) + trust copy.
+
+---
+
+## Implementation checklist (living)
+
+Use `- [x]` / `- [ ]` in source; render as checkboxes in most Markdown viewers.
+
 ### Phase A — Solo paddler loop (no auth)
 
-| Item | Status |
-|------|--------|
-| Map + Mapbox + expanded regional launch pins | **Shipped** |
-| Tap launch → detail with **NWS** weather (Open-Meteo fallback), **USGS** flow where linked, **NOAA** tides, **NWS marine** zones, exposure/tide tags | **Shipped** |
-| Local Mapbox token via `.local.env` + script | **Shipped** |
-| In-app **safety / disclaimer** on launch detail | **Shipped** (extend globally as needed) |
-| **Stub Go/No-Go** rules engine (wind, marine keywords, coarse cfs by river class; marginal / no-go / insufficient data) | **Shipped** |
+- [x] Map + Mapbox + expanded regional launch pins
+- [x] Tap launch → detail with **NWS** weather (Open-Meteo fallback), **USGS** flow where linked, **NOAA** tides, exposure/tide tags
+- [x] **NWS marine** on launch detail: `api.weather.gov` does not implement `/zones/marine/{id}/forecast`; app uses **Coastal Waters Forecast (CWF)** product text + zone extract instead
+- [x] Local Mapbox token via `.local.env` + script
+- [x] In-app **safety / disclaimer** on launch detail (extend globally as needed)
+- [x] **Stub Go/No-Go** rules engine (wind, marine keywords, coarse cfs by river class; marginal / no-go / insufficient data)
 
 ### Phase B — Decision engine v1
 
-| Item | Status |
-|------|--------|
-| Per-launch **cfs bands** (`LaunchFlowBands` on `LaunchPoint`; evaluator prefers bands, else river-class fallback) | **Shipped** |
-| **Skill profile** (beginner / intermediate / advanced) → scaled wind thresholds + `SharedPreferences` + UI on launch detail | **Shipped** |
-| **Forecast time hint** (`periodStart` local low-light hours → info reason only) | **Shipped** |
-| Gust-aware wind + marine text + flow rules (existing) | **Shipped** |
+- [x] Per-launch **cfs bands** (`LaunchFlowBands`; evaluator prefers bands, else river-class fallback)
+- [x] **Skill profile** (beginner / intermediate / advanced) → wind thresholds + `SharedPreferences` + UI on launch detail
+- [x] **Forecast time hint** (`periodStart` low-light hours → info only)
+- [x] Gust-aware wind + marine text + flow rules in evaluator
 
 ### Firebase backend (reports + AI summary)
 
-| Item | Status |
-|------|--------|
-| Repo `firebase/` TypeScript Functions (`us-west2`): `submitConditionReport`, `summarizeConditions` (Anthropic Haiku via secret `ANTHROPIC_API_KEY`) | **Shipped** (deploy + secrets required) |
-| Firestore `conditionReports` writes **only** from Admin SDK; client uses Callables; rules deny direct reads/writes | **Shipped** |
-| Flutter: `firebase_core`, `cloud_functions`, `firebase_auth` (anonymous), `USE_FIREBASE` compile flag, JSON payload for summaries | **Shipped** |
-| In-app **Report conditions** sheet + **AI summary** card on launch detail when Firebase init succeeds | **Shipped** |
+- [x] Repo `firebase/` Functions (`us-west2`): `submitConditionReport`, `summarizeConditions` (Anthropic via `ANTHROPIC_API_KEY`; deploy + secrets)
+- [x] Firestore `conditionReports` writes **only** from Admin SDK; Callables from client; rules deny broad client access
+- [x] Flutter: `firebase_core`, `cloud_functions`, `firebase_auth` (anonymous), `USE_FIREBASE`, JSON payload for summaries
+- [x] **Report conditions** sheet + **AI summary** card when Firebase init succeeds
+- [x] Cloud Run **invoker** + Android callable auth path debugged (operational; see `firebase/DEPLOY.md`)
 
 #### Condition reports — in-app reader + daily digest (follow-up)
 
-Reports are stored in Firestore (`conditionReports`) but **not shown in the app** yet; rules still block all client reads.
+Reports exist in Firestore but are **not listed in the UI** yet.
 
-| Item | Intent |
-|------|--------|
-| **List recent reports per launch** | On launch detail (or a dedicated section): show **recent user messages** for that `launchId`—time-ordered, with relative time and light attribution (e.g. “Anonymous” / no PII). Delivery options: **Callable** `listConditionReports(launchId, limit)` (server filters + pagination), or **Firestore rules** scoped to `conditionReports` read-only with query constraints (only if security review passes). |
-| **AI summary of the day’s reports** | **Callable** (e.g. `summarizeLaunchReports`) that loads **today’s (or last 24h) messages** for one launch, calls the same Anthropic path as `summarizeConditions`, returns a **short grounded digest** (“what paddlers mentioned: wood at X, low water…”). **Cache** the digest in Firestore or in-memory with TTL to limit cost; **rate-limit** per launch/device; system prompt: only facts present in submitted text, no invention. |
-| **UX / trust** | Disclaimer that reports are **subjective and unverified**; link to raw list below the digest; optional “report inappropriate” later. |
-| **Moderation (later)** | Admin queue, keyword hold, or TTL auto-expire for high-risk launches—pairs with Phase D community posture. |
+- [ ] **List recent reports per launch** — Callable `listConditionReports(launchId, limit)` (or scoped Firestore reads after security review); time-ordered list, light attribution (e.g. Anonymous)
+- [ ] **AI summary of the day’s reports** — Callable `summarizeLaunchReports`; grounded digest; cache + rate limits
+- [ ] **UX / trust** — “Unverified / subjective” disclaimer; raw list under digest; optional report-abuse later
+- [ ] **Moderation (later)** — admin queue, TTL, keyword hold
 
 ### Phase C — Plan + log
 
-Route planner MVP, GPX export, trip log; **auth** when identity is required.
+- [ ] Route planner MVP (put-in / take-out, water-aligned geometry TBD)
+- [ ] GPX export / import
+- [ ] Trip log
+- [ ] **Auth** when identity is required for saves
 
 ### Phase D — Community
 
-Planned trips, **surfacing submitted condition reports in-app** (see **Condition reports — in-app reader + daily digest** under Firebase), moderation; **live pins** only if product + privacy posture is explicit.
+- [ ] Planned trips / trip intent
+- [ ] **In-app condition reports reader + digest** (ties to Firebase follow-up above)
+- [ ] Moderation posture
+- [ ] **Live pins** only with explicit privacy/product decision
 
-### Phase E — Assistive intelligence (LLM) — in progress
+### Phase E — Assistive intelligence (LLM)
 
-Not all items need to ship before the next; order is a suggested path.
+- [ ] **Model-agnostic client** (`LlmClient`-style abstraction)
+- [x] **Default model** path — Haiku via Cloud Function for summaries
+- [x] **Snapshot summary (v1)** — `summarizeConditions` + “Summarize with AI” on launch detail
+- [ ] **Reports digest** — same epic as checklist under Firebase follow-up
+- [ ] **Chat + tools** (refresh conditions, list launches, etc.)
+- [ ] **Route validation** (LLM + structured gaps, no invented hazards)
+- [ ] **Safety intelligence** (canonical facts + optional LLM phrasing)
+- [ ] **Ops** — quotas, logging, cost dashboards
 
-| Item | Intent |
-|------|--------|
-| **Model-agnostic client** | One internal abstraction (e.g. “completion + optional tool calls”) with pluggable backends so swapping **Claude Haiku ↔ Sonnet ↔ GPT ↔ local** is configuration, not a rewrite. |
-| **Default model** | Start with **Claude Haiku** for cost/latency on summaries and short chat turns; escalate tier later for heavier reasoning if needed. |
-| **Snapshot summary** | **Shipped (v1):** Cloud Function `summarizeConditions` + manual “Summarize with AI” on launch detail; client sends structured JSON; verify against raw cards in UI. |
-| **Reports digest** | **Planned:** Callable + UI to summarize **that launch’s crowd reports** for the day (see roadmap **Condition reports — in-app reader + daily digest**). |
-| **Chat + tools** | Expose tools: `get_conditions(launchId \| lat/lon)`, optionally `list_launches_in_bbox`, later `get_usgs`, etc., implemented by calling existing Dart services server-side or on-device. |
-| **Route validation** | Input: named launches or future segment IDs + user skill text; output: checklist-style feedback, gaps (“we don’t have wood data here”), no invented hazards. |
-| **Safety intelligence** | Combine **fixed** PNW cold-water / permit bullets with LLM rephrasing; same disclaimer stack as the rest of the app. |
-| **Ops** | Rate limits, logging, no PII in prompts by default, cost dashboards; optional small backend for API keys if not on-device. |
+### Phase F — Semantic discovery (embeddings)
 
-### Phase F — Semantic discovery (embeddings) — plan; pairs with curated data
-
-| Item | Intent |
-|------|--------|
-| **Embedding model (agnostic)** | Same idea as LLM: pluggable **embedding API** (OpenAI, Voyage, Cohere, etc.) or **local** models later; normalize dimensions per backend. |
-| **Launch similarity (v1)** | For each `LaunchPoint`, build a stable string (or JSON → string) from name, river system, exposure, tide relevance, `shortNote`, optional tags; **batch embed** on deploy or admin job; **nearest neighbors** for “Similar ramps.” |
-| **Query paths** | From a **selected launch** (“more like this”) and/or **natural language** (“sheltered put-in on the Willamette near Portland”)—NL may still hit embeddings or route through LLM to structured filters + vector search. |
-| **Route similarity (later)** | Once routes/segments exist as first-class objects, embed route summaries (put-in/take-out names, mileage, skill, typical flow band); “Similar trips” for planning. |
-| **Hybrid search** | Always constrain by **bbox**, **river**, **skill**, or **distance** where possible so pure vector closeness does not suggest irrelevant geography. |
-| **Ops** | Index versioning, backfill script, monitoring for drift when copy changes; **no** embedding of live conditions numbers (stale in minutes)—similarity is for **place/route character**, not today’s cfs. |
+- [ ] **Embedding model** (pluggable API / local)
+- [ ] **Launch similarity (v1)** — profiles + nearest neighbors (“Similar ramps”)
+- [ ] **Query paths** — from launch + optional NL
+- [ ] **Route similarity** (after routes exist)
+- [ ] **Hybrid search** (geo / river / skill filters)
+- [ ] **Ops** — index versioning, backfill, no live cfs in embeddings
 
 ---
 
@@ -222,6 +226,6 @@ Attribute and comply with each provider’s terms in the app.
 
 ## How to use this file
 
-- Check off **Phase A** rows as you complete them.
-- Add **dates** or **links to issues** in a column if you track work elsewhere.
-- Trim the feature table if you descope; keep **pillars** stable for narrative.
+- Update the **Implementation checklist** (`- [ ]` → `- [x]`) when you ship; keep **Recommended next implementation** in sync when priorities change.
+- Add **dates** or **issue links** inline next to items if you track work elsewhere.
+- Trim the feature table above if you descope; keep **pillars** stable for narrative.
