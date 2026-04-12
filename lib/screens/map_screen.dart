@@ -4,8 +4,16 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import '../data/launch_points.dart';
 import 'launch_detail_screen.dart';
 
-/// Portland core + Columbia / Willamette confluence framing.
-final Point _portlandCenter = Point(coordinates: Position(-122.678, 45.515));
+/// Approximate centroid of [kLaunchPoints] for initial viewport.
+Point get _regionCenter {
+  double lat = 0, lon = 0;
+  for (final p in kLaunchPoints) {
+    lat += p.latitude;
+    lon += p.longitude;
+  }
+  final n = kLaunchPoints.length.toDouble();
+  return Point(coordinates: Position(lon / n, lat / n));
+}
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -27,13 +35,20 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _onMapCreated(MapboxMap mapboxMap) async {
+    final center = _regionCenter;
     await mapboxMap.setCamera(
-      CameraOptions(center: _portlandCenter, zoom: 10.5, pitch: 0, bearing: 0),
+      CameraOptions(center: center, zoom: 9, pitch: 0, bearing: 0),
     );
 
     final manager = await mapboxMap.annotations.createCircleAnnotationManager();
 
-    final options = kPortlandLaunchPoints
+    final coords = kLaunchPoints
+        .map(
+          (p) => Point(coordinates: Position(p.longitude, p.latitude)),
+        )
+        .toList();
+
+    final options = kLaunchPoints
         .map(
           (p) => CircleAnnotationOptions(
             geometry: Point(coordinates: Position(p.longitude, p.latitude)),
@@ -47,6 +62,24 @@ class _MapScreenState extends State<MapScreen> {
         .toList();
 
     await manager.createMulti(options);
+
+    try {
+      final fitted = await mapboxMap.cameraForCoordinatesPadding(
+        coords,
+        CameraOptions(
+          center: center,
+          zoom: 9,
+          bearing: 0,
+          pitch: 0,
+        ),
+        MbxEdgeInsets(top: 100, left: 40, bottom: 56, right: 40),
+        11,
+        null,
+      );
+      await mapboxMap.setCamera(fitted);
+    } catch (_) {
+      // Keep default camera if padding fit fails on some devices.
+    }
 
     _tapCancelable = manager.tapEvents(
       onTap: (CircleAnnotation annotation) {
@@ -65,6 +98,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final center = _regionCenter;
     return Scaffold(
       appBar: AppBar(
         title: const Text('EddyScout'),
@@ -73,8 +107,8 @@ class _MapScreenState extends State<MapScreen> {
         key: const ValueKey<String>('eddyscout_map'),
         styleUri: MapboxStyles.STANDARD,
         viewport: CameraViewportState(
-          center: _portlandCenter,
-          zoom: 10.5,
+          center: center,
+          zoom: 9,
         ),
         onMapCreated: _onMapCreated,
       ),
