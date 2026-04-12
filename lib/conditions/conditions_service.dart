@@ -5,6 +5,7 @@ import '../network/eddy_scout_http_client.dart';
 import 'conditions_models.dart';
 import 'parsing/noaa_tides_json.dart';
 import 'parsing/nws_json.dart';
+import 'parsing/nws_marine_cwf.dart';
 import 'parsing/nws_marine_json.dart';
 import 'parsing/open_meteo_json.dart';
 import 'parsing/usgs_iv_json.dart';
@@ -151,16 +152,67 @@ class ConditionsService {
     final zone = launch.marineZoneId;
     if (zone == null || zone.isEmpty) return _MarineResult(null, null);
     try {
-      final uri = Uri.parse('https://api.weather.gov/zones/marine/$zone/forecast');
-      final json = await _http.getNwsJson(uri);
-      if (json == null) {
-        return _MarineResult(null, 'Marine forecast unavailable for $zone.');
+      // NWS returns 404 "Marine Forecast Not Supported" for
+      // /zones/marine/{id}/forecast — use Coastal Waters Forecast (CWF) text instead.
+      final legacyUri =
+          Uri.parse('https://api.weather.gov/zones/marine/$zone/forecast');
+      final legacyJson = await _http.getNwsJson(legacyUri);
+      if (legacyJson != null) {
+        final m = marineFromNwsZoneForecast(legacyJson, zoneId: zone);
+        if (m != null) return _MarineResult(m, null);
       }
-      final m = marineFromNwsZoneForecast(json, zoneId: zone);
-      return _MarineResult(m, m == null ? 'Could not parse marine forecast.' : null);
+      return await _loadMarineFromCwf(zone);
     } catch (e) {
       return _MarineResult(null, '$e');
     }
+  }
+
+  Future<_MarineResult> _loadMarineFromCwf(String zone) async {
+    final zoneUri = Uri.parse('https://api.weather.gov/zones/marine/$zone');
+    final zoneJson = await _http.getNwsJson(zoneUri);
+    if (zoneJson == null) {
+      return _MarineResult(
+        null,
+        'Could not look up marine zone $zone.',
+      );
+    }
+    final office = nwsMarineZoneCwaOffice(zoneJson);
+    if (office == null || office.isEmpty) {
+      return _MarineResult(null, 'No forecast office linked to zone $zone.');
+    }
+
+    final listUri = Uri.parse(
+      'https://api.weather.gov/products/types/CWF/locations/$office',
+    );
+    final listJson = await _http.getNwsJson(listUri);
+    if (listJson == null) {
+      return _MarineResult(
+        null,
+        'Coastal waters forecast unavailable for office $office.',
+      );
+    }
+    final productId = nwsLatestCwfProductId(listJson);
+    if (productId == null) {
+      return _MarineResult(null, 'No CWF products for office $office.');
+    }
+
+    final productUri = Uri.parse('https://api.weather.gov/products/$productId');
+    final productJson = await _http.getNwsJson(productUri);
+    if (productJson == null) {
+      return _MarineResult(null, 'Could not load forecast product.');
+    }
+    final text = productJson['productText'];
+    if (text is! String || text.isEmpty) {
+      return _MarineResult(null, 'Forecast product had no text.');
+    }
+    final summary = marineSummaryFromCwfProductText(text, zone);
+    if (summary == null) {
+      return _MarineResult(
+        null,
+        'Zone $zone missing from latest coastal waters forecast.',
+      );
+    }
+    return _MarineResult(summary, null);
   }
 
   Future<_RiverResult> _loadRiverFlow(LaunchPoint launch) async {
