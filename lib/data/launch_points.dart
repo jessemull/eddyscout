@@ -16,6 +16,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9439221',
     marineZoneId: null,
     usgsSiteId: '14211720',
+    flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
   LaunchPoint(
     id: 'sellwood_riverfront',
@@ -29,6 +30,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9439221',
     marineZoneId: null,
     usgsSiteId: '14211720',
+    flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
   LaunchPoint(
     id: 'willamette_park_sw',
@@ -42,6 +44,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9439221',
     marineZoneId: null,
     usgsSiteId: '14211720',
+    flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
   LaunchPoint(
     id: 'tom_mccall_waterfront',
@@ -56,6 +59,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9439221',
     marineZoneId: null,
     usgsSiteId: '14211720',
+    flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
   LaunchPoint(
     id: 'kelley_point',
@@ -83,6 +87,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9439221',
     marineZoneId: null,
     usgsSiteId: '14211720',
+    flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
   LaunchPoint(
     id: 'river_place_marina',
@@ -96,6 +101,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9439221',
     marineZoneId: null,
     usgsSiteId: '14211720',
+    flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
   LaunchPoint(
     id: 'portland_boathouse',
@@ -109,6 +115,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9439221',
     marineZoneId: null,
     usgsSiteId: '14211720',
+    flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
   LaunchPoint(
     id: 'jefferson_st_milwaukie',
@@ -122,6 +129,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9439221',
     marineZoneId: null,
     usgsSiteId: '14211720',
+    flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
   LaunchPoint(
     id: 'george_rogers_park',
@@ -135,6 +143,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: null,
     marineZoneId: null,
     usgsSiteId: '14211720',
+    flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
   LaunchPoint(
     id: 'clackamette_park',
@@ -148,6 +157,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9439221',
     marineZoneId: null,
     usgsSiteId: '14211010',
+    flowBands: kFlowBandsUsgs14211010ClackamasNearOc,
   ),
   LaunchPoint(
     id: 'sportcraft_enrg_oc',
@@ -161,6 +171,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9439221',
     marineZoneId: null,
     usgsSiteId: '14211010',
+    flowBands: kFlowBandsUsgs14211010ClackamasNearOc,
   ),
   LaunchPoint(
     id: 'glenn_otto_troutdale',
@@ -174,6 +185,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: null,
     marineZoneId: null,
     usgsSiteId: '14137000',
+    flowBands: kFlowBandsUsgs14137000SandyTroutdale,
   ),
   LaunchPoint(
     id: 'scappoose_bay_marina',
@@ -200,6 +212,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9440083',
     marineZoneId: 'PZZ251',
     usgsSiteId: '14144700',
+    flowBands: kFlowBandsUsgs14144700ColumbiaVancouver,
   ),
   LaunchPoint(
     id: 'vancouver_wintler',
@@ -213,6 +226,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9440083',
     marineZoneId: 'PZZ210',
     usgsSiteId: '14144700',
+    flowBands: kFlowBandsUsgs14144700ColumbiaVancouver,
   ),
   LaunchPoint(
     id: 'frenchmans_bar',
@@ -226,6 +240,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9440083',
     marineZoneId: 'PZZ251',
     usgsSiteId: '14144700',
+    flowBands: kFlowBandsUsgs14144700ColumbiaVancouver,
   ),
   LaunchPoint(
     id: 'port_of_camas',
@@ -239,6 +254,7 @@ const List<LaunchPoint> kLaunchPoints = [
     noaaTideStationId: '9440083',
     marineZoneId: 'PZZ251',
     usgsSiteId: '14144700',
+    flowBands: kFlowBandsUsgs14144700ColumbiaVancouver,
   ),
   LaunchPoint(
     id: 'washougal_waterfront',

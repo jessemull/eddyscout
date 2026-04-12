@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Run the app with MAPBOX_ACCESS_TOKEN from gitignored .local.env via --dart-define.
-# Usage: ./scripts/run_android.sh [extra flutter run args, e.g. -d emulator-5554]
+# Optional: USE_FIREBASE=true in .local.env → passes --dart-define=USE_FIREBASE=true (needs google-services.json).
+# Usage: make run   OR   ./scripts/run_android.sh [extra flutter run args, e.g. -d emulator-5554]
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -24,6 +25,8 @@ if [[ -z "${MAPBOX_ACCESS_TOKEN:-}" ]]; then
   exit 1
 fi
 
-exec flutter run \
-  --dart-define="MAPBOX_ACCESS_TOKEN=$MAPBOX_ACCESS_TOKEN" \
-  "$@"
+args=(--dart-define="MAPBOX_ACCESS_TOKEN=$MAPBOX_ACCESS_TOKEN")
+if [[ -n "${USE_FIREBASE:-}" ]]; then
+  args+=(--dart-define="USE_FIREBASE=$USE_FIREBASE")
+fi
+exec flutter run "${args[@]}" "$@"

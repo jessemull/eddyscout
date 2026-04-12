@@ -1,11 +1,26 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
+import 'firebase/firebase_bootstrap.dart';
+import 'firebase/firebase_flags.dart';
 import 'screens/map_screen.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (kUseFirebase && !kIsWeb) {
+    FirebaseBootstrap.attempted = true;
+    try {
+      await Firebase.initializeApp();
+      await FirebaseAuth.instance.signInAnonymously();
+    } catch (e, st) {
+      FirebaseBootstrap.lastError = e.toString();
+      debugPrint('Firebase init/sign-in failed (add native config or set USE_FIREBASE=false): $e\n$st');
+    }
+  }
 
   const mapboxAccessToken = String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
   MapboxOptions.setAccessToken(mapboxAccessToken);

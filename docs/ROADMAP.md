@@ -100,7 +100,21 @@ flowchart TB
 
 ### Phase B — Decision engine v1
 
-Per-launch gauge linkage, flow bands, gust-aware wind, marginal states; optional lightweight “report” capture (store later).
+| Item | Status |
+|------|--------|
+| Per-launch **cfs bands** (`LaunchFlowBands` on `LaunchPoint`; evaluator prefers bands, else river-class fallback) | **Shipped** |
+| **Skill profile** (beginner / intermediate / advanced) → scaled wind thresholds + `SharedPreferences` + UI on launch detail | **Shipped** |
+| **Forecast time hint** (`periodStart` local low-light hours → info reason only) | **Shipped** |
+| Gust-aware wind + marine text + flow rules (existing) | **Shipped** |
+
+### Firebase backend (reports + AI summary)
+
+| Item | Status |
+|------|--------|
+| Repo `firebase/` TypeScript Functions (`us-west2`): `submitConditionReport`, `summarizeConditions` (Anthropic Haiku via secret `ANTHROPIC_API_KEY`) | **Shipped** (deploy + secrets required) |
+| Firestore `conditionReports` writes **only** from Admin SDK; client uses Callables; rules deny direct reads/writes | **Shipped** |
+| Flutter: `firebase_core`, `cloud_functions`, `firebase_auth` (anonymous), `USE_FIREBASE` compile flag, JSON payload for summaries | **Shipped** |
+| In-app **Report conditions** sheet + **AI summary** card on launch detail when Firebase init succeeds | **Shipped** |
 
 ### Phase C — Plan + log
 
@@ -110,7 +124,7 @@ Route planner MVP, GPX export, trip log; **auth** when identity is required.
 
 Planned trips, condition reports, moderation; **live pins** only if product + privacy posture is explicit.
 
-### Phase E — Assistive intelligence (LLM) — plan only; ship incrementally
+### Phase E — Assistive intelligence (LLM) — in progress
 
 Not all items need to ship before the next; order is a suggested path.
 
@@ -118,7 +132,7 @@ Not all items need to ship before the next; order is a suggested path.
 |------|--------|
 | **Model-agnostic client** | One internal abstraction (e.g. “completion + optional tool calls”) with pluggable backends so swapping **Claude Haiku ↔ Sonnet ↔ GPT ↔ local** is configuration, not a rewrite. |
 | **Default model** | Start with **Claude Haiku** for cost/latency on summaries and short chat turns; escalate tier later for heavier reasoning if needed. |
-| **Snapshot summary** | Generate 2–4 sentences from `ConditionsSnapshot` + `LaunchPoint` metadata; show “last updated” and data sources used. |
+| **Snapshot summary** | **Shipped (v1):** Cloud Function `summarizeConditions` + manual “Summarize with AI” on launch detail; client sends structured JSON; verify against raw cards in UI. |
 | **Chat + tools** | Expose tools: `get_conditions(launchId \| lat/lon)`, optionally `list_launches_in_bbox`, later `get_usgs`, etc., implemented by calling existing Dart services server-side or on-device. |
 | **Route validation** | Input: named launches or future segment IDs + user skill text; output: checklist-style feedback, gaps (“we don’t have wood data here”), no invented hazards. |
 | **Safety intelligence** | Combine **fixed** PNW cold-water / permit bullets with LLM rephrasing; same disclaimer stack as the rest of the app. |

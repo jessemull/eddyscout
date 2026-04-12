@@ -2,9 +2,19 @@ import '../conditions/conditions_models.dart';
 import '../data/launch_models.dart';
 import 'go_no_go_thresholds.dart';
 
-/// User skill profile for future use; v1 only uses [intermediate].
+/// User skill profile; maps to [GoNoGoThresholds] wind tiers.
 enum GoNoGoProfile {
+  beginner,
   intermediate,
+  advanced,
+}
+
+extension GoNoGoProfileThresholds on GoNoGoProfile {
+  GoNoGoThresholds get thresholds => switch (this) {
+        GoNoGoProfile.beginner => GoNoGoThresholds.beginner,
+        GoNoGoProfile.intermediate => GoNoGoThresholds.intermediate,
+        GoNoGoProfile.advanced => GoNoGoThresholds.advanced,
+      };
 }
 
 /// Planning verdict from deterministic rules (not a safety guarantee).
@@ -70,8 +80,7 @@ class GoNoGoEvaluator {
     DateTime? now,
     GoNoGoThresholds? thresholds,
   }) {
-    assert(profile == GoNoGoProfile.intermediate, 'Only intermediate profile in v1');
-    final t = thresholds ?? GoNoGoThresholds.intermediate;
+    final t = thresholds ?? profile.thresholds;
     final effectiveNow = now ?? DateTime.now();
     final reasons = <GoNoGoReason>[];
 
@@ -98,7 +107,9 @@ class GoNoGoEvaluator {
         ),
       );
     } else {
-      _applyWind(launch.windExposure, snapshot.weather!, t, reasons);
+      final w = snapshot.weather!;
+      _applyWind(launch.windExposure, w, t, reasons);
+      _maybeAddForecastTimeInfo(w, reasons);
     }
 
     if (launch.marineZoneId != null && snapshot.marine != null && snapshot.marine!.periods.isNotEmpty) {
@@ -106,7 +117,7 @@ class GoNoGoEvaluator {
     }
 
     if (snapshot.riverFlow != null) {
-      _applyFlow(launch.riverSystem, snapshot.riverFlow!, reasons);
+      _applyFlow(launch, snapshot.riverFlow!, reasons);
     }
 
     final verdict = _aggregateVerdict(weatherMissing: weatherMissing, reasons: reasons);
@@ -211,13 +222,74 @@ class GoNoGoEvaluator {
     }
   }
 
+  /// Info when the forecast period start falls in typical low-light local hours.
+  static void _maybeAddForecastTimeInfo(
+    WeatherConditions w,
+    List<GoNoGoReason> reasons,
+  ) {
+    final start = w.periodStart;
+    if (start == null) return;
+    final local = start.toLocal();
+    final h = local.hour;
+    if (h >= 20 || h < 6) {
+      reasons.add(
+        const GoNoGoReason(
+          code: 'forecast_low_light_hours',
+          message:
+              'This forecast period starts during typical low-light hours locally—verify visibility, hazards, and your comfort paddling after dark.',
+          severity: GoNoGoReasonSeverity.info,
+        ),
+      );
+    }
+  }
+
   static void _applyFlow(
-    RiverSystem river,
+    LaunchPoint launch,
     RiverFlowReading reading,
     List<GoNoGoReason> reasons,
   ) {
-    final band = RiverFlowThresholds.forRiverSystem(river);
     final cfs = reading.cfs;
+    final bands = launch.flowBands;
+    if (bands != null) {
+      final noGoAt = bands.cfsNoGoAbove;
+      final comfortMax = bands.cfsComfortMax;
+      final lowMarginal = bands.cfsMarginalBelow;
+      if (noGoAt != null && cfs >= noGoAt) {
+        reasons.add(
+          GoNoGoReason(
+            code: 'flow_very_high',
+            message:
+                'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}—above this launch’s curated upper band; verify hazards and skill match.',
+            severity: GoNoGoReasonSeverity.noGo,
+          ),
+        );
+        return;
+      }
+      if (comfortMax != null && cfs >= comfortMax) {
+        reasons.add(
+          GoNoGoReason(
+            code: 'flow_high',
+            message:
+                'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}—at or above this launch’s “elevated flow” band; double-check strainers and current.',
+            severity: GoNoGoReasonSeverity.marginal,
+          ),
+        );
+        return;
+      }
+      if (lowMarginal != null && cfs < lowMarginal) {
+        reasons.add(
+          GoNoGoReason(
+            code: 'flow_low',
+            message:
+                'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}—below this launch’s low-flow cue; watch for shallow spots and wood.',
+            severity: GoNoGoReasonSeverity.marginal,
+          ),
+        );
+      }
+      return;
+    }
+
+    final band = RiverFlowThresholds.forRiverSystem(launch.riverSystem);
     final noGoAt = band.noGoCfs;
     final marginalAt = band.marginalCfs;
     if (noGoAt != null && cfs >= noGoAt) {

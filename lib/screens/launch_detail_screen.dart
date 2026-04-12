@@ -1,9 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../conditions/conditions_models.dart';
 import '../conditions/conditions_service.dart';
 import '../data/launch_models.dart';
 import '../decision/go_no_go.dart';
+import '../firebase/conditions_callables.dart';
+import '../firebase/conditions_summary_payload.dart';
+import '../firebase/firebase_bootstrap.dart';
+import '../firebase/firebase_flags.dart';
+import '../preferences/go_no_go_profile_prefs.dart';
 
 class LaunchDetailScreen extends StatefulWidget {
   const LaunchDetailScreen({super.key, required this.launch});
@@ -16,11 +22,15 @@ class LaunchDetailScreen extends StatefulWidget {
 
 class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
   late final Future<ConditionsSnapshot> _future;
+  GoNoGoProfile _skillProfile = GoNoGoProfile.intermediate;
 
   @override
   void initState() {
     super.initState();
     _future = ConditionsService().load(widget.launch);
+    GoNoGoProfilePrefs.load().then((p) {
+      if (mounted) setState(() => _skillProfile = p);
+    });
   }
 
   @override
@@ -40,7 +50,11 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
             return _ErrorBody(message: '${snap.error}');
           }
           final data = snap.data!;
-          final goNoGo = GoNoGoEvaluator.evaluate(launch, data);
+          final goNoGo = GoNoGoEvaluator.evaluate(
+            launch,
+            data,
+            profile: _skillProfile,
+          );
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -64,11 +78,66 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
               ),
               const SizedBox(height: 12),
               Text(
+                'Skill (wind thresholds)',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 8),
+              SegmentedButton<GoNoGoProfile>(
+                segments: const [
+                  ButtonSegment(
+                    value: GoNoGoProfile.beginner,
+                    label: Text('Beginner'),
+                  ),
+                  ButtonSegment(
+                    value: GoNoGoProfile.intermediate,
+                    label: Text('Intermed.'),
+                  ),
+                  ButtonSegment(
+                    value: GoNoGoProfile.advanced,
+                    label: Text('Advanced'),
+                  ),
+                ],
+                selected: {_skillProfile},
+                onSelectionChanged: (next) async {
+                  final p = next.single;
+                  setState(() => _skillProfile = p);
+                  await GoNoGoProfilePrefs.save(p);
+                },
+              ),
+              const SizedBox(height: 12),
+              Text(
                 launch.shortNote,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 16),
               _GoNoGoCard(result: goNoGo),
+              if (firebaseCallablesAvailable) ...[
+                const SizedBox(height: 16),
+                _AiSummaryCard(
+                  launch: launch,
+                  snapshot: data,
+                  goNoGo: goNoGo,
+                  skillProfile: _skillProfile,
+                ),
+                const SizedBox(height: 8),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.feedback_outlined),
+                  title: const Text('Report conditions'),
+                  subtitle: const Text('Short note to help others (stored securely)'),
+                  onTap: () => _openReportSheet(context, launch, data.fetchedAt),
+                ),
+              ] else if (kUseFirebase && !kIsWeb) ...[
+                const SizedBox(height: 12),
+                Text(
+                  _firebaseUnavailableMessage(),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: FirebaseBootstrap.lastError != null
+                            ? Theme.of(context).colorScheme.error
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ],
               const SizedBox(height: 24),
               Text(
                 'Conditions',
@@ -121,12 +190,226 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
     );
   }
 
+  String _firebaseUnavailableMessage() {
+    if (FirebaseBootstrap.lastError != null) {
+      final hint = FirebaseBootstrap.hintForLastError();
+      final buf = StringBuffer()
+        ..writeln(
+          'Firebase did not start, so AI summary and reports are unavailable.',
+        )
+        ..writeln()
+        ..writeln('Error: ${FirebaseBootstrap.lastError}')
+        ..writeln();
+      if (hint != null) {
+        buf.writeln(hint);
+        buf.writeln();
+      }
+      buf.writeln(
+        'Otherwise check: correct `google-services.json` for package '
+        '`com.eddyscout.eddyscout`, network, then full app restart (not hot reload).',
+      );
+      return buf.toString();
+    }
+    return 'Firebase features need a successful app init and anonymous sign-in. '
+        'Add `google-services.json`, enable Anonymous auth, deploy functions, '
+        'and rebuild with `USE_FIREBASE=true` in `.local.env` (`make run`).';
+  }
+
   String _riverLabel(RiverSystem r) => switch (r) {
         RiverSystem.willamette => 'Willamette',
         RiverSystem.columbia => 'Columbia / regional',
         RiverSystem.clackamas => 'Clackamas',
         RiverSystem.slough => 'Slough / confluence',
       };
+
+  Future<void> _openReportSheet(
+    BuildContext context,
+    LaunchPoint launch,
+    DateTime conditionsFetchedAt,
+  ) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final controller = TextEditingController();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetCtx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.viewInsetsOf(sheetCtx).bottom + 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Condition report',
+                style: Theme.of(sheetCtx).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: controller,
+                maxLength: 800,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  hintText: 'What are you seeing on the water?',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: () async {
+                  final text = controller.text.trim();
+                  if (text.isEmpty) {
+                    messenger?.showSnackBar(
+                      const SnackBar(content: Text('Add a short message first.')),
+                    );
+                    return;
+                  }
+                  try {
+                    await callSubmitConditionReport(
+                      launchId: launch.id,
+                      message: text,
+                      clientConditionsFetchedAt:
+                          conditionsFetchedAt.toUtc().toIso8601String(),
+                    );
+                    if (sheetCtx.mounted) Navigator.pop(sheetCtx);
+                    messenger?.showSnackBar(
+                      const SnackBar(content: Text('Thanks—report submitted.')),
+                    );
+                  } catch (e) {
+                    messenger?.showSnackBar(
+                      SnackBar(content: Text('Could not submit: $e')),
+                    );
+                  }
+                },
+                child: const Text('Submit'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    controller.dispose();
+  }
+}
+
+class _AiSummaryCard extends StatefulWidget {
+  const _AiSummaryCard({
+    required this.launch,
+    required this.snapshot,
+    required this.goNoGo,
+    required this.skillProfile,
+  });
+
+  final LaunchPoint launch;
+  final ConditionsSnapshot snapshot;
+  final GoNoGoResult goNoGo;
+  final GoNoGoProfile skillProfile;
+
+  @override
+  State<_AiSummaryCard> createState() => _AiSummaryCardState();
+}
+
+class _AiSummaryCardState extends State<_AiSummaryCard> {
+  bool _loading = false;
+  String? _summary;
+  String? _error;
+
+  Future<void> _run() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final payload = conditionsSummaryPayload(
+        launch: widget.launch,
+        snapshot: widget.snapshot,
+        goNoGo: widget.goNoGo,
+        skillProfile: widget.skillProfile,
+      );
+      final text = await callSummarizeConditions(payload);
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _summary = text;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _error = '$e';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.auto_awesome_outlined, color: scheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'AI summary',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (_loading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_error != null) ...[
+              Text(
+                _error!,
+                style: TextStyle(color: scheme.error, fontSize: 13),
+              ),
+              TextButton.icon(
+                onPressed: _run,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ] else if (_summary != null) ...[
+              Text(
+                _summary!,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Verify against the raw data below—AI can misread or omit details.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                      fontStyle: FontStyle.italic,
+                    ),
+              ),
+              TextButton(
+                onPressed: _run,
+                child: const Text('Regenerate'),
+              ),
+            ] else
+              FilledButton.tonalIcon(
+                onPressed: _run,
+                icon: const Icon(Icons.summarize_outlined),
+                label: const Text('Summarize with AI'),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _GoNoGoCard extends StatelessWidget {

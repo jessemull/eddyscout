@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "eddyscout-dev",
+    "mvp": "eddyscout-c29b9"
+  },
+  "targets": {},
+  "etags": {}
+}

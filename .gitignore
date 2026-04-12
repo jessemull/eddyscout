@@ -47,3 +47,10 @@ app.*.map.json
 # Environment (local secrets — never commit)
 .env
 .local.env
+
+# Firebase native app config (download from Firebase Console)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Cloud Functions dependencies
+firebase/functions/node_modules/

@@ -24,6 +24,8 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   Cancelable? _tapCancelable;
+  MapboxMap? _mapboxMap;
+  bool _markersInstalled = false;
 
   static const int _markerColor = 0xFF0077B6;
   static const int _markerStroke = 0xFFFFFFFF;
@@ -34,11 +36,14 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
-  Future<void> _onMapCreated(MapboxMap mapboxMap) async {
+  /// Circle taps are unreliable if annotations are created before the style is
+  /// ready; install after [onStyleLoadedListener] (and once [onMapCreated] ran).
+  Future<void> _installLaunchMarkersIfNeeded() async {
+    if (_markersInstalled || _mapboxMap == null || !mounted) return;
+    final mapboxMap = _mapboxMap!;
+    _markersInstalled = true;
+
     final center = _regionCenter;
-    await mapboxMap.setCamera(
-      CameraOptions(center: center, zoom: 9, pitch: 0, bearing: 0),
-    );
 
     final manager = await mapboxMap.annotations.createCircleAnnotationManager();
 
@@ -81,6 +86,7 @@ class _MapScreenState extends State<MapScreen> {
       // Keep default camera if padding fit fails on some devices.
     }
 
+    _tapCancelable?.cancel();
     _tapCancelable = manager.tapEvents(
       onTap: (CircleAnnotation annotation) {
         final raw = annotation.customData?['launchId'];
@@ -94,6 +100,18 @@ class _MapScreenState extends State<MapScreen> {
         );
       },
     );
+  }
+
+  Future<void> _onMapCreated(MapboxMap mapboxMap) async {
+    _mapboxMap = mapboxMap;
+    final center = _regionCenter;
+    await mapboxMap.setCamera(
+      CameraOptions(center: center, zoom: 9, pitch: 0, bearing: 0),
+    );
+  }
+
+  void _onStyleLoaded(StyleLoadedEventData _) {
+    _installLaunchMarkersIfNeeded();
   }
 
   @override
@@ -111,6 +129,7 @@ class _MapScreenState extends State<MapScreen> {
           zoom: 9,
         ),
         onMapCreated: _onMapCreated,
+        onStyleLoadedListener: _onStyleLoaded,
       ),
     );
   }

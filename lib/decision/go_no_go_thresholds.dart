@@ -26,7 +26,17 @@ class GoNoGoThresholds {
   final int windMarginalExposedMph;
   final int windNoGoExposedMph;
 
-  /// Default “intermediate” comfort bands.
+  /// Conservative bands for newer paddlers (flags wind sooner).
+  static const GoNoGoThresholds beginner = GoNoGoThresholds(
+    windMarginalShelteredMph: 15,
+    windNoGoShelteredMph: 25,
+    windMarginalModerateMph: 8,
+    windNoGoModerateMph: 18,
+    windMarginalExposedMph: 6,
+    windNoGoExposedMph: 14,
+  );
+
+  /// Default comfort bands.
   static const GoNoGoThresholds intermediate = GoNoGoThresholds(
     windMarginalShelteredMph: 22,
     windNoGoShelteredMph: 36,
@@ -34,6 +44,16 @@ class GoNoGoThresholds {
     windNoGoModerateMph: 28,
     windMarginalExposedMph: 10,
     windNoGoExposedMph: 20,
+  );
+
+  /// More lenient bands for experienced paddlers (still not a safety guarantee).
+  static const GoNoGoThresholds advanced = GoNoGoThresholds(
+    windMarginalShelteredMph: 28,
+    windNoGoShelteredMph: 42,
+    windMarginalModerateMph: 20,
+    windNoGoModerateMph: 35,
+    windMarginalExposedMph: 14,
+    windNoGoExposedMph: 26,
   );
 
   (int marginal, int noGo) windMphForExposure(WindExposure e) => switch (e) {
