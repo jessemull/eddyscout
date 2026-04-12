@@ -227,72 +227,141 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
     LaunchPoint launch,
     DateTime conditionsFetchedAt,
   ) async {
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    final controller = TextEditingController();
+    final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (sheetCtx) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: MediaQuery.viewInsetsOf(sheetCtx).bottom + 16,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Condition report',
-                style: Theme.of(sheetCtx).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: controller,
-                maxLength: 800,
-                maxLines: 5,
-                decoration: const InputDecoration(
-                  hintText: 'What are you seeing on the water?',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: () async {
-                  final text = controller.text.trim();
-                  if (text.isEmpty) {
-                    messenger?.showSnackBar(
-                      const SnackBar(content: Text('Add a short message first.')),
-                    );
-                    return;
-                  }
-                  try {
-                    await callSubmitConditionReport(
-                      launchId: launch.id,
-                      message: text,
-                      clientConditionsFetchedAt:
-                          conditionsFetchedAt.toUtc().toIso8601String(),
-                    );
-                    if (sheetCtx.mounted) Navigator.pop(sheetCtx);
-                    messenger?.showSnackBar(
-                      const SnackBar(content: Text('Thanks—report submitted.')),
-                    );
-                  } catch (e) {
-                    messenger?.showSnackBar(
-                      SnackBar(content: Text('Could not submit: $e')),
-                    );
-                  }
-                },
-                child: const Text('Submit'),
-              ),
-            ],
-          ),
+        return _ConditionReportSheet(
+          launch: launch,
+          conditionsFetchedAt: conditionsFetchedAt,
+          scaffoldMessenger: scaffoldMessenger,
+          onSuccessFeedback: () {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              scaffoldMessenger?.showSnackBar(
+                const SnackBar(content: Text('Thanks—report submitted.')),
+              );
+            });
+          },
         );
       },
     );
-    controller.dispose();
+  }
+}
+
+/// Bottom sheet content: owns [TextEditingController] so it is disposed only after
+/// the route removes this widget (avoids "used after being disposed" during IME teardown).
+class _ConditionReportSheet extends StatefulWidget {
+  const _ConditionReportSheet({
+    required this.launch,
+    required this.conditionsFetchedAt,
+    required this.scaffoldMessenger,
+    required this.onSuccessFeedback,
+  });
+
+  final LaunchPoint launch;
+  final DateTime conditionsFetchedAt;
+  final ScaffoldMessengerState? scaffoldMessenger;
+  final VoidCallback onSuccessFeedback;
+
+  @override
+  State<_ConditionReportSheet> createState() => _ConditionReportSheetState();
+}
+
+class _ConditionReportSheetState extends State<_ConditionReportSheet> {
+  late final TextEditingController _controller;
+
+  /// After a successful submit, the [TextField] is removed before [Navigator.pop].
+  /// Otherwise the IME / viewInsets teardown can rebuild [TextField] while the
+  /// route disposal has already disposed [TextEditingController].
+  bool _submittedClosing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) {
+      widget.scaffoldMessenger?.showSnackBar(
+        const SnackBar(content: Text('Add a short message first.')),
+      );
+      return;
+    }
+    try {
+      await callSubmitConditionReport(
+        launchId: widget.launch.id,
+        message: text,
+        clientConditionsFetchedAt:
+            widget.conditionsFetchedAt.toUtc().toIso8601String(),
+      );
+      if (!mounted) return;
+      FocusManager.instance.primaryFocus?.unfocus();
+      setState(() => _submittedClosing = true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.pop(context);
+        widget.onSuccessFeedback();
+      });
+    } catch (e) {
+      widget.scaffoldMessenger?.showSnackBar(
+        SnackBar(content: Text('Could not submit: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_submittedClosing) {
+      return const Padding(
+        padding: EdgeInsets.all(32),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + 16,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Condition report',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _controller,
+              maxLength: 800,
+              maxLines: 5,
+              decoration: const InputDecoration(
+                hintText: 'What are you seeing on the water?',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: _submit,
+              child: const Text('Submit'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -116,13 +116,24 @@ flowchart TB
 | Flutter: `firebase_core`, `cloud_functions`, `firebase_auth` (anonymous), `USE_FIREBASE` compile flag, JSON payload for summaries | **Shipped** |
 | In-app **Report conditions** sheet + **AI summary** card on launch detail when Firebase init succeeds | **Shipped** |
 
+#### Condition reports — in-app reader + daily digest (follow-up)
+
+Reports are stored in Firestore (`conditionReports`) but **not shown in the app** yet; rules still block all client reads.
+
+| Item | Intent |
+|------|--------|
+| **List recent reports per launch** | On launch detail (or a dedicated section): show **recent user messages** for that `launchId`—time-ordered, with relative time and light attribution (e.g. “Anonymous” / no PII). Delivery options: **Callable** `listConditionReports(launchId, limit)` (server filters + pagination), or **Firestore rules** scoped to `conditionReports` read-only with query constraints (only if security review passes). |
+| **AI summary of the day’s reports** | **Callable** (e.g. `summarizeLaunchReports`) that loads **today’s (or last 24h) messages** for one launch, calls the same Anthropic path as `summarizeConditions`, returns a **short grounded digest** (“what paddlers mentioned: wood at X, low water…”). **Cache** the digest in Firestore or in-memory with TTL to limit cost; **rate-limit** per launch/device; system prompt: only facts present in submitted text, no invention. |
+| **UX / trust** | Disclaimer that reports are **subjective and unverified**; link to raw list below the digest; optional “report inappropriate” later. |
+| **Moderation (later)** | Admin queue, keyword hold, or TTL auto-expire for high-risk launches—pairs with Phase D community posture. |
+
 ### Phase C — Plan + log
 
 Route planner MVP, GPX export, trip log; **auth** when identity is required.
 
 ### Phase D — Community
 
-Planned trips, condition reports, moderation; **live pins** only if product + privacy posture is explicit.
+Planned trips, **surfacing submitted condition reports in-app** (see **Condition reports — in-app reader + daily digest** under Firebase), moderation; **live pins** only if product + privacy posture is explicit.
 
 ### Phase E — Assistive intelligence (LLM) — in progress
 
@@ -133,6 +144,7 @@ Not all items need to ship before the next; order is a suggested path.
 | **Model-agnostic client** | One internal abstraction (e.g. “completion + optional tool calls”) with pluggable backends so swapping **Claude Haiku ↔ Sonnet ↔ GPT ↔ local** is configuration, not a rewrite. |
 | **Default model** | Start with **Claude Haiku** for cost/latency on summaries and short chat turns; escalate tier later for heavier reasoning if needed. |
 | **Snapshot summary** | **Shipped (v1):** Cloud Function `summarizeConditions` + manual “Summarize with AI” on launch detail; client sends structured JSON; verify against raw cards in UI. |
+| **Reports digest** | **Planned:** Callable + UI to summarize **that launch’s crowd reports** for the day (see roadmap **Condition reports — in-app reader + daily digest**). |
 | **Chat + tools** | Expose tools: `get_conditions(launchId \| lat/lon)`, optionally `list_launches_in_bbox`, later `get_usgs`, etc., implemented by calling existing Dart services server-side or on-device. |
 | **Route validation** | Input: named launches or future segment IDs + user skill text; output: checklist-style feedback, gaps (“we don’t have wood data here”), no invented hazards. |
 | **Safety intelligence** | Combine **fixed** PNW cold-water / permit bullets with LLM rephrasing; same disclaimer stack as the rest of the app. |
