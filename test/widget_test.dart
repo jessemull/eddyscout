@@ -8,13 +8,13 @@ void main() {
     MapboxOptions.setAccessToken('');
   });
 
-  testWidgets('Shows token instructions when ACCESS_TOKEN is empty', (
+  testWidgets('Shows token instructions when MAPBOX_ACCESS_TOKEN is empty', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const EddyScoutApp(accessToken: ''));
+    await tester.pumpWidget(const EddyScoutApp(mapboxAccessToken: ''));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('ACCESS_TOKEN'), findsWidgets);
+    expect(find.textContaining('MAPBOX_ACCESS_TOKEN'), findsWidgets);
     expect(find.textContaining('Mapbox'), findsWidgets);
   });
 }

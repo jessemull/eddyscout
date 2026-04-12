@@ -1,28 +1,52 @@
 # EddyScout
 
-PNW paddling companion (Flutter). This repo includes a Mapbox map with Portland-area launch pins.
+PNW paddling companion (Flutter). Mapbox map with Portland-area launch pins.
 
-## Mapbox access token
+## Local dev: Mapbox token
 
-The map needs a [Mapbox public access token](https://account.mapbox.com/access-tokens/). Do not commit tokens to git.
+The app reads **`MAPBOX_ACCESS_TOKEN` only via `--dart-define`** (compile-time). Nothing is loaded from bundled `.env` files.
 
-Run on a device or simulator (the Mapbox Flutter SDK targets Android and iOS, not web):
+### Recommended: gitignored `.local.env` + script
+
+1. Copy the template (once):
+
+   ```bash
+   cp env.example .local.env
+   ```
+
+2. Edit **`.local.env`** and set your [Mapbox public token](https://account.mapbox.com/access-tokens/):
+
+   ```env
+   MAPBOX_ACCESS_TOKEN=pk.your_token_here
+   ```
+
+3. Run (add **`-d emulator-5554`** or another device id if needed):
+
+   ```bash
+   ./scripts/run_android.sh
+   ./scripts/run_android.sh -d emulator-5554
+   ```
+
+Or use **Make**:
 
 ```bash
-flutter run --dart-define=ACCESS_TOKEN=YOUR_PUBLIC_TOKEN
+make setup   # creates .local.env from env.example if missing
+make run     # same as ./scripts/run_android.sh
 ```
 
-Release builds:
+**Never commit `.local.env`** (it is gitignored).
+
+### Alternative: manual `flutter run`
 
 ```bash
-flutter build apk --dart-define=ACCESS_TOKEN=YOUR_PUBLIC_TOKEN
+flutter run --dart-define=MAPBOX_ACCESS_TOKEN=pk.your_token_here
 ```
 
-### VS Code
+### VS Code / Cursor
 
-Set environment variable `MAPBOX_ACCESS_TOKEN` in your shell or OS, then use the launch configuration **eddyscout (Mapbox token from env)** in [`.vscode/launch.json`](.vscode/launch.json). Use **eddyscout (no token — setup screen)** to open the in-app setup instructions.
+Use **eddyscout (Mapbox token from env)** in [`.vscode/launch.json`](.vscode/launch.json) with `MAPBOX_ACCESS_TOKEN` set in your environment, or run **`./scripts/run_android.sh`** from a terminal.
 
-Restrict your token by bundle ID / URL in the Mapbox dashboard before shipping.
+Mapbox Flutter targets **Android and iOS**, not web.
 
 ## Getting Started
 
