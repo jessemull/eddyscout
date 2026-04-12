@@ -89,14 +89,6 @@ const summarizeBodySchema = z.object({
 export const summarizeConditions = onCall(
   { secrets: [anthropicApiKey], cors: true, invoker: "public" },
   async (request) => {
-    // Cloud Logging: if you never see this line, the request is blocked before
-    // the handler (Cloud Run IAM / network). If hasAuth is false, the Callable
-    // did not receive a verifiable Firebase Auth context.
-    logger.info("summarizeConditions invoked", {
-      hasAuth: Boolean(request.auth),
-      uid: request.auth?.uid ?? null,
-      token: request.auth?.token ? "present" : "absent",
-    });
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign in required.");
     }
@@ -168,10 +160,6 @@ const reportSchema = z.object({
 export const submitConditionReport = onCall(
   { cors: true, invoker: "public" },
   async (request) => {
-    logger.info("submitConditionReport invoked", {
-      hasAuth: Boolean(request.auth),
-      uid: request.auth?.uid ?? null,
-    });
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign in required.");
     }

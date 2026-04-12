@@ -40,15 +40,15 @@ This repo sets `invoker: "public"` on both Callables. After changing it, redeplo
 
 `firebase deploy --only functions`
 
-### Debug: no log line in Cloud Logging
+### Reading Cloud Run logs
 
-Handlers log **`summarizeConditions invoked`** / **`submitConditionReport invoked`** at the very start (before the auth check). In [Cloud Logging](https://console.cloud.google.com/logs) for the project, filter on that text.
+In [Cloud Logging](https://console.cloud.google.com/logs), filter on the Cloud Run service (e.g. **`summarizeconditions`**) and log **`run.googleapis.com/requests`** or **`run.googleapis.com/stderr`**.
 
 | What you see | Meaning |
 |--------------|---------|
-| **No** `summarizeConditions invoked` | The HTTPS request never reached the function handler. Fix **Cloud Run IAM** on the underlying service in **`us-west2`**: grant **`allUsers`** → **`Cloud Run Invoker`** (`roles/run.invoker`). List services with `gcloud run services list --region=us-west2`, then `gcloud run services add-iam-policy-binding SERVICE_NAME --region=us-west2 --member=allUsers --role=roles/run.invoker`. |
-| Log shows **`hasAuth: false`** | The Callable reached your code but **Firebase did not attach `request.auth`**. Common causes: **App Check** enforcement without a registered debug provider, wrong **Firebase project** / **region** on the client, or emulator / Play Services issues. Try a **physical device**; in debug builds watch Flutter log lines prefixed with **`[Callable]`**. |
-| Log shows **`hasAuth: true`** | Auth is fine; any failure is later in validation or the Anthropic call. |
+| **401** on `POST` to the `…cloudfunctions.net/summarizeConditions` URL | Request blocked at **Cloud Run IAM**. Grant **`allUsers`** → **Cloud Run Invoker** on the service in **`us-west2`**, or redeploy after `invoker: "public"` is set. |
+| **401** / `unauthenticated` in the app but **200** on the HTTP request | Firebase rejected the **Callable auth** context (token / App Check / project mismatch). |
+| **500** and **`run.googleapis.com/stderr`** shows an **Anthropic** error | API key, org billing/credits, or model access — not fingerprints or Cloud Run invoker. |
 
 ## Android: `cloud_functions` / `UNAUTHENTICATED` even though Auth shows a user
 
