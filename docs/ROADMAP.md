@@ -96,7 +96,7 @@ flowchart TB
 | Tap launch → detail with **NWS** weather (Open-Meteo fallback), **USGS** flow where linked, **NOAA** tides, **NWS marine** zones, exposure/tide tags | **Shipped** |
 | Local Mapbox token via `.local.env` + script | **Shipped** |
 | In-app **safety / disclaimer** on launch detail | **Shipped** (extend globally as needed) |
-| **Stub Go/No-Go** rules engine (marginal states, skill + cold water) | Not started |
+| **Stub Go/No-Go** rules engine (wind, marine keywords, coarse cfs by river class; marginal / no-go / insufficient data) | **Shipped** |
 
 ### Phase B — Decision engine v1
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../conditions/conditions_models.dart';
 import '../conditions/conditions_service.dart';
 import '../data/launch_models.dart';
+import '../decision/go_no_go.dart';
 
 class LaunchDetailScreen extends StatefulWidget {
   const LaunchDetailScreen({super.key, required this.launch});
@@ -39,6 +40,7 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
             return _ErrorBody(message: '${snap.error}');
           }
           final data = snap.data!;
+          final goNoGo = GoNoGoEvaluator.evaluate(launch, data);
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -65,6 +67,8 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
                 launch.shortNote,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
+              const SizedBox(height: 16),
+              _GoNoGoCard(result: goNoGo),
               const SizedBox(height: 24),
               Text(
                 'Conditions',
@@ -123,6 +127,95 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
         RiverSystem.clackamas => 'Clackamas',
         RiverSystem.slough => 'Slough / confluence',
       };
+}
+
+class _GoNoGoCard extends StatelessWidget {
+  const _GoNoGoCard({required this.result});
+
+  final GoNoGoResult result;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final (Color bg, Color onBg, IconData icon) = switch (result.verdict) {
+      GoNoGoVerdict.go => (scheme.primaryContainer, scheme.onPrimaryContainer, Icons.check_circle_outline),
+      GoNoGoVerdict.marginal => (scheme.tertiaryContainer, scheme.onTertiaryContainer, Icons.warning_amber_outlined),
+      GoNoGoVerdict.noGo => (scheme.errorContainer, scheme.onErrorContainer, Icons.block_flipped),
+      GoNoGoVerdict.insufficientData => (scheme.surfaceContainerHighest, scheme.onSurface, Icons.help_outline),
+    };
+
+    return Card(
+      elevation: 0,
+      color: bg,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, color: onBg, size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Go / No-go (informational)',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: onBg),
+                      ),
+                      Text(
+                        result.verdict.headline,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: onBg,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (result.reasons.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ...result.reasons.map(
+                (r) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('• ', style: TextStyle(color: onBg)),
+                      Expanded(
+                        child: Text(
+                          r.message,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: onBg),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ] else if (result.verdict == GoNoGoVerdict.go) ...[
+              const SizedBox(height: 8),
+              Text(
+                'No stub warnings from wind, marine text, or flow thresholds for this launch.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: onBg),
+              ),
+            ],
+            const SizedBox(height: 4),
+            Text(
+              'Stub rules only—not a substitute for your judgment, skill, or scouting on site.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: onBg.withValues(alpha: 0.85),
+                    fontStyle: FontStyle.italic,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _ErrorBody extends StatelessWidget {
