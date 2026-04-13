@@ -90,80 +90,71 @@ flowchart TB
 
 ### Recommended next implementation
 
-**Phase C — Route planner MVP:** put-in / take-out selection, water-aligned geometry TBD, and a thin path toward GPX later. Condition reports (list + AI digest on launch detail) are in place; the next large product slice is planning on the map rather than more report plumbing—unless you prefer **moderation / abuse** for reports first.
+**Phase C — next slices:** **GPX export / trip log** and richer geometry (more rivers, segment snap). **Route preview (v1)** is in the app: planning mode on the map, two launches, polyline along bundled hydro GeoJSON (`assets/hydro/`). Alternatively prioritize **moderation** for reports.
 
 ---
 
-## Implementation checklist (living)
+## Master implementation checklist (living)
 
-Use `- [x]` / `- [ ]` in source; render as checkboxes in most Markdown viewers.
+Single list of **everything** tracked for build progress. Tags show the original phase/pillar. Update `- [ ]` → `- [x]` here only (no duplicate subsection checklists).
 
-### Phase A — Solo paddler loop (no auth)
+### Shipped
 
-- [x] Map + Mapbox + expanded regional launch pins
-- [x] Tap launch → detail with **NWS** weather (Open-Meteo fallback), **USGS** flow where linked, **NOAA** tides, exposure/tide tags
-- [x] **NWS marine** on launch detail: `api.weather.gov` does not implement `/zones/marine/{id}/forecast`; app uses **Coastal Waters Forecast (CWF)** product text + zone extract instead
-- [x] Local Mapbox token via `.local.env` + script
-- [x] In-app **safety / disclaimer** on launch detail (extend globally as needed)
-- [x] **Stub Go/No-Go** rules engine (wind, marine keywords, coarse cfs by river class; marginal / no-go / insufficient data)
+- [x] **(Phase A)** Map + Mapbox + expanded regional launch pins
+- [x] **(Phase A)** Tap launch → detail with **NWS** weather (Open-Meteo fallback), **USGS** flow where linked, **NOAA** tides, exposure/tide tags
+- [x] **(Phase A)** **NWS marine** on launch detail (Coastal Waters Forecast / zone extract; not `/zones/marine/{id}/forecast`)
+- [x] **(Phase A)** Local Mapbox token via `.local.env` + script
+- [x] **(Phase A)** In-app **safety / disclaimer** on launch detail (extend globally as needed)
+- [x] **(Phase A)** **Stub Go/No-Go** rules engine (wind, marine keywords, coarse cfs by river class; marginal / no-go / insufficient data)
+- [x] **(Phase B)** Per-launch **cfs bands** (`LaunchFlowBands`; evaluator prefers bands, else river-class fallback)
+- [x] **(Phase B)** **Skill profile** (beginner / intermediate / advanced) → wind thresholds + `SharedPreferences` + UI on launch detail
+- [x] **(Phase B)** **Forecast time hint** (`periodStart` low-light hours → info only)
+- [x] **(Phase B)** Gust-aware wind + marine text + flow rules in evaluator
+- [x] **(Firebase)** Repo `firebase/` Functions (`us-west2`): `submitConditionReport`, `listConditionReports`, `summarizeLaunchReports`, `summarizeConditions` (Anthropic; deploy + secrets)
+- [x] **(Firebase)** Firestore `conditionReports` writes **only** from Admin SDK; Callables from client; rules deny broad client access
+- [x] **(Firebase)** Flutter: `firebase_core`, `cloud_functions`, `firebase_auth` (anonymous), `USE_FIREBASE`, JSON payload for summaries
+- [x] **(Firebase)** **Report conditions** sheet + **AI summary** card when Firebase init succeeds
+- [x] **(Firebase)** Cloud Run **invoker** + Android callable auth path (see `firebase/DEPLOY.md`)
+- [x] **(Reports)** List recent reports per launch — `listConditionReports`; time-ordered list; light attribution
+- [x] **(Reports)** AI digest of recent reports — `summarizeLaunchReports`; cache (`launchReportDigests`) + rate limits (`reportDigestRate`)
+- [x] **(Reports)** Trust copy on digest; raw report list below digest on launch detail
+- [x] **(Phase D)** In-app condition reports **reader + digest** (same as **Reports** rows above)
+- [x] **(Phase E)** **Default model** path — Haiku via Cloud Function for summaries
+- [x] **(Phase E)** **Snapshot summary (v1)** — `summarizeConditions` + “Summarize with AI” on launch detail
+- [x] **(Phase E)** **Reports digest** (community notes paraphrase; see **Reports** rows above)
 
-### Phase B — Decision engine v1
+### Not yet
 
-- [x] Per-launch **cfs bands** (`LaunchFlowBands`; evaluator prefers bands, else river-class fallback)
-- [x] **Skill profile** (beginner / intermediate / advanced) → wind thresholds + `SharedPreferences` + UI on launch detail
-- [x] **Forecast time hint** (`periodStart` low-light hours → info only)
-- [x] Gust-aware wind + marine text + flow rules in evaluator
+- [ ] **(Reports / mod)** Moderation — admin queue, TTL, keyword hold (optional report-abuse UX)
+- [x] **(Phase C)** Route preview on map — planning mode, put-in / take-out from existing launches, path along bundled open hydro LineStrings (`assets/hydro/`; Willamette Portland reach first); not navigation-grade
+- [ ] **(Phase C)** Route planner follow-ups — more rivers / NHD-quality lines, GPX, saved trips
+- [ ] **(Phase C)** GPX export / import
+- [ ] **(Phase C)** Trip log
+- [ ] **(Phase C)** **Auth** when identity is required for saves
+- [ ] **(Phase D)** Planned trips / trip intent
+- [ ] **(Phase D)** Moderation posture (policy + product, beyond technical queue above)
+- [ ] **(Phase D)** **Live pins** only with explicit privacy/product decision
+- [ ] **(Phase E)** **Model-agnostic client** (`LlmClient`-style abstraction)
+- [ ] **(Phase E)** **Chat + tools** (refresh conditions, list launches, etc.)
+- [ ] **(Phase E)** **Route validation** (LLM + structured gaps, no invented hazards)
+- [ ] **(Phase E)** **Safety intelligence** (canonical facts + optional LLM phrasing)
+- [ ] **(Phase E)** **Ops** — quotas, logging, cost dashboards
+- [ ] **(Phase F)** **Embedding model** (pluggable API / local)
+- [ ] **(Phase F)** **Launch similarity (v1)** — profiles + nearest neighbors (“Similar ramps”)
+- [ ] **(Phase F)** **Query paths** — from launch + optional NL
+- [ ] **(Phase F)** **Route similarity** (after routes exist)
+- [ ] **(Phase F)** **Hybrid search** (geo / river / skill filters)
+- [ ] **(Phase F)** **Ops** — index versioning, backfill, no live cfs in embeddings
 
-### Firebase backend (reports + AI summary)
+### Remaining major features (from the feature table, not all on the build checklist)
 
-- [x] Repo `firebase/` Functions (`us-west2`): `submitConditionReport`, `listConditionReports`, `summarizeLaunchReports`, `summarizeConditions` (Anthropic via `ANTHROPIC_API_KEY`; deploy + secrets)
-- [x] Firestore `conditionReports` writes **only** from Admin SDK; Callables from client; rules deny broad client access
-- [x] Flutter: `firebase_core`, `cloud_functions`, `firebase_auth` (anonymous), `USE_FIREBASE`, JSON payload for summaries
-- [x] **Report conditions** sheet + **AI summary** card when Firebase init succeeds
-- [x] Cloud Run **invoker** + Android callable auth path debugged (operational; see `firebase/DEPLOY.md`)
+These themes in **Feature list (your themes + gaps)** are still largely **future** relative to what the checklist tracks explicitly:
 
-#### Condition reports — in-app reader + daily digest (follow-up)
-
-Launch detail shows **Community digest (AI)** (recent reports paraphrased; Firestore-backed cache + per-user rate limits on fresh generations) and **raw recent reports** underneath.
-
-- [x] **List recent reports per launch** — Callable `listConditionReports(launchId, limit)` (or scoped Firestore reads after security review); time-ordered list, light attribution (e.g. Anonymous)
-- [x] **AI summary of recent reports** — Callable `summarizeLaunchReports` over the latest N submissions (not strict calendar-day); grounded digest; server cache (`launchReportDigests`) + rate limits (`reportDigestRate`)
-- [x] **UX / trust** — subjective / not-official copy on digest; raw list below digest; optional report-abuse later
-- [ ] **Moderation (later)** — admin queue, TTL, keyword hold
-
-### Phase C — Plan + log
-
-- [ ] Route planner MVP (put-in / take-out, water-aligned geometry TBD)
-- [ ] GPX export / import
-- [ ] Trip log
-- [ ] **Auth** when identity is required for saves
-
-### Phase D — Community
-
-- [ ] Planned trips / trip intent
-- [x] **In-app condition reports reader + digest** (ties to Firebase follow-up above)
-- [ ] Moderation posture
-- [ ] **Live pins** only with explicit privacy/product decision
-
-### Phase E — Assistive intelligence (LLM)
-
-- [ ] **Model-agnostic client** (`LlmClient`-style abstraction)
-- [x] **Default model** path — Haiku via Cloud Function for summaries
-- [x] **Snapshot summary (v1)** — `summarizeConditions` + “Summarize with AI” on launch detail
-- [x] **Reports digest** — same epic as checklist under Firebase follow-up
-- [ ] **Chat + tools** (refresh conditions, list launches, etc.)
-- [ ] **Route validation** (LLM + structured gaps, no invented hazards)
-- [ ] **Safety intelligence** (canonical facts + optional LLM phrasing)
-- [ ] **Ops** — quotas, logging, cost dashboards
-
-### Phase F — Semantic discovery (embeddings)
-
-- [ ] **Embedding model** (pluggable API / local)
-- [ ] **Launch similarity (v1)** — profiles + nearest neighbors (“Similar ramps”)
-- [ ] **Query paths** — from launch + optional NL
-- [ ] **Route similarity** (after routes exist)
-- [ ] **Hybrid search** (geo / river / skill filters)
-- [ ] **Ops** — index versioning, backfill, no live cfs in embeddings
+- **Map / discover:** skill & access **filters** on the map; **alerts** (flow/wind thresholds)
+- **Decide:** richer **time windows**; **cold water / safety UX** beyond the launch disclaimer
+- **On-water:** **User location + bearing** to waypoint; **offline** maps / cached conditions
+- **Data / trust:** **Access / permits / tribal** metadata + UI tags
+- **Social (beyond reports):** **Trip log** as history; fuller **social** (find paddlers, etc.) with the MVP non-goals still in mind
 
 ---
 
@@ -226,6 +217,6 @@ Attribute and comply with each provider’s terms in the app.
 
 ## How to use this file
 
-- Update the **Implementation checklist** (`- [ ]` → `- [x]`) when you ship; keep **Recommended next implementation** in sync when priorities change.
+- Update the **Master implementation checklist** (`- [ ]` → `- [x]`) when you ship; keep **Recommended next implementation** in sync when priorities change.
 - Add **dates** or **issue links** inline next to items if you track work elsewhere.
 - Trim the feature table above if you descope; keep **pillars** stable for narrative.
