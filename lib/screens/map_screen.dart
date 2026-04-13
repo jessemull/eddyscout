@@ -1,3 +1,6 @@
+import 'dart:async' show unawaited;
+import 'dart:convert' show jsonEncode;
+
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
@@ -32,8 +35,6 @@ class _MapScreenState extends State<MapScreen> {
   bool _markersInstalled = false;
 
   CircleAnnotationManager? _circleManager;
-  PolylineAnnotationManager? _polyManager;
-  PolylineAnnotation? _routePolyline;
 
   RiverRoutePlanner? _routePlanner;
 
@@ -48,6 +49,11 @@ class _MapScreenState extends State<MapScreen> {
   static const int _markerColor = 0xFF0077B6;
   static const int _markerStroke = 0xFFFFFFFF;
   static const int _routeLineColor = 0xFFE63946;
+
+  static const String _routeSourceId = 'eddyscout-route-source';
+  static const String _routeLayerId = 'eddyscout-route-layer';
+  static const String _emptyRouteGeoJson =
+      '{"type":"FeatureCollection","features":[]}';
 
   @override
   void initState() {
@@ -68,6 +74,9 @@ class _MapScreenState extends State<MapScreen> {
   /// Mapbox Standard / programmatic camera moves can leave a high [minZoom] or
   /// tight bounds, which caps how far the user can zoom out. Reset to world
   /// bounds and full zoom range (matches mapbox example [CameraBoundsOptions]).
+  static const double _mapMinZoom = 0;
+  static const double _mapMaxZoom = 25.5;
+
   Future<void> _relaxCameraBounds(MapboxMap map) async {
     try {
       await map.setBounds(
@@ -77,11 +86,13 @@ class _MapScreenState extends State<MapScreen> {
             northeast: Point(coordinates: Position(180, 85.05112878)),
             infiniteBounds: true,
           ),
-          minZoom: 0,
-          maxZoom: 25.5,
+          minZoom: _mapMinZoom,
+          maxZoom: _mapMaxZoom,
         ),
       );
-      mapDebugLog('setBounds(world + minZoom 0 / maxZoom 25.5) OK');
+      mapDebugLog(
+        'setBounds(world + minZoom $_mapMinZoom / maxZoom $_mapMaxZoom) OK',
+      );
     } catch (e, st) {
       mapDebugLog('setBounds failed: $e\n$st');
     }
@@ -109,23 +120,82 @@ class _MapScreenState extends State<MapScreen> {
     await mapDebugLogMapboxSnapshot(map, 'configureStandardStyleMap (after)');
   }
 
+  /// Same framing as first load: all launches visible with UI padding.
+  Future<void> _fitViewportToAllLaunches(MapboxMap map) async {
+    final coords = kLaunchPoints
+        .map(
+          (p) => Point(coordinates: Position(p.longitude, p.latitude)),
+        )
+        .toList();
+    final center = _regionCenter;
+    try {
+      final fitted = await map.cameraForCoordinatesPadding(
+        coords,
+        CameraOptions(
+          center: center,
+          zoom: 9,
+          bearing: 0,
+          pitch: 0,
+        ),
+        MbxEdgeInsets(top: 100, left: 40, bottom: 56, right: 40),
+        11,
+        null,
+      );
+      await map.setCamera(fitted);
+      mapDebugLog('_fitViewportToAllLaunches OK');
+    } catch (e, st) {
+      mapDebugLog('_fitViewportToAllLaunches failed: $e\n$st');
+    }
+  }
+
+  /// Style-layer route (GeoJSON) clears reliably on Android; polyline
+  /// annotations often ignore [delete]/[deleteAll] with Mapbox Standard.
+  Future<void> _ensureRouteLineStyle(MapboxMap map) async {
+    try {
+      if (!await map.style.styleSourceExists(_routeSourceId)) {
+        await map.style.addSource(
+          GeoJsonSource(id: _routeSourceId, data: _emptyRouteGeoJson),
+        );
+        mapDebugLog('route GeoJsonSource added');
+      }
+      if (!await map.style.styleLayerExists(_routeLayerId)) {
+        await map.style.addLayer(
+          LineLayer(
+            id: _routeLayerId,
+            sourceId: _routeSourceId,
+            lineColor: _routeLineColor,
+            lineWidth: 6,
+            lineJoin: LineJoin.ROUND,
+          ),
+        );
+        mapDebugLog('route LineLayer added');
+      }
+    } catch (e, st) {
+      mapDebugLog('_ensureRouteLineStyle failed: $e\n$st');
+    }
+  }
+
+  String _routeGeoJsonFromLonLat(List<List<double>> lonLat) {
+    return jsonEncode({
+      'type': 'Feature',
+      'properties': <String, dynamic>{},
+      'geometry': {
+        'type': 'LineString',
+        'coordinates': lonLat,
+      },
+    });
+  }
+
   Future<void> _installLaunchMarkersIfNeeded() async {
     if (_markersInstalled || _mapboxMap == null || !mounted) {
       return;
     }
     final mapboxMap = _mapboxMap!;
     await _configureStandardStyleMap(mapboxMap);
+    await _ensureRouteLineStyle(mapboxMap);
     _markersInstalled = true;
 
-    final center = _regionCenter;
-
     _circleManager = await mapboxMap.annotations.createCircleAnnotationManager();
-
-    final coords = kLaunchPoints
-        .map(
-          (p) => Point(coordinates: Position(p.longitude, p.latitude)),
-        )
-        .toList();
 
     final options = kLaunchPoints
         .map(
@@ -142,24 +212,7 @@ class _MapScreenState extends State<MapScreen> {
 
     await _circleManager!.createMulti(options);
 
-    try {
-      final fitted = await mapboxMap.cameraForCoordinatesPadding(
-        coords,
-        CameraOptions(
-          center: center,
-          zoom: 9,
-          bearing: 0,
-          pitch: 0,
-        ),
-        MbxEdgeInsets(top: 100, left: 40, bottom: 56, right: 40),
-        11,
-        null,
-      );
-      await mapboxMap.setCamera(fitted);
-    } catch (_) {
-      // Keep default camera if padding fit fails on some devices.
-    }
-    await _configureStandardStyleMap(mapboxMap);
+    await _fitViewportToAllLaunches(mapboxMap);
 
     _tapCancelable?.cancel();
     _tapCancelable = _circleManager!.tapEvents(
@@ -196,7 +249,7 @@ class _MapScreenState extends State<MapScreen> {
         _takeOut = null;
         _routeLengthKm = null;
       });
-      _clearRouteLine();
+      unawaited(_clearRouteLine());
       return;
     }
     if (_putIn!.id == launch.id) {
@@ -235,7 +288,7 @@ class _MapScreenState extends State<MapScreen> {
     if (result is RouteFailure) {
       mapDebugLog('plan FAILED ${put.id} -> ${take.id}: ${result.message}');
       setState(() => _routeLengthKm = null);
-      _clearRouteLine();
+      unawaited(_clearRouteLine());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result.message)),
       );
@@ -253,45 +306,41 @@ class _MapScreenState extends State<MapScreen> {
     await _fitCameraToRoute(ok.polylineLonLat);
   }
 
-  Future<void> _ensurePolyManager() async {
+  Future<void> _drawRouteLine(List<List<double>> lonLat) async {
+    final map = _mapboxMap;
+    if (map == null || lonLat.length < 2) {
+      mapDebugLog('_drawRouteLine skipped (no map or len=${lonLat.length})');
+      return;
+    }
+    await _ensureRouteLineStyle(map);
+    mapDebugLogRoutePolyline('_drawRouteLine input', lonLat);
+    final data = _routeGeoJsonFromLonLat(lonLat);
+    try {
+      await map.style.setStyleSourceProperty(_routeSourceId, 'data', data);
+      mapDebugLog(
+        'route source updated coordCount=${lonLat.length}',
+      );
+    } catch (e, st) {
+      mapDebugLog('_drawRouteLine setStyleSourceProperty failed: $e\n$st');
+    }
+  }
+
+  Future<void> _clearRouteLine() async {
     final map = _mapboxMap;
     if (map == null) {
       return;
     }
-    _polyManager ??= await map.annotations.createPolylineAnnotationManager();
-  }
-
-  Future<void> _drawRouteLine(List<List<double>> lonLat) async {
-    await _ensurePolyManager();
-    if (_polyManager == null) {
-      return;
-    }
-    if (_routePolyline != null) {
-      await _polyManager!.delete(_routePolyline!);
-      _routePolyline = null;
-    }
-    mapDebugLogRoutePolyline('_drawRouteLine input', lonLat);
-    final positions =
-        lonLat.map((c) => Position(c[0], c[1])).toList(growable: false);
-    mapDebugLogPolylinePositions('_drawRouteLine before create', positions);
-    _routePolyline = await _polyManager!.create(
-      PolylineAnnotationOptions(
-        geometry: LineString(coordinates: positions),
-        lineColor: _routeLineColor,
-        lineWidth: 5,
-        lineJoin: LineJoin.ROUND,
-      ),
-    );
-    mapDebugLog(
-      'PolylineAnnotation created id=${_routePolyline!.id} '
-      'coordCount=${_routePolyline!.geometry.coordinates.length}',
-    );
-  }
-
-  Future<void> _clearRouteLine() async {
-    if (_polyManager != null && _routePolyline != null) {
-      await _polyManager!.delete(_routePolyline!);
-      _routePolyline = null;
+    try {
+      if (await map.style.styleSourceExists(_routeSourceId)) {
+        await map.style.setStyleSourceProperty(
+          _routeSourceId,
+          'data',
+          _emptyRouteGeoJson,
+        );
+        mapDebugLog('_clearRouteLine: emptied GeoJSON source');
+      }
+    } catch (e, st) {
+      mapDebugLog('_clearRouteLine failed: $e\n$st');
     }
   }
 
@@ -317,7 +366,7 @@ class _MapScreenState extends State<MapScreen> {
           pitch: 0,
         ),
         MbxEdgeInsets(top: 160, left: 48, bottom: 200, right: 48),
-        18,
+        16,
         null,
       );
       mapDebugLog(
@@ -325,13 +374,16 @@ class _MapScreenState extends State<MapScreen> {
         'center=(${fitted.center?.coordinates.lng},${fitted.center?.coordinates.lat})',
       );
       await map.setCamera(fitted);
-      await _configureStandardStyleMap(map);
+      // Do not call [_configureStandardStyleMap] here: it reapplies [setBounds]
+      // and projection and has been locking pinch-zoom after route fit.
+      await mapDebugLogMapboxSnapshot(map, '_fitCameraToRoute (after setCamera)');
     } catch (e, st) {
       mapDebugLog('_fitCameraToRoute failed: $e\n$st');
     }
   }
 
   void _togglePlanningMode() {
+    final wasPlanning = _planningMode;
     setState(() {
       _planningMode = !_planningMode;
       if (!_planningMode) {
@@ -340,18 +392,33 @@ class _MapScreenState extends State<MapScreen> {
         _routeLengthKm = null;
       }
     });
-    if (!_planningMode) {
-      _clearRouteLine();
+    if (wasPlanning) {
+      unawaited(_afterExitPlanning());
     }
   }
 
-  void _clearPlanningSelection() {
+  Future<void> _afterExitPlanning() async {
+    await _clearRouteLine();
+    final map = _mapboxMap;
+    if (map != null) {
+      await _fitViewportToAllLaunches(map);
+      await mapDebugLogMapboxSnapshot(map, 'afterExitPlanning');
+    }
+  }
+
+  Future<void> _clearPlanningSelection() async {
+    mapDebugLog('_clearPlanningSelection');
     setState(() {
       _putIn = null;
       _takeOut = null;
       _routeLengthKm = null;
     });
-    _clearRouteLine();
+    await _clearRouteLine();
+    final map = _mapboxMap;
+    if (map != null) {
+      await _fitViewportToAllLaunches(map);
+      await mapDebugLogMapboxSnapshot(map, '_clearPlanningSelection done');
+    }
   }
 
   Future<void> _onMapCreated(MapboxMap mapboxMap) async {
@@ -407,7 +474,7 @@ class _MapScreenState extends State<MapScreen> {
             putIn: _putIn,
             takeOut: _takeOut,
             routeLengthKm: _routeLengthKm,
-            onClear: _clearPlanningSelection,
+            onClear: () => unawaited(_clearPlanningSelection()),
             onDone: _togglePlanningMode,
           ),
         ],
@@ -457,7 +524,9 @@ class _PlanningOverlay extends StatelessWidget {
                   Text(
                     'Tap a launch for put-in, then another for take-out. '
                     'The line follows bundled open hydro data (approximate centerline)—not for navigation. '
-                    'Several downtown launches sit close together; overlapping pins are separate sites.',
+                    'Several downtown launches sit close together; overlapping pins are separate sites. '
+                    'Clear removes the route line and picks so you can start over. '
+                    'Done closes this panel and clears the route.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
