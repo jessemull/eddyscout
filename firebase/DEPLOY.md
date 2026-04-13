@@ -38,6 +38,12 @@ firebase deploy --only firestore:indexes
 
 If you deploy functions before indexes finish building, the first list call may fail until the index is ready (the Firebase console shows index status and offers a direct link if a query error mentions a missing index).
 
+## Callable `summarizeLaunchReports`
+
+This function summarizes recent `conditionReports` for a launch (Anthropic Haiku; same `ANTHROPIC_API_KEY` secret as `summarizeConditions`). It writes **Admin-only** Firestore cache docs under `launchReportDigests` and rate-limit metadata under `reportDigestRate`. Clients never read those collections directly (see `firestore.rules`). Deploy with:
+
+`firebase deploy --only functions`
+
 ## Runtime
 
 This repo targets **Node.js 22** (`firebase.json` `runtime` + `package.json` `engines`). Local `npm` can use Node 22+ when developing functions.

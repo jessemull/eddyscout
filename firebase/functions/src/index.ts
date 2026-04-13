@@ -1,4 +1,5 @@
 import Anthropic, { APIError, RateLimitError } from "@anthropic-ai/sdk";
+import { createHash } from "node:crypto";
 import * as admin from "firebase-admin";
 import { setGlobalOptions } from "firebase-functions/v2";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
@@ -14,6 +15,31 @@ setGlobalOptions({ region: "us-west2", maxInstances: 10 });
 
 const MAX_PAYLOAD_BYTES = 48 * 1024;
 const MAX_REPORT_MESSAGE = 800;
+
+const DIGEST_CACHE_TTL_MS = 8 * 60 * 60 * 1000;
+const DIGEST_RATE_LIMIT_SEC = 90;
+const DIGEST_FORCE_REFRESH_MIN_SEC = 180;
+
+const DIGEST_MODEL = "claude-haiku-4-5-20251001";
+
+function firestoreSafeLaunchKey(launchId: string): string {
+  return launchId.replace(/\//g, "_");
+}
+
+function reportSignatureFromDocs(
+  docs: admin.firestore.QueryDocumentSnapshot[],
+): string {
+  const parts = docs
+    .map((doc) => {
+      const d = doc.data();
+      const ts = d.createdAt;
+      const sec =
+        ts instanceof admin.firestore.Timestamp ? ts.seconds : 0;
+      return `${doc.id}:${sec}`;
+    })
+    .sort();
+  return createHash("sha256").update(parts.join("|")).digest("hex");
+}
 
 const flowBandsSchema = z
   .object({
@@ -233,5 +259,180 @@ export const listConditionReports = onCall(
     }
 
     return { reports };
+  },
+);
+
+const summarizeLaunchReportsSchema = z.object({
+  launchId: z.string().min(1).max(120),
+  forceRefresh: z.boolean().optional(),
+  reportLimit: z.number().int().min(5).max(30).optional(),
+});
+
+export const summarizeLaunchReports = onCall(
+  { secrets: [anthropicApiKey], cors: true, invoker: "public" },
+  async (request) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+    const parsed = summarizeLaunchReportsSchema.safeParse(request.data);
+    if (!parsed.success) {
+      throw new HttpsError("invalid-argument", "Invalid request.");
+    }
+    const { launchId, forceRefresh } = parsed.data;
+    const reportLimit = Math.min(
+      30,
+      Math.max(5, parsed.data.reportLimit ?? 20),
+    );
+    const uid = request.auth.uid;
+    const db = admin.firestore();
+    const launchKey = firestoreSafeLaunchKey(launchId);
+
+    let snap;
+    try {
+      snap = await db
+        .collection("conditionReports")
+        .where("launchId", "==", launchId)
+        .orderBy("createdAt", "desc")
+        .limit(reportLimit)
+        .get();
+    } catch (e: unknown) {
+      logger.error("summarizeLaunchReports query failed", { err: String(e) });
+      throw new HttpsError("internal", "Could not load reports.");
+    }
+
+    const usableDocs = snap.docs.filter((doc) => {
+      const d = doc.data();
+      return (
+        d.createdAt instanceof admin.firestore.Timestamp &&
+        typeof d.message === "string"
+      );
+    });
+
+    if (usableDocs.length === 0) {
+      return {
+        digestText: "",
+        noReports: true,
+        cached: false,
+      };
+    }
+
+    const signature = reportSignatureFromDocs(usableDocs);
+    const digestRef = db.collection("launchReportDigests").doc(launchKey);
+    const digestSnap = await digestRef.get();
+    const now = Date.now();
+
+    if (!forceRefresh && digestSnap.exists) {
+      const c = digestSnap.data()!;
+      const updatedAt = c.updatedAt;
+      if (
+        typeof c.reportSignature === "string" &&
+        typeof c.digestText === "string" &&
+        c.reportSignature === signature &&
+        updatedAt instanceof admin.firestore.Timestamp
+      ) {
+        const ageMs = now - updatedAt.toMillis();
+        if (ageMs >= 0 && ageMs <= DIGEST_CACHE_TTL_MS) {
+          return {
+            digestText: c.digestText,
+            cached: true,
+            noReports: false,
+          };
+        }
+      }
+    }
+
+    const rateRef = db.collection("reportDigestRate").doc(`${uid}_${launchKey}`);
+    const rateSnap = await rateRef.get();
+    const lastAt = rateSnap.data()?.lastAnthropicAt;
+    if (lastAt instanceof admin.firestore.Timestamp) {
+      const elapsedSec = (now - lastAt.toMillis()) / 1000;
+      const minSec = forceRefresh
+        ? DIGEST_FORCE_REFRESH_MIN_SEC
+        : DIGEST_RATE_LIMIT_SEC;
+      if (elapsedSec < minSec) {
+        throw new HttpsError(
+          "resource-exhausted",
+          `Please wait before refreshing the digest (${Math.ceil(minSec - elapsedSec)}s).`,
+        );
+      }
+    }
+
+    const key = anthropicApiKey.value();
+    if (!key) {
+      throw new HttpsError("failed-precondition", "Anthropic API key not configured.");
+    }
+
+    const forModel = [...usableDocs]
+      .reverse()
+      .map((doc) => {
+        const d = doc.data();
+        const ts = d.createdAt as admin.firestore.Timestamp;
+        return {
+          message: d.message as string,
+          createdAt: ts.toDate().toISOString(),
+        };
+      });
+
+    const userContent = JSON.stringify({ launchId, reports: forModel });
+
+    const client = new Anthropic({ apiKey: key });
+    let msg;
+    try {
+      msg = await client.messages.create({
+        model: DIGEST_MODEL,
+        max_tokens: 400,
+        system:
+          "You summarize recent paddler-submitted condition notes for trip planners. " +
+          "These are subjective community messages, not official forecasts or safety notices. " +
+          "Use ONLY what appears in the JSON; do not invent hazards, closures, or gauge readings. " +
+          "If reports conflict, say so briefly. Keep under 160 words. Plain text, no markdown headings.",
+        messages: [{ role: "user", content: userContent }],
+      });
+    } catch (e: unknown) {
+      if (e instanceof RateLimitError) {
+        throw new HttpsError(
+          "resource-exhausted",
+          "AI is rate-limited; try again in a moment.",
+        );
+      }
+      if (e instanceof APIError) {
+        logger.warn("summarizeLaunchReports Anthropic APIError", {
+          status: e.status,
+          message: e.message,
+        });
+        throw new HttpsError(
+          "failed-precondition",
+          e.message || "AI provider rejected the request.",
+        );
+      }
+      logger.error("summarizeLaunchReports unexpected error", { err: String(e) });
+      throw new HttpsError("internal", "Unexpected error generating digest.");
+    }
+
+    const textBlock = msg.content.find((b) => b.type === "text");
+    const digestText =
+      textBlock && textBlock.type === "text" ? textBlock.text.trim() : "";
+
+    const batch = db.batch();
+    batch.set(digestRef, {
+      reportSignature: signature,
+      digestText,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      model: DIGEST_MODEL,
+    });
+    batch.set(
+      rateRef,
+      {
+        lastAnthropicAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+    await batch.commit();
+
+    return {
+      digestText,
+      cached: false,
+      noReports: false,
+    };
   },
 );

@@ -139,3 +139,50 @@ Future<List<ConditionReportListItem>> callListConditionReports({
         .toList();
   });
 }
+
+/// Result from `summarizeLaunchReports`.
+class LaunchReportsDigestResult {
+  const LaunchReportsDigestResult({
+    required this.digestText,
+    required this.cached,
+    required this.noReports,
+  });
+
+  final String digestText;
+  final bool cached;
+  final bool noReports;
+
+  factory LaunchReportsDigestResult.fromJson(Map<Object?, Object?> json) {
+    final digestText = json['digestText'];
+    final cached = json['cached'];
+    final noReports = json['noReports'];
+    if (digestText is! String || cached is! bool) {
+      throw const FormatException('LaunchReportsDigestResult');
+    }
+    return LaunchReportsDigestResult(
+      digestText: digestText,
+      cached: cached,
+      noReports: noReports is bool ? noReports : false,
+    );
+  }
+}
+
+/// Calls `summarizeLaunchReports`.
+Future<LaunchReportsDigestResult> callSummarizeLaunchReports({
+  required String launchId,
+  bool forceRefresh = false,
+  int reportLimit = 20,
+}) async {
+  return _callWithAuthRetry(() async {
+    final callable = _functions.httpsCallable('summarizeLaunchReports');
+    final result = await callable.call(
+      _jsonSafePayload(<String, Object?>{
+        'launchId': launchId,
+        'forceRefresh': forceRefresh,
+        'reportLimit': reportLimit,
+      }),
+    );
+    final data = Map<Object?, Object?>.from(result.data as Map);
+    return LaunchReportsDigestResult.fromJson(data);
+  });
+}

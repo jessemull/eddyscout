@@ -121,6 +121,8 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
                   skillProfile: _skillProfile,
                 ),
                 const SizedBox(height: 16),
+                _LaunchReportsDigestCard(launchId: launch.id),
+                const SizedBox(height: 16),
                 _RecentConditionReports(
                   key: ValueKey(_reportsRefreshKey),
                   launchId: launch.id,
@@ -257,6 +259,150 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
   }
 }
 
+class _LaunchReportsDigestCard extends StatefulWidget {
+  const _LaunchReportsDigestCard({required this.launchId});
+
+  final String launchId;
+
+  @override
+  State<_LaunchReportsDigestCard> createState() =>
+      _LaunchReportsDigestCardState();
+}
+
+class _LaunchReportsDigestCardState extends State<_LaunchReportsDigestCard> {
+  bool _loading = false;
+  LaunchReportsDigestResult? _result;
+  String? _error;
+
+  Future<void> _run({bool forceRefresh = false}) async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final r = await callSummarizeLaunchReports(
+        launchId: widget.launchId,
+        forceRefresh: forceRefresh,
+      );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _loading = false;
+        _result = r;
+      });
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _loading = false;
+        _error = '$e';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.groups_outlined, color: scheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Community digest (AI)',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Paraphrases recent paddler notes below—not official conditions or river status.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            if (_loading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_error != null) ...[
+              Text(
+                _error!,
+                style: TextStyle(color: scheme.error, fontSize: 13),
+              ),
+              TextButton.icon(
+                onPressed: () => _run(forceRefresh: false),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ] else if (_result != null) ...[
+              if (_result!.noReports)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'No paddler reports to summarize yet.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                    ),
+                    TextButton(
+                      onPressed: () => _run(forceRefresh: false),
+                      child: const Text('Check again'),
+                    ),
+                  ],
+                )
+              else ...[
+                Text(
+                  _result!.digestText,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                if (_result!.cached) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    'From cache (same reports; regenerate if someone just posted).',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Text(
+                  'Read individual reports below—summaries can miss nuance.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                        fontStyle: FontStyle.italic,
+                      ),
+                ),
+                TextButton(
+                  onPressed: () => _run(forceRefresh: true),
+                  child: const Text('Regenerate'),
+                ),
+              ],
+            ] else
+              FilledButton.tonalIcon(
+                onPressed: () => _run(forceRefresh: false),
+                icon: const Icon(Icons.topic_outlined),
+                label: const Text('Summarize recent reports'),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 String _recentReportsErrorMessage(Object error) {
   final msg = error.toString();
   final buf = StringBuffer('Could not load reports: $msg');
@@ -331,7 +477,7 @@ class _RecentConditionReportsState extends State<_RecentConditionReports> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Unverified notes from other paddlers—use your own judgment.',
+          'Raw messages (newest first). Compare with the digest above.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

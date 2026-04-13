@@ -90,7 +90,7 @@ flowchart TB
 
 ### Recommended next implementation
 
-**Condition reports — in-app reader (step 1):** add a Callable such as `listConditionReports(launchId, limit)`, relax or bypass client Firestore reads safely, and show **recent submitted messages** on launch detail. You already write reports and have Firebase patterns; this unlocks the data for paddlers without starting Phase C (routes/GPX), which is a larger product slice. **Step 2** in the same epic: **`summarizeLaunchReports`** (daily digest) + trust copy.
+**Phase C — Route planner MVP:** put-in / take-out selection, water-aligned geometry TBD, and a thin path toward GPX later. Condition reports (list + AI digest on launch detail) are in place; the next large product slice is planning on the map rather than more report plumbing—unless you prefer **moderation / abuse** for reports first.
 
 ---
 
@@ -116,7 +116,7 @@ Use `- [x]` / `- [ ]` in source; render as checkboxes in most Markdown viewers.
 
 ### Firebase backend (reports + AI summary)
 
-- [x] Repo `firebase/` Functions (`us-west2`): `submitConditionReport`, `summarizeConditions` (Anthropic via `ANTHROPIC_API_KEY`; deploy + secrets)
+- [x] Repo `firebase/` Functions (`us-west2`): `submitConditionReport`, `listConditionReports`, `summarizeLaunchReports`, `summarizeConditions` (Anthropic via `ANTHROPIC_API_KEY`; deploy + secrets)
 - [x] Firestore `conditionReports` writes **only** from Admin SDK; Callables from client; rules deny broad client access
 - [x] Flutter: `firebase_core`, `cloud_functions`, `firebase_auth` (anonymous), `USE_FIREBASE`, JSON payload for summaries
 - [x] **Report conditions** sheet + **AI summary** card when Firebase init succeeds
@@ -124,11 +124,11 @@ Use `- [x]` / `- [ ]` in source; render as checkboxes in most Markdown viewers.
 
 #### Condition reports — in-app reader + daily digest (follow-up)
 
-Reports exist in Firestore but are **not listed in the UI** yet.
+Launch detail shows **Community digest (AI)** (recent reports paraphrased; Firestore-backed cache + per-user rate limits on fresh generations) and **raw recent reports** underneath.
 
 - [x] **List recent reports per launch** — Callable `listConditionReports(launchId, limit)` (or scoped Firestore reads after security review); time-ordered list, light attribution (e.g. Anonymous)
-- [ ] **AI summary of the day’s reports** — Callable `summarizeLaunchReports`; grounded digest; cache + rate limits
-- [ ] **UX / trust** — “Unverified / subjective” disclaimer; raw list under digest; optional report-abuse later
+- [x] **AI summary of recent reports** — Callable `summarizeLaunchReports` over the latest N submissions (not strict calendar-day); grounded digest; server cache (`launchReportDigests`) + rate limits (`reportDigestRate`)
+- [x] **UX / trust** — subjective / not-official copy on digest; raw list below digest; optional report-abuse later
 - [ ] **Moderation (later)** — admin queue, TTL, keyword hold
 
 ### Phase C — Plan + log
@@ -141,7 +141,7 @@ Reports exist in Firestore but are **not listed in the UI** yet.
 ### Phase D — Community
 
 - [ ] Planned trips / trip intent
-- [ ] **In-app condition reports reader + digest** (ties to Firebase follow-up above)
+- [x] **In-app condition reports reader + digest** (ties to Firebase follow-up above)
 - [ ] Moderation posture
 - [ ] **Live pins** only with explicit privacy/product decision
 
@@ -150,7 +150,7 @@ Reports exist in Firestore but are **not listed in the UI** yet.
 - [ ] **Model-agnostic client** (`LlmClient`-style abstraction)
 - [x] **Default model** path — Haiku via Cloud Function for summaries
 - [x] **Snapshot summary (v1)** — `summarizeConditions` + “Summarize with AI” on launch detail
-- [ ] **Reports digest** — same epic as checklist under Firebase follow-up
+- [x] **Reports digest** — same epic as checklist under Firebase follow-up
 - [ ] **Chat + tools** (refresh conditions, list launches, etc.)
 - [ ] **Route validation** (LLM + structured gaps, no invented hazards)
 - [ ] **Safety intelligence** (canonical facts + optional LLM phrasing)
