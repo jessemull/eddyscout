@@ -28,6 +28,16 @@ gcloud projects add-iam-policy-binding PROJECT_ID \
 
 `PROJECT_NUMBER` appears in the Firebase/GCP console (Project settings) and in deploy logs (e.g. `953765797626-compute@developer...`).
 
+## Firestore indexes (`listConditionReports`)
+
+The Callable `listConditionReports` queries `conditionReports` by `launchId` and `createdAt`. Deploy the composite index after pulling changes:
+
+```bash
+firebase deploy --only firestore:indexes
+```
+
+If you deploy functions before indexes finish building, the first list call may fail until the index is ready (the Firebase console shows index status and offers a direct link if a query error mentions a missing index).
+
 ## Runtime
 
 This repo targets **Node.js 22** (`firebase.json` `runtime` + `package.json` `engines`). Local `npm` can use Node 22+ when developing functions.

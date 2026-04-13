@@ -179,3 +179,59 @@ export const submitConditionReport = onCall(
     return { ok: true };
   },
 );
+
+const listReportsSchema = z.object({
+  launchId: z.string().min(1).max(120),
+  limit: z.number().int().min(1).max(50).optional(),
+});
+
+export const listConditionReports = onCall(
+  { cors: true, invoker: "public" },
+  async (request) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+    const parsed = listReportsSchema.safeParse(request.data);
+    if (!parsed.success) {
+      throw new HttpsError("invalid-argument", "Invalid request.");
+    }
+    const { launchId } = parsed.data;
+    const limit = Math.min(50, Math.max(1, parsed.data.limit ?? 20));
+
+    let snap;
+    try {
+      snap = await admin
+        .firestore()
+        .collection("conditionReports")
+        .where("launchId", "==", launchId)
+        .orderBy("createdAt", "desc")
+        .limit(limit)
+        .get();
+    } catch (e: unknown) {
+      logger.error("listConditionReports query failed", { err: String(e) });
+      throw new HttpsError("internal", "Could not load reports.");
+    }
+
+    const callerUid = request.auth.uid;
+    const reports: Array<{ message: string; createdAt: string; isMine: boolean }> =
+      [];
+
+    for (const doc of snap.docs) {
+      const d = doc.data();
+      const ts = d.createdAt;
+      if (!(ts instanceof admin.firestore.Timestamp)) {
+        continue;
+      }
+      if (typeof d.message !== "string") {
+        continue;
+      }
+      reports.push({
+        message: d.message,
+        createdAt: ts.toDate().toISOString(),
+        isMine: d.uid === callerUid,
+      });
+    }
+
+    return { reports };
+  },
+);

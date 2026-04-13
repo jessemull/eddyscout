@@ -23,6 +23,7 @@ class LaunchDetailScreen extends StatefulWidget {
 class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
   late final Future<ConditionsSnapshot> _future;
   GoNoGoProfile _skillProfile = GoNoGoProfile.intermediate;
+  int _reportsRefreshKey = 0;
 
   @override
   void initState() {
@@ -118,6 +119,11 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
                   snapshot: data,
                   goNoGo: goNoGo,
                   skillProfile: _skillProfile,
+                ),
+                const SizedBox(height: 16),
+                _RecentConditionReports(
+                  key: ValueKey(_reportsRefreshKey),
+                  launchId: launch.id,
                 ),
                 const SizedBox(height: 8),
                 ListTile(
@@ -239,6 +245,7 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
           onSuccessFeedback: () {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
+              setState(() => _reportsRefreshKey++);
               scaffoldMessenger?.showSnackBar(
                 const SnackBar(content: Text('Thanks—report submitted.')),
               );
@@ -246,6 +253,181 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
           },
         );
       },
+    );
+  }
+}
+
+String _recentReportsErrorMessage(Object error) {
+  final msg = error.toString();
+  final buf = StringBuffer('Could not load reports: $msg');
+  if (msg.toLowerCase().contains('unauthenticated')) {
+    buf.writeln();
+    buf.writeln(
+      'If this persists: fully stop the app and run again (not hot reload); '
+      'confirm `listConditionReports` is deployed with Cloud Run invoker public '
+      '(see firebase/DEPLOY.md); on emulators, use a Google Play system image.',
+    );
+  }
+  return buf.toString();
+}
+
+String _formatConditionReportTime(BuildContext context, DateTime at) {
+  final now = DateTime.now();
+  var diff = now.difference(at);
+  if (diff.isNegative) {
+    diff = Duration.zero;
+  }
+  if (diff.inMinutes < 1) {
+    return 'Just now';
+  }
+  if (diff.inMinutes < 60) {
+    return '${diff.inMinutes}m ago';
+  }
+  if (diff.inHours < 24) {
+    return '${diff.inHours}h ago';
+  }
+  if (diff.inDays < 7) {
+    return '${diff.inDays}d ago';
+  }
+  final loc = MaterialLocalizations.of(context);
+  return loc.formatShortDate(at.toLocal());
+}
+
+class _RecentConditionReports extends StatefulWidget {
+  const _RecentConditionReports({super.key, required this.launchId});
+
+  final String launchId;
+
+  @override
+  State<_RecentConditionReports> createState() => _RecentConditionReportsState();
+}
+
+class _RecentConditionReportsState extends State<_RecentConditionReports> {
+  late final Future<List<ConditionReportListItem>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    // Wait until after the first frame so the Callable layer picks up the same
+    // ID token Auth already has (avoids spurious unauthenticated on cold open).
+    _future = Future(() async {
+      final binding = WidgetsBinding.instance;
+      await binding.endOfFrame;
+      if (!mounted) {
+        return <ConditionReportListItem>[];
+      }
+      return callListConditionReports(launchId: widget.launchId);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Recent reports',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Unverified notes from other paddlers—use your own judgment.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+        ),
+        const SizedBox(height: 8),
+        FutureBuilder<List<ConditionReportListItem>>(
+          future: _future,
+          builder: (context, snap) {
+            if (snap.connectionState != ConnectionState.done) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              );
+            }
+            if (snap.hasError) {
+              return Text(
+                _recentReportsErrorMessage(snap.error!),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+              );
+            }
+            final items = snap.data!;
+            if (items.isEmpty) {
+              return Text(
+                'No paddler reports yet.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < items.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 8),
+                  _ConditionReportTile(report: items[i]),
+                ],
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _ConditionReportTile extends StatelessWidget {
+  const _ConditionReportTile({required this.report});
+
+  final ConditionReportListItem report;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final attribution = report.isMine ? 'You' : 'Anonymous paddler';
+    final when = _formatConditionReportTime(context, report.createdAt);
+    return Material(
+      color: scheme.surfaceContainerHighest.withValues(alpha: 0.35),
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  attribution,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                Text(
+                  ' · $when',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              report.message,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

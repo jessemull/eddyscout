@@ -126,7 +126,7 @@ Use `- [x]` / `- [ ]` in source; render as checkboxes in most Markdown viewers.
 
 Reports exist in Firestore but are **not listed in the UI** yet.
 
-- [ ] **List recent reports per launch** — Callable `listConditionReports(launchId, limit)` (or scoped Firestore reads after security review); time-ordered list, light attribution (e.g. Anonymous)
+- [x] **List recent reports per launch** — Callable `listConditionReports(launchId, limit)` (or scoped Firestore reads after security review); time-ordered list, light attribution (e.g. Anonymous)
 - [ ] **AI summary of the day’s reports** — Callable `summarizeLaunchReports`; grounded digest; cache + rate limits
 - [ ] **UX / trust** — “Unverified / subjective” disclaimer; raw list under digest; optional report-abuse later
 - [ ] **Moderation (later)** — admin queue, TTL, keyword hold
