@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import 'firebase/firebase_bootstrap.dart';
@@ -27,7 +28,9 @@ Future<void> main() async {
   const mapboxAccessToken = String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
   MapboxOptions.setAccessToken(mapboxAccessToken);
 
-  runApp(const EddyScoutApp(mapboxAccessToken: mapboxAccessToken));
+  runApp(
+    ProviderScope(child: EddyScoutApp(mapboxAccessToken: mapboxAccessToken)),
+  );
 }
 
 class EddyScoutApp extends StatelessWidget {

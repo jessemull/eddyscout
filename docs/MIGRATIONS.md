@@ -14,16 +14,16 @@ This document tracks every legacy file and its migration path. **No legacy file 
 
 ### Phase M1 — State Management (Provider → Riverpod)
 
-**Status**: Not started
+**Status**: In progress
 
 The app currently has no formal state management. State is managed via `StatefulWidget` and direct method calls. All state must migrate to Riverpod providers.
 
-| Action | Target |
-|--------|--------|
-| Add `ProviderScope` to `main.dart` | `apps/eddyscout/lib/main.dart` |
-| Convert `MapScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/map_screen.dart` |
-| Convert `LaunchDetailScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/launch_detail_screen.dart` |
-| Extract preferences as Riverpod providers | `apps/eddyscout/lib/preferences/go_no_go_profile_prefs.dart` |
+| Action | Target | Status |
+|--------|--------|--------|
+| Add `ProviderScope` to `main.dart` | `apps/eddyscout/lib/main.dart` | Done |
+| Convert `MapScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/map_screen.dart` | Not started |
+| Convert `LaunchDetailScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/launch_detail_screen.dart` | Not started |
+| Extract preferences as Riverpod providers | `apps/eddyscout/lib/preferences/go_no_go_profile_prefs.dart` | Not started |
 
 ### Phase M2 — Navigation (MaterialApp → go_router)
 
@@ -103,8 +103,8 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/main.dart`
 - **Migration**: M1 (Riverpod ProviderScope), M2 (GoRouter)
-- **Status**: Not started
-- **Notes**: Entry point. Add ProviderScope, replace MaterialApp with MaterialApp.router.
+- **Status**: In progress — `ProviderScope` added; GoRouter pending
+- **Notes**: Entry point. Replace MaterialApp with MaterialApp.router (M2).
 
 ### `lib/screens/map_screen.dart` (26,547 lines)
 - **Migration**: M1, M5
