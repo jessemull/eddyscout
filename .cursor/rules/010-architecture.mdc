@@ -1,0 +1,28 @@
+---
+description: "Architecture rules: feature-first, layered, dependency direction enforcement."
+globs: ["**/lib/**/*.dart", "**/packages/**/*.dart"]
+alwaysApply: false
+---
+
+# Architecture Rules
+
+## Structure
+- Feature-first monorepo: `packages/features/<name>/{presentation,domain,data}`
+- Shared packages: `packages/{core,design_system,networking,persistence,analytics,routing,localization}`
+
+## Dependency Direction
+- presentation/ → domain/ (NEVER data/)
+- domain/ → eddyscout_core only (NEVER presentation/ or data/)
+- data/ → domain/ (for repository interfaces and entities)
+- Features MUST NOT import from other features
+- packages/* MUST NOT import from apps/*
+
+## File Organization
+- One public class per file (private helpers OK)
+- Barrel files (package.dart) export only public API
+- Generated files (*.g.dart, *.freezed.dart) colocated with source
+
+## Layer Responsibilities
+- **presentation**: Widgets, pages, view-model providers. No I/O.
+- **domain**: Entities, repository interfaces, use cases. No framework deps.
+- **data**: Data sources, DTOs, repository implementations. Handles I/O.

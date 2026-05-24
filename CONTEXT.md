@@ -1,0 +1,166 @@
+# CONTEXT.md — EddyScout
+
+> **This is the PRIMARY entry point for ALL AI agents working in this repository.**
+> Read this file first. Follow the mandatory reading order below before making any changes.
+
+---
+
+## Mandatory Reading Order
+
+Every agent MUST read the following documents **in order** before making any change:
+
+1. **`CONTEXT.md`** (this file) — loading order, source-of-truth precedence, non-negotiable constraints, quality gates
+2. **`AGENTS.md`** — complete development rules, architecture constraints, coding standards, and forbidden patterns
+3. **`docs/GOVERNANCE.md`** — contribution workflow, PR process, review policy, release process
+4. **`docs/ARCHITECTURE.md`** — system design, package dependency graph, feature structure, data flow
+5. **Task-specific documentation** — consult the relevant docs below based on the task at hand:
+   - `docs/TESTING.md` — testing strategy, coverage requirements, mocking conventions
+   - `docs/COMMENTS.md` — comment policy and documentation standards
+   - `docs/PLATFORMS.md` — platform-specific guidance, permissions, and capabilities
+   - `docs/DEPENDENCIES.md` — dependency management, approval process, audit schedule
+   - `docs/SECURITY.md` — security policy, secret management, vulnerability response
+   - `docs/RELEASE.md` — release process, versioning, changelogs
+
+---
+
+## Source-of-Truth Precedence
+
+When instructions conflict, the **higher-numbered source wins**:
+
+| Priority | Source | Scope |
+|----------|--------|-------|
+| 1 (highest) | `CONTEXT.md` | Repository-wide constraints and quality gates |
+| 2 | `docs/GOVERNANCE.md` | Contribution workflow and review policy |
+| 3 | `docs/ARCHITECTURE.md` | System design and package boundaries |
+| 4 | Feature-specific documentation | Feature-level design decisions |
+| 5 (lowest) | Inline code comments | Local implementation notes |
+
+**Lower-precedence instructions MUST NOT contradict higher-precedence instructions.** If a conflict is detected, flag it for human review and follow the higher-precedence source.
+
+---
+
+## Non-Negotiable Constraints
+
+These constraints apply to **every change** in this repository. No exceptions without explicit human approval.
+
+### Language & Safety
+- **Dart null safety**: always enabled; never disable or circumvent
+- **Immutable models**: all data models use `freezed`; no mutable model classes
+- **Const constructors**: use `const` everywhere the analyzer permits
+
+### State Management
+- **Riverpod only**: no `Provider` package, no Redux, no BLoC, no mutable global state
+- **No business logic in widgets**: business logic lives in providers, notifiers, and use cases
+- **No mutable shared state**: all shared state flows through Riverpod providers
+
+### Navigation
+- **go_router only**: no Navigator.push, no named routes outside go_router
+
+### Async & UI
+- **All async states must show loading/error/data**: use `AsyncValue` and handle all three cases
+- **No async work in `build()`**: no network calls, file I/O, or heavy computation
+
+### Code Generation
+- **Never edit generated files**: do not manually modify `*.g.dart`, `*.freezed.dart`, or `*.gr.dart`
+- **Run `make gen` to regenerate**: if a model changes, regenerate — never hand-edit output
+
+### Architecture
+- **Feature-first architecture**: every feature follows `presentation/` → `domain/` → `data/` separation
+- **Package boundaries are enforced**: see Architecture Boundaries below
+
+---
+
+## Architecture Boundaries
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  presentation/  │ ──► │    domain/       │ ◄── │     data/        │
+│  (widgets, UI)  │     │  (entities,      │     │  (repos impl,   │
+│                 │     │   use cases,     │     │   data sources,  │
+│                 │     │   repo contracts)│     │   DTOs)          │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+```
+
+| Rule | Enforcement |
+|------|-------------|
+| `presentation/` → `domain/` only | Import lint rules |
+| `data/` → `domain/` only | Import lint rules |
+| Features MUST NOT import other features | `custom_lint` + CI |
+| `packages/` MUST NOT import from `apps/` | Melos dependency graph |
+| `domain/` has NO dependencies on other layers | Architectural lint rules |
+
+---
+
+## Mandatory Quality Gates
+
+**Before ANY commit**, the following checks MUST pass. Run `make preflight` to execute all gates in sequence.
+
+| Gate | Command | Failure Policy |
+|------|---------|----------------|
+| Formatting | `dart format --set-exit-if-changed .` | Block commit |
+| Static analysis | `dart analyze --fatal-infos` | Block commit |
+| Tests | `flutter test` | Block commit |
+| Codegen freshness | `scripts/codegen_verify.sh` | Block commit |
+
+### Running Quality Gates
+
+```bash
+# Run all gates at once
+make preflight
+
+# Run individually
+make format       # check formatting
+make analyze      # static analysis
+make test         # all tests
+make gen-check    # verify codegen is fresh
+```
+
+---
+
+## Escalation Rules — Human Review Required
+
+The following changes **MUST** be reviewed and approved by a human maintainer. AI agents MUST NOT merge these autonomously.
+
+- **New dependencies**: any addition to `pubspec.yaml` (app or package)
+- **Security changes**: authentication, authorization, encryption, secret management
+- **Architecture changes**: new packages, layer boundary modifications, new patterns
+- **CI/CD changes**: any modification to `.github/workflows/`
+- **Generated file manual edits**: if a generated file must be hand-edited, escalate
+- **Governance document changes**: any edit to `CONTEXT.md`, `AGENTS.md`, or `docs/GOVERNANCE.md`
+- **Platform permission changes**: new Android/iOS permissions in manifests
+- **Breaking API changes**: changes to package public APIs consumed by other packages
+
+---
+
+## Confirmation Requirement
+
+Before implementing any changes, confirm you have read and understood:
+
+- [ ] `CONTEXT.md` — this file (loading order, precedence, constraints, quality gates)
+- [ ] `AGENTS.md` — development rules, architecture, coding standards, forbidden patterns
+- [ ] `docs/GOVERNANCE.md` — contribution workflow and review policy
+- [ ] `docs/ARCHITECTURE.md` — system design and package boundaries
+- [ ] Task-specific documentation relevant to the current change
+
+**If any of the above documents do not yet exist, note their absence and proceed with the rules defined in `CONTEXT.md` and `AGENTS.md` as the authoritative sources.**
+
+---
+
+## Project Summary
+
+| Field | Value |
+|-------|-------|
+| Project | EddyScout — PNW paddling companion |
+| Type | Flutter monorepo (melos) |
+| Platforms | Android (primary), iOS (primary), Web (secondary) |
+| Dart | 3+ with null safety |
+| Flutter | Stable channel |
+| State | Riverpod |
+| Routing | go_router |
+| Networking | dio |
+| Models | freezed + json_serializable |
+| Database | drift |
+| Design | Material 3 |
+| Analysis | very_good_analysis + custom_lint + dart_code_linter |
+| CI | GitHub Actions |
+| Git | husky + Conventional Commits |

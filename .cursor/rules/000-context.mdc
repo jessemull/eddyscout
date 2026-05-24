@@ -1,0 +1,31 @@
+---
+description: "Load governance context before any work. Read CONTEXT.md and AGENTS.md."
+alwaysApply: true
+---
+
+# Repository Context Loading
+
+Before making ANY changes to this repository:
+
+1. Read `CONTEXT.md` at the repo root for mandatory loading order and precedence
+2. Read `AGENTS.md` at the repo root for complete development rules
+3. Read task-specific docs from `docs/` as referenced in CONTEXT.md
+
+Source-of-truth precedence:
+1. CONTEXT.md
+2. docs/GOVERNANCE.md
+3. docs/ARCHITECTURE.md
+4. Feature-specific documentation
+5. Inline code comments
+
+Non-negotiable constraints:
+- Dart null safety always enabled
+- Immutable models via freezed
+- Riverpod only (no Provider, Redux, BLoC)
+- go_router only for navigation
+- No business logic in widgets
+- No mutable shared state
+- No editing generated files (*.g.dart, *.freezed.dart, *.gr.dart)
+- Feature-first architecture with presentation/domain/data separation
+
+Before committing, run: `make preflight`

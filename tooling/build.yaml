@@ -1,0 +1,19 @@
+targets:
+  $default:
+    builders:
+      freezed:
+        generate_for:
+          include:
+            - "lib/**/*.dart"
+          exclude:
+            - "test/**"
+      json_serializable:
+        generate_for:
+          include:
+            - "lib/**/*.dart"
+          exclude:
+            - "test/**"
+        options:
+          explicit_to_json: true
+          field_rename: snake
+          create_factory: true

@@ -1,0 +1,24 @@
+---
+description: "Comment policy — minimize, make meaningful."
+globs: ["**/lib/**/*.dart"]
+alwaysApply: false
+---
+
+# Comment Policy
+
+See docs/COMMENTS.md for the full policy.
+
+## Write comments ONLY for:
+- Non-obvious intent or "why" (never "what")
+- Architecture decisions
+- Security constraints
+- Platform quirks or workarounds
+- Performance tradeoffs
+- Public API documentation (/// doc comments)
+
+## NEVER write:
+- Obvious comments ("// increment counter")
+- Section dividers ("// ---- Methods ----")
+- Commented-out code (delete it, use git)
+- TODOs without a ticket/issue reference
+- Implementation narration

@@ -1,0 +1,15 @@
+# Default owner
+* @jessemull
+
+# Governance
+CONTEXT.md @jessemull
+AGENTS.md @jessemull
+docs/ @jessemull
+
+# CI
+.github/ @jessemull
+scripts/ @jessemull
+
+# Architecture
+packages/ @jessemull
+tooling/ @jessemull

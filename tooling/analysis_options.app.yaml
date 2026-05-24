@@ -1,0 +1,7 @@
+include: analysis_options.base.yaml
+
+# App-level overrides
+linter:
+  rules:
+    # Apps may use environment variables for compile-time config
+    do_not_use_environment: false

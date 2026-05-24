@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .tool-versions
+          channel: stable
+          cache: true
+      - run: dart pub get
+      - run: dart pub global activate melos
+      - run: melos bootstrap
+      - run: melos exec -- "dart format --set-exit-if-changed ."
+
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .tool-versions
+          channel: stable
+          cache: true
+      - run: dart pub get
+      - run: dart pub global activate melos
+      - run: melos bootstrap
+      - run: melos exec --ignore=eddyscout -- "dart analyze --fatal-infos"
+      - run: melos exec --scope=eddyscout -- "dart analyze --no-fatal-warnings"
+
+  codegen-drift:
+    name: Codegen Drift Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .tool-versions
+          channel: stable
+          cache: true
+      - run: dart pub get
+      - run: dart pub global activate melos
+      - run: melos bootstrap
+      - run: ./scripts/codegen_verify.sh
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .tool-versions
+          channel: stable
+          cache: true
+      - run: dart pub get
+      - run: dart pub global activate melos
+      - run: melos bootstrap
+      - run: melos exec --fail-fast --dir-exists=test -- "flutter test"
+
+  import-boundaries:
+    name: Import Boundaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .tool-versions
+          channel: stable
+          cache: true
+      - run: dart pub get
+      - run: dart pub global activate melos
+      - run: melos bootstrap
+      - run: ./scripts/check_imports.sh
+      - run: ./scripts/check_architecture.sh

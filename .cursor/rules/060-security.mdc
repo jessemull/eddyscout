@@ -1,0 +1,28 @@
+---
+description: "Security rules for Flutter development."
+globs: ["**/lib/**/*.dart"]
+alwaysApply: false
+---
+
+# Security Rules
+
+## Secrets
+- NEVER hardcode API keys, tokens, or passwords
+- Use --dart-define for compile-time configuration
+- Use flutter_secure_storage for runtime secrets
+- SharedPreferences is NOT secure — never store tokens there
+
+## Logging
+- NEVER log authentication tokens or credentials
+- NEVER log PII (emails, phone numbers, names)
+- NEVER log full HTTP request/response bodies in production
+- Use structured logging with severity levels
+
+## Network
+- HTTPS only — no HTTP exceptions
+- Validate all deep link URLs before navigation
+- Sanitize user input before display or transmission
+
+## Dependencies
+- Audit for vulnerabilities monthly
+- No packages with known security issues

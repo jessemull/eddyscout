@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "appTitle": "EddyScout",
+  "@appTitle": {
+    "description": "The application title"
+  }
+}

@@ -1,0 +1,88 @@
+dart_code_linter:
+  anti-patterns:
+    - long-method
+    - long-parameter-list
+
+  metrics:
+    cyclomatic-complexity: 20
+    halstead-volume: 150
+    lines-of-code: 100
+    maintainability-index: 50
+    maximum-nesting-level: 5
+    number-of-methods: 10
+    number-of-parameters: 4
+    source-lines-of-code: 50
+    technical-debt:
+      threshold: 1
+      todo-cost: 4
+      ignore-cost: 8
+      ignore-for-file-cost: 16
+      as-dynamic-cost: 20
+      deprecated-annotations-cost: 2
+      file-nullsafety-migration-cost: 40
+      unit-type: "hours"
+    weight-of-class: 0.33
+
+  metrics-exclude:
+    - "test/**"
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+  rules:
+    - avoid-accessing-collections-by-constant-index
+    - avoid-cascade-after-if-null
+    - avoid-collection-methods-with-unrelated-types
+    - avoid-double-slash-imports
+    - avoid-duplicate-exports
+    - avoid-dynamic
+    - avoid-global-state
+    - avoid-missing-enum-constant-in-map
+    - avoid-nested-conditional-expressions:
+        acceptable-level: 2
+    - avoid-non-ascii-symbols
+    - avoid-non-null-assertion
+    - avoid-passing-async-when-sync-expected
+    - avoid-redundant-async
+    - avoid-throw-in-catch-block
+    - avoid-unnecessary-conditionals
+    - avoid-unnecessary-type-assertions
+    - avoid-unnecessary-type-casts
+    - avoid-unrelated-type-assertions
+    - avoid-unused-parameters
+    - binary-expression-operand-order
+    - double-literal-format
+    - format-comment:
+        only-doc-comments: true
+    - member-ordering:
+        order:
+          - public-fields
+          - private-fields
+          - constructors
+          - public-methods
+          - private-methods
+    - newline-before-return
+    - no-boolean-literal-compare
+    - no-empty-block
+    - no-equal-then-else
+    - no-object-declaration
+    - prefer-async-await
+    - prefer-commenting-analyzer-ignores
+    - prefer-conditional-expressions
+    - prefer-correct-identifier-length:
+        min-identifier-length: 2
+        max-identifier-length: 40
+        exceptions:
+          - i
+          - j
+          - k
+          - x
+          - y
+          - e
+    - prefer-correct-type-name
+    - prefer-enums-by-name
+    - prefer-first
+    - prefer-immediate-return
+    - prefer-last
+    - prefer-match-file-name
+    - prefer-moving-to-variable
+    - prefer-trailing-comma

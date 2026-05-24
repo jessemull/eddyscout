@@ -1,0 +1,6 @@
+/// Core utilities, types, and abstractions for the EddyScout workspace.
+library;
+
+export 'src/app_failure.dart';
+export 'src/result.dart';
+export 'src/typedefs.dart';

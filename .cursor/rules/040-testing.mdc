@@ -1,0 +1,28 @@
+---
+description: "Testing standards and requirements."
+globs: ["**/test/**/*.dart", "**/integration_test/**/*.dart"]
+alwaysApply: false
+---
+
+# Testing Rules
+
+## Required Tests
+- Unit tests for all domain logic and data layer
+- Widget tests for all pages and complex widgets
+- Integration tests for critical user flows
+
+## Standards
+- Use mocktail for mocking (NOT mockito)
+- Tests must be deterministic — mock all I/O
+- Async: use pump/pumpAndSettle, never real timers
+- Group related tests with group()
+- Descriptive test names: "should [expected] when [condition]"
+
+## File Structure
+- Test files mirror lib/ structure
+- test/unit/, test/widget/, test/integration/ OR
+- test/<feature>/presentation/, test/<feature>/domain/, test/<feature>/data/
+
+## Coverage
+- Minimums defined in tooling/coverage.yaml
+- CI fails if coverage regresses below threshold

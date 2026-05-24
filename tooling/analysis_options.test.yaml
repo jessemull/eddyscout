@@ -1,0 +1,22 @@
+include: analysis_options.base.yaml
+
+# Test-level relaxations
+analyzer:
+  errors:
+    prefer_const_constructors: ignore
+    prefer_const_declarations: ignore
+    prefer_const_literals_to_create_immutables: ignore
+    avoid_redundant_argument_values: ignore
+
+linter:
+  rules:
+    # Tests don't need public API docs
+    public_member_api_docs: false
+    # Tests often use long lines for readability
+    lines_longer_than_80_chars: false
+    # Test functions don't need type annotations
+    type_annotate_public_apis: false
+    # Cascades can make test setup harder to read
+    cascade_invocations: false
+    # Tests may need non-const constructors frequently
+    prefer_const_constructors: false

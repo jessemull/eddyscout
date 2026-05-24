@@ -1,0 +1,26 @@
+name: Preflight
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    name: Full Preflight
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .tool-versions
+          channel: stable
+          cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: dart pub get
+      - run: dart pub global activate melos
+      - run: melos bootstrap
+      - run: ./scripts/preflight.sh --ci

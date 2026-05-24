@@ -1,0 +1,27 @@
+---
+description: "Import hygiene and package boundary enforcement."
+globs: ["**/lib/**/*.dart"]
+alwaysApply: false
+---
+
+# Import & Boundary Rules
+
+## Package Imports
+- Use package imports, not relative imports across packages
+- Relative imports OK within the same package/lib
+
+## Forbidden Imports
+- packages/* must NEVER import from apps/*
+- Feature packages must NEVER import from other feature packages
+- presentation/ must NEVER import from data/ (go through domain/)
+- domain/ must NEVER import from presentation/ or data/
+
+## Import Order (enforced by directives_ordering lint)
+1. dart: imports
+2. package: imports (third-party)
+3. package: imports (workspace packages)
+4. relative imports
+
+## Generated Files
+- Import the source file, not the generated file
+- The part directive handles generated file inclusion

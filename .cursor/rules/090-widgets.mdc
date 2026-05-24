@@ -1,0 +1,31 @@
+---
+description: "Widget design rules for Flutter."
+globs: ["**/presentation/**/*.dart", "**/widgets/**/*.dart", "**/pages/**/*.dart", "**/screens/**/*.dart"]
+alwaysApply: false
+---
+
+# Widget Design Rules
+
+## Size Limits
+- Max ~300 lines per widget file
+- Extract sub-widgets for complex build() methods
+- One widget per file (private helpers OK)
+
+## Composition
+- Prefer composition over inheritance
+- Use ConsumerWidget for Riverpod-connected widgets
+- Use StatelessWidget when no state or refs needed
+- Use StatefulWidget only for animation controllers, focus nodes, text controllers
+
+## Required States
+Every data-driven widget MUST handle:
+- Loading state (skeleton or spinner)
+- Error state (user-friendly message + retry action)
+- Empty state (helpful message)
+- Data state (primary content)
+
+## Accessibility
+- Semantics widget for custom interactive components
+- Minimum 48x48 touch targets
+- Semantic labels on all icons and images
+- Support text scaling (no fixed font sizes)

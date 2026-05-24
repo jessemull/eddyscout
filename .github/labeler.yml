@@ -1,0 +1,47 @@
+app:
+  - changed-files:
+    - any-glob-to-any-file: 'apps/eddyscout/**'
+
+core:
+  - changed-files:
+    - any-glob-to-any-file: 'packages/core/**'
+
+design-system:
+  - changed-files:
+    - any-glob-to-any-file: 'packages/design_system/**'
+
+networking:
+  - changed-files:
+    - any-glob-to-any-file: 'packages/networking/**'
+
+persistence:
+  - changed-files:
+    - any-glob-to-any-file: 'packages/persistence/**'
+
+analytics:
+  - changed-files:
+    - any-glob-to-any-file: 'packages/analytics/**'
+
+routing:
+  - changed-files:
+    - any-glob-to-any-file: 'packages/routing/**'
+
+localization:
+  - changed-files:
+    - any-glob-to-any-file: 'packages/localization/**'
+
+tooling:
+  - changed-files:
+    - any-glob-to-any-file: 'tooling/**'
+
+docs:
+  - changed-files:
+    - any-glob-to-any-file: 'docs/**'
+
+ci:
+  - changed-files:
+    - any-glob-to-any-file: '.github/**'
+
+scripts:
+  - changed-files:
+    - any-glob-to-any-file: 'scripts/**'

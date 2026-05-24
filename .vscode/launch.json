@@ -5,7 +5,8 @@
       "name": "eddyscout (Mapbox token from env)",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main.dart",
+      "program": "apps/eddyscout/lib/main.dart",
+      "cwd": "${workspaceFolder}/apps/eddyscout",
       "args": [
         "--dart-define=MAPBOX_ACCESS_TOKEN=${env:MAPBOX_ACCESS_TOKEN}"
       ]
@@ -14,7 +15,8 @@
       "name": "eddyscout (no token — setup screen)",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main.dart"
+      "program": "apps/eddyscout/lib/main.dart",
+      "cwd": "${workspaceFolder}/apps/eddyscout"
     }
   ]
 }

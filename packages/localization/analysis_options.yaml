@@ -1,0 +1,5 @@
+include: ../../tooling/analysis_options.package.yaml
+
+analyzer:
+  exclude:
+    - "lib/generated/**"

@@ -1,0 +1,30 @@
+---
+description: "Performance rules for Flutter widgets and rendering."
+globs: ["**/lib/**/*.dart"]
+alwaysApply: false
+---
+
+# Performance Rules
+
+## Frame Budget
+- Target: 16ms per frame (60fps)
+- Use const constructors everywhere possible
+- Use ConsumerWidget for Riverpod, not ConsumerStatefulWidget unless lifecycle needed
+
+## Rebuild Minimization
+- Use ref.watch with select() for granular rebuilds
+- Extract sub-widgets rather than large build() methods
+- Use const for static subtrees
+
+## Lists
+- SliverList/SliverGrid for lists >20 items
+- Use itemExtent when items have fixed height
+- Never ListView without itemCount (unbounded)
+- Never nest ScrollViews without NeverScrollableScrollPhysics
+
+## Forbidden in build()
+- Network calls
+- File I/O
+- Heavy computation
+- setState cascades
+- Provider creation

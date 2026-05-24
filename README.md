@@ -1,54 +1,84 @@
 # EddyScout
 
-PNW paddling companion (Flutter). Mapbox map with Portland-area launch pins.
+PNW paddling companion — Mapbox map with Portland-area launch pins.
 
-## Local dev: Mapbox token
-
-The app reads **`MAPBOX_ACCESS_TOKEN` only via `--dart-define`** (compile-time). Nothing is loaded from bundled `.env` files.
-
-### Recommended: gitignored `.local.env` + script
-
-1. Copy the template (once):
-
-   ```bash
-   cp env.example .local.env
-   ```
-
-2. Edit **`.local.env`** and set your [Mapbox public token](https://account.mapbox.com/access-tokens/):
-
-   ```env
-   MAPBOX_ACCESS_TOKEN=pk.your_token_here
-   ```
-
-3. Run (add **`-d emulator-5554`** or another device id if needed):
-
-   ```bash
-   ./scripts/run_android.sh
-   ./scripts/run_android.sh -d emulator-5554
-   ```
-
-Or use **Make**:
+## Quick Start
 
 ```bash
-make setup   # creates .local.env from env.example if missing
-make run     # same as ./scripts/run_android.sh
+# Bootstrap the monorepo
+./scripts/bootstrap.sh
+
+# Run the app (from apps/eddyscout/)
+cd apps/eddyscout
+cp env.example .local.env
+# Edit .local.env with your Mapbox token
+./scripts/run_android.sh
 ```
 
-**Never commit `.local.env`** (it is gitignored).
+## Repository Structure
 
-### Alternative: manual `flutter run`
-
-```bash
-flutter run --dart-define=MAPBOX_ACCESS_TOKEN=pk.your_token_here
+```
+eddyscout/
+├── apps/eddyscout/          # Main Flutter application
+├── packages/
+│   ├── core/                # Shared types, Result, AppFailure
+│   ├── design_system/       # Material 3 theme, tokens
+│   ├── networking/          # Dio networking layer
+│   ├── persistence/         # Local storage abstractions
+│   ├── analytics/           # Analytics interface
+│   ├── routing/             # go_router navigation
+│   ├── localization/        # ARB-based translations
+│   └── features/            # Feature packages (template)
+├── tooling/                 # Shared analysis, build, coverage config
+├── docs/                    # Governance & engineering documentation
+├── scripts/                 # Automation scripts
+└── .github/                 # CI workflows
 ```
 
-### VS Code / Cursor
+## AI Agents
 
-Use **eddyscout (Mapbox token from env)** in [`.vscode/launch.json`](.vscode/launch.json) with `MAPBOX_ACCESS_TOKEN` set in your environment, or run **`./scripts/run_android.sh`** from a terminal.
+Read `CONTEXT.md` before making any changes. It provides mandatory loading order, source-of-truth precedence, and quality gates.
 
-Mapbox Flutter targets **Android and iOS**, not web.
+- **Cursor**: Rules auto-loaded from `.cursor/rules/`
+- **Claude Code**: Read `CLAUDE.md`
+- **Gemini CLI**: Read `GEMINI.md`
 
-## Getting Started
+## Development
 
-- [Flutter install](https://docs.flutter.dev/get-started/install)
-- [Mapbox Maps Flutter](https://docs.mapbox.com/flutter/maps/guides/install/)
+| Command | Description |
+|---------|-------------|
+| `make bootstrap` | Initial setup |
+| `make analyze` | Static analysis |
+| `make format` | Check formatting |
+| `make format-fix` | Fix formatting |
+| `make test` | Run all tests |
+| `make coverage` | Test with coverage |
+| `make gen` | Run code generation |
+| `make gen-check` | Verify codegen is fresh |
+| `make preflight` | Full preflight checks |
+| `make ci` | CI-grade validation |
+| `make clean` | Clean all packages |
+
+## Documentation
+
+See `docs/` for comprehensive governance:
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Contributing](docs/CONTRIBUTING.md)
+- [Governance](docs/GOVERNANCE.md)
+- [Review](docs/REVIEW.md)
+- [Testing](docs/TESTING.md)
+- [Security](docs/SECURITY.md)
+
+## Tech Stack
+
+- Flutter stable / Dart 3+
+- Material 3
+- Riverpod (state management)
+- go_router (navigation)
+- dio (networking)
+- freezed + json_serializable (models)
+- drift (structured storage)
+- melos (monorepo)
+- very_good_analysis (linting)
+- GitHub Actions (CI)

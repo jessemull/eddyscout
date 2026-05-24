@@ -1,0 +1,23 @@
+---
+description: "Code generation governance for build_runner, freezed, json_serializable."
+globs: ["**/*.g.dart", "**/*.freezed.dart", "**/*.gr.dart", "**/build.yaml"]
+alwaysApply: false
+---
+
+# Code Generation Rules
+
+## Governed Generators
+- freezed — immutable model classes
+- json_serializable — JSON serialization
+- riverpod_generator — typed providers
+- go_router_builder — typed routes
+
+## Rules
+- Run `make gen` after changing models, providers, or routes
+- NEVER manually edit *.g.dart, *.freezed.dart, or *.gr.dart
+- Generated files ARE committed to version control
+- CI verifies codegen is fresh via `scripts/codegen_verify.sh`
+
+## Verification
+Before committing: `make gen-check`
+This runs build_runner and checks for uncommitted generated file changes.

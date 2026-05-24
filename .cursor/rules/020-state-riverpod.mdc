@@ -1,0 +1,31 @@
+---
+description: "Riverpod state management rules and patterns."
+globs: ["**/lib/**/*.dart"]
+alwaysApply: false
+---
+
+# Riverpod State Management
+
+## Allowed Providers
+- Provider — computed/derived values
+- StateProvider — simple mutable atoms
+- NotifierProvider / AsyncNotifierProvider — complex state with methods
+- FutureProvider — one-shot async data
+- StreamProvider — reactive streams
+
+## Rules
+- State lives in providers, NEVER in widgets
+- Use autoDispose unless explicit keepAlive is justified
+- Use ref.watch() in build, ref.read() in callbacks, ref.listen() for side-effects
+- Every async provider must handle loading/error/data via AsyncValue
+- Use select() to minimize rebuilds
+- Never use ref.read() in build — it won't rebuild on changes
+- Provider families for parameterized providers
+
+## Forbidden
+- Provider package (use flutter_riverpod)
+- BLoC/Cubit
+- setState for business logic
+- Mutable global variables
+- Business logic inside Widget.build()
+- Side-effects in build() — use ref.listen() instead

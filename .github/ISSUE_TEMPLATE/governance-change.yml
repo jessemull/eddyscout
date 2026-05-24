@@ -1,0 +1,22 @@
+name: Governance Change
+description: Propose a change to repository governance
+labels: ["governance"]
+body:
+  - type: textarea
+    attributes:
+      label: Current State
+      description: What governance rule exists today?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed Change
+      description: What should change and why?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Impact Assessment
+      description: What does this change affect?
+    validations:
+      required: true

@@ -1,0 +1,20 @@
+name: eddyscout_design_system
+description: Material 3 design tokens, theme, and shared UI primitives.
+publish_to: 'none'
+version: 0.1.0
+
+resolution: workspace
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  eddyscout_core:
+    path: ../core
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^7.0.0

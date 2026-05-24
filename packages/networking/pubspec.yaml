@@ -1,0 +1,20 @@
+name: eddyscout_networking
+description: Dio-based networking layer with interceptor contracts.
+publish_to: 'none'
+version: 0.1.0
+
+resolution: workspace
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  dio: ^5.7.0
+  eddyscout_core:
+    path: ../core
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4
+  very_good_analysis: ^7.0.0

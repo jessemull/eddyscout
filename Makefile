@@ -1,10 +1,37 @@
-.PHONY: run setup
+.PHONY: bootstrap analyze format test coverage gen gen-check clean preflight ci setup
 
-# First-time: create .local.env from template (does not overwrite).
+bootstrap:
+	./scripts/bootstrap.sh
+
+analyze:
+	dart run melos run analyze
+
+format:
+	dart run melos run format
+
+format-fix:
+	dart run melos run format:fix
+
+test:
+	dart run melos run test
+
+coverage:
+	dart run melos run coverage
+
+gen:
+	dart run melos run gen
+
+gen-check:
+	dart run melos run gen:check
+
+clean:
+	dart run melos run clean
+
+preflight:
+	./scripts/preflight.sh
+
+ci:
+	./scripts/preflight.sh --ci
+
 setup:
-	@if [ ! -f .local.env ]; then cp env.example .local.env && echo "Created .local.env — set MAPBOX_ACCESS_TOKEN; optionally uncomment USE_FIREBASE=true."; else echo ".local.env already exists — edit MAPBOX_ACCESS_TOKEN (and USE_FIREBASE) there."; fi
-
-# Run on a connected device/emulator (pass -d emulator-5554 if needed).
-# Sources .local.env: MAPBOX_ACCESS_TOKEN (required); USE_FIREBASE=true optional → --dart-define.
-run:
-	./scripts/run_android.sh
+	./scripts/bootstrap.sh

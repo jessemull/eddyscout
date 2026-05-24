@@ -1,0 +1,20 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+# Transitional analysis profile for legacy app code under apps/eddyscout/.
+# New packages use analysis_options.package.yaml (strict).
+# Remove this profile after Phase M6 in docs/MIGRATIONS.md.
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.gr.dart"
+    - "build/**"
+    - ".dart_tool/**"
+
+  errors:
+    # Phase M6 baseline — promote back to error as files migrate
+    avoid_print: warning
+    prefer_const_constructors: warning
+    prefer_const_declarations: warning
+    prefer_const_literals_to_create_immutables: warning

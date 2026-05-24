@@ -1,0 +1,26 @@
+---
+description: "go_router navigation rules and patterns."
+globs: ["**/routing/**/*.dart", "**/router/**/*.dart", "**/navigation/**/*.dart"]
+alwaysApply: false
+---
+
+# Navigation Rules (go_router)
+
+## Requirements
+- Use GoRouter with typed routes (go_router_builder)
+- Support deep linking for all public routes
+- Auth guards via redirect, not widget-level checks
+- Each feature declares its own route subtree
+- Routes assembled in packages/routing
+
+## Patterns
+- Use context.go() for declarative navigation
+- Use context.push() only when back-stack is needed
+- Extra data via path/query parameters, NOT via extra (not type-safe)
+- Nested navigation via StatefulShellRoute for tab-based layouts
+
+## Forbidden
+- Navigator.push/pop directly
+- MaterialPageRoute construction
+- Passing complex objects via GoRouter extra parameter
+- Navigation logic inside widgets (use redirects)

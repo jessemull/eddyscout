@@ -1,0 +1,67 @@
+name: eddyscout
+description: "PNW paddling companion — Mapbox map with Portland-area launch pins."
+publish_to: 'none'
+version: 1.0.0+1
+
+resolution: workspace
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  http: ^1.2.2
+  mapbox_maps_flutter: ^2.21.1
+  shared_preferences: ^2.3.3
+  firebase_core: ^3.8.1
+  cloud_functions: ^5.2.1
+  firebase_auth: ^5.3.4
+
+  # State management (migration target — see docs/MIGRATIONS.md)
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation (migration target — see docs/MIGRATIONS.md)
+  go_router: ^14.8.1
+
+  # Networking (migration target — see docs/MIGRATIONS.md)
+  dio: ^5.7.0
+
+  # Immutable models (migration target — see docs/MIGRATIONS.md)
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+
+  # Workspace packages
+  eddyscout_core:
+    path: ../../packages/core
+  eddyscout_design_system:
+    path: ../../packages/design_system
+  eddyscout_networking:
+    path: ../../packages/networking
+  eddyscout_persistence:
+    path: ../../packages/persistence
+  eddyscout_analytics:
+    path: ../../packages/analytics
+  eddyscout_routing:
+    path: ../../packages/routing
+  eddyscout_localization:
+    path: ../../packages/localization
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  very_good_analysis: ^7.0.0
+  mocktail: ^1.0.4
+  golden_toolkit: ^0.15.0
+  # Codegen and advanced lint (dart_code_linter, riverpod_generator, build_runner)
+  # deferred to feature migration — see docs/MIGRATIONS.md
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/hydro/willamette_waterway.geojson

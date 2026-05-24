@@ -1,0 +1,6 @@
+include: analysis_options.base.yaml
+
+# Package-level: strictest defaults apply
+linter:
+  rules:
+    public_member_api_docs: true

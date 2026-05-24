@@ -1,0 +1,15 @@
+# Per-package minimum coverage thresholds
+# CI will fail if any package drops below its threshold
+
+thresholds:
+  # Packages
+  eddyscout_core: 80
+  eddyscout_design_system: 60
+  eddyscout_networking: 75
+  eddyscout_persistence: 75
+  eddyscout_analytics: 70
+  eddyscout_routing: 70
+  eddyscout_localization: 60
+
+  # App (lower initially due to legacy code)
+  eddyscout: 40

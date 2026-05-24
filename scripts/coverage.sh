@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
+
+echo "=== Coverage Report ==="
+
+melos exec --fail-fast --dir-exists=test -- "flutter test --coverage"
+
+echo ""
+echo "Coverage reports generated in each package's coverage/ directory."
+echo "See tooling/coverage.yaml for per-package thresholds."
