@@ -3,6 +3,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck source=_env.sh
+source "$SCRIPT_DIR/_env.sh"
 cd "$REPO_ROOT"
 
 echo "=== EddyScout Bootstrap ==="
@@ -25,17 +27,11 @@ else
   echo "Install Node.js for commit message linting."
 fi
 
-# Activate melos globally if not available
-if ! command -v melos &>/dev/null; then
-  echo "Installing melos globally..."
-  dart pub global activate melos
-fi
-
-# Get dependencies
+# Get dependencies (includes melos as a workspace dev_dependency)
 echo "Running dart pub get..."
 dart pub get
 
-# Bootstrap melos
+# Bootstrap workspace packages
 echo "Running melos bootstrap..."
 melos bootstrap
 
