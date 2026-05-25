@@ -6,12 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import '../data/launch_models.dart';
-import '../data/launch_points.dart';
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
+
 import '../debug/map_debug_log.dart';
-import '../routing/route_result.dart';
-import '../routing/river_route_planner.dart';
-import '../routing/river_route_planner_provider.dart';
 import '../routing/app_routes.dart';
 import 'map_planning_provider.dart';
 import 'map_session_provider.dart';

@@ -1,4 +1,4 @@
-import 'package:eddyscout/data/launch_points.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout/routing/app_routes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

@@ -1,18 +1,10 @@
+import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../conditions/conditions_models.dart';
-import '../conditions/conditions_provider.dart';
-import '../data/launch_models.dart';
-import '../decision/go_no_go.dart';
-import '../firebase/condition_reports_provider.dart';
-import '../firebase/conditions_ai_summary_provider.dart';
-import '../firebase/conditions_callables.dart';
-import '../firebase/firebase_bootstrap.dart';
-import '../firebase/firebase_flags.dart';
 import '../preferences/go_no_go_profile_provider.dart';
-import 'launch_detail_providers.dart';
 
 class LaunchDetailScreen extends ConsumerWidget {
   const LaunchDetailScreen({super.key, required this.launch});
@@ -23,7 +15,7 @@ class LaunchDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final skillProfile =
         ref.watch(goNoGoProfileProvider).value ?? GoNoGoProfile.intermediate;
-    final conditionsAsync = ref.watch(conditionsSnapshotProvider(launch.id));
+    final conditionsAsync = ref.watch(conditionsSnapshotProvider(launch));
     return Scaffold(
       appBar: AppBar(title: Text(launch.name)),
       body: conditionsAsync.when(

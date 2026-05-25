@@ -1,0 +1,24 @@
+include: analysis_options.package.yaml
+
+# Feature packages migrated from the legacy app; tighten toward package rules in M6.
+linter:
+  rules:
+    public_member_api_docs: false
+
+analyzer:
+  errors:
+    always_put_required_named_parameters_first: ignore
+    always_use_package_imports: ignore
+    avoid_bool_literals_in_conditional_expressions: ignore
+    avoid_catches_without_on_clauses: ignore
+    avoid_redundant_argument_values: ignore
+    cascade_invocations: ignore
+    comment_references: ignore
+    directives_ordering: ignore
+    lines_longer_than_80_chars: ignore
+    prefer_constructors_over_static_methods: ignore
+    prefer_expression_function_bodies: ignore
+    sort_constructors_first: ignore
+    sort_pub_dependencies: ignore
+    unnecessary_await_in_return: ignore
+    inference_failure_on_function_invocation: ignore

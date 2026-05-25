@@ -1,4 +1,4 @@
-import 'package:eddyscout/data/launch_points.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout/screens/launch_detail_screen.dart';
 import 'package:eddyscout/screens/map_screen.dart';
 import 'package:eddyscout/screens/missing_mapbox_token_screen.dart';

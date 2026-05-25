@@ -1,0 +1,12 @@
+targets:
+  $default:
+    builders:
+      freezed:
+        generate_for:
+          - lib/src/domain/launch_models.dart
+      json_serializable:
+        generate_for:
+          - lib/src/domain/launch_models.dart
+        options:
+          explicit_to_json: true
+          field_rename: none

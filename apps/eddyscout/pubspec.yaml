@@ -48,6 +48,12 @@ dependencies:
     path: ../../packages/routing
   eddyscout_localization:
     path: ../../packages/localization
+  eddyscout_map:
+    path: ../../packages/features/map
+  eddyscout_conditions:
+    path: ../../packages/features/conditions
+  eddyscout_hydro_routing:
+    path: ../../packages/features/hydro_routing
 
 dev_dependencies:
   flutter_test:

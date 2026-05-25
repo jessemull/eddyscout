@@ -1,4 +1,4 @@
-import 'package:eddyscout/data/launch_models.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Outcome of tapping a launch pin while route planning is active.

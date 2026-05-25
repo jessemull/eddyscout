@@ -66,21 +66,22 @@ Domain and payload models use `@freezed` with `json_serializable` where JSON is 
 
 ### Phase M5 — Architecture (flat → feature-first)
 
-**Status**: Not started
+**Status**: Complete (domain/data/providers); screens remain app composition layer
 
-The app uses a flat directory structure. Must migrate to feature-first packages with presentation/domain/data layers.
+Feature packages live under `packages/features/`. The app shell (`apps/eddyscout/lib/`) keeps screens, go_router, preferences, and debug tooling to avoid cross-feature presentation imports.
 
-| Legacy Directory | Target Package | Notes |
-|-----------------|----------------|-------|
-| `lib/screens/` | `packages/features/map/presentation/` | Map and launch detail screens |
-| `lib/conditions/` | `packages/features/conditions/` | Conditions domain + data + parsing |
-| `lib/data/` | `packages/features/map/data/` or `packages/core/` | Launch point data |
-| `lib/decision/` | `packages/features/conditions/domain/` | Go/no-go decision logic |
-| `lib/firebase/` | `packages/features/conditions/data/` | Firebase data sources |
-| `lib/network/` | `packages/networking/` | HTTP client abstraction |
-| `lib/routing/` | `packages/features/routing/` or domain-specific | River graph/routing logic |
-| `lib/preferences/` | `packages/persistence/` | User preference storage |
-| `lib/debug/` | `apps/eddyscout/lib/debug/` (keep) | Debug-only tooling |
+| Legacy Directory | Target Package | Status |
+|-----------------|----------------|--------|
+| `lib/screens/` | `apps/eddyscout/lib/screens/` (composition) | Done — imports feature packages |
+| `lib/conditions/` | `packages/features/conditions/` | Done |
+| `lib/data/` | `packages/features/map/` | Done |
+| `lib/decision/` | `packages/features/conditions/` (domain) | Done |
+| `lib/firebase/` | `packages/features/conditions/` (data) | Done |
+| `lib/network/` | `packages/networking/` | Done — `EddyScoutHttpClient` |
+| `lib/routing/` (river graph) | `packages/features/hydro_routing/` | Done |
+| `lib/routing/` (go_router) | `apps/eddyscout/lib/routing/` | Done — stays in app |
+| `lib/preferences/` | `apps/eddyscout/lib/preferences/` | Pending M5 follow-up → `persistence` |
+| `lib/debug/` | `apps/eddyscout/lib/debug/` | Done — unchanged |
 
 ### Phase M6 — Analysis Baseline Removal
 

@@ -1,0 +1,19 @@
+targets:
+  $default:
+    builders:
+      freezed:
+        generate_for:
+          include:
+            - lib/src/domain/conditions_models.dart
+            - lib/src/domain/go_no_go.dart
+            - lib/src/domain/go_no_go_thresholds.dart
+            - lib/src/data/firebase/conditions_summary_payload.dart
+      json_serializable:
+        generate_for:
+          include:
+            - lib/src/domain/conditions_models.dart
+            - lib/src/domain/go_no_go.dart
+            - lib/src/data/firebase/conditions_summary_payload.dart
+        options:
+          explicit_to_json: true
+          field_rename: none

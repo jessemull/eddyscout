@@ -13,6 +13,9 @@ workspace:
   - packages/analytics
   - packages/routing
   - packages/localization
+  - packages/features/map
+  - packages/features/conditions
+  - packages/features/hydro_routing
 
 dev_dependencies:
   melos: ^7.3.0

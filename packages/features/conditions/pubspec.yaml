@@ -1,0 +1,32 @@
+name: eddyscout_conditions
+description: River conditions, go/no-go evaluation, and Firebase integrations.
+publish_to: 'none'
+version: 0.1.0
+
+resolution: workspace
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  cloud_functions: ^5.2.1
+  eddyscout_map:
+    path: ../map
+  eddyscout_networking:
+    path: ../../networking
+  firebase_auth: ^5.3.4
+  firebase_core: ^3.8.1
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+
+dev_dependencies:
+  build_runner: ^2.4.14
+  flutter_test:
+    sdk: flutter
+  freezed: ^3.0.0
+  json_serializable: ^6.9.0
+  mocktail: ^1.0.4
+  very_good_analysis: ^7.0.0

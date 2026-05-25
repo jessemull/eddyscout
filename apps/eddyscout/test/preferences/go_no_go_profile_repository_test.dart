@@ -1,4 +1,4 @@
-import 'package:eddyscout/decision/go_no_go.dart';
+import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout/preferences/go_no_go_profile_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';

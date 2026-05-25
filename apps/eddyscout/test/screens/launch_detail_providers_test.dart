@@ -1,4 +1,4 @@
-import 'package:eddyscout/screens/launch_detail_providers.dart';
+import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 

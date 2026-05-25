@@ -1,12 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import 'firebase/firebase_bootstrap.dart';
-import 'firebase/firebase_flags.dart';
 import 'routing/app_router_provider.dart';
 
 Future<void> main() async {
@@ -27,7 +28,17 @@ Future<void> main() async {
 
   MapboxOptions.setAccessToken(mapboxAccessToken);
 
-  runApp(const ProviderScope(child: EddyScoutApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        hydroGeoJsonLoaderProvider.overrideWithValue(
+          () =>
+              rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
+        ),
+      ],
+      child: const EddyScoutApp(),
+    ),
+  );
 }
 
 class EddyScoutApp extends ConsumerWidget {

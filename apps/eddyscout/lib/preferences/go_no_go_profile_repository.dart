@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../decision/go_no_go.dart';
+import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 
 /// Persists [GoNoGoProfile] for wind tier scaling in [GoNoGoEvaluator].
 class GoNoGoProfileRepository {

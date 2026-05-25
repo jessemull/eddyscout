@@ -4,8 +4,8 @@ import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import '../data/launch_points.dart';
-import '../routing/geodesy.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 
 /// Prefix on every line so `flutter run` shows them (`debugPrint`).
 /// `developer.log` alone often does not appear in the Flutter CLI—use this prefix
