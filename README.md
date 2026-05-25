@@ -8,11 +8,11 @@ PNW paddling companion — Mapbox map with Portland-area launch pins.
 # Bootstrap the monorepo
 ./scripts/bootstrap.sh
 
-# Run the app (from apps/eddyscout/)
-cd apps/eddyscout
-cp env.example .local.env
-# Edit .local.env with your Mapbox token
-./scripts/run_android.sh
+# Run the app (from repo root or apps/eddyscout/)
+cd apps/eddyscout && cp env.example .local.env
+# Edit .local.env with your Mapbox token, then from repo root:
+make run
+# Or: cd apps/eddyscout && make run
 ```
 
 ## Repository Structure
@@ -58,6 +58,7 @@ Read `CONTEXT.md` before making any changes. It provides mandatory loading order
 | `make preflight` | Full preflight checks |
 | `make ci` | CI-grade validation |
 | `make clean` | Clean all packages |
+| `make run` | Run app on device/emulator (needs `apps/eddyscout/.local.env`) |
 
 ## Documentation
 

@@ -4,7 +4,6 @@ import 'package:eddyscout/routing/app_routes.dart';
 import 'package:eddyscout/screens/map/map_constants.dart';
 import 'package:eddyscout/screens/map/map_planning_overlay.dart';
 import 'package:eddyscout/screens/map/map_ui_callbacks.dart';
-import 'package:eddyscout/screens/map/map_ui_callbacks_provider.dart';
 import 'package:eddyscout/screens/map/mapbox_map_controller.dart';
 import 'package:eddyscout/screens/map_planning_provider.dart';
 import 'package:eddyscout/screens/map_session_provider.dart';
@@ -13,27 +12,54 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-class MapScreen extends ConsumerWidget {
+class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(mapUiCallbacksProvider.notifier).state = MapUiCallbacks(
-      showSnackBar: (message) {
-        if (!context.mounted) {
-          return;
-        }
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
-      },
-      openLaunchDetail: (launch) {
-        if (!context.mounted) {
-          return;
-        }
-        unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(context));
-      },
-    );
+  ConsumerState<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends ConsumerState<MapScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Riverpod forbids modifying providers during build/initState; bind after frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _bindUiCallbacks());
+  }
+
+  void _bindUiCallbacks() {
+    if (!mounted) {
+      return;
+    }
+    ref
+        .read(mapboxMapControllerProvider.notifier)
+        .bindUiCallbacks(
+          MapUiCallbacks(
+            showSnackBar: (message) {
+              if (!context.mounted) {
+                return;
+              }
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(message)));
+            },
+            openLaunchDetail: (launch) {
+              if (!context.mounted) {
+                return;
+              }
+              unawaited(
+                LaunchDetailRoute(launchId: launch.id).push<void>(context),
+              );
+            },
+          ),
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Keep controller alive while this screen is mounted; autoDispose was
+    // disposing it before async launch-marker install finished.
+    ref.watch(mapboxMapControllerProvider);
     final map = ref.read(mapboxMapControllerProvider.notifier);
 
     final planning = ref.watch(routePlanningProvider);

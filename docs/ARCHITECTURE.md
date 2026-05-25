@@ -71,8 +71,7 @@ The app shell is a **composition layer**: it wires feature packages together int
 | `screens/map/mapbox_map_controller.dart` | Mapbox lifecycle (`mapboxMapControllerProvider`) |
 | `screens/map/map_constants.dart` | Map style / camera constants |
 | `screens/map/map_planning_overlay.dart` | Route planning UI overlay |
-| `screens/map/map_ui_callbacks.dart` | Map gesture callbacks (types) |
-| `screens/map/map_ui_callbacks_provider.dart` | Callback holder provider |
+| `screens/map/map_ui_callbacks.dart` | Map snackbar/navigation callback types (bound on map screen) |
 | `screens/map_planning_provider.dart` | `routePlanningProvider` |
 | `screens/map_session_provider.dart` | `mapInteractiveProvider` |
 | `screens/launch_detail_screen.dart` | Launch detail page (+ `launch_detail/` parts) |

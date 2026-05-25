@@ -4,7 +4,6 @@ import 'dart:convert' show jsonEncode;
 import 'package:eddyscout/debug/map_debug_log.dart';
 import 'package:eddyscout/screens/map/map_constants.dart';
 import 'package:eddyscout/screens/map/map_ui_callbacks.dart';
-import 'package:eddyscout/screens/map/map_ui_callbacks_provider.dart';
 import 'package:eddyscout/screens/map_planning_provider.dart';
 import 'package:eddyscout/screens/map_session_provider.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
@@ -15,7 +14,11 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 /// Owns Mapbox map lifecycle: markers, route line, camera, and launch taps.
 class MapboxMapController extends AutoDisposeNotifier<void> {
-  MapUiCallbacks get _ui => ref.read(mapUiCallbacksProvider);
+  MapUiCallbacks _ui = const MapUiCallbacks();
+
+  /// Snackbar and navigation hooks from the map screen (set after first frame).
+  // ignore: use_setters_to_change_properties -- setter triggers conflicting lints.
+  void bindUiCallbacks(MapUiCallbacks callbacks) => _ui = callbacks;
 
   MapboxMap? _mapboxMap;
   Cancelable? _tapCancelable;
@@ -424,13 +427,17 @@ class MapboxMapController extends AutoDisposeNotifier<void> {
 
   Future<void> _installLaunchMarkersIfNeeded() async {
     if (_markersInstalled || _mapboxMap == null || !_alive) {
+      if (!_alive && _mapboxMap != null) {
+        mapDebugLog(
+          '_installLaunchMarkersIfNeeded skipped (controller disposed)',
+        );
+      }
       return;
     }
     final mapboxMap = _mapboxMap!;
     try {
       await _configureStandardStyleMap(mapboxMap);
       await _ensureRouteLineStyle(mapboxMap);
-      _markersInstalled = true;
 
       _circleManager = await mapboxMap.annotations
           .createCircleAnnotationManager();
@@ -449,6 +456,10 @@ class MapboxMapController extends AutoDisposeNotifier<void> {
           .toList();
 
       await _circleManager!.createMulti(options);
+      _markersInstalled = true;
+      mapDebugLog(
+        '_installLaunchMarkersIfNeeded OK markers=${kLaunchPoints.length}',
+      );
 
       await _fitViewportToAllLaunches(mapboxMap);
 

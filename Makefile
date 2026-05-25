@@ -1,4 +1,4 @@
-.PHONY: bootstrap analyze format test coverage gen gen-check clean preflight ci setup
+.PHONY: bootstrap analyze format test coverage gen gen-check clean preflight ci setup run
 
 bootstrap:
 	./scripts/bootstrap.sh
@@ -35,3 +35,6 @@ ci:
 
 setup:
 	./scripts/bootstrap.sh
+
+run:
+	$(MAKE) -C apps/eddyscout run ARGS="$(ARGS)"
