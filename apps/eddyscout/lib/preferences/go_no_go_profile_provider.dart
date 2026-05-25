@@ -1,13 +1,12 @@
-import 'package:eddyscout/preferences/go_no_go_profile_repository.dart';
-import 'package:eddyscout/preferences/shared_preferences_provider.dart';
+import 'package:eddyscout/preferences/key_value_store_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final goNoGoProfileRepositoryProvider = Provider<GoNoGoProfileRepository>((
   ref,
 ) {
-  final prefs = ref.watch(sharedPreferencesProvider).requireValue;
-  return GoNoGoProfileRepository(prefs);
+  final store = ref.watch(keyValueStoreProvider).requireValue;
+  return GoNoGoProfileRepository(store);
 });
 
 /// User skill profile for go/no-go wind thresholds.
@@ -19,7 +18,7 @@ final goNoGoProfileProvider =
 class GoNoGoProfileNotifier extends AsyncNotifier<GoNoGoProfile> {
   @override
   Future<GoNoGoProfile> build() async {
-    await ref.watch(sharedPreferencesProvider.future);
+    await ref.watch(keyValueStoreProvider.future);
     return ref.read(goNoGoProfileRepositoryProvider).read();
   }
 

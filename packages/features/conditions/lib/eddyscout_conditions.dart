@@ -1,6 +1,7 @@
 /// Conditions fetching, go/no-go evaluation, and Firebase integrations.
 library;
 
+export 'src/data/repositories/go_no_go_profile_repository.dart';
 export 'src/data/firebase/conditions_callables.dart';
 export 'src/data/firebase/conditions_summary_payload.dart';
 export 'src/data/firebase/firebase_bootstrap.dart';

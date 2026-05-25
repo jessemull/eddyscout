@@ -10,6 +10,8 @@ environment:
 
 dependencies:
   cloud_functions: ^5.2.1
+  eddyscout_persistence:
+    path: ../../persistence
   eddyscout_map:
     path: ../map
   eddyscout_networking:

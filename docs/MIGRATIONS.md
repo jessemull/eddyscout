@@ -72,7 +72,7 @@ Feature packages live under `packages/features/`. The app shell (`apps/eddyscout
 
 | Legacy Directory | Target Package | Status |
 |-----------------|----------------|--------|
-| `lib/screens/` | `apps/eddyscout/lib/screens/` (composition) | Done — imports feature packages |
+| `lib/screens/` | `apps/eddyscout/lib/screens/` (composition) | Done — split into focused files (`launch_detail/`, `map/`) |
 | `lib/conditions/` | `packages/features/conditions/` | Done |
 | `lib/data/` | `packages/features/map/` | Done |
 | `lib/decision/` | `packages/features/conditions/` (domain) | Done |
@@ -80,7 +80,7 @@ Feature packages live under `packages/features/`. The app shell (`apps/eddyscout
 | `lib/network/` | `packages/networking/` | Done — `EddyScoutHttpClient` |
 | `lib/routing/` (river graph) | `packages/features/hydro_routing/` | Done |
 | `lib/routing/` (go_router) | `apps/eddyscout/lib/routing/` | Done — stays in app |
-| `lib/preferences/` | `apps/eddyscout/lib/preferences/` | Pending M5 follow-up → `persistence` |
+| `lib/preferences/` | `persistence` + `conditions` (repository) / app (providers) | Done |
 | `lib/debug/` | `apps/eddyscout/lib/debug/` | Done — unchanged |
 
 ### Phase M6 — Analysis Baseline Removal
@@ -102,17 +102,15 @@ Every Dart file in the legacy codebase with its migration status:
 - **Status**: M2 done — `MaterialApp.router` + `goRouterProvider`
 - **Notes**: Token/web gate screens moved to `screens/` and routed via go_router.
 
-### `lib/screens/map_screen.dart` (26,547 lines)
+### `lib/screens/map_screen.dart`
 - **Migration**: M1, M5
-- **Status**: M1 done — route planning, planner load, map interactivity via Riverpod
-- **Priority**: HIGH — God widget, must be decomposed (M5)
-- **Notes**: Mapbox map instance, annotation managers, and tap cancelables remain in `ConsumerState` (platform lifecycle).
+- **Status**: Done — Mapbox lifecycle in `map_screen.dart`; `map/map_planning_overlay.dart` extracted
+- **Notes**: Further map controller extraction is optional follow-up.
 
-### `lib/screens/launch_detail_screen.dart` (37,263 lines)
+### `lib/screens/launch_detail_screen.dart`
 - **Migration**: M1, M5
-- **Status**: Done for M1 — `_ConditionReportSheet` keeps ephemeral form UI state only
-- **Priority**: HIGH — God widget, must be decomposed (M5)
-- **Notes**: M5 will extract nested cards and decompose the file.
+- **Status**: Done — screen + `launch_detail/` part files (cards, reports, helpers)
+- **Notes**: `_ConditionReportSheet` keeps ephemeral form UI state only.
 
 ### `lib/conditions/conditions_models.dart`
 - **Migration**: M4
@@ -200,8 +198,8 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/preferences/go_no_go_profile_repository.dart`
 - **Migration**: M1, M5
-- **Status**: Done — Riverpod provider replaces static prefs helper
-- **Notes**: `go_no_go_profile_provider.dart` exposes `goNoGoProfileProvider`; `shared_preferences_provider.dart` is shared for future prefs.
+- **Status**: Done — `GoNoGoProfileRepository` in `packages/features/conditions/`; `KeyValueStore` via `packages/persistence/`
+- **Notes**: App exposes `keyValueStoreProvider` and `goNoGoProfileProvider`.
 
 ### `lib/preferences/go_no_go_profile_prefs.dart`
 - **Migration**: M1, M5

@@ -2,4 +2,5 @@
 library;
 
 export 'src/key_value_store.dart';
+export 'src/shared_preferences_key_value_store.dart';
 export 'src/structured_store.dart';
