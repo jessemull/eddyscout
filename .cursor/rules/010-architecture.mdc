@@ -1,28 +1,305 @@
 ---
-description: "Architecture rules: feature-first, layered, dependency direction enforcement."
+description: "Strict feature-first architecture rules enforcing layered separation, dependency direction, and monorepo boundaries."
 globs: ["**/lib/**/*.dart", "**/packages/**/*.dart"]
 alwaysApply: false
 ---
 
-# Architecture Rules
+# Architecture Rules (Flutter/Dart Monorepo)
 
-## Structure
-- Feature-first monorepo: `packages/features/<name>/{presentation,domain,data}`
-- Shared packages: `packages/{core,design_system,networking,persistence,analytics,routing,localization}`
+Architecture is a **hard constraint**, not a suggestion.
 
-## Dependency Direction
-- presentation/ → domain/ (NEVER data/)
-- domain/ → eddyscout_core only (NEVER presentation/ or data/)
-- data/ → domain/ (for repository interfaces and entities)
-- Features MUST NOT import from other features
-- packages/* MUST NOT import from apps/*
+All code must be:
+- feature-first
+- layer-separated
+- dependency-safe
+- boundary-enforced
+- testable in isolation
 
-## File Organization
-- One public class per file (private helpers OK)
-- Barrel files (package.dart) export only public API
-- Generated files (*.g.dart, *.freezed.dart) colocated with source
+---
 
-## Layer Responsibilities
-- **presentation**: Widgets, pages, view-model providers. No I/O.
-- **domain**: Entities, repository interfaces, use cases. No framework deps.
-- **data**: Data sources, DTOs, repository implementations. Handles I/O.
+# 1. Monorepo Structure
+
+## Required Layout
+
+```
+eddyscout/
+├── apps/
+│   └── eddyscout/              # Main Flutter application
+├── packages/
+│   ├── core/                   # Result type, AppFailure, typedefs
+│   ├── design_system/          # Material 3 theme, tokens, shared widgets
+│   ├── networking/             # Dio factory + interceptor contracts
+│   ├── persistence/            # Key-value and structured storage
+│   ├── analytics/              # Analytics client interface
+│   ├── routing/                # go_router provider and route assembly
+│   ├── localization/           # ARB-based l10n
+│   └── features/               # Feature packages
+│       ├── conditions/
+│       ├── map/
+│       └── hydro_routing/
+├── tooling/                    # Shared analysis_options, coverage config
+├── docs/                       # Governance documentation
+└── scripts/                    # Automation scripts
+```
+
+---
+
+## Rules
+
+- [ ] every feature lives in its own package under `packages/features/`
+- [ ] shared concerns live in dedicated shared packages
+- [ ] app-level code in `apps/eddyscout/` is minimal (bootstrap + assembly only)
+
+---
+
+# 2. Feature Package Structure
+
+## Required Layout
+
+Each feature MUST follow this internal structure:
+
+```
+packages/features/<feature_name>/
+├── lib/
+│   └── src/
+│       ├── presentation/       # Widgets, pages, view models
+│       ├── domain/             # Entities, use cases, repository contracts
+│       └── data/               # Repository implementations, DTOs, data sources
+├── test/
+│   └── src/
+│       ├── presentation/
+│       ├── domain/
+│       └── data/
+├── pubspec.yaml
+└── analysis_options.yaml
+```
+
+---
+
+## MUST
+
+- [ ] separate presentation, domain, and data layers
+- [ ] test structure mirrors lib structure exactly
+- [ ] one primary public class per file (private helpers allowed)
+
+---
+
+# 3. Dependency Direction (CRITICAL)
+
+## Architecture Diagram
+
+```
+presentation → domain ← data
+```
+
+Both presentation and data depend on domain. Domain depends on neither.
+
+---
+
+## Rules
+
+| Layer | May Depend On | MUST NOT Depend On |
+|-------|--------------|-------------------|
+| `presentation/` | `domain/` | `data/`, other features |
+| `domain/` | `core` only | `presentation/`, `data/`, Flutter framework |
+| `data/` | `domain/` | `presentation/`, other features |
+
+---
+
+## Call Flow (Runtime)
+
+```
+UI → Provider → Domain → Data → External APIs
+```
+
+> Dependency direction and call flow are distinct concepts. Dependencies point inward toward domain. Calls propagate outward toward data.
+
+---
+
+## MUST NOT
+
+- ❌ domain importing data
+- ❌ domain importing presentation
+- ❌ domain importing Flutter framework
+- ❌ data importing presentation
+- ❌ presentation importing data directly
+- ❌ any layer importing sibling feature internals
+
+---
+
+# 4. Package Boundary Rules
+
+## Monorepo Isolation
+
+- [ ] `packages/*` MUST NOT import from `apps/*`
+- [ ] `apps/*` MUST NOT import from other apps
+- [ ] feature packages MUST NOT import sibling feature packages
+
+---
+
+## Cross-Feature Communication
+
+Allowed via:
+- shared domain contracts in `packages/core/`
+- Riverpod providers
+- routing layer (`packages/routing/`)
+
+---
+
+## MUST NOT
+
+- ❌ import another feature's internal files
+- ❌ share state between features via mutable globals
+- ❌ bypass domain contracts for convenience
+
+---
+
+# 5. Layer Responsibilities
+
+## presentation/
+
+- widgets, pages, view-model providers
+- reads state from Riverpod providers
+- dispatches user intent to domain layer
+- NO I/O, NO business logic, NO data fetching
+
+---
+
+## domain/
+
+- entities, repository interfaces, use cases
+- pure Dart (no Flutter framework dependencies)
+- defines contracts that data layer implements
+- NO framework deps, NO I/O
+
+---
+
+## data/
+
+- repository implementations, DTOs, data sources
+- handles all I/O (network, storage, platform channels)
+- maps DTOs ↔ entities
+- implements domain repository interfaces
+
+---
+
+# 6. File Organization Rules
+
+## Naming
+
+| Element | Convention |
+|---------|-----------|
+| Files | `snake_case.dart` |
+| Classes | `PascalCase` |
+| Variables / functions | `camelCase` |
+| Constants | `camelCase` |
+| Enum values | `camelCase` |
+| Private members | `_camelCase` |
+
+---
+
+## Barrel Files
+
+- [ ] `<package>.dart` exports only public API
+- [ ] internal `src/` files are not directly importable by other packages
+- [ ] generated files colocated with source files
+
+---
+
+## MUST NOT
+
+- ❌ expose internal implementation via barrel files
+- ❌ import `src/` paths from other packages
+- ❌ place multiple unrelated public classes in one file
+
+---
+
+# 7. Shared Package Rules
+
+## core/
+
+- `Result<T, AppFailure>` type
+- shared typedefs and constants
+- zero Flutter dependency
+
+---
+
+## design_system/
+
+- Material 3 theme, color scheme, spacing tokens
+- shared widgets (buttons, cards, scaffolds)
+- typography definitions
+
+---
+
+## networking/
+
+- Dio factory and interceptor contracts
+- retry/timeout policy implementation
+- NO feature-specific API logic
+
+---
+
+## persistence/
+
+- key-value storage abstraction
+- structured storage interfaces
+- NO feature-specific persistence logic
+
+---
+
+## routing/
+
+- go_router provider and route assembly
+- composes feature routes into app router
+- auth guards and redirects
+
+---
+
+# 8. Async & Error Boundaries
+
+## Package Boundaries
+
+- [ ] all I/O operations return `Future<Result<T, AppFailure>>`
+- [ ] never throw exceptions across package boundaries
+- [ ] wrap external exceptions in `AppFailure`
+
+---
+
+## UI Layer
+
+- [ ] use `AsyncValue` from Riverpod for all async state
+- [ ] handle loading, error, and data states
+- [ ] never show raw exception strings to users
+
+---
+
+# 9. Anti-Patterns (DO NOT DO)
+
+## MUST NOT
+
+- place business logic inside widgets
+- create cross-feature imports
+- violate dependency direction
+- put I/O in domain layer
+- import `data/` from `presentation/`
+- use mutable shared state
+- create "god" packages that depend on everything
+- bypass domain contracts for direct data access
+- mix feature code into shared packages
+
+---
+
+# 10. Validation Checklist
+
+Before committing:
+
+- [ ] feature structure follows required layout
+- [ ] dependency direction preserved
+- [ ] no cross-feature imports exist
+- [ ] package boundaries respected
+- [ ] layer responsibilities followed
+- [ ] file naming conventions met
+- [ ] barrel files export only public API
+- [ ] async boundaries use Result type
+- [ ] preflight passes

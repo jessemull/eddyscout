@@ -1,31 +1,168 @@
 ---
-description: "Load governance context before any work. Read CONTEXT.md and AGENTS.md."
+description: "Mandatory governance context loading and non-negotiable constraints enforced before any repository changes."
 alwaysApply: true
 ---
 
 # Repository Context Loading
 
-Before making ANY changes to this repository:
+Context loading is **not optional** — it is the first step before any work in this repository.
 
-1. Read `CONTEXT.md` at the repo root for mandatory loading order and precedence
-2. Read `AGENTS.md` at the repo root for complete development rules
-3. Read all mandatory `docs/` listed in CONTEXT.md (items 5–10), not only those that seem relevant to the task
+All agents and contributors must:
+- understand the governance chain
+- load required documentation
+- respect constraint boundaries
+- follow precedence rules
 
-Source-of-truth precedence:
-1. CONTEXT.md
-2. docs/GOVERNANCE.md
-3. docs/ARCHITECTURE.md
-4. Feature-specific documentation
-5. Inline code comments
+---
 
-Non-negotiable constraints:
-- Dart null safety always enabled
-- Immutable models via freezed
-- Riverpod only (no Provider, Redux, BLoC)
-- go_router only for navigation
-- No business logic in widgets
-- No mutable shared state
-- No editing generated files (*.g.dart, *.freezed.dart, *.gr.dart)
-- Feature-first architecture with presentation/domain/data separation
+# 1. Mandatory Loading Order
 
-Before committing, run: `make preflight`
+## Before ANY Changes
+
+Read these in order:
+
+1. `CONTEXT.md` — mandatory loading order and precedence chain
+2. `AGENTS.md` — complete development rules and constraints
+3. All mandatory `docs/` listed in CONTEXT.md (items 5–10)
+
+---
+
+## MUST
+
+- [ ] read `CONTEXT.md` first
+- [ ] read `AGENTS.md` second
+- [ ] read ALL mandatory docs, not only those that seem relevant
+
+---
+
+## MUST NOT
+
+- ❌ skip context loading
+- ❌ selectively read only "relevant" docs
+- ❌ assume familiarity replaces reading
+- ❌ begin changes before loading is complete
+
+---
+
+# 2. Source-of-Truth Precedence
+
+When documents conflict, higher-precedence wins:
+
+| Priority | Source |
+|----------|--------|
+| 1 | `CONTEXT.md` |
+| 2 | `docs/GOVERNANCE.md` |
+| 3 | `docs/ARCHITECTURE.md` |
+| 4 | Feature-specific documentation |
+| 5 | Inline code comments |
+
+---
+
+## Rule
+
+> If two sources disagree, follow the higher-precedence source and flag the conflict.
+
+---
+
+# 3. Non-Negotiable Constraints
+
+These constraints are **absolute** — no exceptions without human approval.
+
+## Architecture
+
+- [ ] feature-first monorepo with `presentation / domain / data` separation
+- [ ] dependency direction: `presentation → domain ← data`
+- [ ] features MUST NOT import from other features
+
+---
+
+## State & Navigation
+
+- [ ] Riverpod only (no Provider, Redux, BLoC)
+- [ ] go_router only for navigation
+- [ ] no business logic in widgets
+- [ ] no mutable shared state
+
+---
+
+## Type Safety & Immutability
+
+- [ ] Dart null safety always enabled
+- [ ] immutable models via freezed
+- [ ] strict typing enforced (no untyped `dynamic` abuse)
+
+---
+
+## Generated Code
+
+- [ ] never edit generated files (`*.g.dart`, `*.freezed.dart`, `*.gr.dart`)
+- [ ] run `make gen` to regenerate
+- [ ] run `make gen-check` to verify freshness
+
+---
+
+# 4. Quality Gate
+
+## Required Before Committing
+
+```bash
+make preflight
+```
+
+This validates:
+- formatting
+- static analysis
+- tests
+- codegen consistency
+
+---
+
+## MUST NOT
+
+- ❌ commit without passing preflight
+- ❌ skip tests or analysis
+- ❌ bypass pre-commit hooks
+
+---
+
+# 5. Conditional Documentation
+
+Read these docs when the task touches their domain:
+
+| Document | When to Read |
+|----------|-------------|
+| `docs/PLATFORMS.md` | platform-specific code |
+| `docs/LOCALIZATION.md` | l10n / strings |
+| `docs/DEPENDENCIES.md` | new or changed dependencies |
+| `docs/ERROR_HANDLING.md` | error / retry / offline paths |
+| `docs/ANALYTICS.md` | analytics / telemetry |
+| `docs/CI_CD.md` | CI/CD or workflow changes |
+| `docs/RESPONSIVENESS.md` | layout / breakpoints |
+| `docs/THEMING.md` | theme / token changes |
+| `docs/NETWORKING.md` | HTTP / API layer |
+| `docs/ACCESSIBILITY.md` | a11y / semantics |
+
+---
+
+# 6. Anti-Patterns (DO NOT DO)
+
+## MUST NOT
+
+- begin work without reading governance docs
+- assume prior context is sufficient for new tasks
+- ignore precedence chain when conflicts arise
+- treat constraints as optional guidelines
+- commit without running `make preflight`
+
+---
+
+# 7. Validation Checklist
+
+Before starting any work:
+
+- [ ] `CONTEXT.md` read
+- [ ] `AGENTS.md` read
+- [ ] all mandatory docs read
+- [ ] precedence chain understood
+- [ ] non-negotiable constraints acknowledged
+- [ ] `make preflight` will be run before committing
