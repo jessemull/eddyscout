@@ -7,8 +7,8 @@ import '../conditions/conditions_provider.dart';
 import '../data/launch_models.dart';
 import '../decision/go_no_go.dart';
 import '../firebase/condition_reports_provider.dart';
+import '../firebase/conditions_ai_summary_provider.dart';
 import '../firebase/conditions_callables.dart';
-import '../firebase/conditions_summary_payload.dart';
 import '../firebase/firebase_bootstrap.dart';
 import '../firebase/firebase_flags.dart';
 import '../preferences/go_no_go_profile_provider.dart';
@@ -612,7 +612,7 @@ class _ConditionReportSheetState extends State<_ConditionReportSheet> {
   }
 }
 
-class _AiSummaryCard extends StatefulWidget {
+class _AiSummaryCard extends ConsumerWidget {
   const _AiSummaryCard({
     required this.launch,
     required this.snapshot,
@@ -626,46 +626,17 @@ class _AiSummaryCard extends StatefulWidget {
   final GoNoGoProfile skillProfile;
 
   @override
-  State<_AiSummaryCard> createState() => _AiSummaryCardState();
-}
-
-class _AiSummaryCardState extends State<_AiSummaryCard> {
-  bool _loading = false;
-  String? _summary;
-  String? _error;
-
-  Future<void> _run() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final payload = conditionsSummaryPayload(
-        launch: widget.launch,
-        snapshot: widget.snapshot,
-        goNoGo: widget.goNoGo,
-        skillProfile: widget.skillProfile,
-      );
-      final text = await callSummarizeConditions(payload);
-      if (mounted) {
-        setState(() {
-          _loading = false;
-          _summary = text;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-          _error = '$e';
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summaryState = ref.watch(conditionsAiSummaryProvider(launch.id));
     final scheme = Theme.of(context).colorScheme;
+    Future<void> runSummary() => ref
+        .read(conditionsAiSummaryProvider(launch.id).notifier)
+        .summarize(
+          launch: launch,
+          snapshot: snapshot,
+          goNoGo: goNoGo,
+          skillProfile: skillProfile,
+        );
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -683,23 +654,26 @@ class _AiSummaryCardState extends State<_AiSummaryCard> {
               ],
             ),
             const SizedBox(height: 8),
-            if (_loading)
+            if (summaryState.isLoading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),
                 child: Center(child: CircularProgressIndicator()),
               )
-            else if (_error != null) ...[
+            else if (summaryState.errorMessage != null) ...[
               Text(
-                _error!,
+                summaryState.errorMessage!,
                 style: TextStyle(color: scheme.error, fontSize: 13),
               ),
               TextButton.icon(
-                onPressed: _run,
+                onPressed: runSummary,
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
               ),
-            ] else if (_summary != null) ...[
-              Text(_summary!, style: Theme.of(context).textTheme.bodyMedium),
+            ] else if (summaryState.summary != null) ...[
+              Text(
+                summaryState.summary!,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               const SizedBox(height: 8),
               Text(
                 'Verify against the raw data below—AI can misread or omit details.',
@@ -708,10 +682,13 @@ class _AiSummaryCardState extends State<_AiSummaryCard> {
                   fontStyle: FontStyle.italic,
                 ),
               ),
-              TextButton(onPressed: _run, child: const Text('Regenerate')),
+              TextButton(
+                onPressed: runSummary,
+                child: const Text('Regenerate'),
+              ),
             ] else
               FilledButton.tonalIcon(
-                onPressed: _run,
+                onPressed: runSummary,
                 icon: const Icon(Icons.summarize_outlined),
                 label: const Text('Summarize with AI'),
               ),

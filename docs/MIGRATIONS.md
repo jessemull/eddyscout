@@ -22,7 +22,7 @@ The app currently has no formal state management. State is managed via `Stateful
 |--------|--------|--------|
 | Add `ProviderScope` to `main.dart` | `apps/eddyscout/lib/main.dart` | Done |
 | Convert `MapScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/map_screen.dart` | Not started |
-| Convert `LaunchDetailScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/launch_detail_screen.dart` | In progress — screen-level state migrated |
+| Convert `LaunchDetailScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/launch_detail_screen.dart` | In progress — only report sheet form state remains |
 | Extract preferences as Riverpod providers | `apps/eddyscout/lib/preferences/go_no_go_profile_prefs.dart` | Done |
 
 ### Phase M2 — Navigation (MaterialApp → go_router)
@@ -116,7 +116,7 @@ Every Dart file in the legacy codebase with its migration status:
 - **Migration**: M1, M5
 - **Status**: In progress — `ConsumerWidget`; conditions + skill profile + report refresh use Riverpod
 - **Priority**: HIGH — God widget, must be decomposed
-- **Notes**: `_AiSummaryCard` and `_ConditionReportSheet` still use local `StatefulWidget` state; report list + digest use Riverpod.
+- **Notes**: `_ConditionReportSheet` keeps ephemeral form UI state; all async cards use Riverpod.
 
 ### `lib/conditions/conditions_models.dart`
 - **Migration**: M4
@@ -181,6 +181,10 @@ Every Dart file in the legacy codebase with its migration status:
 ### `lib/firebase/condition_reports_provider.dart`
 - **Migration**: M1
 - **Status**: Done — report list + community digest Riverpod providers
+
+### `lib/firebase/conditions_ai_summary_provider.dart`
+- **Migration**: M1
+- **Status**: Done — on-demand conditions AI summary Riverpod provider
 
 ### `lib/firebase/conditions_summary_payload.dart`
 - **Migration**: M4, M5
