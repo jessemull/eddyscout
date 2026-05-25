@@ -225,7 +225,7 @@ class _ConditionReportTile extends StatelessWidget {
 
 /// Bottom sheet content: owns `TextEditingController` until the route removes
 /// this widget (avoids "used after being disposed" during IME teardown).
-class _ConditionReportSheet extends StatefulWidget {
+class _ConditionReportSheet extends ConsumerStatefulWidget {
   const _ConditionReportSheet({
     required this.launch,
     required this.conditionsFetchedAt,
@@ -239,10 +239,11 @@ class _ConditionReportSheet extends StatefulWidget {
   final VoidCallback onSuccessFeedback;
 
   @override
-  State<_ConditionReportSheet> createState() => _ConditionReportSheetState();
+  ConsumerState<_ConditionReportSheet> createState() =>
+      _ConditionReportSheetState();
 }
 
-class _ConditionReportSheetState extends State<_ConditionReportSheet> {
+class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
   late final TextEditingController _controller;
 
   /// After submit, the `TextField` is removed before `Navigator.pop`.
@@ -270,27 +271,33 @@ class _ConditionReportSheetState extends State<_ConditionReportSheet> {
       );
       return;
     }
-    try {
-      await callSubmitConditionReport(
-        launchId: widget.launch.id,
-        message: text,
-        clientConditionsFetchedAt: widget.conditionsFetchedAt
-            .toUtc()
-            .toIso8601String(),
-      );
-      if (!mounted) return;
-      FocusManager.instance.primaryFocus?.unfocus();
-      setState(() => _submittedClosing = true);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        Navigator.pop(context);
-        widget.onSuccessFeedback();
-      });
-    } on Object catch (e) {
-      widget.scaffoldMessenger?.showSnackBar(
-        SnackBar(content: Text('Could not submit: $e')),
-      );
+    final fetchedAt = widget.conditionsFetchedAt.toUtc().toIso8601String();
+    final submitArgs = (
+      launchId: widget.launch.id,
+      clientConditionsFetchedAt: fetchedAt,
+    );
+    final ok = await ref
+        .read(conditionReportSubmitProvider(submitArgs).notifier)
+        .submit(text);
+    if (!mounted) {
+      return;
     }
+    if (!ok) {
+      final err = ref.read(conditionReportSubmitProvider(submitArgs).notifier);
+      widget.scaffoldMessenger?.showSnackBar(
+        SnackBar(content: Text(err.errorMessage ?? 'Could not submit report.')),
+      );
+      return;
+    }
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() => _submittedClosing = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      Navigator.pop(context);
+      widget.onSuccessFeedback();
+    });
   }
 
   @override

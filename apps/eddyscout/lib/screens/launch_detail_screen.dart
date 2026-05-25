@@ -26,12 +26,16 @@ class LaunchDetailScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(launch.name)),
       body: conditionsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => _ErrorBody(message: '$error'),
+        error: (error, _) => _ErrorBody(
+          message: launchDetailConditionsErrorMessage(error),
+        ),
         data: (data) {
-          final goNoGo = GoNoGoEvaluator.evaluate(
-            launch,
-            data,
-            profile: skillProfile,
+          final goNoGo = ref.watch(
+            launchGoNoGoResultProvider((
+              launch: launch,
+              snapshot: data,
+              profile: skillProfile,
+            )),
           );
           return ListView(
             padding: const EdgeInsets.all(16),

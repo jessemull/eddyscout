@@ -1,5 +1,6 @@
 import 'package:eddyscout/routing/app_router_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,9 +20,11 @@ Future<void> main() async {
       await FirebaseAuth.instance.signInAnonymously();
     } on Exception catch (e, st) {
       FirebaseBootstrap.lastError = e.toString();
-      debugPrint(
-        'Firebase init/sign-in failed (add native config or set USE_FIREBASE=false): $e\n$st',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          'Firebase init/sign-in failed (add native config or set USE_FIREBASE=false): $e\n$st',
+        );
+      }
     }
   }
 
@@ -48,10 +51,8 @@ class EddyScoutApp extends ConsumerWidget {
     final router = ref.watch(goRouterProvider);
     return MaterialApp.router(
       title: 'EddyScout',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0077B6)),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
       routerConfig: router,
     );
   }

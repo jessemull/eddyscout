@@ -1,7 +1,4 @@
-import 'package:eddyscout_conditions/eddyscout_conditions.dart'
-    show GoNoGoEvaluator;
-import 'package:eddyscout_conditions/src/domain/go_no_go.dart'
-    show GoNoGoEvaluator;
+import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

@@ -1,4 +1,4 @@
-.PHONY: bootstrap analyze format test coverage gen gen-check clean preflight ci setup run
+.PHONY: bootstrap analyze format test coverage coverage-check gen gen-check clean preflight ci setup run
 
 bootstrap:
 	./scripts/bootstrap.sh
@@ -17,6 +17,9 @@ test:
 
 coverage:
 	dart run melos run coverage
+
+coverage-check: coverage
+	./scripts/check_coverage.sh
 
 gen:
 	dart run melos run gen

@@ -27,6 +27,14 @@ String launchDetailFirebaseUnavailableMessage() {
       'and rebuild with `USE_FIREBASE=true` in `.local.env` (`make run`).';
 }
 
+String launchDetailConditionsErrorMessage(Object error) {
+  final msg = error.toString().toLowerCase();
+  if (msg.contains('socket') || msg.contains('network')) {
+    return 'Could not load conditions. Check your connection and try again.';
+  }
+  return 'Could not load conditions. Pull to refresh or try again later.';
+}
+
 String launchDetailRiverLabel(RiverSystem r) => switch (r) {
   RiverSystem.willamette => 'Willamette',
   RiverSystem.columbia => 'Columbia / regional',
@@ -49,7 +57,6 @@ Future<void> openLaunchDetailConditionReportSheet(
       conditionsFetchedAt: conditionsFetchedAt,
       scaffoldMessenger: scaffoldMessenger,
       onSuccessFeedback: () {
-        ref.read(conditionReportsRefreshTokenProvider.notifier).state++;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) {
             return;

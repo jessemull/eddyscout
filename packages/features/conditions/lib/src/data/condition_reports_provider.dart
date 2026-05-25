@@ -1,6 +1,5 @@
 import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
-import 'package:eddyscout_conditions/src/presentation/condition_reports_refresh_token_provider.dart';
-import 'package:flutter/widgets.dart';
+import 'package:eddyscout_conditions/src/domain/condition_reports_refresh_token_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Firebase-backed condition report reads and AI digest calls.
@@ -10,10 +9,6 @@ class ConditionReportsRepository {
 
   /// Lists recent community reports for [launchId].
   Future<List<ConditionReportListItem>> listReports(String launchId) async {
-    // Wait until after the first frame so Callables pick up the Auth ID token
-    // (avoids spurious unauthenticated on cold open).
-    final binding = WidgetsBinding.instance;
-    await binding.endOfFrame;
     return callListConditionReports(launchId: launchId);
   }
 
@@ -83,8 +78,10 @@ class LaunchReportsDigestNotifier
           .read(conditionReportsRepositoryProvider)
           .summarizeLaunchReports(launchId: arg, forceRefresh: forceRefresh);
       state = LaunchReportsDigestState(result: result);
-    } on Object catch (error) {
-      state = LaunchReportsDigestState(errorMessage: '$error');
+    } on Object catch (_) {
+      state = const LaunchReportsDigestState(
+        errorMessage: 'Could not load digest. Try again.',
+      );
     }
   }
 }

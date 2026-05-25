@@ -4,10 +4,8 @@ import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-String _loadBundledHydroGeoJson() {
-  final path =
-      '${Directory.current.path}/../../../apps/eddyscout/assets/hydro/willamette_waterway.geojson';
-  return File(path).readAsStringSync();
+Future<String> _loadFixtureHydroGeoJson() async {
+  return File('test/fixtures/willamette_waterway.geojson').readAsString();
 }
 
 void main() {
@@ -18,7 +16,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           hydroGeoJsonLoaderProvider.overrideWithValue(
-            () async => _loadBundledHydroGeoJson(),
+            _loadFixtureHydroGeoJson,
           ),
         ],
       );

@@ -20,6 +20,17 @@ for pkg in packages/features/*/; do
   fi
 done
 
+# Check: data/ must not import from presentation/
+for pkg in packages/features/*/; do
+  if [ ! -d "$pkg/lib/src/data" ] || [ ! -d "$pkg/lib/src/presentation" ]; then continue; fi
+
+  pkg_name=$(basename "$pkg")
+  if grep -r "import.*presentation/" "$pkg/lib/src/data/" --include="*.dart" 2>/dev/null; then
+    echo "ERROR: $pkg_name/data/ imports from presentation/"
+    ERRORS=$((ERRORS + 1))
+  fi
+done
+
 # Check: domain/ must not import from presentation/ or data/
 for pkg in packages/features/*/; do
   if [ ! -d "$pkg/lib/src/domain" ]; then continue; fi

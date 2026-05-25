@@ -139,7 +139,7 @@ void main() {
         container
             .read(launchReportsDigestProvider('cathedral_park'))
             .errorMessage,
-        contains('network down'),
+        'Could not load digest. Try again.',
       );
     });
   });
