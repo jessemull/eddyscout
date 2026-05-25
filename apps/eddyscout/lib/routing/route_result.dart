@@ -1,24 +1,21 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'route_result.freezed.dart';
+
 /// Outcome of routing between two launches along bundled hydro lines.
-sealed class RouteResult {
-  const RouteResult();
+@freezed
+sealed class RouteResult with _$RouteResult {
+  const RouteResult._();
+
+  const factory RouteResult.success({
+    /// Outer list is vertices along the river path.
+    ///
+    /// Mapbox order: each pair is `[longitude, latitude]`.
+    required List<List<double>> polylineLonLat,
+    required double lengthMeters,
+  }) = RouteSuccess;
+
+  const factory RouteResult.failure(String message) = RouteFailure;
 
   bool get isSuccess => this is RouteSuccess;
-}
-
-/// [polylineLonLat] is Mapbox order: each pair is `[longitude, latitude]`.
-final class RouteSuccess extends RouteResult {
-  const RouteSuccess({
-    required this.polylineLonLat,
-    required this.lengthMeters,
-  });
-
-  /// Outer list is vertices along the river path.
-  final List<List<double>> polylineLonLat;
-  final double lengthMeters;
-}
-
-final class RouteFailure extends RouteResult {
-  const RouteFailure(this.message);
-
-  final String message;
 }

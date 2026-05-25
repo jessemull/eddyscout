@@ -1,3 +1,8 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'conditions_models.freezed.dart';
+part 'conditions_models.g.dart';
+
 /// Which API supplied the weather card.
 enum WeatherDataSource { nws, openMeteo }
 
@@ -8,99 +13,96 @@ extension WeatherDataSourceLabel on WeatherDataSource {
   };
 }
 
-class WeatherConditions {
-  const WeatherConditions({
-    required this.temperatureF,
-    required this.windSpeedMph,
-    this.windGustMph,
-    this.windDirection,
-    this.shortForecast,
-    required this.periodStart,
-    required this.source,
-  });
+@freezed
+abstract class WeatherConditions with _$WeatherConditions {
+  const factory WeatherConditions({
+    required WeatherDataSource source,
+    int? temperatureF,
+    int? windSpeedMph,
+    int? windGustMph,
+    String? windDirection,
+    String? shortForecast,
+    DateTime? periodStart,
+  }) = _WeatherConditions;
 
-  final int? temperatureF;
-  final int? windSpeedMph;
-  final int? windGustMph;
-  final String? windDirection;
-  final String? shortForecast;
-  final DateTime? periodStart;
-  final WeatherDataSource source;
+  factory WeatherConditions.fromJson(Map<String, dynamic> json) =>
+      _$WeatherConditionsFromJson(json);
 }
 
-class TideEvent {
-  const TideEvent({
-    required this.type,
-    required this.heightFt,
-    required this.time,
-  });
+@freezed
+abstract class TideEvent with _$TideEvent {
+  const factory TideEvent({
+    required String type,
+    required DateTime time,
+    double? heightFt,
+  }) = _TideEvent;
 
-  final String type;
-  final double? heightFt;
-  final DateTime time;
+  factory TideEvent.fromJson(Map<String, dynamic> json) =>
+      _$TideEventFromJson(json);
 }
 
-class TideSummary {
-  const TideSummary({
-    required this.stationId,
-    required this.datumLabel,
-    required this.events,
-    this.referenceNote,
-  });
+@freezed
+abstract class TideSummary with _$TideSummary {
+  const factory TideSummary({
+    required String stationId,
+    required String datumLabel,
+    required List<TideEvent> events,
+    String? referenceNote,
+  }) = _TideSummary;
 
-  final String stationId;
-  final String datumLabel;
-  final List<TideEvent> events;
-  final String? referenceNote;
+  factory TideSummary.fromJson(Map<String, dynamic> json) =>
+      _$TideSummaryFromJson(json);
 }
 
-class MarinePeriod {
-  const MarinePeriod({required this.name, required this.detailedForecast});
+@freezed
+abstract class MarinePeriod with _$MarinePeriod {
+  const factory MarinePeriod({
+    required String name,
+    required String detailedForecast,
+  }) = _MarinePeriod;
 
-  final String name;
-  final String detailedForecast;
+  factory MarinePeriod.fromJson(Map<String, dynamic> json) =>
+      _$MarinePeriodFromJson(json);
 }
 
-class MarineSummary {
-  const MarineSummary({required this.zoneId, required this.periods});
+@freezed
+abstract class MarineSummary with _$MarineSummary {
+  const factory MarineSummary({
+    required String zoneId,
+    required List<MarinePeriod> periods,
+  }) = _MarineSummary;
 
-  final String zoneId;
-  final List<MarinePeriod> periods;
+  factory MarineSummary.fromJson(Map<String, dynamic> json) =>
+      _$MarineSummaryFromJson(json);
 }
 
-class RiverFlowReading {
-  const RiverFlowReading({
-    required this.siteId,
-    required this.cfs,
-    required this.observedAt,
-  });
+@freezed
+abstract class RiverFlowReading with _$RiverFlowReading {
+  const factory RiverFlowReading({
+    required String siteId,
+    required double cfs,
+    required DateTime observedAt,
+  }) = _RiverFlowReading;
 
-  final String siteId;
-  final double cfs;
-  final DateTime observedAt;
+  factory RiverFlowReading.fromJson(Map<String, dynamic> json) =>
+      _$RiverFlowReadingFromJson(json);
 }
 
 /// Aggregated conditions for one launch (partial success allowed).
-class ConditionsSnapshot {
-  const ConditionsSnapshot({
-    required this.fetchedAt,
-    this.weather,
-    this.weatherError,
-    this.tides,
-    this.tideError,
-    this.marine,
-    this.marineError,
-    this.riverFlow,
-    this.riverError,
-  });
+@freezed
+abstract class ConditionsSnapshot with _$ConditionsSnapshot {
+  const factory ConditionsSnapshot({
+    required DateTime fetchedAt,
+    WeatherConditions? weather,
+    String? weatherError,
+    TideSummary? tides,
+    String? tideError,
+    MarineSummary? marine,
+    String? marineError,
+    RiverFlowReading? riverFlow,
+    String? riverError,
+  }) = _ConditionsSnapshot;
 
-  final DateTime fetchedAt;
-  final WeatherConditions? weather;
-  final String? weatherError;
-  final TideSummary? tides;
-  final String? tideError;
-  final MarineSummary? marine;
-  final String? marineError;
-  final RiverFlowReading? riverFlow;
-  final String? riverError;
+  factory ConditionsSnapshot.fromJson(Map<String, dynamic> json) =>
+      _$ConditionsSnapshotFromJson(json);
 }

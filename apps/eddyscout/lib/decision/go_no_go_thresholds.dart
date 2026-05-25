@@ -1,30 +1,23 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../data/launch_models.dart';
+
+part 'go_no_go_thresholds.freezed.dart';
 
 /// Tunable thresholds for [GoNoGoEvaluator]. Values are **placeholders**—tune with
 /// local experts; river cfs uses coarse [RiverSystem] bands until per-gauge data exists.
 
 /// Intermediate paddler profile (default v1).
-class GoNoGoThresholds {
-  const GoNoGoThresholds({
-    required this.windMarginalShelteredMph,
-    required this.windNoGoShelteredMph,
-    required this.windMarginalModerateMph,
-    required this.windNoGoModerateMph,
-    required this.windMarginalExposedMph,
-    required this.windNoGoExposedMph,
-  });
-
-  /// Sheltered ramp: allow higher wind before flagging.
-  final int windMarginalShelteredMph;
-  final int windNoGoShelteredMph;
-
-  /// Moderate exposure.
-  final int windMarginalModerateMph;
-  final int windNoGoModerateMph;
-
-  /// Open fetch / exposed.
-  final int windMarginalExposedMph;
-  final int windNoGoExposedMph;
+@freezed
+abstract class GoNoGoThresholds with _$GoNoGoThresholds {
+  const factory GoNoGoThresholds({
+    required int windMarginalShelteredMph,
+    required int windNoGoShelteredMph,
+    required int windMarginalModerateMph,
+    required int windNoGoModerateMph,
+    required int windMarginalExposedMph,
+    required int windNoGoExposedMph,
+  }) = _GoNoGoThresholds;
 
   /// Conservative bands for newer paddlers (flags wind sooner).
   static const GoNoGoThresholds beginner = GoNoGoThresholds(
@@ -55,7 +48,9 @@ class GoNoGoThresholds {
     windMarginalExposedMph: 14,
     windNoGoExposedMph: 26,
   );
+}
 
+extension GoNoGoThresholdsWind on GoNoGoThresholds {
   (int marginal, int noGo) windMphForExposure(WindExposure e) => switch (e) {
     WindExposure.sheltered => (windMarginalShelteredMph, windNoGoShelteredMph),
     WindExposure.moderate => (windMarginalModerateMph, windNoGoModerateMph),
@@ -65,11 +60,10 @@ class GoNoGoThresholds {
 
 /// Upper (flood-style) cfs hints by river class—**not** survey-grade.
 /// Only [marginalCfs] / [noGoCfs] when above; no low-water rule in v1.
-class RiverFlowThresholds {
-  const RiverFlowThresholds({this.marginalCfs, this.noGoCfs});
-
-  final double? marginalCfs;
-  final double? noGoCfs;
+@freezed
+abstract class RiverFlowThresholds with _$RiverFlowThresholds {
+  const factory RiverFlowThresholds({double? marginalCfs, double? noGoCfs}) =
+      _RiverFlowThresholds;
 
   static RiverFlowThresholds forRiverSystem(RiverSystem r) => switch (r) {
     RiverSystem.willamette => const RiverFlowThresholds(

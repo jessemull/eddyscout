@@ -1,6 +1,11 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../conditions/conditions_models.dart';
 import '../data/launch_models.dart';
 import 'go_no_go_thresholds.dart';
+
+part 'go_no_go.freezed.dart';
+part 'go_no_go.g.dart';
 
 /// User skill profile; maps to [GoNoGoThresholds] wind tiers.
 enum GoNoGoProfile { beginner, intermediate, advanced }
@@ -36,28 +41,28 @@ enum GoNoGoReasonSeverity {
   noGo,
 }
 
-class GoNoGoReason {
-  const GoNoGoReason({
-    required this.code,
-    required this.message,
-    required this.severity,
-  });
+@freezed
+abstract class GoNoGoReason with _$GoNoGoReason {
+  const factory GoNoGoReason({
+    required String code,
+    required String message,
+    required GoNoGoReasonSeverity severity,
+  }) = _GoNoGoReason;
 
-  final String code;
-  final String message;
-  final GoNoGoReasonSeverity severity;
+  factory GoNoGoReason.fromJson(Map<String, dynamic> json) =>
+      _$GoNoGoReasonFromJson(json);
 }
 
-class GoNoGoResult {
-  const GoNoGoResult({
-    required this.verdict,
-    required this.reasons,
-    required this.computedAt,
-  });
+@freezed
+abstract class GoNoGoResult with _$GoNoGoResult {
+  const factory GoNoGoResult({
+    required GoNoGoVerdict verdict,
+    required List<GoNoGoReason> reasons,
+    required DateTime computedAt,
+  }) = _GoNoGoResult;
 
-  final GoNoGoVerdict verdict;
-  final List<GoNoGoReason> reasons;
-  final DateTime computedAt;
+  factory GoNoGoResult.fromJson(Map<String, dynamic> json) =>
+      _$GoNoGoResultFromJson(json);
 }
 
 /// Deterministic go / marginal / no-go from [LaunchPoint] + [ConditionsSnapshot].

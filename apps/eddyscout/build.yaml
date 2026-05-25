@@ -3,4 +3,23 @@ targets:
     builders:
       go_router_builder:
         generate_for:
-          - lib/routing/**.dart
+          - lib/routing/app_routes.dart
+      freezed:
+        generate_for:
+          include:
+            - lib/data/launch_models.dart
+            - lib/conditions/conditions_models.dart
+            - lib/decision/go_no_go.dart
+            - lib/decision/go_no_go_thresholds.dart
+            - lib/routing/route_result.dart
+            - lib/firebase/conditions_summary_payload.dart
+      json_serializable:
+        generate_for:
+          include:
+            - lib/data/launch_models.dart
+            - lib/conditions/conditions_models.dart
+            - lib/decision/go_no_go.dart
+            - lib/firebase/conditions_summary_payload.dart
+        options:
+          explicit_to_json: true
+          field_rename: none

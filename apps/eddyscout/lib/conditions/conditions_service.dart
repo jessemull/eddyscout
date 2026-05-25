@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:eddyscout/network/eddy_scout_http_response.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/launch_models.dart';

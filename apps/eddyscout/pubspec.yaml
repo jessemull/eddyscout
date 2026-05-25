@@ -56,9 +56,11 @@ dev_dependencies:
   very_good_analysis: ^7.0.0
   mocktail: ^1.0.4
   golden_toolkit: ^0.15.0
-  # Codegen (go_router_builder) — see docs/MIGRATIONS.md M2+
+  # Codegen (go_router_builder, freezed) — see docs/MIGRATIONS.md
   build_runner: ^2.4.14
   go_router_builder: 2.8.0
+  freezed: ^3.0.0
+  json_serializable: ^6.9.0
 
 flutter:
   uses-material-design: true

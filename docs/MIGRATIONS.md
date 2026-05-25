@@ -52,17 +52,17 @@ Conditions HTTP uses Dio via `EddyScoutHttpClient` and `EddyScoutDioFactory` in 
 
 ### Phase M4 — Models (classes → freezed)
 
-**Status**: Not started
+**Status**: Complete
 
-Data models are mutable plain classes. Must migrate to freezed immutable models with json_serializable.
+Domain and payload models use `@freezed` with `json_serializable` where JSON is required (conditions, launch summary, Firebase payload).
 
-| Action | Target |
-|--------|--------|
-| Convert launch models to freezed | `apps/eddyscout/lib/data/launch_models.dart` |
-| Convert conditions models to freezed | `apps/eddyscout/lib/conditions/conditions_models.dart` |
-| Convert decision models to freezed | `apps/eddyscout/lib/decision/go_no_go.dart`, `apps/eddyscout/lib/decision/go_no_go_thresholds.dart` |
-| Convert route result to freezed | `apps/eddyscout/lib/routing/route_result.dart` |
-| Convert Firebase payloads to freezed | `apps/eddyscout/lib/firebase/conditions_summary_payload.dart` |
+| Action | Target | Status |
+|--------|--------|--------|
+| Convert launch models to freezed | `apps/eddyscout/lib/data/launch_models.dart` | Done |
+| Convert conditions models to freezed | `apps/eddyscout/lib/conditions/conditions_models.dart` | Done |
+| Convert decision models to freezed | `go_no_go.dart`, `go_no_go_thresholds.dart` | Done |
+| Convert route result to freezed | `apps/eddyscout/lib/routing/route_result.dart` | Done |
+| Convert Firebase payloads to freezed | `conditions_summary_payload.dart` | Done |
 
 ### Phase M5 — Architecture (flat → feature-first)
 
@@ -121,11 +121,11 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/conditions/conditions_models.dart`
 - **Migration**: M4
-- **Status**: Not started
+- **Status**: Done — `@freezed` + JSON for snapshot types
 
 ### `lib/conditions/conditions_service.dart`
 - **Migration**: M3, M5
-- **Status**: Not started
+- **Status**: M3 done — Dio-backed HTTP; M5 moves to feature package
 
 ### `lib/conditions/conditions_provider.dart`
 - **Migration**: M1
@@ -161,7 +161,7 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/data/launch_models.dart`
 - **Migration**: M4
-- **Status**: Not started
+- **Status**: Done — `LaunchPoint`, `LaunchFlowBands` via freezed
 
 ### `lib/data/launch_points.dart`
 - **Migration**: M5
@@ -169,11 +169,11 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/decision/go_no_go.dart`
 - **Migration**: M4, M5
-- **Status**: Not started
+- **Status**: M4 done — `GoNoGoReason`, `GoNoGoResult` freezed; evaluator unchanged
 
 ### `lib/decision/go_no_go_thresholds.dart`
 - **Migration**: M4, M5
-- **Status**: Not started
+- **Status**: M4 done — `GoNoGoThresholds`, `RiverFlowThresholds` freezed
 
 ### `lib/firebase/conditions_callables.dart`
 - **Migration**: M3, M5
@@ -189,7 +189,7 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/firebase/conditions_summary_payload.dart`
 - **Migration**: M4, M5
-- **Status**: Not started
+- **Status**: M4 done — `ConditionsSummaryPayload` + `LaunchSummary` with `toJson`
 
 ### `lib/firebase/firebase_bootstrap.dart`
 - **Migration**: M5
@@ -250,7 +250,7 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/routing/route_result.dart`
 - **Migration**: M4, M5
-- **Status**: Not started
+- **Status**: M4 done — sealed `@freezed` union (`RouteSuccess` / `RouteFailure`)
 
 ### `lib/debug/map_debug_log.dart`
 - **Migration**: Keep in app (debug-only)

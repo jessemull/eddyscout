@@ -1,3 +1,8 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'launch_models.freezed.dart';
+part 'launch_models.g.dart';
+
 /// River system for UI copy and which condition products apply.
 enum RiverSystem { willamette, columbia, clackamas, slough }
 
@@ -32,23 +37,23 @@ extension TideRelevanceLabel on TideRelevance {
   };
 }
 
-/// Editorial cfs bands for [GoNoGoEvaluator] tied to the gauge at this launch.
+/// Editorial cfs bands for go/no-go flow rules tied to the gauge at this launch.
 /// Replaces [RiverSystem] fallbacks when non-null; tune with local experts.
-class LaunchFlowBands {
-  const LaunchFlowBands({
-    this.cfsMarginalBelow,
-    this.cfsComfortMax,
-    this.cfsNoGoAbove,
-  });
+@freezed
+abstract class LaunchFlowBands with _$LaunchFlowBands {
+  const factory LaunchFlowBands({
+    /// Below this cfs → marginal (low-water / strainer risk cue).
+    double? cfsMarginalBelow,
 
-  /// Below this cfs → marginal (low-water / strainer risk cue).
-  final double? cfsMarginalBelow;
+    /// At or above → marginal (high, pushy water for this stretch).
+    double? cfsComfortMax,
 
-  /// At or above → marginal (high, pushy water for this stretch).
-  final double? cfsComfortMax;
+    /// At or above → no-go (planning hint).
+    double? cfsNoGoAbove,
+  }) = _LaunchFlowBands;
 
-  /// At or above → no-go (planning hint).
-  final double? cfsNoGoAbove;
+  factory LaunchFlowBands.fromJson(Map<String, dynamic> json) =>
+      _$LaunchFlowBandsFromJson(json);
 }
 
 /// Shared bands for launches using the same USGS site (editorial placeholders).
@@ -78,40 +83,31 @@ const LaunchFlowBands kFlowBandsUsgs14144700ColumbiaVancouver = LaunchFlowBands(
 );
 
 /// Curated kayak / small-craft access point with API linkage metadata.
-class LaunchPoint {
-  const LaunchPoint({
-    required this.id,
-    required this.name,
-    required this.latitude,
-    required this.longitude,
-    required this.shortNote,
-    required this.riverSystem,
-    required this.windExposure,
-    required this.tideRelevance,
-    this.noaaTideStationId,
-    this.marineZoneId,
-    this.usgsSiteId,
-    this.flowBands,
-  });
+@freezed
+abstract class LaunchPoint with _$LaunchPoint {
+  const factory LaunchPoint({
+    required String id,
+    required String name,
+    required double latitude,
+    required double longitude,
+    required String shortNote,
+    required RiverSystem riverSystem,
+    required WindExposure windExposure,
+    required TideRelevance tideRelevance,
 
-  final String id;
-  final String name;
-  final double latitude;
-  final double longitude;
-  final String shortNote;
-  final RiverSystem riverSystem;
-  final WindExposure windExposure;
-  final TideRelevance tideRelevance;
+    /// NOAA CO-OPS station id when [tideRelevance] is not [TideRelevance.none].
+    String? noaaTideStationId,
 
-  /// NOAA CO-OPS station id when [tideRelevance] is not [TideRelevance.none].
-  final String? noaaTideStationId;
+    /// NWS marine forecast zone (e.g. PZZ210); null when not applicable.
+    String? marineZoneId,
 
-  /// NWS marine forecast zone (e.g. PZZ210); null when not applicable.
-  final String? marineZoneId;
+    /// USGS NWIS site number for discharge/stage when curated.
+    String? usgsSiteId,
 
-  /// USGS NWIS site number for discharge/stage when curated.
-  final String? usgsSiteId;
+    /// When set, flow rules use these bands instead of [RiverSystem] defaults.
+    LaunchFlowBands? flowBands,
+  }) = _LaunchPoint;
 
-  /// When set, flow rules use these bands instead of [RiverSystem] defaults.
-  final LaunchFlowBands? flowBands;
+  factory LaunchPoint.fromJson(Map<String, dynamic> json) =>
+      _$LaunchPointFromJson(json);
 }
