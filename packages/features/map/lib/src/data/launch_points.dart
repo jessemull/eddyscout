@@ -1,7 +1,10 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 
-/// All curated launches (PDX metro, Oregon City, Scappoose, lower Columbia, WA side).
-/// Coords placed at water access / ramp where possible (satellite + water-trail cross-check).
+/// All curated launches (PDX metro, Oregon City, Scappoose, lower Columbia,
+/// WA side).
+///
+/// Coords placed at water access / ramp where possible (satellite +
+/// water-trail cross-check).
 const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'cathedral_park',
@@ -9,12 +12,12 @@ const List<LaunchPoint> kLaunchPoints = [
     latitude: 45.5621,
     longitude: -122.7328,
     shortNote:
-        'Willamette put-in below St. Johns Bridge; motorboat traffic and current.',
+        'Willamette put-in below St. Johns Bridge; '
+        'motorboat traffic and current.',
     riverSystem: RiverSystem.willamette,
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9439221',
-    marineZoneId: null,
     usgsSiteId: '14211720',
     flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
@@ -29,7 +32,6 @@ const List<LaunchPoint> kLaunchPoints = [
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9439221',
-    marineZoneId: null,
     usgsSiteId: '14211720',
     flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
@@ -43,7 +45,6 @@ const List<LaunchPoint> kLaunchPoints = [
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9439221',
-    marineZoneId: null,
     usgsSiteId: '14211720',
     flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
@@ -58,7 +59,6 @@ const List<LaunchPoint> kLaunchPoints = [
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9439221',
-    marineZoneId: null,
     usgsSiteId: '14211720',
     flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
@@ -68,13 +68,13 @@ const List<LaunchPoint> kLaunchPoints = [
     latitude: 45.6463,
     longitude: -122.7580,
     shortNote:
-        'Slough-side put-in near park entrance; confluence currents and Columbia tide influence—check park rules.',
+        'Slough-side put-in near park entrance; confluence currents and '
+        'Columbia tide influence—check park rules.',
     riverSystem: RiverSystem.slough,
     windExposure: WindExposure.exposed,
     tideRelevance: TideRelevance.major,
     noaaTideStationId: '9440083',
     marineZoneId: 'PZZ210',
-    usgsSiteId: null,
   ),
   LaunchPoint(
     id: 'swan_island_boat_ramp',
@@ -86,7 +86,6 @@ const List<LaunchPoint> kLaunchPoints = [
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9439221',
-    marineZoneId: null,
     usgsSiteId: '14211720',
     flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
@@ -100,7 +99,6 @@ const List<LaunchPoint> kLaunchPoints = [
     windExposure: WindExposure.sheltered,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9439221',
-    marineZoneId: null,
     usgsSiteId: '14211720',
     flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
@@ -114,7 +112,6 @@ const List<LaunchPoint> kLaunchPoints = [
     windExposure: WindExposure.sheltered,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9439221',
-    marineZoneId: null,
     usgsSiteId: '14211720',
     flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
@@ -128,7 +125,6 @@ const List<LaunchPoint> kLaunchPoints = [
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9439221',
-    marineZoneId: null,
     usgsSiteId: '14211720',
     flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
@@ -141,8 +137,6 @@ const List<LaunchPoint> kLaunchPoints = [
     riverSystem: RiverSystem.willamette,
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.none,
-    noaaTideStationId: null,
-    marineZoneId: null,
     usgsSiteId: '14211720',
     flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
@@ -156,7 +150,6 @@ const List<LaunchPoint> kLaunchPoints = [
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9439221',
-    marineZoneId: null,
     usgsSiteId: '14211010',
     flowBands: kFlowBandsUsgs14211010ClackamasNearOc,
   ),
@@ -171,7 +164,6 @@ const List<LaunchPoint> kLaunchPoints = [
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9439221',
-    marineZoneId: null,
     usgsSiteId: '14211010',
     flowBands: kFlowBandsUsgs14211010ClackamasNearOc,
   ),
@@ -185,8 +177,6 @@ const List<LaunchPoint> kLaunchPoints = [
     riverSystem: RiverSystem.columbia,
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.none,
-    noaaTideStationId: null,
-    marineZoneId: null,
     usgsSiteId: '14137000',
     flowBands: kFlowBandsUsgs14137000SandyTroutdale,
   ),
@@ -201,7 +191,6 @@ const List<LaunchPoint> kLaunchPoints = [
     tideRelevance: TideRelevance.major,
     noaaTideStationId: '9440083',
     marineZoneId: 'PZZ251',
-    usgsSiteId: null,
   ),
   LaunchPoint(
     id: 'st_helens_public_marina',
@@ -270,11 +259,10 @@ const List<LaunchPoint> kLaunchPoints = [
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
     noaaTideStationId: '9440083',
-    marineZoneId: null,
-    usgsSiteId: null,
   ),
 ];
 
+/// Returns the curated launch for [id], or null if not in [kLaunchPoints].
 LaunchPoint? launchPointById(String id) {
   for (final p in kLaunchPoints) {
     if (p.id == id) return p;

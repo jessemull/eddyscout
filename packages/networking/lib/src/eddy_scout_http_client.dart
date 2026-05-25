@@ -4,8 +4,10 @@ import 'package:eddyscout_networking/src/eddy_scout_http_response.dart';
 
 /// Shared HTTP client for public conditions APIs (NWS, NOAA, USGS, Open-Meteo).
 ///
-/// Backed by [Dio] from [EddyScoutDioFactory] with retry and optional debug logging.
+/// Backed by [Dio] from [EddyScoutDioFactory] with retry and optional debug
+/// logging.
 class EddyScoutHttpClient {
+  /// Creates a client with optional [dio], [requestTimeout], and debug logging.
   EddyScoutHttpClient({
     Dio? dio,
     this.requestTimeout = const Duration(seconds: 18),
@@ -14,11 +16,15 @@ class EddyScoutHttpClient {
            dio ??
            EddyScoutDioFactory(enableDebugLogging: enableDebugLogging).create();
 
+  /// User-Agent sent on every request (NWS and USGS policy).
   static const String userAgent = EddyScoutDioFactory.defaultUserAgent;
 
   final Dio _dio;
+
+  /// Per-request receive timeout for conditions fetches.
   final Duration requestTimeout;
 
+  /// GET [uri] and return status code plus plain-text body.
   Future<EddyScoutHttpResponse> get(
     Uri uri, {
     Map<String, String>? headers,
@@ -38,10 +44,10 @@ class EddyScoutHttpClient {
   }
 
   /// NWS prefers `application/geo+json` for api.weather.gov.
-  Future<EddyScoutHttpResponse> getNws(Uri uri) {
-    return get(uri, headers: {'Accept': 'application/geo+json'});
-  }
+  Future<EddyScoutHttpResponse> getNws(Uri uri) =>
+      get(uri, headers: {'Accept': 'application/geo+json'});
 
+  /// GET [uri] as JSON; returns null on non-2xx or transport errors.
   Future<Map<String, dynamic>?> getJson(Uri uri) async {
     try {
       final response = await _dio.get<dynamic>(
@@ -61,6 +67,7 @@ class EddyScoutHttpClient {
     }
   }
 
+  /// NWS GET with geo+json Accept; null on failure like [getJson].
   Future<Map<String, dynamic>?> getNwsJson(Uri uri) async {
     try {
       final response = await _dio.get<dynamic>(
@@ -91,6 +98,7 @@ class EddyScoutHttpClient {
     return null;
   }
 
+  /// Closes the underlying [Dio] instance.
   void close() {
     _dio.close(force: true);
   }

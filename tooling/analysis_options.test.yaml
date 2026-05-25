@@ -7,7 +7,6 @@ analyzer:
     prefer_const_declarations: ignore
     prefer_const_literals_to_create_immutables: ignore
     avoid_redundant_argument_values: ignore
-    directives_ordering: ignore
     prefer_expression_function_bodies: ignore
     prefer_int_literals: ignore
 

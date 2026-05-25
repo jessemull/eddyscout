@@ -1,1 +1,1 @@
-include: ../../tooling/analysis_options.feature.yaml
+include: ../../tooling/analysis_options.package.yaml

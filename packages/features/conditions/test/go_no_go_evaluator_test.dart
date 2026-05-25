@@ -1,7 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
-
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 LaunchPoint _launch({
   WindExposure exposure = WindExposure.moderate,

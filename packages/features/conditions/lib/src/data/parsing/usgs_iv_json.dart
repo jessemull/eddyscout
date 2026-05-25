@@ -1,5 +1,6 @@
-import '../../domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 
+/// Parses USGS instantaneous values JSON for parameter 00060 (cfs).
 RiverFlowReading? riverFlowFromUsgsIv(
   Map<String, dynamic> json, {
   required String siteId,

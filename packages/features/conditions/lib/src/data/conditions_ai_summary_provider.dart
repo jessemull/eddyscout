@@ -1,15 +1,16 @@
+import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
+import 'package:eddyscout_conditions/src/data/firebase/conditions_summary_payload.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'firebase/conditions_callables.dart';
-import 'firebase/conditions_summary_payload.dart';
-import '../domain/conditions_models.dart';
-import '../domain/go_no_go.dart';
-
 /// Calls Firebase `summarizeConditions` for a launch snapshot.
 class ConditionsAiSummaryRepository {
+  /// Creates a stateless repository for Callable wrappers.
   const ConditionsAiSummaryRepository();
 
+  /// Returns AI summary text for the given launch and conditions state.
   Future<String> summarize({
     required LaunchPoint launch,
     required ConditionsSnapshot snapshot,
@@ -26,6 +27,7 @@ class ConditionsAiSummaryRepository {
   }
 }
 
+/// Injectable [ConditionsAiSummaryRepository] for tests and overrides.
 final Provider<ConditionsAiSummaryRepository>
 conditionsAiSummaryRepositoryProvider = Provider<ConditionsAiSummaryRepository>(
   (ref) => const ConditionsAiSummaryRepository(),
@@ -33,19 +35,27 @@ conditionsAiSummaryRepositoryProvider = Provider<ConditionsAiSummaryRepository>(
 
 /// UI state for the on-demand conditions AI summary card.
 class ConditionsAiSummaryState {
+  /// Creates summary card state.
   const ConditionsAiSummaryState({
     this.isLoading = false,
     this.summary,
     this.errorMessage,
   });
 
+  /// True while the Callable request is in flight.
   final bool isLoading;
+
+  /// Last successful summary text, if any.
   final String? summary;
+
+  /// User-facing error when the request failed.
   final String? errorMessage;
 
+  /// True before the user has requested a summary.
   bool get isIdle => !isLoading && summary == null && errorMessage == null;
 }
 
+/// Notifier for the conditions AI summary card.
 class ConditionsAiSummaryNotifier
     extends FamilyNotifier<ConditionsAiSummaryState, String> {
   @override
@@ -53,6 +63,7 @@ class ConditionsAiSummaryNotifier
     return const ConditionsAiSummaryState();
   }
 
+  /// Fetches an AI summary for the current launch conditions.
   Future<void> summarize({
     required LaunchPoint launch,
     required ConditionsSnapshot snapshot,
@@ -76,6 +87,7 @@ class ConditionsAiSummaryNotifier
   }
 }
 
+/// Family notifier provider keyed by launch id.
 final NotifierProviderFamily<
   ConditionsAiSummaryNotifier,
   ConditionsAiSummaryState,

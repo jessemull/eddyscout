@@ -17,5 +17,6 @@ sealed class RouteResult with _$RouteResult {
 
   const factory RouteResult.failure(String message) = RouteFailure;
 
+  /// True when this result is [RouteSuccess].
   bool get isSuccess => this is RouteSuccess;
 }

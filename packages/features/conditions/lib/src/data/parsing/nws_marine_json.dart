@@ -1,5 +1,6 @@
-import '../../domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 
+/// Parses legacy NWS marine zone forecast GeoJSON when the endpoint responds.
 MarineSummary? marineFromNwsZoneForecast(
   Map<String, dynamic> geoJson, {
   required String zoneId,

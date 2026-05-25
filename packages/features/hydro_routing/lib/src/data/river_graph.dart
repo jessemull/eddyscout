@@ -1,8 +1,10 @@
-import 'geodesy.dart';
-import 'river_geojson.dart';
-import '../domain/route_result.dart';
+import 'package:eddyscout_hydro_routing/src/data/geodesy.dart';
+import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
+import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
 
-/// Undirected weighted graph from hydro LineStrings (merged endpoints within [mergeVertexMeters]).
+/// Undirected weighted graph from hydro LineStrings.
+///
+/// Endpoints within the merge threshold of an existing vertex are merged.
 class RiverLineGraph {
   RiverLineGraph._(this._lat, this._lon, this._adj);
 
@@ -10,9 +12,12 @@ class RiverLineGraph {
   final List<double> _lon;
   final List<List<({int to, double w})>> _adj;
 
+  /// Number of graph vertices after line merge.
   int get vertexCount => _lat.length;
 
-  /// Build from parsed features; keep lines whose `river_system` matches or is null.
+  /// Build from parsed features.
+  ///
+  /// Keeps lines whose `river_system` matches [riverSystemName] or is null.
   static RiverLineGraph fromFeatures(
     List<HydroLineFeature> features, {
     required String riverSystemName,
@@ -157,7 +162,7 @@ class RiverLineGraph {
     return bestI < 0 ? null : bestI;
   }
 
-  /// Returns vertex indices from [src] to [dst] inclusive, or null if disconnected.
+  /// Returns vertex indices from [src] to [dst], or null if disconnected.
   List<int>? _dijkstra(int src, int dst) {
     final n = _lat.length;
     const inf = 1e30;

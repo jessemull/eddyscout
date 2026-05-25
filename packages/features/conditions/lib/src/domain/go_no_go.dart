@@ -1,16 +1,26 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-import 'conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/go_no_go_thresholds.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'go_no_go_thresholds.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'go_no_go.freezed.dart';
 part 'go_no_go.g.dart';
 
 /// User skill profile; maps to [GoNoGoThresholds] wind tiers.
-enum GoNoGoProfile { beginner, intermediate, advanced }
+enum GoNoGoProfile {
+  /// Conservative wind and flow bands.
+  beginner,
 
+  /// Default planning bands.
+  intermediate,
+
+  /// More lenient wind bands for experienced paddlers.
+  advanced,
+}
+
+/// Resolves stored skill profile to threshold constants.
 extension GoNoGoProfileThresholds on GoNoGoProfile {
+  /// Threshold set for this profile.
   GoNoGoThresholds get thresholds => switch (this) {
     GoNoGoProfile.beginner => GoNoGoThresholds.beginner,
     GoNoGoProfile.intermediate => GoNoGoThresholds.intermediate,
@@ -19,9 +29,23 @@ extension GoNoGoProfileThresholds on GoNoGoProfile {
 }
 
 /// Planning verdict from deterministic rules (not a safety guarantee).
-enum GoNoGoVerdict { go, marginal, noGo, insufficientData }
+enum GoNoGoVerdict {
+  /// Conditions look acceptable for a planning hint.
+  go,
 
+  /// At least one marginal trigger; verify locally.
+  marginal,
+
+  /// At least one no-go trigger; verify locally.
+  noGo,
+
+  /// Weather missing so wind cannot be assessed.
+  insufficientData,
+}
+
+/// UI headlines for [GoNoGoVerdict].
 extension GoNoGoVerdictUi on GoNoGoVerdict {
+  /// Short label for chips and cards.
   String get headline => switch (this) {
     GoNoGoVerdict.go => 'Go (planning hint)',
     GoNoGoVerdict.marginal => 'Marginal',
@@ -30,6 +54,7 @@ extension GoNoGoVerdictUi on GoNoGoVerdict {
   };
 }
 
+/// How a single reason affects the aggregated verdict.
 enum GoNoGoReasonSeverity {
   /// Shown in list; does not elevate verdict.
   info,
@@ -41,26 +66,37 @@ enum GoNoGoReasonSeverity {
   noGo,
 }
 
+/// One human-readable explanation for a go/no-go outcome.
 @freezed
 abstract class GoNoGoReason with _$GoNoGoReason {
+  /// Creates a stable-coded reason line.
   const factory GoNoGoReason({
+    /// Machine-readable reason id for analytics and tests.
     required String code,
+
+    /// Paddler-facing explanation.
     required String message,
+
+    /// How this reason affects [GoNoGoVerdict].
     required GoNoGoReasonSeverity severity,
   }) = _GoNoGoReason;
 
+  /// Parses a reason from JSON.
   factory GoNoGoReason.fromJson(Map<String, dynamic> json) =>
       _$GoNoGoReasonFromJson(json);
 }
 
+/// Verdict plus supporting reasons for one evaluation pass.
 @freezed
 abstract class GoNoGoResult with _$GoNoGoResult {
+  /// Creates an evaluation result.
   const factory GoNoGoResult({
     required GoNoGoVerdict verdict,
     required List<GoNoGoReason> reasons,
     required DateTime computedAt,
   }) = _GoNoGoResult;
 
+  /// Parses an evaluation result from JSON.
   factory GoNoGoResult.fromJson(Map<String, dynamic> json) =>
       _$GoNoGoResultFromJson(json);
 }
@@ -69,6 +105,7 @@ abstract class GoNoGoResult with _$GoNoGoResult {
 class GoNoGoEvaluator {
   GoNoGoEvaluator._();
 
+  /// Evaluates rules for one launch and conditions snapshot.
   static GoNoGoResult evaluate(
     LaunchPoint launch,
     ConditionsSnapshot snapshot, {
@@ -85,7 +122,8 @@ class GoNoGoEvaluator {
         const GoNoGoReason(
           code: 'cold_water_season',
           message:
-              'Cold-water season in the PNW—dress for immersion, know hypothermia risk, and carry safety gear.',
+              'Cold-water season in the PNW—dress for immersion, know '
+              'hypothermia risk, and carry safety gear.',
           severity: GoNoGoReasonSeverity.info,
         ),
       );
@@ -97,8 +135,10 @@ class GoNoGoEvaluator {
         GoNoGoReason(
           code: 'weather_missing',
           message: snapshot.weatherError != null
-              ? 'Weather data failed to load (${snapshot.weatherError}). Cannot assess wind from forecast.'
-              : 'Weather data was not available. Cannot assess wind from forecast.',
+              ? 'Weather data failed to load (${snapshot.weatherError}). '
+                    'Cannot assess wind from forecast.'
+              : 'Weather data was not available. '
+                    'Cannot assess wind from forecast.',
           severity: GoNoGoReasonSeverity.info,
         ),
       );
@@ -142,7 +182,8 @@ class GoNoGoEvaluator {
         const GoNoGoReason(
           code: 'wind_unknown',
           message:
-              'Wind speed or gust was not available from the forecast—use caution, especially in open or exposed areas.',
+              'Wind speed or gust was not available from the forecast—use '
+              'caution, especially in open or exposed areas.',
           severity: GoNoGoReasonSeverity.marginal,
         ),
       );
@@ -155,7 +196,8 @@ class GoNoGoEvaluator {
         GoNoGoReason(
           code: 'wind_high',
           message:
-              'Effective wind about $eff mph (${exposure.label.toLowerCase()} site)—our stub rules treat this as strong for paddling.',
+              'Effective wind about $eff mph (${exposure.label.toLowerCase()} '
+              'site)—our stub rules treat this as strong for paddling.',
           severity: GoNoGoReasonSeverity.noGo,
         ),
       );
@@ -164,7 +206,8 @@ class GoNoGoEvaluator {
         GoNoGoReason(
           code: 'wind_elevated',
           message:
-              'Effective wind about $eff mph (${exposure.label.toLowerCase()} site)—conditions may feel rougher on open water.',
+              'Effective wind about $eff mph (${exposure.label.toLowerCase()} '
+              'site)—conditions may feel rougher on open water.',
           severity: GoNoGoReasonSeverity.marginal,
         ),
       );
@@ -185,8 +228,9 @@ class GoNoGoEvaluator {
     var n = 0;
     for (final p in marine.periods) {
       if (n >= marineTextScanMaxChars) break;
-      buf.write(p.detailedForecast);
-      buf.write(' ');
+      buf
+        ..write(p.detailedForecast)
+        ..write(' ');
       n = buf.length;
       if (n >= marineTextScanMaxChars) break;
     }
@@ -201,7 +245,8 @@ class GoNoGoEvaluator {
           GoNoGoReason(
             code: 'marine_severe',
             message:
-                'Marine forecast text mentions “$pattern”—treat as hazardous until you verify locally.',
+                'Marine forecast text mentions “$pattern”—treat as hazardous '
+                'until you verify locally.',
             severity: GoNoGoReasonSeverity.noGo,
           ),
         );
@@ -214,7 +259,8 @@ class GoNoGoEvaluator {
           GoNoGoReason(
             code: 'marine_advisory',
             message:
-                'Marine forecast includes “$pattern”—expect rougher water, current, or advisories near the estuary/coast.',
+                'Marine forecast includes “$pattern”—expect rougher water, '
+                'current, or advisories near the estuary/coast.',
             severity: GoNoGoReasonSeverity.marginal,
           ),
         );
@@ -223,7 +269,7 @@ class GoNoGoEvaluator {
     }
   }
 
-  /// Info when the forecast period start falls in typical low-light local hours.
+  /// Info when forecast period start is during typical low-light hours.
   static void _maybeAddForecastTimeInfo(
     WeatherConditions w,
     List<GoNoGoReason> reasons,
@@ -237,7 +283,9 @@ class GoNoGoEvaluator {
         const GoNoGoReason(
           code: 'forecast_low_light_hours',
           message:
-              'This forecast period starts during typical low-light hours locally—verify visibility, hazards, and your comfort paddling after dark.',
+              'This forecast period starts during typical low-light hours '
+              'locally—verify visibility, hazards, and your comfort paddling '
+              'after dark.',
           severity: GoNoGoReasonSeverity.info,
         ),
       );
@@ -260,7 +308,9 @@ class GoNoGoEvaluator {
           GoNoGoReason(
             code: 'flow_very_high',
             message:
-                'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}—above this launch’s curated upper band; verify hazards and skill match.',
+                'Discharge about ${_cfsShort(cfs)} cfs at site '
+                '${reading.siteId}—above this launch’s curated upper band; '
+                'verify hazards and skill match.',
             severity: GoNoGoReasonSeverity.noGo,
           ),
         );
@@ -271,7 +321,9 @@ class GoNoGoEvaluator {
           GoNoGoReason(
             code: 'flow_high',
             message:
-                'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}—at or above this launch’s “elevated flow” band; double-check strainers and current.',
+                'Discharge about ${_cfsShort(cfs)} cfs at site '
+                '${reading.siteId}—at or above this launch’s “elevated flow” '
+                'band; double-check strainers and current.',
             severity: GoNoGoReasonSeverity.marginal,
           ),
         );
@@ -282,7 +334,9 @@ class GoNoGoEvaluator {
           GoNoGoReason(
             code: 'flow_low',
             message:
-                'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}—below this launch’s low-flow cue; watch for shallow spots and wood.',
+                'Discharge about ${_cfsShort(cfs)} cfs at site '
+                '${reading.siteId}—below this launch’s low-flow cue; watch for '
+                'shallow spots and wood.',
             severity: GoNoGoReasonSeverity.marginal,
           ),
         );
@@ -298,7 +352,9 @@ class GoNoGoEvaluator {
         GoNoGoReason(
           code: 'flow_very_high',
           message:
-              'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}—stub upper band for this river class suggests very high water; verify hazards and skill match.',
+              'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}'
+              '—stub upper band for this river class suggests very high water; '
+              'verify hazards and skill match.',
           severity: GoNoGoReasonSeverity.noGo,
         ),
       );
@@ -307,7 +363,9 @@ class GoNoGoEvaluator {
         GoNoGoReason(
           code: 'flow_high',
           message:
-              'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}—above our placeholder “elevated” band for this river class; double-check strainers and current.',
+              'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}'
+              '—above our placeholder “elevated” band for this river class; '
+              'double-check strainers and current.',
           severity: GoNoGoReasonSeverity.marginal,
         ),
       );
@@ -320,8 +378,10 @@ class GoNoGoEvaluator {
     return '$r';
   }
 
-  /// Any [noGo] reason wins. If weather was missing, [insufficientData] unless a no-go fired.
-  /// Otherwise [marginal] if any marginal reason; else [go].
+  /// Any [GoNoGoReasonSeverity.noGo] reason wins.
+  ///
+  /// If weather was missing, returns [GoNoGoVerdict.insufficientData] unless a
+  /// no-go fired. Otherwise marginal if any marginal reason; else go.
   static GoNoGoVerdict _aggregateVerdict({
     required bool weatherMissing,
     required List<GoNoGoReason> reasons,

@@ -90,8 +90,8 @@ Feature packages live under `packages/features/`. The app shell (`apps/eddyscout
 The app uses `tooling/analysis_options.app.yaml` (strict package rules; `public_member_api_docs: false` in the app shell only).
 Preflight and CI run `dart analyze --fatal-infos` on all workspace packages **including** `apps/eddyscout`.
 
-`tooling/analysis_options.legacy_app.yaml` was removed. Remaining transitional relaxations live in
-`tooling/analysis_options.feature.yaml` for feature packages (cleanup deferred).
+`tooling/analysis_options.legacy_app.yaml` was removed. Feature packages now inherit
+`tooling/analysis_options.package.yaml` (only style-only `prefer_*` bodies/methods remain ignored).
 
 ## Legacy File Inventory
 
@@ -258,14 +258,14 @@ Recommended migration order to minimize risk:
 3. **M3** — Swap http → dio (isolated to network layer)
 4. **M2** — Swap Navigator → go_router (requires touching all screens)
 5. **M5** — Extract feature packages (largest refactor)
-6. **M6** — Done (app on strict `analysis_options.app.yaml`; feature-package ignores remain)
+6. **M6** — Done (app on strict `analysis_options.app.yaml`; feature packages on package profile)
 
 ## Post-migration follow-ups (TODO)
 
 Phases M1–M6 are complete. Remaining cleanup:
 
 1. ~~**Map controller extraction**~~ — Done: `mapboxMapControllerProvider` owns Mapbox lifecycle; `map_screen.dart` is composition-only (~120 lines).
-2. **Feature-package analysis tightening** — Remove ignores in `tooling/analysis_options.feature.yaml` one rule at a time; fix findings in `packages/features/*` under `--fatal-infos`.
+2. ~~**Feature-package analysis tightening**~~ — Done: feature packages use package strict profile; all Yes/Optional M6 rules fixed under `--fatal-infos` (two style rules still ignored).
 3. **Legacy inventory doc sync** — Rewrite the Legacy File Inventory below so paths and statuses match the monorepo (many rows still say `Not started` for code already in feature packages).
 
 ## Rules

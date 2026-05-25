@@ -1,12 +1,14 @@
-import 'firebase/conditions_callables.dart';
-import '../presentation/condition_reports_refresh_token_provider.dart';
+import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
+import 'package:eddyscout_conditions/src/presentation/condition_reports_refresh_token_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Firebase-backed condition report reads and AI digest calls.
 class ConditionReportsRepository {
+  /// Creates a stateless repository for Callable wrappers.
   const ConditionReportsRepository();
 
+  /// Lists recent community reports for [launchId].
   Future<List<ConditionReportListItem>> listReports(String launchId) async {
     // Wait until after the first frame so Callables pick up the Auth ID token
     // (avoids spurious unauthenticated on cold open).
@@ -15,6 +17,7 @@ class ConditionReportsRepository {
     return callListConditionReports(launchId: launchId);
   }
 
+  /// Summarizes recent reports into an on-demand digest.
   Future<LaunchReportsDigestResult> summarizeLaunchReports({
     required String launchId,
     bool forceRefresh = false,
@@ -26,12 +29,15 @@ class ConditionReportsRepository {
   }
 }
 
+/// Injectable [ConditionReportsRepository] for tests and overrides.
 final Provider<ConditionReportsRepository> conditionReportsRepositoryProvider =
     Provider<ConditionReportsRepository>(
       (ref) => const ConditionReportsRepository(),
     );
 
-/// Recent paddler reports for a launch; refetches when [conditionReportsRefreshTokenProvider] changes.
+/// Recent paddler reports for a launch.
+///
+/// Refetches when [conditionReportsRefreshTokenProvider] changes.
 final AutoDisposeFutureProviderFamily<List<ConditionReportListItem>, String>
 conditionReportsListProvider = FutureProvider.autoDispose
     .family<List<ConditionReportListItem>, String>((ref, launchId) {
@@ -41,19 +47,27 @@ conditionReportsListProvider = FutureProvider.autoDispose
 
 /// UI state for the on-demand community digest card.
 class LaunchReportsDigestState {
+  /// Creates digest card state.
   const LaunchReportsDigestState({
     this.isLoading = false,
     this.result,
     this.errorMessage,
   });
 
+  /// True while the Callable request is in flight.
   final bool isLoading;
+
+  /// Last successful digest, if any.
   final LaunchReportsDigestResult? result;
+
+  /// User-facing error when the request failed.
   final String? errorMessage;
 
+  /// True before the user has requested a digest.
   bool get isIdle => !isLoading && result == null && errorMessage == null;
 }
 
+/// Notifier for the launch reports digest card.
 class LaunchReportsDigestNotifier
     extends FamilyNotifier<LaunchReportsDigestState, String> {
   @override
@@ -61,6 +75,7 @@ class LaunchReportsDigestNotifier
     return const LaunchReportsDigestState();
   }
 
+  /// Fetches or refreshes the community digest for this family's launch id.
   Future<void> summarize({bool forceRefresh = false}) async {
     state = const LaunchReportsDigestState(isLoading: true);
     try {
@@ -74,6 +89,7 @@ class LaunchReportsDigestNotifier
   }
 }
 
+/// Family notifier provider keyed by launch id.
 final NotifierProviderFamily<
   LaunchReportsDigestNotifier,
   LaunchReportsDigestState,

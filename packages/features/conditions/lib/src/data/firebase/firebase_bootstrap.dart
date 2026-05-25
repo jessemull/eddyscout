@@ -1,8 +1,13 @@
-/// Set from [main] when Firebase init runs; used for user-visible debug on launch detail.
+/// Set from app startup when Firebase init runs.
+///
+/// Used for debug messaging on launch detail.
 class FirebaseBootstrap {
   FirebaseBootstrap._();
 
+  /// Whether Firebase initialization was attempted this session.
   static bool attempted = false;
+
+  /// Last initialization error message, if any.
   static String? lastError;
 
   /// Extra guidance when [lastError] matches a known Firebase Auth code.

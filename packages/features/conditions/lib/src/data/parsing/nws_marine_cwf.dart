@@ -1,11 +1,12 @@
 import 'dart:convert';
 
-import '../../domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 
-/// NWS [api.weather.gov] does not implement `/zones/marine/{id}/forecast` (404:
-/// "Marine Forecast Not Supported"). Coastal text lives in **CWF** products per WFO.
-/// This file resolves the zone → office, fetches the latest CWF, and extracts the
-/// block for [zoneId].
+/// NWS api.weather.gov does not implement `/zones/marine/{id}/forecast` (404).
+///
+/// Coastal text lives in CWF products per WFO.
+///
+/// Resolves zone → office, fetches the latest CWF, and extracts the zone block.
 
 /// Reads `properties.cwa[0]` from GET `/zones/marine/{zoneId}` (Feature JSON).
 String? nwsMarineZoneCwaOffice(Map<String, dynamic> zoneFeature) {
@@ -18,7 +19,8 @@ String? nwsMarineZoneCwaOffice(Map<String, dynamic> zoneFeature) {
 }
 
 /// Picks the newest CWF product id from GET `/products/types/CWF/locations/{office}`.
-/// [office] is three letters, e.g. `PQR` (same as `cwa` on the zone).
+///
+/// The office code is three letters, e.g. `PQR` (same as `cwa` on the zone).
 String? nwsLatestCwfProductId(Map<String, dynamic> productsDoc) {
   final graph = productsDoc['@graph'];
   if (graph is! List<dynamic>) return null;
@@ -39,7 +41,7 @@ String? nwsLatestCwfProductId(Map<String, dynamic> productsDoc) {
   return bestId;
 }
 
-/// NWS marine zone product headers look like `PZZ210-131115-` (zone + WMO line id).
+/// NWS marine zone product headers look like `PZZ210-131115-`.
 final _zoneProductHeader = RegExp(r'^([A-Z]{3}\d{3})-\d+-\s*$');
 
 /// Extracts the text block for [zoneId] from raw CWF [productText].

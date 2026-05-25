@@ -4,7 +4,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-/// Same default app as [Firebase.initializeApp] + region from deployed functions.
+/// Default [Firebase] app and region (`us-west2`) for deployed Callables.
 FirebaseFunctions get _functions =>
     FirebaseFunctions.instanceFor(app: Firebase.app(), region: 'us-west2');
 
@@ -47,15 +47,18 @@ Future<T> _callWithAuthRetry<T>(Future<T> Function() invokeCallable) async {
     }
     await Future<void>.delayed(const Duration(milliseconds: 400));
     await _ensureIdTokenForCallables();
-    return await invokeCallable();
+    return invokeCallable();
   }
 }
 
-/// Calls `summarizeConditions` with a JSON-safe map from [conditionsSummaryPayload].
+/// Calls `summarizeConditions` with a JSON-safe map from
+/// `conditionsSummaryPayload`.
 Future<String> callSummarizeConditions(Map<String, Object?> payload) async {
   return _callWithAuthRetry(() async {
     final callable = _functions.httpsCallable('summarizeConditions');
-    final result = await callable.call(_jsonSafePayload(payload));
+    final result = await callable.call<Map<String, dynamic>>(
+      _jsonSafePayload(payload),
+    );
     final data = Map<Object?, Object?>.from(result.data as Map);
     final text = data['summaryText'] ?? data['summary'];
     if (text is! String || text.isEmpty) {
@@ -73,7 +76,7 @@ Future<void> callSubmitConditionReport({
 }) async {
   await _callWithAuthRetry(() async {
     final callable = _functions.httpsCallable('submitConditionReport');
-    await callable.call(
+    await callable.call<Map<String, dynamic>>(
       _jsonSafePayload(<String, Object?>{
         'launchId': launchId,
         'message': message,
@@ -85,16 +88,14 @@ Future<void> callSubmitConditionReport({
 
 /// One row from `listConditionReports` (no raw UIDs; [isMine] for UI only).
 class ConditionReportListItem {
+  /// Creates a parsed community report row.
   const ConditionReportListItem({
     required this.message,
     required this.createdAt,
     required this.isMine,
   });
 
-  final String message;
-  final DateTime createdAt;
-  final bool isMine;
-
+  /// Parses a Callable JSON map into a list item.
   factory ConditionReportListItem.fromJson(Map<Object?, Object?> json) {
     final message = json['message'];
     final createdAt = json['createdAt'];
@@ -108,6 +109,15 @@ class ConditionReportListItem {
       isMine: isMine,
     );
   }
+
+  /// Paddler-submitted note text.
+  final String message;
+
+  /// Server timestamp for sort order and staleness cues.
+  final DateTime createdAt;
+
+  /// Whether the current signed-in user authored this report.
+  final bool isMine;
 }
 
 /// Calls `listConditionReports`.
@@ -117,7 +127,7 @@ Future<List<ConditionReportListItem>> callListConditionReports({
 }) async {
   return _callWithAuthRetry(() async {
     final callable = _functions.httpsCallable('listConditionReports');
-    final result = await callable.call(
+    final result = await callable.call<Map<String, dynamic>>(
       _jsonSafePayload(<String, Object?>{'launchId': launchId, 'limit': limit}),
     );
     final data = Map<Object?, Object?>.from(result.data as Map);
@@ -137,16 +147,14 @@ Future<List<ConditionReportListItem>> callListConditionReports({
 
 /// Result from `summarizeLaunchReports`.
 class LaunchReportsDigestResult {
+  /// Creates a digest response from Callable JSON.
   const LaunchReportsDigestResult({
     required this.digestText,
     required this.cached,
     required this.noReports,
   });
 
-  final String digestText;
-  final bool cached;
-  final bool noReports;
-
+  /// Parses a Callable JSON map into a digest result.
   factory LaunchReportsDigestResult.fromJson(Map<Object?, Object?> json) {
     final digestText = json['digestText'];
     final cached = json['cached'];
@@ -157,9 +165,18 @@ class LaunchReportsDigestResult {
     return LaunchReportsDigestResult(
       digestText: digestText,
       cached: cached,
-      noReports: noReports is bool ? noReports : false,
+      noReports: noReports is bool && noReports,
     );
   }
+
+  /// AI-generated summary of recent community reports.
+  final String digestText;
+
+  /// Whether the server returned a cached digest.
+  final bool cached;
+
+  /// True when there were no reports to summarize.
+  final bool noReports;
 }
 
 /// Calls `summarizeLaunchReports`.
@@ -170,7 +187,7 @@ Future<LaunchReportsDigestResult> callSummarizeLaunchReports({
 }) async {
   return _callWithAuthRetry(() async {
     final callable = _functions.httpsCallable('summarizeLaunchReports');
-    final result = await callable.call(
+    final result = await callable.call<Map<String, dynamic>>(
       _jsonSafePayload(<String, Object?>{
         'launchId': launchId,
         'forceRefresh': forceRefresh,

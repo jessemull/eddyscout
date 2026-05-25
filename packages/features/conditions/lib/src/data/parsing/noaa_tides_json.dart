@@ -1,4 +1,4 @@
-import '../../domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 
 /// NOAA returns local river time without offset, e.g. `2026-04-12 02:34`.
 DateTime? _parseNoaaLocalDateTime(String t) {
@@ -18,6 +18,7 @@ DateTime? _parseNoaaLocalDateTime(String t) {
   );
 }
 
+/// Parses NOAA CO-OPS hilo predictions JSON into [TideSummary].
 TideSummary? tidesFromNoaaPredictions(
   Map<String, dynamic> json, {
   required String stationId,

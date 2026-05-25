@@ -1,15 +1,21 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-
+import 'package:eddyscout_conditions/eddyscout_conditions.dart'
+    show GoNoGoEvaluator;
+import 'package:eddyscout_conditions/src/domain/go_no_go.dart'
+    show GoNoGoEvaluator;
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'go_no_go_thresholds.freezed.dart';
 
-/// Tunable thresholds for [GoNoGoEvaluator]. Values are **placeholders**—tune with
-/// local experts; river cfs uses coarse [RiverSystem] bands until per-gauge data exists.
+/// Tunable thresholds for [GoNoGoEvaluator].
+///
+/// Values are placeholders—tune with local experts; river cfs uses coarse
+/// [RiverSystem] bands until per-gauge data exists.
 
 /// Intermediate paddler profile (default v1).
 @freezed
 abstract class GoNoGoThresholds with _$GoNoGoThresholds {
+  /// Creates wind mph cutoffs for sheltered, moderate, and exposed sites.
   const factory GoNoGoThresholds({
     required int windMarginalShelteredMph,
     required int windNoGoShelteredMph,
@@ -39,7 +45,7 @@ abstract class GoNoGoThresholds with _$GoNoGoThresholds {
     windNoGoExposedMph: 20,
   );
 
-  /// More lenient bands for experienced paddlers (still not a safety guarantee).
+  /// More lenient bands for experienced paddlers.
   static const GoNoGoThresholds advanced = GoNoGoThresholds(
     windMarginalShelteredMph: 28,
     windNoGoShelteredMph: 42,
@@ -50,7 +56,9 @@ abstract class GoNoGoThresholds with _$GoNoGoThresholds {
   );
 }
 
+/// Wind tier lookup for a [WindExposure] on [GoNoGoThresholds].
 extension GoNoGoThresholdsWind on GoNoGoThresholds {
+  /// Returns (marginal mph, no-go mph) for the given exposure.
   (int marginal, int noGo) windMphForExposure(WindExposure e) => switch (e) {
     WindExposure.sheltered => (windMarginalShelteredMph, windNoGoShelteredMph),
     WindExposure.moderate => (windMarginalModerateMph, windNoGoModerateMph),
@@ -59,12 +67,15 @@ extension GoNoGoThresholdsWind on GoNoGoThresholds {
 }
 
 /// Upper (flood-style) cfs hints by river class—**not** survey-grade.
+///
 /// Only [marginalCfs] / [noGoCfs] when above; no low-water rule in v1.
 @freezed
 abstract class RiverFlowThresholds with _$RiverFlowThresholds {
+  /// Creates optional upper-band cfs thresholds for a river class.
   const factory RiverFlowThresholds({double? marginalCfs, double? noGoCfs}) =
       _RiverFlowThresholds;
 
+  /// Placeholder cfs bands by [RiverSystem] until per-launch [LaunchFlowBands].
   static RiverFlowThresholds forRiverSystem(RiverSystem r) => switch (r) {
     RiverSystem.willamette => const RiverFlowThresholds(
       marginalCfs: 24000,
@@ -93,6 +104,7 @@ final List<String> marineTextNoGoPatterns = [
   'extreme wind',
 ];
 
+/// Marine forecast phrases that elevate to marginal (not no-go).
 final List<String> marineTextMarginalPatterns = [
   'small craft advisory',
   'small craft',
@@ -102,7 +114,7 @@ final List<String> marineTextMarginalPatterns = [
   'heavy freezing spray',
 ];
 
-/// Months (1–12) treated as cold-water season for an extra **info** reason only.
+/// Months (1–12) treated as cold-water season for an extra info reason only.
 const Set<int> coldWaterSeasonMonths = {11, 12, 1, 2, 3, 4};
 
 /// Max characters of marine forecast text to scan (first periods concatenated).

@@ -1,16 +1,12 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 
-import 'hydro_debug_log.dart';
-import 'river_geojson.dart';
-import 'river_graph.dart';
-import '../domain/route_result.dart';
+import 'package:eddyscout_hydro_routing/src/data/hydro_debug_log.dart';
+import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
+import 'package:eddyscout_hydro_routing/src/data/river_graph.dart';
+import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
 
 /// Loads bundled hydro GeoJSON and plans routes between launches.
 class RiverRoutePlanner {
-  RiverRoutePlanner._(this._graphsByRiver);
-
-  final Map<String, RiverLineGraph> _graphsByRiver;
-
   /// Builds graphs from raw GeoJSON text (asset loaded by the app shell).
   factory RiverRoutePlanner.fromGeoJson(String raw) {
     final features = parseHydroGeoJson(raw);
@@ -37,6 +33,11 @@ class RiverRoutePlanner {
     return RiverRoutePlanner._(graphs);
   }
 
+  RiverRoutePlanner._(this._graphsByRiver);
+
+  final Map<String, RiverLineGraph> _graphsByRiver;
+
+  /// Plans a river-line path between [putIn] and [takeOut] on the same system.
   RouteResult plan(LaunchPoint putIn, LaunchPoint takeOut) {
     if (putIn.id == takeOut.id) {
       return const RouteFailure('Choose two different launches.');
@@ -50,7 +51,8 @@ class RiverRoutePlanner {
     final graph = _graphsByRiver[key];
     if (graph == null) {
       return RouteFailure(
-        'No bundled river line for "${putIn.riverSystem.name}" yet — routing is only available where hydro GeoJSON exists.',
+        'No bundled river line for "${putIn.riverSystem.name}" yet — '
+        'routing is only available where hydro GeoJSON exists.',
       );
     }
     return graph.route(

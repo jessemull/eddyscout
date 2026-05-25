@@ -1,22 +1,23 @@
 import 'dart:convert';
 
+import 'package:eddyscout_conditions/src/data/parsing/noaa_tides_json.dart';
+import 'package:eddyscout_conditions/src/data/parsing/nws_json.dart';
+import 'package:eddyscout_conditions/src/data/parsing/nws_marine_cwf.dart';
+import 'package:eddyscout_conditions/src/data/parsing/nws_marine_json.dart';
+import 'package:eddyscout_conditions/src/data/parsing/open_meteo_json.dart';
+import 'package:eddyscout_conditions/src/data/parsing/usgs_iv_json.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_networking/eddyscout_networking.dart';
 
-import '../domain/conditions_models.dart';
-import 'parsing/noaa_tides_json.dart';
-import 'parsing/nws_json.dart';
-import 'parsing/nws_marine_cwf.dart';
-import 'parsing/nws_marine_json.dart';
-import 'parsing/open_meteo_json.dart';
-import 'parsing/usgs_iv_json.dart';
-
 /// Fetches NOAA/NWS/Open-Meteo/USGS data per launch metadata (no backend).
 class ConditionsService {
+  /// Creates a service that uses the given HTTP client for upstream API calls.
   ConditionsService(this._http);
 
   final EddyScoutHttpClient _http;
 
+  /// Loads weather, tides, marine, and river flow for one [launch].
   Future<ConditionsSnapshot> load(LaunchPoint launch) async {
     final fetchedAt = DateTime.now();
 
@@ -67,7 +68,8 @@ class ConditionsService {
 
     try {
       final pointsUri = Uri.parse(
-        'https://api.weather.gov/points/${lat.toStringAsFixed(4)},${lon.toStringAsFixed(4)}',
+        'https://api.weather.gov/points/${lat.toStringAsFixed(4)},'
+        '${lon.toStringAsFixed(4)}',
       );
       final pointsJson = await _http.getNwsJson(pointsUri);
       if (pointsJson == null) {
@@ -94,12 +96,12 @@ class ConditionsService {
         );
       }
       return _WeatherResult(parsed, null);
-    } catch (e) {
+    } on Exception catch (e) {
       try {
         return await openMeteoOrError(
           'NWS error ($e); Open-Meteo had no data.',
         );
-      } catch (e2) {
+      } on Exception catch (e2) {
         return _WeatherResult(null, '$e2');
       }
     }
@@ -128,7 +130,9 @@ class ConditionsService {
     final start = DateTime.now();
     final end = start.add(const Duration(days: 2));
     String ymd(DateTime d) =>
-        '${d.year.toString().padLeft(4, '0')}${d.month.toString().padLeft(2, '0')}${d.day.toString().padLeft(2, '0')}';
+        '${d.year.toString().padLeft(4, '0')}'
+        '${d.month.toString().padLeft(2, '0')}'
+        '${d.day.toString().padLeft(2, '0')}';
 
     Future<TideSummary?> tryDatum(String datum) async {
       final uri = Uri.https(
@@ -168,7 +172,7 @@ class ConditionsService {
       final mllw = await tryDatum('MLLW');
       if (mllw != null) return _TideResult(mllw, null);
       return _TideResult(null, 'No tide predictions for station $station.');
-    } catch (e) {
+    } on Exception catch (e) {
       return _TideResult(null, '$e');
     }
   }
@@ -178,7 +182,7 @@ class ConditionsService {
     if (zone == null || zone.isEmpty) return _MarineResult(null, null);
     try {
       // NWS returns 404 "Marine Forecast Not Supported" for
-      // /zones/marine/{id}/forecast — use Coastal Waters Forecast (CWF) text instead.
+      // /zones/marine/{id}/forecast — use CWF text instead.
       final legacyUri = Uri.parse(
         'https://api.weather.gov/zones/marine/$zone/forecast',
       );
@@ -188,7 +192,7 @@ class ConditionsService {
         if (m != null) return _MarineResult(m, null);
       }
       return await _loadMarineFromCwf(zone);
-    } catch (e) {
+    } on Exception catch (e) {
       return _MarineResult(null, '$e');
     }
   }
@@ -261,7 +265,7 @@ class ConditionsService {
         reading,
         reading == null ? 'No discharge (cfs) at this site right now.' : null,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       return _RiverResult(null, '$e');
     }
   }

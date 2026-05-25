@@ -1,5 +1,6 @@
-import '../../domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 
+/// Parses Open-Meteo `current` block into [WeatherConditions].
 WeatherConditions? weatherFromOpenMeteoCurrent(Map<String, dynamic> json) {
   final current = json['current'];
   if (current is! Map<String, dynamic>) return null;
@@ -20,7 +21,6 @@ WeatherConditions? weatherFromOpenMeteoCurrent(Map<String, dynamic> json) {
     windSpeedMph: wind is num ? wind.round() : null,
     windGustMph: gust is num ? gust.round() : null,
     windDirection: dirLabel,
-    shortForecast: null,
     periodStart: time != null ? DateTime.tryParse(time) : null,
     source: WeatherDataSource.openMeteo,
   );

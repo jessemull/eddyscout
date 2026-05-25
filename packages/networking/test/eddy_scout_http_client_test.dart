@@ -7,8 +7,8 @@ void main() {
     late Dio dio;
 
     setUp(() {
-      dio = Dio(BaseOptions(baseUrl: 'https://api.test'));
-      dio.httpClientAdapter = _JsonAdapter();
+      dio = Dio(BaseOptions(baseUrl: 'https://api.test'))
+        ..httpClientAdapter = _JsonAdapter();
     });
 
     test('getJson returns decoded map on success', () async {

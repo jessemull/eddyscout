@@ -1,5 +1,5 @@
-import '../../domain/conditions_models.dart';
-import 'wind_parse.dart';
+import 'package:eddyscout_conditions/src/data/parsing/wind_parse.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 
 /// Extracts hourly forecast URL from `/points/{lat},{lon}` GeoJSON.
 Uri? nwsHourlyForecastUriFromPoints(Map<String, dynamic> geoJson) {
@@ -10,6 +10,7 @@ Uri? nwsHourlyForecastUriFromPoints(Map<String, dynamic> geoJson) {
   return Uri.tryParse(url);
 }
 
+/// Parses the current or nearest NWS hourly period into [WeatherConditions].
 WeatherConditions? weatherFromNwsHourly(
   Map<String, dynamic> geoJson, {
   required DateTime now,

@@ -10,12 +10,12 @@ environment:
 
 dependencies:
   cloud_functions: ^5.2.1
-  eddyscout_persistence:
-    path: ../../persistence
   eddyscout_core:
     path: ../../core
   eddyscout_networking:
     path: ../../networking
+  eddyscout_persistence:
+    path: ../../persistence
   firebase_auth: ^5.3.4
   firebase_core: ^3.8.1
   flutter:
