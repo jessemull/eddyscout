@@ -14,15 +14,15 @@ This document tracks every legacy file and its migration path. **No legacy file 
 
 ### Phase M1 — State Management (Provider → Riverpod)
 
-**Status**: In progress
+**Status**: Complete
 
-The app currently has no formal state management. State is managed via `StatefulWidget` and direct method calls. All state must migrate to Riverpod providers.
+The app uses Riverpod for shared and async application state. Remaining `StatefulWidget` / `setState` usage is limited to ephemeral UI (report sheet form, Mapbox platform handles).
 
 | Action | Target | Status |
 |--------|--------|--------|
 | Add `ProviderScope` to `main.dart` | `apps/eddyscout/lib/main.dart` | Done |
-| Convert `MapScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/map_screen.dart` | In progress — route planning + planner load migrated |
-| Convert `LaunchDetailScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/launch_detail_screen.dart` | Done — report sheet keeps ephemeral form UI state only |
+| Convert `MapScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/map_screen.dart` | Done |
+| Convert `LaunchDetailScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/launch_detail_screen.dart` | Done |
 | Extract preferences as Riverpod providers | `apps/eddyscout/lib/preferences/go_no_go_profile_prefs.dart` | Done |
 
 ### Phase M2 — Navigation (MaterialApp → go_router)
@@ -108,9 +108,9 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/screens/map_screen.dart` (26,547 lines)
 - **Migration**: M1, M5
-- **Status**: In progress — `ConsumerStatefulWidget`; route planning state + planner load use Riverpod
-- **Priority**: HIGH — God widget, must be decomposed
-- **Notes**: Mapbox map lifecycle and marker install remain imperative in the widget.
+- **Status**: M1 done — route planning, planner load, map interactivity via Riverpod
+- **Priority**: HIGH — God widget, must be decomposed (M5)
+- **Notes**: Mapbox map instance, annotation managers, and tap cancelables remain in `ConsumerState` (platform lifecycle).
 
 ### `lib/screens/launch_detail_screen.dart` (37,263 lines)
 - **Migration**: M1, M5
@@ -235,6 +235,10 @@ Every Dart file in the legacy codebase with its migration status:
 ### `lib/screens/map_planning_provider.dart`
 - **Migration**: M1
 - **Status**: Done — `routePlanningProvider`
+
+### `lib/screens/map_session_provider.dart`
+- **Migration**: M1
+- **Status**: Done — `mapInteractiveProvider`
 
 ### `lib/routing/route_result.dart`
 - **Migration**: M4, M5

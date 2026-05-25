@@ -14,6 +14,7 @@ import '../routing/river_route_planner.dart';
 import '../routing/river_route_planner_provider.dart';
 import 'launch_detail_screen.dart';
 import 'map_planning_provider.dart';
+import 'map_session_provider.dart';
 
 /// Approximate centroid of [kLaunchPoints] for initial viewport.
 Point get _regionCenter {
@@ -42,10 +43,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   /// One-shot diagnostics (launch proximity) per map session.
   bool _mapDiagnosticsLogged = false;
-
-  /// False until Mercator + launch fit runs; blocks gestures so users do not
-  /// pinch-zoom on the default globe (blurry / wrong LOD) before style setup.
-  bool _mapInteractive = false;
 
   /// Throttle noisy [onCameraChangeListener] logs (debug).
   double? _debugLastLoggedCameraZoom;
@@ -359,7 +356,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       mapDebugLog('_installLaunchMarkersIfNeeded failed: $e\n$st');
     } finally {
       if (mounted) {
-        setState(() => _mapInteractive = true);
+        ref.read(mapInteractiveProvider.notifier).state = true;
       }
     }
   }
@@ -577,7 +574,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Future<void> _nudgeZoomBy(double delta) async {
     final map = _mapboxMap;
-    if (map == null || !_mapInteractive) {
+    if (map == null || !ref.read(mapInteractiveProvider)) {
       return;
     }
     try {
@@ -603,7 +600,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Future<void> _fitRegionFromChrome() async {
     final map = _mapboxMap;
-    if (map == null || !_mapInteractive) {
+    if (map == null || !ref.read(mapInteractiveProvider)) {
       return;
     }
     await _fitViewportToAllLaunches(map);
@@ -612,6 +609,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final planning = ref.watch(routePlanningProvider);
+    final mapInteractive = ref.watch(mapInteractiveProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('EddyScout'),
@@ -629,7 +627,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         fit: StackFit.expand,
         children: [
           IgnorePointer(
-            ignoring: !_mapInteractive,
+            ignoring: !mapInteractive,
             child: MapWidget(
               key: const ValueKey<String>('eddyscout_map'),
               styleUri: MapboxStyles.STANDARD,
@@ -653,7 +651,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               onZoomListener: kDebugMode ? _onDebugMapZoomEnded : null,
             ),
           ),
-          if (_mapInteractive)
+          if (mapInteractive)
             Positioned(
               left: 8,
               bottom: MediaQuery.viewPaddingOf(context).bottom + 120,
