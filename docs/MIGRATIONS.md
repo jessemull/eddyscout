@@ -21,8 +21,8 @@ The app currently has no formal state management. State is managed via `Stateful
 | Action | Target | Status |
 |--------|--------|--------|
 | Add `ProviderScope` to `main.dart` | `apps/eddyscout/lib/main.dart` | Done |
-| Convert `MapScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/map_screen.dart` | Not started |
-| Convert `LaunchDetailScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/launch_detail_screen.dart` | In progress — only report sheet form state remains |
+| Convert `MapScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/map_screen.dart` | In progress — route planning + planner load migrated |
+| Convert `LaunchDetailScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/launch_detail_screen.dart` | Done — report sheet keeps ephemeral form UI state only |
 | Extract preferences as Riverpod providers | `apps/eddyscout/lib/preferences/go_no_go_profile_prefs.dart` | Done |
 
 ### Phase M2 — Navigation (MaterialApp → go_router)
@@ -108,15 +108,15 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/screens/map_screen.dart` (26,547 lines)
 - **Migration**: M1, M5
-- **Status**: Not started
+- **Status**: In progress — `ConsumerStatefulWidget`; route planning state + planner load use Riverpod
 - **Priority**: HIGH — God widget, must be decomposed
-- **Notes**: Extremely large file. Must extract into multiple widgets and move state to Riverpod providers.
+- **Notes**: Mapbox map lifecycle and marker install remain imperative in the widget.
 
 ### `lib/screens/launch_detail_screen.dart` (37,263 lines)
 - **Migration**: M1, M5
-- **Status**: In progress — `ConsumerWidget`; conditions + skill profile + report refresh use Riverpod
-- **Priority**: HIGH — God widget, must be decomposed
-- **Notes**: `_ConditionReportSheet` keeps ephemeral form UI state; all async cards use Riverpod.
+- **Status**: Done for M1 — `_ConditionReportSheet` keeps ephemeral form UI state only
+- **Priority**: HIGH — God widget, must be decomposed (M5)
+- **Notes**: M5 will extract nested cards and decompose the file.
 
 ### `lib/conditions/conditions_models.dart`
 - **Migration**: M4
@@ -227,6 +227,14 @@ Every Dart file in the legacy codebase with its migration status:
 ### `lib/routing/river_route_planner.dart`
 - **Migration**: M5
 - **Status**: Not started
+
+### `lib/routing/river_route_planner_provider.dart`
+- **Migration**: M1
+- **Status**: Done — `riverRoutePlannerProvider`
+
+### `lib/screens/map_planning_provider.dart`
+- **Migration**: M1
+- **Status**: Done — `routePlanningProvider`
 
 ### `lib/routing/route_result.dart`
 - **Migration**: M4, M5

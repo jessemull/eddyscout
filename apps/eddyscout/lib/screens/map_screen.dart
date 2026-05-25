@@ -3,6 +3,7 @@ import 'dart:convert' show jsonEncode;
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import '../data/launch_models.dart';
@@ -10,7 +11,9 @@ import '../data/launch_points.dart';
 import '../debug/map_debug_log.dart';
 import '../routing/route_result.dart';
 import '../routing/river_route_planner.dart';
+import '../routing/river_route_planner_provider.dart';
 import 'launch_detail_screen.dart';
+import 'map_planning_provider.dart';
 
 /// Approximate centroid of [kLaunchPoints] for initial viewport.
 Point get _regionCenter {
@@ -23,21 +26,19 @@ Point get _regionCenter {
   return Point(coordinates: Position(lon / n, lat / n));
 }
 
-class MapScreen extends StatefulWidget {
+class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
+  ConsumerState<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends ConsumerState<MapScreen> {
   Cancelable? _tapCancelable;
   MapboxMap? _mapboxMap;
   bool _markersInstalled = false;
 
   CircleAnnotationManager? _circleManager;
-
-  RiverRoutePlanner? _routePlanner;
 
   /// One-shot diagnostics (launch proximity) per map session.
   bool _mapDiagnosticsLogged = false;
@@ -50,11 +51,6 @@ class _MapScreenState extends State<MapScreen> {
   double? _debugLastLoggedCameraZoom;
   int _debugLastCameraChangeLogMs = 0;
 
-  bool _planningMode = false;
-  LaunchPoint? _putIn;
-  LaunchPoint? _takeOut;
-  double? _routeLengthKm;
-
   static const int _markerColor = 0xFF0077B6;
   static const int _markerStroke = 0xFFFFFFFF;
   static const int _routeLineColor = 0xFFE63946;
@@ -63,16 +59,6 @@ class _MapScreenState extends State<MapScreen> {
   static const String _routeLayerId = 'eddyscout-route-layer';
   static const String _emptyRouteGeoJson =
       '{"type":"FeatureCollection","features":[]}';
-
-  @override
-  void initState() {
-    super.initState();
-    RiverRoutePlanner.load().then((p) {
-      if (mounted) {
-        setState(() => _routePlanner = p);
-      }
-    });
-  }
 
   @override
   void dispose() {
@@ -388,7 +374,8 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    if (!_planningMode) {
+    final planning = ref.read(routePlanningProvider);
+    if (!planning.planningMode) {
       Navigator.of(context).push<void>(
         MaterialPageRoute<void>(
           builder: (context) => LaunchDetailScreen(launch: launch),
@@ -401,31 +388,30 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _handlePlanningTap(LaunchPoint launch) {
-    if (_putIn == null) {
-      setState(() {
-        _putIn = launch;
-        _takeOut = null;
-        _routeLengthKm = null;
-      });
-      unawaited(_clearRouteLine());
-      return;
+    final result = ref
+        .read(routePlanningProvider.notifier)
+        .handleLaunchTap(launch);
+    switch (result) {
+      case RoutePlanningTapResult.putInSelected:
+        unawaited(_clearRouteLine());
+      case RoutePlanningTapResult.takeOutSelected:
+        unawaited(_runRoute());
+      case RoutePlanningTapResult.sameAsPutIn:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Pick a different launch for take-out.'),
+          ),
+        );
+      case null:
+        break;
     }
-    if (_putIn!.id == launch.id) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pick a different launch for take-out.')),
-      );
-      return;
-    }
-    setState(() {
-      _takeOut = launch;
-    });
-    _runRoute();
   }
 
   Future<void> _runRoute() async {
-    final put = _putIn;
-    final take = _takeOut;
-    final planner = _routePlanner;
+    final planning = ref.read(routePlanningProvider);
+    final put = planning.putIn;
+    final take = planning.takeOut;
+    final planner = ref.read(riverRoutePlannerProvider).valueOrNull;
     if (put == null || take == null) {
       return;
     }
@@ -445,7 +431,7 @@ class _MapScreenState extends State<MapScreen> {
 
     if (result is RouteFailure) {
       mapDebugLog('plan FAILED ${put.id} -> ${take.id}: ${result.message}');
-      setState(() => _routeLengthKm = null);
+      ref.read(routePlanningProvider.notifier).setRouteLengthKm(null);
       unawaited(_clearRouteLine());
       ScaffoldMessenger.of(
         context,
@@ -459,7 +445,9 @@ class _MapScreenState extends State<MapScreen> {
     );
     mapDebugLogRoutePolyline('planner output', ok.polylineLonLat);
     mapDebugLogRouteSegmentMeters(ok.polylineLonLat);
-    setState(() => _routeLengthKm = ok.lengthMeters / 1000.0);
+    ref
+        .read(routePlanningProvider.notifier)
+        .setRouteLengthKm(ok.lengthMeters / 1000.0);
     await _drawRouteLine(ok.polylineLonLat);
     await _fitCameraToRoute(ok.polylineLonLat);
   }
@@ -542,15 +530,8 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _togglePlanningMode() {
-    final wasPlanning = _planningMode;
-    setState(() {
-      _planningMode = !_planningMode;
-      if (!_planningMode) {
-        _putIn = null;
-        _takeOut = null;
-        _routeLengthKm = null;
-      }
-    });
+    final wasPlanning = ref.read(routePlanningProvider).planningMode;
+    ref.read(routePlanningProvider.notifier).togglePlanningMode();
     if (wasPlanning) {
       unawaited(_afterExitPlanning());
     }
@@ -567,11 +548,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _clearPlanningSelection() async {
     mapDebugLog('_clearPlanningSelection');
-    setState(() {
-      _putIn = null;
-      _takeOut = null;
-      _routeLengthKm = null;
-    });
+    ref.read(routePlanningProvider.notifier).clearSelection();
     await _clearRouteLine();
     final map = _mapboxMap;
     if (map != null) {
@@ -634,14 +611,17 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final planning = ref.watch(routePlanningProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('EddyScout'),
         actions: [
           IconButton(
-            tooltip: _planningMode ? 'Exit route planning' : 'Plan river route',
+            tooltip: planning.planningMode
+                ? 'Exit route planning'
+                : 'Plan river route',
             onPressed: _togglePlanningMode,
-            icon: Icon(_planningMode ? Icons.close : Icons.alt_route),
+            icon: Icon(planning.planningMode ? Icons.close : Icons.alt_route),
           ),
         ],
       ),
@@ -706,11 +686,11 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
             ),
-          if (_planningMode)
+          if (planning.planningMode)
             _PlanningOverlay(
-              putIn: _putIn,
-              takeOut: _takeOut,
-              routeLengthKm: _routeLengthKm,
+              putIn: planning.putIn,
+              takeOut: planning.takeOut,
+              routeLengthKm: planning.routeLengthKm,
               onClear: () => unawaited(_clearPlanningSelection()),
               onDone: _togglePlanningMode,
             ),
