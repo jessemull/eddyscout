@@ -1,60 +1,315 @@
+---
+name: security-review
+description: >-
+  Audit and review security for EddyScout: authentication, storage,
+  network, input validation, dependencies, and platform channels. Use
+  when handling sensitive data, adding dependencies, or reviewing
+  security-critical code.
+---
+
 # Security Review
 
-> Read `CONTEXT.md` and `AGENTS.md` before using this skill.
+Read the following before implementing or reviewing any security-sensitive changes:
 
-## When to Use
+- `CONTEXT.md`
+- `AGENTS.md`
+- `docs/SECURITY.md`
+- `docs/ARCHITECTURE.md`
+- `docs/STATE_MANAGEMENT.md`
+- `docs/DEPENDENCIES.md`
+- `docs/PLATFORMS.md`
+- `docs/TESTING.md`
 
-Use when auditing code for security issues or implementing security-sensitive features.
+Companion skills:
+- `dependency-upgrade` — package evaluation and vulnerability checks
+- `testing` — security-related test coverage
+- `riverpod-usage` — auth state isolation and provider security
 
-## References
+Security is a **system-wide constraint**, not a feature layer.
 
-- `docs/SECURITY.md` — security policy, secret management, vulnerability response
+All code must assume:
+- untrusted network input
+- compromised client environment (mobile/web)
+- malicious or malformed API responses
+- reverse-engineering risk on mobile apps
 
-## Checklist
+---
 
-### 1. Hardcoded Secrets
+# When to Use
 
-- [ ] No API keys, tokens, or passwords in source code
-- [ ] No secrets in `pubspec.yaml`, config files, or assets
-- [ ] `.gitignore` excludes `.env`, `google-services.json`, `GoogleService-Info.plist`
-- [ ] Secrets are loaded from environment variables or secure storage at runtime
+Use this skill when:
 
-### 2. Secure Storage
+- handling authentication or authorization
+- storing or retrieving sensitive data
+- making network requests
+- adding new dependencies
+- using platform channels or native APIs
+- handling user input
+- logging or analytics
+- implementing payments or identity flows
+- configuring storage (secure storage, local DBs)
+- exposing APIs or internal state to UI
 
-- [ ] Sensitive data uses `flutter_secure_storage` (not `SharedPreferences`)
-- [ ] Auth tokens stored in secure storage, never in plain text
-- [ ] Cached data does not include PII unless encrypted
+---
 
-### 3. Logging and PII
+# Core Security Principles
 
-- [ ] No PII (names, emails, locations) in log output
-- [ ] No auth tokens or session IDs in logs
-- [ ] Debug logging is gated behind `kDebugMode` or build flavor
-- [ ] Production crash reports scrub PII before sending
+## Never Trust the Client
 
-### 4. Network Security
+- all API responses are untrusted
+- all local storage is modifiable by users
+- all runtime state can be inspected or altered
+- obfuscation is not a security boundary
 
-- [ ] All API calls use HTTPS — no HTTP endpoints
-- [ ] Certificate pinning considered for sensitive endpoints
-- [ ] Auth tokens sent only in `Authorization` header, not query params
-- [ ] Retry/error interceptors do not leak tokens in error messages
+---
 
-### 5. Deep Link Validation
+## Security Must Be Layered
 
-- [ ] Deep link parameters are validated and sanitized
-- [ ] No arbitrary navigation from untrusted deep link data
-- [ ] Auth-gated routes verify authentication before rendering
+Security must exist in:
+- backend (primary enforcement)
+- data layer (validation + sanitization)
+- domain layer (business rules)
+- UI layer (safe display only)
 
-### 6. Permissions
+UI is never a security boundary.
 
-- [ ] Only request permissions that are strictly necessary
-- [ ] Justify each permission in `AndroidManifest.xml` / `Info.plist`
-- [ ] Handle permission denial gracefully with user messaging
-- [ ] Review permission changes — these require human approval
+---
 
-### 7. Dependency Audit
+## Least Privilege Always
 
-- [ ] Review new dependencies for known vulnerabilities
-- [ ] Check dependency license compatibility
-- [ ] Prefer widely-used, actively-maintained packages
-- [ ] Reference `docs/DEPENDENCIES.md` for the approved list
+- request only required permissions
+- access only required data
+- expose only required state
+- minimize persistent storage of sensitive data
+
+---
+
+# 1. Authentication & Authorization
+
+## Authentication Rules
+
+- [ ] tokens must never be hardcoded
+- [ ] tokens must be stored in secure storage (e.g. `flutter_secure_storage`)
+- [ ] tokens must be refreshed safely and automatically
+- [ ] session expiration must be handled gracefully
+- [ ] logout must fully clear all sensitive state
+
+## Authorization Rules
+
+- [ ] enforce access control on backend
+- [ ] do not rely on UI hiding for security
+- [ ] verify permissions in domain/data layer
+- [ ] handle unauthorized responses (401/403)
+
+---
+
+# 2. Secure Storage
+
+## Allowed Storage
+
+- secure storage (tokens, credentials)
+- encrypted local DB (sensitive cached data)
+
+## Forbidden Storage
+
+- plaintext storage of:
+  - tokens
+  - passwords
+  - PII
+  - session identifiers
+
+## Rules
+
+- [ ] assume local storage can be inspected
+- [ ] encrypt sensitive data at rest
+- [ ] clear storage on logout or revocation
+
+---
+
+# 3. Network Security
+
+## Transport Rules
+
+- [ ] HTTPS only (no exceptions)
+- [ ] certificate validation must not be disabled
+- [ ] no insecure HTTP fallbacks in production
+
+## API Rules
+
+- [ ] validate all API responses
+- [ ] handle malformed JSON safely
+- [ ] never trust server-provided UI flags blindly
+- [ ] implement retry/backoff safely (avoid abuse loops)
+
+---
+
+# 4. Input Validation & Sanitization
+
+## Rules
+
+- [ ] validate all user input at entry points
+- [ ] enforce domain-level validation
+- [ ] sanitize before display where needed
+- [ ] reject malformed or unexpected data early
+
+## UI Safety
+
+- [ ] prevent injection into rich text displays
+- [ ] avoid rendering raw HTML unless sanitized
+- [ ] ensure formatting cannot break layout or logic
+
+---
+
+# 5. Dependency Security
+
+## Evaluation Required
+
+Before adding/upgrading dependencies:
+
+- [ ] verify maintainer activity
+- [ ] check vulnerability reports
+- [ ] confirm license compatibility
+- [ ] review transitive dependencies
+- [ ] ensure Flutter/Dart compatibility
+
+## Rules
+
+- [ ] avoid abandoned packages
+- [ ] avoid excessive dependency chains
+- [ ] prefer official Flutter/Dart ecosystem packages
+- [ ] lock versions where appropriate
+
+---
+
+# 6. Logging & Observability
+
+## Sensitive Data Rules
+
+- [ ] never log:
+  - tokens
+  - passwords
+  - personal data (PII)
+  - authentication headers
+- [ ] redact sensitive fields in logs
+
+## Safe Logging
+
+- [ ] log errors without sensitive payloads
+- [ ] include correlation IDs where possible
+- [ ] separate debug vs production logging behavior
+
+---
+
+# 7. Platform Security (Flutter-Specific)
+
+## Platform Channels
+
+- [ ] validate all data crossing platform boundary
+- [ ] assume native code may be compromised
+- [ ] sanitize inputs/outputs on both sides
+
+## Mobile Risks
+
+- [ ] assume device can be rooted/jailbroken
+- [ ] assume app memory can be inspected
+- [ ] do not store secrets in memory longer than necessary
+
+## Web Risks (if applicable)
+
+- [ ] avoid exposing sensitive logic in client JS
+- [ ] assume full code visibility
+
+---
+
+# 8. State Management Security (Riverpod)
+
+- [ ] do not expose sensitive state globally
+- [ ] avoid caching secrets in providers
+- [ ] isolate auth state from UI state
+- [ ] clear providers on logout/session expiry
+- [ ] prevent accidental state persistence across sessions
+
+---
+
+# 9. Data Privacy
+
+- [ ] collect only necessary user data
+- [ ] avoid storing PII unless required
+- [ ] provide safe deletion mechanisms
+- [ ] comply with platform privacy expectations
+
+---
+
+# 10. Error Handling Security
+
+- [ ] do not expose stack traces to end users
+- [ ] sanitize error messages
+- [ ] avoid leaking backend structure in errors
+- [ ] distinguish user-safe vs developer errors
+
+---
+
+# 11. Common Vulnerabilities to Prevent
+
+## MUST NOT
+
+- [ ] store secrets in plain text
+- [ ] bypass authentication checks in UI
+- [ ] trust client-side authorization decisions
+- [ ] log sensitive data
+- [ ] expose internal API structure to UI
+- [ ] disable TLS validation
+- [ ] ignore dependency vulnerabilities
+
+## SHOULD AVOID
+
+- [ ] over-permissive API responses
+- [ ] excessive data exposure in models
+- [ ] long-lived in-memory secrets
+- [ ] unnecessary persistence of sensitive state
+
+---
+
+# 12. Security Validation Checklist
+
+Before committing:
+
+- [ ] authentication flows validated
+- [ ] secure storage used correctly
+- [ ] no secrets in logs or state
+- [ ] dependencies reviewed
+- [ ] input validation applied
+- [ ] network layer secure
+- [ ] platform boundaries validated
+- [ ] tests pass
+- [ ] preflight passes
+
+Run:
+
+```bash
+make preflight
+```
+
+---
+
+# 13. Output Expectations
+
+When completing a security review, provide:
+
+## Risk Summary
+- identified vulnerabilities
+- severity level
+
+## Attack Surface Review
+- network
+- storage
+- UI
+- platform channels
+
+## Mitigations Applied
+- fixes implemented
+- defensive improvements
+
+## Residual Risk
+- accepted risks (if any)
+- justification

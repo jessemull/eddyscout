@@ -1,61 +1,319 @@
+---
+name: testing
+description: >-
+  Write, update, and debug tests for EddyScout: unit, widget, integration,
+  and golden tests. Use when adding features, fixing bugs, refactoring
+  logic, or validating coverage.
+---
+
 # Testing
 
-> Read `CONTEXT.md` and `AGENTS.md` before using this skill.
+Read the following before writing, updating, or debugging any tests:
 
-## When to Use
+- `CONTEXT.md`
+- `AGENTS.md`
+- `docs/TESTING.md`
+- `docs/ARCHITECTURE.md`
+- `docs/STATE_MANAGEMENT.md`
+- `docs/DEPENDENCIES.md`
+- `docs/PERFORMANCE.md`
 
-Use when writing new tests or updating existing test suites.
+Companion skills:
+- `riverpod-usage` — provider testing with `ProviderContainer` and overrides
+- `golden-testing` — visual regression test conventions
+- `accessibility-review` — a11y assertions in widget tests
+- `code-generation` — ensuring codegen output is fresh before testing
 
-## References
+Testing is a **hard requirement for correctness, maintainability, and CI integrity**.
 
-- `docs/TESTING.md` — test strategy, coverage requirements, naming conventions
+All code must be:
+- deterministic
+- isolated
+- repeatable
+- dependency-controlled
+- environment-independent
 
-## Test Type Decision
+---
+
+# When to Use
+
+Use this skill when:
+
+- adding new features
+- fixing bugs
+- refactoring logic
+- changing providers or state
+- modifying UI components
+- upgrading dependencies
+- validating performance or behavior
+- preventing regressions
+
+---
+
+# Core Testing Principles
+
+## Tests Are Specifications
+
+Tests define:
+- expected behavior
+- system contracts
+- regression protection
+- architectural guarantees
+
+---
+
+## Determinism Is Mandatory
+
+Tests must NOT depend on:
+- real network calls
+- real time
+- real storage
+- external services
+- system state
+
+---
+
+## Test Pyramid Enforcement
+
+Prefer:
+1. Unit tests (most)
+2. Widget tests (medium)
+3. Integration tests (few)
+4. Golden tests (selective UI regression only)
+
+---
+
+# 1. Test Type Selection
+
+## Decision Matrix
 
 | Type | When | Location |
 |------|------|----------|
-| Unit | Domain logic, use cases, utilities | `test/` mirroring `lib/` |
-| Widget | Screen rendering, user interaction | `test/` mirroring `lib/` |
-| Integration | Full feature flows with real widgets | `integration_test/` |
-| Golden | Visual regression for UI components | `test/` with `_golden_test.dart` suffix |
+| Unit | business logic, domain, utils | `test/` mirroring `lib/` |
+| Widget | UI rendering + interaction | `test/` mirroring `lib/` |
+| Integration | full app flows | `integration_test/` |
+| Golden | visual regression | `test/` with `_golden_test.dart` |
 
-## Checklist
+---
 
-### 1. Determine Test Type
+## Rules
 
-- [ ] Use the matrix above to select the right test type
-- [ ] Prefer unit tests for pure logic, widget tests for UI
+- [ ] prefer unit tests for logic-heavy code
+- [ ] prefer widget tests for UI behavior
+- [ ] avoid integration tests unless necessary
+- [ ] use golden tests only for stable UI surfaces
 
-### 2. Create Test File
+---
 
-- [ ] Mirror the source file path: `lib/src/domain/foo.dart` → `test/src/domain/foo_test.dart`
-- [ ] Use `_test.dart` suffix for all test files
+# 2. File Structure Rules
 
-### 3. Set Up Mocks
+- [ ] mirror `lib/` structure exactly in `test/`
+- [ ] suffix all test files with `_test.dart`
+- [ ] keep tests close to source for maintainability
 
-- [ ] Use `mocktail` for mocking (not `mockito`)
-- [ ] Create mock classes: `class MockFooRepo extends Mock implements FooRepo {}`
-- [ ] Use `ProviderScope.overrides` for widget tests with Riverpod
-- [ ] Use `ProviderContainer` with overrides for unit-testing providers
+Example:
 
-### 4. Write Descriptive Test Names
+```
+lib/features/auth/login.dart
+test/features/auth/login_test.dart
+```
 
-- [ ] Group related tests with `group()`
-- [ ] Use descriptive names: `'should return error when network fails'`
-- [ ] Test edge cases: null, empty, boundary values, error states
+---
 
-### 5. Ensure Deterministic Tests
+# 3. Mocking Strategy
 
-- [ ] No real network calls — mock all HTTP with `mocktail`
-- [ ] No real timers — use `fakeAsync` or `FakeTimer`
-- [ ] No file system access — use in-memory fakes
-- [ ] Seed random data for reproducibility
+## Standard Tooling
 
-### 6. Run with Coverage
+- [ ] use `mocktail` (preferred)
+- [ ] avoid `mockito` unless required by legacy code
+
+## Mock Rules
+
+- [ ] mock external dependencies only
+- [ ] do not mock domain logic unnecessarily
+- [ ] prefer fake implementations for complex dependencies
+
+---
+
+## Riverpod Testing
+
+- [ ] use `ProviderContainer` for unit tests
+- [ ] use `ProviderScope(overrides: ...)` for widget tests
+- [ ] override dependencies explicitly
+- [ ] avoid global state leakage between tests
+
+---
+
+# 4. Test Design Standards
+
+## Naming
+
+- [ ] use descriptive test names
+- [ ] describe behavior, not implementation
+
+Examples:
+- GOOD: `should return error when network request fails`
+- BAD: `test login failure`
+
+---
+
+## Structure (AAA Pattern)
+
+- Arrange
+- Act
+- Assert
+
+---
+
+## Grouping
+
+- [ ] group related tests using `group()`
+- [ ] group by behavior or feature, not file structure alone
+
+---
+
+# 5. Deterministic Testing Rules
+
+## Forbidden in Tests
+
+- real HTTP calls
+- real timers
+- real file system access
+- external APIs
+- non-seeded randomness
+
+## Required Tools
+
+- [ ] `fakeAsync` for time-based logic
+- [ ] in-memory fakes for storage
+- [ ] mocked HTTP clients for networking
+- [ ] deterministic random seeds when needed
+
+---
+
+# 6. Widget Testing Rules
+
+## Required Coverage
+
+- [ ] rendering state (loading/data/error)
+- [ ] user interactions (tap, scroll, input)
+- [ ] provider integration via overrides
+- [ ] responsive behavior where applicable
+
+## Rules
+
+- [ ] wrap widgets in required providers
+- [ ] use `MaterialApp` or app shell wrapper
+- [ ] ensure async UI states are pumped correctly
+- [ ] avoid relying on implicit animations timing
+
+---
+
+# 7. Integration Testing Rules
+
+## When Required
+
+- authentication flows
+- critical user journeys
+- multi-screen navigation flows
+- end-to-end state validation
+
+## Rules
+
+- [ ] run on real device/emulator
+- [ ] avoid mocking core app layers
+- [ ] isolate external services where possible
+
+---
+
+# 8. Golden Testing Rules
+
+- [ ] only for stable UI components
+- [ ] include multiple device sizes
+- [ ] cover loading, error, and empty states
+- [ ] treat failures as regressions, not flakiness
+
+---
+
+# 9. Coverage Requirements
+
+## Enforcement
+
+- [ ] run coverage reports regularly
+- [ ] ensure new code includes tests
+- [ ] maintain thresholds defined in `docs/TESTING.md`
+
+## Commands
 
 ```bash
 flutter test --coverage
 ```
 
-- [ ] Verify coverage meets thresholds from `docs/TESTING.md`
-- [ ] Run `make preflight` to confirm all gates pass
+---
+
+# 10. Performance Awareness in Tests
+
+- [ ] avoid heavy setup in widget tests
+- [ ] reuse test fixtures
+- [ ] avoid unnecessary rebuild loops
+- [ ] keep golden tests minimal and stable
+
+---
+
+# 11. Common Anti-Patterns
+
+## MUST NOT
+
+- [ ] test implementation details instead of behavior
+- [ ] rely on real network or storage
+- [ ] ignore async state handling
+- [ ] duplicate production logic in tests
+- [ ] skip edge cases (null, empty, error)
+- [ ] create flaky timing-based tests
+
+## SHOULD AVOID
+
+- [ ] overly complex test setups
+- [ ] excessive mocking of internal logic
+- [ ] integration tests for simple logic
+- [ ] brittle widget selectors
+
+---
+
+# 12. Validation Checklist
+
+Before committing:
+
+- [ ] correct test type chosen
+- [ ] deterministic behavior ensured
+- [ ] mocks properly isolated
+- [ ] edge cases covered
+- [ ] provider overrides used correctly
+- [ ] coverage thresholds met
+- [ ] preflight passes
+
+Run:
+
+```bash
+make preflight
+```
+
+---
+
+# 13. Output Expectations
+
+When completing testing work, provide:
+
+## Test Coverage Summary
+- what is covered
+- what is not covered
+
+## Test Strategy
+- unit vs widget vs integration breakdown
+
+## Risk Assessment
+- flaky test risks
+- missing edge cases
+
+## Coverage Report Notes
+- any threshold concerns
