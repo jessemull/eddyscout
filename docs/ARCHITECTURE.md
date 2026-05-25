@@ -191,7 +191,7 @@ networking/lib/src/
 └── networking.dart      # barrel export
 ```
 
-During migration: existing clients in `apps/eddyscout/lib/network/` and `apps/eddyscout/lib/conditions/` are the current location. New clients should target `packages/networking/`.
+HTTP clients live in `packages/networking/`; conditions HTTP wiring is in `packages/features/conditions/` (`conditions_http_provider.dart`).
 
 ### Navigation
 
@@ -205,7 +205,7 @@ routing/lib/src/
 └── routing.dart         # barrel export
 ```
 
-During migration: route logic currently lives in app-level code. New routes should target `packages/routing/`.
+App routes are defined in `apps/eddyscout/lib/routing/` (`app_routes.dart`, `app_router_provider.dart`). Shared router assembly may move to `packages/routing/` over time.
 
 ### Tests
 

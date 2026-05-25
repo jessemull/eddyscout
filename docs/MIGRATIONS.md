@@ -2,13 +2,15 @@
 
 > **Precedence**: CONTEXT.md > GOVERNANCE.md > ARCHITECTURE.md > this document
 >
-> **AI agents**: Read this if your task touches legacy code under `apps/eddyscout/lib/`, migrating to Riverpod/go_router/dio/freezed, or addressing analyzer warnings from baseline suppression.
+> **AI agents**: Read this for where migrated code lives today. Phases M1–M6 are complete; the app shell under `apps/eddyscout/lib/` is composition-only (screens, go_router, preferences, debug).
 
 ## Overview
 
-The EddyScout app was originally a single-package Flutter app. It has been restructured into a melos monorepo with workspace packages. The existing application code under `apps/eddyscout/lib/` predates the governance system and uses patterns that do not conform to the target architecture.
+EddyScout was a single-package Flutter app and is now a melos monorepo. **Migration phases M1–M6 are complete.** Domain, data, and shared providers live in `packages/features/` and shared packages; the app imports them via `eddyscout_conditions`, `eddyscout_map`, and `eddyscout_hydro_routing`.
 
-This document tracks every legacy file and its migration path. **No legacy file should be modified without consulting this migration plan.**
+Duplicate trees that remained under `apps/eddyscout/lib/{conditions,data,decision,firebase,network}/` after M5 were removed in the final inventory sync (they were not referenced by the app).
+
+Use this document as a **layout map**, not an active migration checklist.
 
 ## Migration Phases
 
@@ -93,161 +95,86 @@ Preflight and CI run `dart analyze --fatal-infos` on all workspace packages **in
 `tooling/analysis_options.legacy_app.yaml` was removed. Feature packages now inherit
 `tooling/analysis_options.package.yaml` (only style-only `prefer_*` bodies/methods remain ignored).
 
-## Legacy File Inventory
+## Current layout (post-M6)
 
-Every Dart file in the legacy codebase with its migration status:
+Paths below are relative to the repo root. **Status** is the migration outcome (all **Done** unless noted).
 
-### `lib/main.dart`
-- **Migration**: M1 (Riverpod ProviderScope), M2 (GoRouter)
-- **Status**: M2 done — `MaterialApp.router` + `goRouterProvider`
-- **Notes**: Token/web gate screens moved to `screens/` and routed via go_router.
+### App shell — `apps/eddyscout/lib/`
 
-### `lib/screens/map_screen.dart`
-- **Migration**: M1, M5
-- **Status**: Done — Mapbox lifecycle in `map_screen.dart`; `map/map_planning_overlay.dart` extracted
-- **Notes**: Mapbox logic lives in `screens/map/mapbox_map_controller.dart`.
+Composition, navigation, and app-only Riverpod wiring. Imports feature packages; does not duplicate domain/data.
 
-### `lib/screens/launch_detail_screen.dart`
-- **Migration**: M1, M5
-- **Status**: Done — screen + `launch_detail/` part files (cards, reports, helpers)
-- **Notes**: `_ConditionReportSheet` keeps ephemeral form UI state only.
+| Path | Role | Phases | Status |
+|------|------|--------|--------|
+| `main.dart` | `ProviderScope`, Firebase init, `MaterialApp.router` | M1, M2 | Done |
+| `routing/app_routes.dart` | Typed `go_router_builder` routes | M2 | Done |
+| `routing/app_router_provider.dart` | `goRouterProvider`, token/web redirects | M2 | Done |
+| `screens/map_screen.dart` | Map composition; Mapbox widget host | M1, M5 | Done |
+| `screens/map/mapbox_map_controller.dart` | Mapbox lifecycle (`mapboxMapControllerProvider`) | M1, follow-up | Done |
+| `screens/map/map_constants.dart` | Map style / camera constants | M5 | Done |
+| `screens/map/map_planning_overlay.dart` | Route planning UI overlay | M5 | Done |
+| `screens/map/map_ui_callbacks.dart` | Map gesture callbacks (types) | M5 | Done |
+| `screens/map/map_ui_callbacks_provider.dart` | Callback holder provider | M1 | Done |
+| `screens/map_planning_provider.dart` | `routePlanningProvider` | M1 | Done |
+| `screens/map_session_provider.dart` | `mapInteractiveProvider` | M1 | Done |
+| `screens/launch_detail_screen.dart` | Launch detail page | M1, M5 | Done |
+| `screens/launch_detail/helpers.dart` | Part: shared helpers | M5 | Done |
+| `screens/launch_detail/widgets_conditions.dart` | Part: conditions cards | M5 | Done |
+| `screens/launch_detail/widgets_reports.dart` | Part: reports UI | M5 | Done |
+| `screens/missing_mapbox_token_screen.dart` | `--dart-define` gate | M2 | Done |
+| `screens/web_map_placeholder_screen.dart` | Web placeholder | M2 | Done |
+| `preferences/key_value_store_provider.dart` | `KeyValueStore` → persistence | M1, M5 | Done |
+| `preferences/go_no_go_profile_provider.dart` | Skill profile Riverpod | M1, M5 | Done |
+| `debug/map_debug_log.dart` | Debug-only map/route logging | — | Keep in app |
 
-### `lib/conditions/conditions_models.dart`
-- **Migration**: M4
-- **Status**: Done — `@freezed` + JSON for snapshot types
+**Removed from app shell (duplicate of feature packages):** `lib/conditions/`, `lib/data/`, `lib/decision/`, `lib/firebase/`, `lib/network/` — deleted after M5; no `package:eddyscout/...` imports remained.
 
-### `lib/conditions/conditions_service.dart`
-- **Migration**: M3, M5
-- **Status**: M3 done — Dio-backed HTTP; M5 moves to feature package
+### Feature — `packages/features/conditions/`
 
-### `lib/conditions/conditions_provider.dart`
-- **Migration**: M1
-- **Status**: Done — `conditionsServiceProvider`, `conditionsSnapshotProvider`, `launchPointByIdProvider`
+| Area | Path (under `lib/`) | Phases | Status |
+|------|---------------------|--------|--------|
+| Domain models | `src/domain/conditions_models.dart` | M4, M5 | Done |
+| Go/no-go | `src/domain/go_no_go.dart`, `go_no_go_thresholds.dart` | M4, M5 | Done |
+| HTTP service | `src/data/conditions_service.dart` | M3, M5 | Done |
+| Providers | `src/data/conditions_provider.dart`, `conditions_http_provider.dart` | M1, M3, M5 | Done |
+| Parsing | `src/data/parsing/*.dart` (NWS, NOAA, USGS, Open-Meteo, wind) | M5 | Done |
+| Firebase | `src/data/firebase/*.dart` (callables, bootstrap, flags, payloads) | M3, M4, M5 | Done |
+| Reports / AI | `src/data/condition_reports_provider.dart`, `conditions_ai_summary_provider.dart` | M1, M5 | Done |
+| Profile repo | `src/data/repositories/go_no_go_profile_repository.dart` | M1, M5 | Done |
+| Presentation | `src/presentation/condition_reports_refresh_token_provider.dart` | M5 | Done |
+| Barrel | `eddyscout_conditions.dart` | M5 | Done |
 
-### `lib/conditions/parsing/nws_marine_cwf.dart`
-- **Migration**: M5
-- **Status**: Not started
+### Feature — `packages/features/map/`
 
-### `lib/conditions/parsing/noaa_tides_json.dart`
-- **Migration**: M5
-- **Status**: Not started
+| Path | Role | Phases | Status |
+|------|------|--------|--------|
+| `src/data/launch_points.dart` | Static launch catalog | M5 | Done |
+| `src/data/launch_providers.dart` | `launchPointByIdProvider`, etc. | M1, M5 | Done |
+| `eddyscout_map.dart` | Barrel; re-exports `LaunchPoint` from `packages/core` | M4, M5 | Done |
 
-### `lib/conditions/parsing/open_meteo_json.dart`
-- **Migration**: M5
-- **Status**: Not started
+Launch **models** (`LaunchPoint`, `LaunchFlowBands`) live in `packages/core/lib/src/launch_models.dart` (M4).
 
-### `lib/conditions/parsing/usgs_iv_json.dart`
-- **Migration**: M5
-- **Status**: Not started
+### Feature — `packages/features/hydro_routing/`
 
-### `lib/conditions/parsing/nws_marine_json.dart`
-- **Migration**: M5
-- **Status**: Not started
+| Path | Role | Phases | Status |
+|------|------|--------|--------|
+| `src/data/geodesy.dart` | Distance / bearing helpers | M5 | Done |
+| `src/data/river_geojson.dart` | Bundled hydro geometry load | M5 | Done |
+| `src/data/river_graph.dart` | Graph over river network | M5 | Done |
+| `src/data/river_route_planner.dart` | Route planning | M5 | Done |
+| `src/data/river_route_planner_provider.dart` | `riverRoutePlannerProvider` | M1, M5 | Done |
+| `src/data/hydro_debug_log.dart` | Debug logging hook | M5 | Done |
+| `src/domain/route_result.dart` | `@freezed` success/failure union | M4, M5 | Done |
+| `eddyscout_hydro_routing.dart` | Barrel | M5 | Done |
 
-### `lib/conditions/parsing/nws_json.dart`
-- **Migration**: M5
-- **Status**: Not started
+### Shared packages (extracted from app `lib/network/` and governance)
 
-### `lib/conditions/parsing/wind_parse.dart`
-- **Migration**: M5
-- **Status**: Not started
-
-### `lib/data/launch_models.dart`
-- **Migration**: M4
-- **Status**: Done — `LaunchPoint`, `LaunchFlowBands` via freezed
-
-### `lib/data/launch_points.dart`
-- **Migration**: M5
-- **Status**: Not started
-
-### `lib/decision/go_no_go.dart`
-- **Migration**: M4, M5
-- **Status**: M4 done — `GoNoGoReason`, `GoNoGoResult` freezed; evaluator unchanged
-
-### `lib/decision/go_no_go_thresholds.dart`
-- **Migration**: M4, M5
-- **Status**: M4 done — `GoNoGoThresholds`, `RiverFlowThresholds` freezed
-
-### `lib/firebase/conditions_callables.dart`
-- **Migration**: M3, M5
-- **Status**: Not started
-
-### `lib/firebase/condition_reports_provider.dart`
-- **Migration**: M1
-- **Status**: Done — report list + community digest Riverpod providers
-
-### `lib/firebase/conditions_ai_summary_provider.dart`
-- **Migration**: M1
-- **Status**: Done — on-demand conditions AI summary Riverpod provider
-
-### `lib/firebase/conditions_summary_payload.dart`
-- **Migration**: M4, M5
-- **Status**: M4 done — `ConditionsSummaryPayload` + `LaunchSummary` with `toJson`
-
-### `lib/firebase/firebase_bootstrap.dart`
-- **Migration**: M5
-- **Status**: Not started
-
-### `lib/firebase/firebase_flags.dart`
-- **Migration**: M5
-- **Status**: Not started
-
-### `lib/network/eddy_scout_http_client.dart`
-- **Migration**: M3
-- **Status**: Done — Dio client with retry/logging via `packages/networking`
-
-### `lib/preferences/go_no_go_profile_repository.dart`
-- **Migration**: M1, M5
-- **Status**: Done — `GoNoGoProfileRepository` in `packages/features/conditions/`; `KeyValueStore` via `packages/persistence/`
-- **Notes**: App exposes `keyValueStoreProvider` and `goNoGoProfileProvider`.
-
-### `lib/preferences/go_no_go_profile_prefs.dart`
-- **Migration**: M1, M5
-- **Status**: Removed — replaced by repository + Riverpod provider
-
-### `lib/routing/geodesy.dart`
-- **Migration**: M5
-- **Status**: Not started
-
-### `lib/routing/river_geojson.dart`
-- **Migration**: M5
-- **Status**: Not started
-
-### `lib/routing/river_graph.dart`
-- **Migration**: M5
-- **Status**: Not started
-
-### `lib/routing/river_route_planner.dart`
-- **Migration**: M5
-- **Status**: Not started
-
-### `lib/routing/river_route_planner_provider.dart`
-- **Migration**: M1
-- **Status**: Done — `riverRoutePlannerProvider`
-
-### `lib/screens/map_planning_provider.dart`
-- **Migration**: M1
-- **Status**: Done — `routePlanningProvider`
-
-### `lib/routing/app_routes.dart`
-- **Migration**: M2
-- **Status**: Done — typed routes (`MapRoute`, `LaunchDetailRoute`, token/web routes)
-
-### `lib/routing/app_router_provider.dart`
-- **Migration**: M2
-- **Status**: Done — `goRouterProvider` with redirects
-
-### `lib/screens/map_session_provider.dart`
-- **Migration**: M1
-- **Status**: Done — `mapInteractiveProvider`
-
-### `lib/routing/route_result.dart`
-- **Migration**: M4, M5
-- **Status**: M4 done — sealed `@freezed` union (`RouteSuccess` / `RouteFailure`)
-
-### `lib/debug/map_debug_log.dart`
-- **Migration**: Keep in app (debug-only)
-- **Status**: No migration needed
+| Package | Replaces legacy app path | Phases | Status |
+|---------|--------------------------|--------|--------|
+| `packages/networking/` | `lib/network/eddy_scout_http_client.dart` | M3, M5 | Done |
+| `packages/persistence/` | Preferences storage abstraction | M5 | Done |
+| `packages/core/` | Shared `LaunchPoint`, `Result`, `AppFailure` | M4, M5 | Done |
+| `packages/routing/` | Workspace router assembly (when used) | M2+ | Scaffold |
+| `packages/design_system/`, `analytics/`, `localization/` | Governance baseline | — | Scaffold |
 
 ## Migration Order
 
@@ -260,13 +187,15 @@ Recommended migration order to minimize risk:
 5. **M5** — Extract feature packages (largest refactor)
 6. **M6** — Done (app on strict `analysis_options.app.yaml`; feature packages on package profile)
 
-## Post-migration follow-ups (TODO)
+## Post-migration follow-ups
 
-Phases M1–M6 are complete. Remaining cleanup:
+All items complete:
 
-1. ~~**Map controller extraction**~~ — Done: `mapboxMapControllerProvider` owns Mapbox lifecycle; `map_screen.dart` is composition-only (~120 lines).
-2. ~~**Feature-package analysis tightening**~~ — Done: feature packages use package strict profile; all Yes/Optional M6 rules fixed under `--fatal-infos` (two style rules still ignored).
-3. **Legacy inventory doc sync** — Rewrite the Legacy File Inventory below so paths and statuses match the monorepo (many rows still say `Not started` for code already in feature packages).
+1. ~~**Map controller extraction**~~ — `mapboxMapControllerProvider` in `screens/map/mapbox_map_controller.dart`.
+2. ~~**Feature-package analysis tightening**~~ — Feature packages on `tooling/analysis_options.feature.yaml` (package strict + two deferred style rules).
+3. ~~**Legacy inventory doc sync**~~ — This section replaced the stale per-file inventory; orphan `apps/eddyscout/lib/{conditions,data,decision,firebase,network}/` trees removed.
+
+**Not part of M1–M6 (optional later):** drop the two feature `prefer_*` style ignores, tighten test `analysis_options`, remove `source_gen` override when codegen deps align.
 
 ## Rules
 
