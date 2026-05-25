@@ -290,7 +290,15 @@ as double?,
 /// @nodoc
 mixin _$LaunchPoint {
 
- String get id; String get name; double get latitude; double get longitude; String get shortNote; RiverSystem get riverSystem; WindExposure get windExposure; TideRelevance get tideRelevance;/// NOAA CO-OPS station id when [tideRelevance] is not [TideRelevance.none].
+/// Stable id for routing, reports, and deep links.
+ String get id;/// Display name on map pins and detail screens.
+ String get name;/// WGS84 latitude for map camera and distance checks.
+ double get latitude;/// WGS84 longitude for map camera and distance checks.
+ double get longitude;/// One-line editorial note shown on launch detail.
+ String get shortNote;/// Drives which hydrology products and copy templates apply.
+ RiverSystem get riverSystem;/// Static exposure used when live wind is unavailable or ambiguous.
+ WindExposure get windExposure;/// Whether and how strongly to surface tide predictions.
+ TideRelevance get tideRelevance;/// NOAA CO-OPS station id when [tideRelevance] is not [TideRelevance.none].
  String? get noaaTideStationId;/// NWS marine forecast zone (e.g. PZZ210); null when not applicable.
  String? get marineZoneId;/// USGS NWIS site number for discharge/stage when curated.
  String? get usgsSiteId;/// When set, flow rules use these bands instead of [RiverSystem] defaults.
@@ -514,13 +522,21 @@ class _LaunchPoint implements LaunchPoint {
   const _LaunchPoint({required this.id, required this.name, required this.latitude, required this.longitude, required this.shortNote, required this.riverSystem, required this.windExposure, required this.tideRelevance, this.noaaTideStationId, this.marineZoneId, this.usgsSiteId, this.flowBands});
   factory _LaunchPoint.fromJson(Map<String, dynamic> json) => _$LaunchPointFromJson(json);
 
+/// Stable id for routing, reports, and deep links.
 @override final  String id;
+/// Display name on map pins and detail screens.
 @override final  String name;
+/// WGS84 latitude for map camera and distance checks.
 @override final  double latitude;
+/// WGS84 longitude for map camera and distance checks.
 @override final  double longitude;
+/// One-line editorial note shown on launch detail.
 @override final  String shortNote;
+/// Drives which hydrology products and copy templates apply.
 @override final  RiverSystem riverSystem;
+/// Static exposure used when live wind is unavailable or ambiguous.
 @override final  WindExposure windExposure;
+/// Whether and how strongly to surface tide predictions.
 @override final  TideRelevance tideRelevance;
 /// NOAA CO-OPS station id when [tideRelevance] is not [TideRelevance.none].
 @override final  String? noaaTideStationId;

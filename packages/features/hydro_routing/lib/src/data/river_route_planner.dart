@@ -1,4 +1,4 @@
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 
 import 'hydro_debug_log.dart';
 import 'river_geojson.dart';

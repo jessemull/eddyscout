@@ -50,7 +50,7 @@ Map<String, dynamic> _$LaunchPointToJson(_LaunchPoint instance) =>
       'noaaTideStationId': instance.noaaTideStationId,
       'marineZoneId': instance.marineZoneId,
       'usgsSiteId': instance.usgsSiteId,
-      'flowBands': instance.flowBands?.toJson(),
+      'flowBands': instance.flowBands,
     };
 
 const _$RiverSystemEnumMap = {

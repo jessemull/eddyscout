@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'conditions_models.dart';
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'go_no_go_thresholds.dart';
 
 part 'go_no_go.freezed.dart';

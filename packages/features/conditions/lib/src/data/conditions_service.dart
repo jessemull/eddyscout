@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_networking/eddyscout_networking.dart';
 
 import '../domain/conditions_models.dart';

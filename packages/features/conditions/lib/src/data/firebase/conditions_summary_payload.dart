@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/conditions_models.dart';
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import '../../domain/go_no_go.dart';
 
 part 'conditions_summary_payload.freezed.dart';

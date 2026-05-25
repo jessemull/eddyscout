@@ -1,4 +1,4 @@
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/firebase/conditions_callables.dart';

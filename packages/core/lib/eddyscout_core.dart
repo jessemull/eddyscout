@@ -2,5 +2,6 @@
 library;
 
 export 'src/app_failure.dart';
+export 'src/launch_models.dart';
 export 'src/result.dart';
 export 'src/typedefs.dart';

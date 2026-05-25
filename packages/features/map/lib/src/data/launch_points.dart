@@ -1,4 +1,4 @@
-import '../domain/launch_models.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 
 /// All curated launches (PDX metro, Oregon City, Scappoose, lower Columbia, WA side).
 /// Coords placed at water access / ramp where possible (satellite + water-trail cross-check).

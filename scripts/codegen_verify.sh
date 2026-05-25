@@ -10,8 +10,8 @@ echo "--- Verifying generated code is up to date ---"
 # Run code generation
 "$SCRIPT_DIR/codegen.sh" 2>/dev/null || true
 
-# Check for uncommitted changes in generated files
-DIRTY=$(git status --porcelain -- '*.g.dart' '*.freezed.dart' '*.gr.dart' 2>/dev/null || true)
+# Unstaged edits only — staged renames (e.g. moving *.g.dart across packages) are OK.
+DIRTY=$(git diff --name-only -- '*.g.dart' '*.freezed.dart' '*.gr.dart' 2>/dev/null || true)
 
 if [ -n "$DIRTY" ]; then
   echo "ERROR: Generated files are out of date:"

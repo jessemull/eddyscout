@@ -1,5 +1,6 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
+
 import '../data/launch_points.dart';
-import '../domain/launch_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Resolves a curated launch by id.

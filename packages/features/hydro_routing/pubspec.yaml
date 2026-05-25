@@ -13,8 +13,8 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^2.6.1
   freezed_annotation: ^3.0.0
-  eddyscout_map:
-    path: ../map
+  eddyscout_core:
+    path: ../../core
 
 dev_dependencies:
   flutter_test:
