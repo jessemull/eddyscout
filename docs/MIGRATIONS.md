@@ -22,8 +22,8 @@ The app currently has no formal state management. State is managed via `Stateful
 |--------|--------|--------|
 | Add `ProviderScope` to `main.dart` | `apps/eddyscout/lib/main.dart` | Done |
 | Convert `MapScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/map_screen.dart` | Not started |
-| Convert `LaunchDetailScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/launch_detail_screen.dart` | Not started |
-| Extract preferences as Riverpod providers | `apps/eddyscout/lib/preferences/go_no_go_profile_prefs.dart` | Not started |
+| Convert `LaunchDetailScreen` state to Riverpod providers | `apps/eddyscout/lib/screens/launch_detail_screen.dart` | In progress — screen-level state migrated |
+| Extract preferences as Riverpod providers | `apps/eddyscout/lib/preferences/go_no_go_profile_prefs.dart` | Done |
 
 ### Phase M2 — Navigation (MaterialApp → go_router)
 
@@ -114,9 +114,9 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/screens/launch_detail_screen.dart` (37,263 lines)
 - **Migration**: M1, M5
-- **Status**: Not started
+- **Status**: In progress — `ConsumerWidget`; conditions + skill profile + report refresh use Riverpod
 - **Priority**: HIGH — God widget, must be decomposed
-- **Notes**: Extremely large file. Must extract into multiple widgets and move state to Riverpod providers.
+- **Notes**: Nested cards (`_AiSummaryCard`, `_LaunchReportsDigestCard`, etc.) still use local `StatefulWidget` state.
 
 ### `lib/conditions/conditions_models.dart`
 - **Migration**: M4
@@ -125,6 +125,10 @@ Every Dart file in the legacy codebase with its migration status:
 ### `lib/conditions/conditions_service.dart`
 - **Migration**: M3, M5
 - **Status**: Not started
+
+### `lib/conditions/conditions_provider.dart`
+- **Migration**: M1
+- **Status**: Done — `conditionsServiceProvider`, `conditionsSnapshotProvider`, `launchPointByIdProvider`
 
 ### `lib/conditions/parsing/nws_marine_cwf.dart`
 - **Migration**: M5
@@ -191,9 +195,14 @@ Every Dart file in the legacy codebase with its migration status:
 - **Status**: Not started
 - **Priority**: HIGH — networking foundation
 
+### `lib/preferences/go_no_go_profile_repository.dart`
+- **Migration**: M1, M5
+- **Status**: Done — Riverpod provider replaces static prefs helper
+- **Notes**: `go_no_go_profile_provider.dart` exposes `goNoGoProfileProvider`; `shared_preferences_provider.dart` is shared for future prefs.
+
 ### `lib/preferences/go_no_go_profile_prefs.dart`
 - **Migration**: M1, M5
-- **Status**: Not started
+- **Status**: Removed — replaced by repository + Riverpod provider
 
 ### `lib/routing/geodesy.dart`
 - **Migration**: M5

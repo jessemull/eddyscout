@@ -1,58 +1,39 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../conditions/conditions_models.dart';
-import '../conditions/conditions_service.dart';
+import '../conditions/conditions_provider.dart';
 import '../data/launch_models.dart';
 import '../decision/go_no_go.dart';
 import '../firebase/conditions_callables.dart';
 import '../firebase/conditions_summary_payload.dart';
 import '../firebase/firebase_bootstrap.dart';
 import '../firebase/firebase_flags.dart';
-import '../preferences/go_no_go_profile_prefs.dart';
+import '../preferences/go_no_go_profile_provider.dart';
+import 'launch_detail_providers.dart';
 
-class LaunchDetailScreen extends StatefulWidget {
+class LaunchDetailScreen extends ConsumerWidget {
   const LaunchDetailScreen({super.key, required this.launch});
 
   final LaunchPoint launch;
 
   @override
-  State<LaunchDetailScreen> createState() => _LaunchDetailScreenState();
-}
-
-class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
-  late final Future<ConditionsSnapshot> _future;
-  GoNoGoProfile _skillProfile = GoNoGoProfile.intermediate;
-  int _reportsRefreshKey = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = ConditionsService().load(widget.launch);
-    GoNoGoProfilePrefs.load().then((p) {
-      if (mounted) setState(() => _skillProfile = p);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final launch = widget.launch;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final skillProfile =
+        ref.watch(goNoGoProfileProvider).value ?? GoNoGoProfile.intermediate;
+    final conditionsAsync = ref.watch(conditionsSnapshotProvider(launch.id));
+    final reportsRefreshToken = ref.watch(conditionReportsRefreshTokenProvider);
     return Scaffold(
       appBar: AppBar(title: Text(launch.name)),
-      body: FutureBuilder<ConditionsSnapshot>(
-        future: _future,
-        builder: (context, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snap.hasError) {
-            return _ErrorBody(message: '${snap.error}');
-          }
-          final data = snap.data!;
+      body: conditionsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => _ErrorBody(message: '$error'),
+        data: (data) {
           final goNoGo = GoNoGoEvaluator.evaluate(
             launch,
             data,
-            profile: _skillProfile,
+            profile: skillProfile,
           );
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -96,11 +77,11 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
                     label: Text('Advanced'),
                   ),
                 ],
-                selected: {_skillProfile},
-                onSelectionChanged: (next) async {
-                  final p = next.single;
-                  setState(() => _skillProfile = p);
-                  await GoNoGoProfilePrefs.save(p);
+                selected: {skillProfile},
+                onSelectionChanged: (next) {
+                  ref
+                      .read(goNoGoProfileProvider.notifier)
+                      .setProfile(next.single);
                 },
               ),
               const SizedBox(height: 12),
@@ -116,13 +97,13 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
                   launch: launch,
                   snapshot: data,
                   goNoGo: goNoGo,
-                  skillProfile: _skillProfile,
+                  skillProfile: skillProfile,
                 ),
                 const SizedBox(height: 16),
                 _LaunchReportsDigestCard(launchId: launch.id),
                 const SizedBox(height: 16),
                 _RecentConditionReports(
-                  key: ValueKey(_reportsRefreshKey),
+                  key: ValueKey(reportsRefreshToken),
                   launchId: launch.id,
                 ),
                 const SizedBox(height: 8),
@@ -133,8 +114,12 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
                   subtitle: const Text(
                     'Short note to help others (stored securely)',
                   ),
-                  onTap: () =>
-                      _openReportSheet(context, launch, data.fetchedAt),
+                  onTap: () => _openConditionReportSheet(
+                    ref,
+                    context,
+                    launch,
+                    data.fetchedAt,
+                  ),
                 ),
               ] else if (kUseFirebase && !kIsWeb) ...[
                 const SizedBox(height: 12),
@@ -195,66 +180,69 @@ class _LaunchDetailScreenState extends State<LaunchDetailScreen> {
       ),
     );
   }
+}
 
-  String _firebaseUnavailableMessage() {
-    if (FirebaseBootstrap.lastError != null) {
-      final hint = FirebaseBootstrap.hintForLastError();
-      final buf = StringBuffer()
-        ..writeln(
-          'Firebase did not start, so AI summary and reports are unavailable.',
-        )
-        ..writeln()
-        ..writeln('Error: ${FirebaseBootstrap.lastError}')
-        ..writeln();
-      if (hint != null) {
-        buf.writeln(hint);
-        buf.writeln();
-      }
-      buf.writeln(
-        'Otherwise check: correct `google-services.json` for package '
-        '`com.eddyscout.eddyscout`, network, then full app restart (not hot reload).',
-      );
-      return buf.toString();
+String _firebaseUnavailableMessage() {
+  if (FirebaseBootstrap.lastError != null) {
+    final hint = FirebaseBootstrap.hintForLastError();
+    final buf = StringBuffer()
+      ..writeln(
+        'Firebase did not start, so AI summary and reports are unavailable.',
+      )
+      ..writeln()
+      ..writeln('Error: ${FirebaseBootstrap.lastError}')
+      ..writeln();
+    if (hint != null) {
+      buf.writeln(hint);
+      buf.writeln();
     }
-    return 'Firebase features need a successful app init and anonymous sign-in. '
-        'Add `google-services.json`, enable Anonymous auth, deploy functions, '
-        'and rebuild with `USE_FIREBASE=true` in `.local.env` (`make run`).';
-  }
-
-  String _riverLabel(RiverSystem r) => switch (r) {
-    RiverSystem.willamette => 'Willamette',
-    RiverSystem.columbia => 'Columbia / regional',
-    RiverSystem.clackamas => 'Clackamas',
-    RiverSystem.slough => 'Slough / confluence',
-  };
-
-  Future<void> _openReportSheet(
-    BuildContext context,
-    LaunchPoint launch,
-    DateTime conditionsFetchedAt,
-  ) async {
-    final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (sheetCtx) {
-        return _ConditionReportSheet(
-          launch: launch,
-          conditionsFetchedAt: conditionsFetchedAt,
-          scaffoldMessenger: scaffoldMessenger,
-          onSuccessFeedback: () {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!mounted) return;
-              setState(() => _reportsRefreshKey++);
-              scaffoldMessenger?.showSnackBar(
-                const SnackBar(content: Text('Thanks—report submitted.')),
-              );
-            });
-          },
-        );
-      },
+    buf.writeln(
+      'Otherwise check: correct `google-services.json` for package '
+      '`com.eddyscout.eddyscout`, network, then full app restart (not hot reload).',
     );
+    return buf.toString();
   }
+  return 'Firebase features need a successful app init and anonymous sign-in. '
+      'Add `google-services.json`, enable Anonymous auth, deploy functions, '
+      'and rebuild with `USE_FIREBASE=true` in `.local.env` (`make run`).';
+}
+
+String _riverLabel(RiverSystem r) => switch (r) {
+  RiverSystem.willamette => 'Willamette',
+  RiverSystem.columbia => 'Columbia / regional',
+  RiverSystem.clackamas => 'Clackamas',
+  RiverSystem.slough => 'Slough / confluence',
+};
+
+Future<void> _openConditionReportSheet(
+  WidgetRef ref,
+  BuildContext context,
+  LaunchPoint launch,
+  DateTime conditionsFetchedAt,
+) async {
+  final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (sheetCtx) {
+      return _ConditionReportSheet(
+        launch: launch,
+        conditionsFetchedAt: conditionsFetchedAt,
+        scaffoldMessenger: scaffoldMessenger,
+        onSuccessFeedback: () {
+          ref.read(conditionReportsRefreshTokenProvider.notifier).state++;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) {
+              return;
+            }
+            scaffoldMessenger?.showSnackBar(
+              const SnackBar(content: Text('Thanks—report submitted.')),
+            );
+          });
+        },
+      );
+    },
+  );
 }
 
 class _LaunchReportsDigestCard extends StatefulWidget {
