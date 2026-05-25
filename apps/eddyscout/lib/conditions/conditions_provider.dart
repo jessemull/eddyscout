@@ -11,7 +11,7 @@ final launchPointByIdProvider = Provider.family<LaunchPoint, String>((ref, id) {
 
 /// Shared conditions fetcher for launch detail and future feature code.
 final conditionsServiceProvider = Provider<ConditionsService>((ref) {
-  return ConditionsService();
+  return ConditionsService.fromRef(ref);
 });
 
 /// Loads environmental conditions for a launch id.

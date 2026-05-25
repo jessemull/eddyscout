@@ -1,6 +1,10 @@
 import 'dart:convert';
 
+import 'package:eddyscout/network/eddy_scout_http_response.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../data/launch_models.dart';
+import '../network/conditions_http_provider.dart';
 import '../network/eddy_scout_http_client.dart';
 import 'conditions_models.dart';
 import 'parsing/noaa_tides_json.dart';
@@ -12,8 +16,10 @@ import 'parsing/usgs_iv_json.dart';
 
 /// Fetches NOAA/NWS/Open-Meteo/USGS data per launch metadata (no backend).
 class ConditionsService {
-  ConditionsService({EddyScoutHttpClient? http})
-    : _http = http ?? EddyScoutHttpClient();
+  ConditionsService(this._http);
+
+  ConditionsService.fromRef(Ref ref)
+    : _http = ref.watch(conditionsHttpClientProvider);
 
   final EddyScoutHttpClient _http;
 

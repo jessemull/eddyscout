@@ -39,15 +39,16 @@ Navigation uses `MaterialApp.router` with typed `go_router_builder` routes in `a
 
 ### Phase M3 — Networking (http → dio)
 
-**Status**: Not started
+**Status**: Complete
 
-The app uses the `http` package. Must migrate to `dio` with interceptors.
+Conditions HTTP uses Dio via `EddyScoutHttpClient` and `EddyScoutDioFactory` in `packages/networking/`. Firebase callables unchanged (Cloud Functions SDK).
 
-| Action | Target |
-|--------|--------|
-| Replace `http` client with `Dio` | `apps/eddyscout/lib/network/eddy_scout_http_client.dart` |
-| Add interceptors (auth, retry, error, logging) | `packages/networking/` |
-| Update all API call sites | `apps/eddyscout/lib/conditions/conditions_service.dart`, `apps/eddyscout/lib/firebase/conditions_callables.dart` |
+| Action | Target | Status |
+|--------|--------|--------|
+| Replace `http` client with `Dio` | `apps/eddyscout/lib/network/eddy_scout_http_client.dart` | Done |
+| Add interceptors (retry, logging) | `packages/networking/` | Done |
+| Update all API call sites | `conditions_service.dart`, `conditions_provider.dart` | Done |
+| Firebase callables | `conditions_callables.dart` | N/A — not HTTP |
 
 ### Phase M4 — Models (classes → freezed)
 
@@ -200,8 +201,7 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/network/eddy_scout_http_client.dart`
 - **Migration**: M3
-- **Status**: Not started
-- **Priority**: HIGH — networking foundation
+- **Status**: Done — Dio client with retry/logging via `packages/networking`
 
 ### `lib/preferences/go_no_go_profile_repository.dart`
 - **Migration**: M1, M5
