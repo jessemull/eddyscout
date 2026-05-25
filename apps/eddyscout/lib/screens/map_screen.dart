@@ -31,7 +31,7 @@ class MapScreen extends ConsumerWidget {
         if (!context.mounted) {
           return;
         }
-        LaunchDetailRoute(launchId: launch.id).push<void>(context);
+        unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(context));
       },
     );
     final map = ref.read(mapboxMapControllerProvider.notifier);

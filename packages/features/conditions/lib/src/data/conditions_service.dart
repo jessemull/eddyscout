@@ -131,19 +131,22 @@ class ConditionsService {
         '${d.year.toString().padLeft(4, '0')}${d.month.toString().padLeft(2, '0')}${d.day.toString().padLeft(2, '0')}';
 
     Future<TideSummary?> tryDatum(String datum) async {
-      final uri =
-          Uri.https('api.tidesandcurrents.noaa.gov', '/api/prod/datagetter', {
-            'product': 'predictions',
-            'application': 'EddyScout',
-            'begin_date': ymd(start),
-            'end_date': ymd(end),
-            'datum': datum,
-            'station': station,
-            'time_zone': 'lst_ldt',
-            'units': 'english',
-            'interval': 'hilo',
-            'format': 'json',
-          });
+      final uri = Uri.https(
+        'api.tidesandcurrents.noaa.gov',
+        '/api/prod/datagetter',
+        {
+          'product': 'predictions',
+          'application': 'EddyScout',
+          'begin_date': ymd(start),
+          'end_date': ymd(end),
+          'datum': datum,
+          'station': station,
+          'time_zone': 'lst_ldt',
+          'units': 'english',
+          'interval': 'hilo',
+          'format': 'json',
+        },
+      );
       final res = await _http.get(uri);
       if (res.statusCode < 200 || res.statusCode >= 300) return null;
       final map = jsonDecode(res.body);

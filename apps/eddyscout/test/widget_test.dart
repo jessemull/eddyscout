@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('Shows token instructions when MAPBOX_ACCESS_TOKEN is empty', (
-    WidgetTester tester,
+    tester,
   ) async {
     await tester.pumpWidget(const ProviderScope(child: EddyScoutApp()));
     await tester.pumpAndSettle();

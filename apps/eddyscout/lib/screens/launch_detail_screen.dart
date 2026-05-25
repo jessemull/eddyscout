@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:eddyscout/preferences/go_no_go_profile_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
@@ -75,9 +77,11 @@ class LaunchDetailScreen extends ConsumerWidget {
                 ],
                 selected: {skillProfile},
                 onSelectionChanged: (next) {
-                  ref
-                      .read(goNoGoProfileProvider.notifier)
-                      .setProfile(next.single);
+                  unawaited(
+                    ref
+                        .read(goNoGoProfileProvider.notifier)
+                        .setProfile(next.single),
+                  );
                 },
               ),
               const SizedBox(height: 12),

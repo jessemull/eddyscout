@@ -26,10 +26,10 @@ class ConditionsAiSummaryRepository {
   }
 }
 
-final conditionsAiSummaryRepositoryProvider =
-    Provider<ConditionsAiSummaryRepository>(
-      (ref) => const ConditionsAiSummaryRepository(),
-    );
+final Provider<ConditionsAiSummaryRepository>
+conditionsAiSummaryRepositoryProvider = Provider<ConditionsAiSummaryRepository>(
+  (ref) => const ConditionsAiSummaryRepository(),
+);
 
 /// UI state for the on-demand conditions AI summary card.
 class ConditionsAiSummaryState {
@@ -76,7 +76,12 @@ class ConditionsAiSummaryNotifier
   }
 }
 
-final conditionsAiSummaryProvider =
+final NotifierProviderFamily<
+  ConditionsAiSummaryNotifier,
+  ConditionsAiSummaryState,
+  String
+>
+conditionsAiSummaryProvider =
     NotifierProvider.family<
       ConditionsAiSummaryNotifier,
       ConditionsAiSummaryState,

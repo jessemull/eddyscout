@@ -26,12 +26,14 @@ class ConditionReportsRepository {
   }
 }
 
-final conditionReportsRepositoryProvider = Provider<ConditionReportsRepository>(
-  (ref) => const ConditionReportsRepository(),
-);
+final Provider<ConditionReportsRepository> conditionReportsRepositoryProvider =
+    Provider<ConditionReportsRepository>(
+      (ref) => const ConditionReportsRepository(),
+    );
 
 /// Recent paddler reports for a launch; refetches when [conditionReportsRefreshTokenProvider] changes.
-final conditionReportsListProvider = FutureProvider.autoDispose
+final AutoDisposeFutureProviderFamily<List<ConditionReportListItem>, String>
+conditionReportsListProvider = FutureProvider.autoDispose
     .family<List<ConditionReportListItem>, String>((ref, launchId) {
       ref.watch(conditionReportsRefreshTokenProvider);
       return ref.read(conditionReportsRepositoryProvider).listReports(launchId);
@@ -72,7 +74,12 @@ class LaunchReportsDigestNotifier
   }
 }
 
-final launchReportsDigestProvider =
+final NotifierProviderFamily<
+  LaunchReportsDigestNotifier,
+  LaunchReportsDigestState,
+  String
+>
+launchReportsDigestProvider =
     NotifierProvider.family<
       LaunchReportsDigestNotifier,
       LaunchReportsDigestState,

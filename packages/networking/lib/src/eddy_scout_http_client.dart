@@ -14,7 +14,7 @@ class EddyScoutHttpClient {
            dio ??
            EddyScoutDioFactory(enableDebugLogging: enableDebugLogging).create();
 
-  static const userAgent = EddyScoutDioFactory.defaultUserAgent;
+  static const String userAgent = EddyScoutDioFactory.defaultUserAgent;
 
   final Dio _dio;
   final Duration requestTimeout;
