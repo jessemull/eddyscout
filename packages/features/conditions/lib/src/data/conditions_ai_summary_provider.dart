@@ -1,8 +1,8 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/firebase/conditions_callables.dart';
-import '../data/firebase/conditions_summary_payload.dart';
+import 'firebase/conditions_callables.dart';
+import 'firebase/conditions_summary_payload.dart';
 import '../domain/conditions_models.dart';
 import '../domain/go_no_go.dart';
 

@@ -1,5 +1,5 @@
-import '../data/firebase/conditions_callables.dart';
-import 'condition_reports_refresh_token_provider.dart';
+import 'firebase/conditions_callables.dart';
+import '../presentation/condition_reports_refresh_token_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

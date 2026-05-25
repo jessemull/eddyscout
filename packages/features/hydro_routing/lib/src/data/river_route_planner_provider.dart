@@ -1,4 +1,4 @@
-import 'package:eddyscout_hydro_routing/src/data/river_route_planner.dart';
+import 'river_route_planner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Loads bundled hydro GeoJSON from the app asset bundle.

@@ -1,7 +1,7 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-
-import '../data/launch_points.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'launch_points.dart';
 
 /// Resolves a curated launch by id.
 final ProviderFamily<LaunchPoint, String> launchPointByIdProvider =
