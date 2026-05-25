@@ -9,7 +9,7 @@ Before making ANY changes to this repository:
 
 1. Read `CONTEXT.md` at the repo root for mandatory loading order and precedence
 2. Read `AGENTS.md` at the repo root for complete development rules
-3. Read task-specific docs from `docs/` as referenced in CONTEXT.md
+3. Read all mandatory `docs/` listed in CONTEXT.md (items 5–10), not only those that seem relevant to the task
 
 Source-of-truth precedence:
 1. CONTEXT.md

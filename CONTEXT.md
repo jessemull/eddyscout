@@ -13,13 +13,14 @@ Every agent MUST read the following documents **in order** before making any cha
 2. **`AGENTS.md`** — complete development rules, architecture constraints, coding standards, and forbidden patterns
 3. **`docs/GOVERNANCE.md`** — contribution workflow, PR process, review policy, release process
 4. **`docs/ARCHITECTURE.md`** — system design, package dependency graph, feature structure, data flow
-5. **Task-specific documentation** — consult the relevant docs below based on the task at hand:
-   - `docs/TESTING.md` — testing strategy, coverage requirements, mocking conventions
-   - `docs/COMMENTS.md` — comment policy and documentation standards
-   - `docs/PLATFORMS.md` — platform-specific guidance, permissions, and capabilities
-   - `docs/DEPENDENCIES.md` — dependency management, approval process, audit schedule
-   - `docs/SECURITY.md` — security policy, secret management, vulnerability response
-   - `docs/RELEASE.md` — release process, versioning, changelogs
+5. **`docs/TESTING.md`** — testing strategy, coverage requirements, mocking conventions
+6. **`docs/COMMENTS.md`** — comment policy and documentation standards
+7. **`docs/PLATFORMS.md`** — platform-specific guidance, permissions, and capabilities
+8. **`docs/DEPENDENCIES.md`** — dependency management, approval process, audit schedule
+9. **`docs/SECURITY.md`** — security policy, secret management, vulnerability response
+10. **`docs/RELEASES.md`** — release process, versioning, changelogs
+
+Read items 5–10 on every task. Do not skip them because the work “seems unrelated”; agents cannot know upfront which rules will apply.
 
 ---
 
@@ -140,7 +141,12 @@ Before implementing any changes, confirm you have read and understood:
 - [ ] `AGENTS.md` — development rules, architecture, coding standards, forbidden patterns
 - [ ] `docs/GOVERNANCE.md` — contribution workflow and review policy
 - [ ] `docs/ARCHITECTURE.md` — system design and package boundaries
-- [ ] Task-specific documentation relevant to the current change
+- [ ] `docs/TESTING.md` — testing strategy and coverage
+- [ ] `docs/COMMENTS.md` — comment and documentation policy
+- [ ] `docs/PLATFORMS.md` — platform guidance and permissions
+- [ ] `docs/DEPENDENCIES.md` — dependency management and approval
+- [ ] `docs/SECURITY.md` — security policy and secrets
+- [ ] `docs/RELEASES.md` — release process and versioning
 
 **If any of the above documents do not yet exist, note their absence and proceed with the rules defined in `CONTEXT.md` and `AGENTS.md` as the authoritative sources.**
 
