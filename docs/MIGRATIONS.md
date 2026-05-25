@@ -116,7 +116,7 @@ Every Dart file in the legacy codebase with its migration status:
 - **Migration**: M1, M5
 - **Status**: In progress — `ConsumerWidget`; conditions + skill profile + report refresh use Riverpod
 - **Priority**: HIGH — God widget, must be decomposed
-- **Notes**: Nested cards (`_AiSummaryCard`, `_LaunchReportsDigestCard`, etc.) still use local `StatefulWidget` state.
+- **Notes**: `_AiSummaryCard` and `_ConditionReportSheet` still use local `StatefulWidget` state; report list + digest use Riverpod.
 
 ### `lib/conditions/conditions_models.dart`
 - **Migration**: M4
@@ -177,6 +177,10 @@ Every Dart file in the legacy codebase with its migration status:
 ### `lib/firebase/conditions_callables.dart`
 - **Migration**: M3, M5
 - **Status**: Not started
+
+### `lib/firebase/condition_reports_provider.dart`
+- **Migration**: M1
+- **Status**: Done — report list + community digest Riverpod providers
 
 ### `lib/firebase/conditions_summary_payload.dart`
 - **Migration**: M4, M5

@@ -6,6 +6,7 @@ import '../conditions/conditions_models.dart';
 import '../conditions/conditions_provider.dart';
 import '../data/launch_models.dart';
 import '../decision/go_no_go.dart';
+import '../firebase/condition_reports_provider.dart';
 import '../firebase/conditions_callables.dart';
 import '../firebase/conditions_summary_payload.dart';
 import '../firebase/firebase_bootstrap.dart';
@@ -23,7 +24,6 @@ class LaunchDetailScreen extends ConsumerWidget {
     final skillProfile =
         ref.watch(goNoGoProfileProvider).value ?? GoNoGoProfile.intermediate;
     final conditionsAsync = ref.watch(conditionsSnapshotProvider(launch.id));
-    final reportsRefreshToken = ref.watch(conditionReportsRefreshTokenProvider);
     return Scaffold(
       appBar: AppBar(title: Text(launch.name)),
       body: conditionsAsync.when(
@@ -102,10 +102,7 @@ class LaunchDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _LaunchReportsDigestCard(launchId: launch.id),
                 const SizedBox(height: 16),
-                _RecentConditionReports(
-                  key: ValueKey(reportsRefreshToken),
-                  launchId: launch.id,
-                ),
+                _RecentConditionReports(launchId: launch.id),
                 const SizedBox(height: 8),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
@@ -245,51 +242,14 @@ Future<void> _openConditionReportSheet(
   );
 }
 
-class _LaunchReportsDigestCard extends StatefulWidget {
+class _LaunchReportsDigestCard extends ConsumerWidget {
   const _LaunchReportsDigestCard({required this.launchId});
 
   final String launchId;
 
   @override
-  State<_LaunchReportsDigestCard> createState() =>
-      _LaunchReportsDigestCardState();
-}
-
-class _LaunchReportsDigestCardState extends State<_LaunchReportsDigestCard> {
-  bool _loading = false;
-  LaunchReportsDigestResult? _result;
-  String? _error;
-
-  Future<void> _run({bool forceRefresh = false}) async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final r = await callSummarizeLaunchReports(
-        launchId: widget.launchId,
-        forceRefresh: forceRefresh,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _loading = false;
-        _result = r;
-      });
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _loading = false;
-        _error = '$e';
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final digestState = ref.watch(launchReportsDigestProvider(launchId));
     final scheme = Theme.of(context).colorScheme;
     return Card(
       child: Padding(
@@ -317,23 +277,25 @@ class _LaunchReportsDigestCardState extends State<_LaunchReportsDigestCard> {
               ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: 12),
-            if (_loading)
+            if (digestState.isLoading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),
                 child: Center(child: CircularProgressIndicator()),
               )
-            else if (_error != null) ...[
+            else if (digestState.errorMessage != null) ...[
               Text(
-                _error!,
+                digestState.errorMessage!,
                 style: TextStyle(color: scheme.error, fontSize: 13),
               ),
               TextButton.icon(
-                onPressed: () => _run(forceRefresh: false),
+                onPressed: () => ref
+                    .read(launchReportsDigestProvider(launchId).notifier)
+                    .summarize(),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
               ),
-            ] else if (_result != null) ...[
-              if (_result!.noReports)
+            ] else if (digestState.result != null) ...[
+              if (digestState.result!.noReports)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -344,17 +306,19 @@ class _LaunchReportsDigestCardState extends State<_LaunchReportsDigestCard> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () => _run(forceRefresh: false),
+                      onPressed: () => ref
+                          .read(launchReportsDigestProvider(launchId).notifier)
+                          .summarize(),
                       child: const Text('Check again'),
                     ),
                   ],
                 )
               else ...[
                 Text(
-                  _result!.digestText,
+                  digestState.result!.digestText,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                if (_result!.cached) ...[
+                if (digestState.result!.cached) ...[
                   const SizedBox(height: 6),
                   Text(
                     'From cache (same reports; regenerate if someone just posted).',
@@ -372,13 +336,17 @@ class _LaunchReportsDigestCardState extends State<_LaunchReportsDigestCard> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => _run(forceRefresh: true),
+                  onPressed: () => ref
+                      .read(launchReportsDigestProvider(launchId).notifier)
+                      .summarize(forceRefresh: true),
                   child: const Text('Regenerate'),
                 ),
               ],
             ] else
               FilledButton.tonalIcon(
-                onPressed: () => _run(forceRefresh: false),
+                onPressed: () => ref
+                    .read(launchReportsDigestProvider(launchId).notifier)
+                    .summarize(),
                 icon: const Icon(Icons.topic_outlined),
                 label: const Text('Summarize recent reports'),
               ),
@@ -425,36 +393,14 @@ String _formatConditionReportTime(BuildContext context, DateTime at) {
   return loc.formatShortDate(at.toLocal());
 }
 
-class _RecentConditionReports extends StatefulWidget {
-  const _RecentConditionReports({super.key, required this.launchId});
+class _RecentConditionReports extends ConsumerWidget {
+  const _RecentConditionReports({required this.launchId});
 
   final String launchId;
 
   @override
-  State<_RecentConditionReports> createState() =>
-      _RecentConditionReportsState();
-}
-
-class _RecentConditionReportsState extends State<_RecentConditionReports> {
-  late final Future<List<ConditionReportListItem>> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    // Wait until after the first frame so the Callable layer picks up the same
-    // ID token Auth already has (avoids spurious unauthenticated on cold open).
-    _future = Future(() async {
-      final binding = WidgetsBinding.instance;
-      await binding.endOfFrame;
-      if (!mounted) {
-        return <ConditionReportListItem>[];
-      }
-      return callListConditionReports(launchId: widget.launchId);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final reportsAsync = ref.watch(conditionReportsListProvider(launchId));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -467,30 +413,24 @@ class _RecentConditionReportsState extends State<_RecentConditionReports> {
           ),
         ),
         const SizedBox(height: 8),
-        FutureBuilder<List<ConditionReportListItem>>(
-          future: _future,
-          builder: (context, snap) {
-            if (snap.connectionState != ConnectionState.done) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Center(
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-              );
-            }
-            if (snap.hasError) {
-              return Text(
-                _recentReportsErrorMessage(snap.error!),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                ),
-              );
-            }
-            final items = snap.data!;
+        reportsAsync.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ),
+          error: (error, _) => Text(
+            _recentReportsErrorMessage(error),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.error,
+            ),
+          ),
+          data: (items) {
             if (items.isEmpty) {
               return Text(
                 'No paddler reports yet.',
