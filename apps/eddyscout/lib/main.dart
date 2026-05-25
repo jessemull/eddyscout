@@ -1,14 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:eddyscout/routing/app_router_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
-
-import 'routing/app_router_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +17,7 @@ Future<void> main() async {
     try {
       await Firebase.initializeApp();
       await FirebaseAuth.instance.signInAnonymously();
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       FirebaseBootstrap.lastError = e.toString();
       debugPrint(
         'Firebase init/sign-in failed (add native config or set USE_FIREBASE=false): $e\n$st',
@@ -50,10 +49,7 @@ class EddyScoutApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'EddyScout',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0077B6),
-          brightness: Brightness.light,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0077B6)),
         useMaterial3: true,
       ),
       routerConfig: router,

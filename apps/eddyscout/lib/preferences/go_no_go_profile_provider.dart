@@ -1,8 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:eddyscout/preferences/go_no_go_profile_repository.dart';
+import 'package:eddyscout/preferences/shared_preferences_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
-import 'go_no_go_profile_repository.dart';
-import 'shared_preferences_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final goNoGoProfileRepositoryProvider = Provider<GoNoGoProfileRepository>((
   ref,

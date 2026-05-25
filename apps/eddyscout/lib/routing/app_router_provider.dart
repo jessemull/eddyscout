@@ -1,5 +1,5 @@
-import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout/routing/app_routes.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,14 +9,14 @@ import 'package:go_router/go_router.dart';
 const mapboxAccessToken = String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
 
 /// Application [GoRouter] with typed routes and platform/token redirects.
-final goRouterProvider = Provider<GoRouter>((ref) {
-  return GoRouter(
+final goRouterProvider = Provider<GoRouter>(
+  (ref) => GoRouter(
     initialLocation: _initialLocation(),
     debugLogDiagnostics: kDebugMode,
     redirect: _redirect,
     routes: $appRoutes,
-  );
-});
+  ),
+);
 
 String _initialLocation() {
   if (kIsWeb) {

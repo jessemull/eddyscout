@@ -1,13 +1,12 @@
+import 'package:eddyscout/preferences/go_no_go_profile_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../preferences/go_no_go_profile_provider.dart';
-
 class LaunchDetailScreen extends ConsumerWidget {
-  const LaunchDetailScreen({super.key, required this.launch});
+  const LaunchDetailScreen({required this.launch, super.key});
 
   final LaunchPoint launch;
 
@@ -144,8 +143,9 @@ class LaunchDetailScreen extends ConsumerWidget {
               Text('Disclaimer', style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 4),
               Text(
-                'EddyScout shows third-party environmental data for planning only. '
-                'It is not a substitute for your judgment, skill assessment, or on-site scouting. '
+                'EddyScout shows third-party data for planning only. '
+                'It is not a substitute for your judgment, skill assessment, '
+                'or on-site scouting. '
                 'River and marine conditions can change rapidly.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -182,12 +182,14 @@ String _firebaseUnavailableMessage() {
       ..writeln('Error: ${FirebaseBootstrap.lastError}')
       ..writeln();
     if (hint != null) {
-      buf.writeln(hint);
-      buf.writeln();
+      buf
+        ..writeln(hint)
+        ..writeln();
     }
     buf.writeln(
       'Otherwise check: correct `google-services.json` for package '
-      '`com.eddyscout.eddyscout`, network, then full app restart (not hot reload).',
+      '`com.eddyscout.eddyscout`, network, then full app restart '
+      '(not hot reload).',
     );
     return buf.toString();
   }
@@ -213,24 +215,22 @@ Future<void> _openConditionReportSheet(
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    builder: (sheetCtx) {
-      return _ConditionReportSheet(
-        launch: launch,
-        conditionsFetchedAt: conditionsFetchedAt,
-        scaffoldMessenger: scaffoldMessenger,
-        onSuccessFeedback: () {
-          ref.read(conditionReportsRefreshTokenProvider.notifier).state++;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!context.mounted) {
-              return;
-            }
-            scaffoldMessenger?.showSnackBar(
-              const SnackBar(content: Text('Thanks—report submitted.')),
-            );
-          });
-        },
-      );
-    },
+    builder: (sheetCtx) => _ConditionReportSheet(
+      launch: launch,
+      conditionsFetchedAt: conditionsFetchedAt,
+      scaffoldMessenger: scaffoldMessenger,
+      onSuccessFeedback: () {
+        ref.read(conditionReportsRefreshTokenProvider.notifier).state++;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) {
+            return;
+          }
+          scaffoldMessenger?.showSnackBar(
+            const SnackBar(content: Text('Thanks—report submitted.')),
+          );
+        });
+      },
+    ),
   );
 }
 
@@ -263,7 +263,8 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Paraphrases recent paddler notes below—not official conditions or river status.',
+              'Paraphrases recent paddler notes below—not official conditions '
+              'or river status.',
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
@@ -313,7 +314,8 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
                 if (digestState.result!.cached) ...[
                   const SizedBox(height: 6),
                   Text(
-                    'From cache (same reports; regenerate if someone just posted).',
+                    'From cache (same reports; regenerate if someone just '
+                    'posted).',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -353,12 +355,14 @@ String _recentReportsErrorMessage(Object error) {
   final msg = error.toString();
   final buf = StringBuffer('Could not load reports: $msg');
   if (msg.toLowerCase().contains('unauthenticated')) {
-    buf.writeln();
-    buf.writeln(
-      'If this persists: fully stop the app and run again (not hot reload); '
-      'confirm `listConditionReports` is deployed with Cloud Run invoker public '
-      '(see firebase/DEPLOY.md); on emulators, use a Google Play system image.',
-    );
+    buf
+      ..writeln()
+      ..writeln(
+        'If this persists: fully stop the app and run again (not hot reload); '
+        'confirm `listConditionReports` is deployed with Cloud Run invoker '
+        'public (see firebase/DEPLOY.md); on emulators, use a Google Play '
+        'system image.',
+      );
   }
   return buf.toString();
 }
@@ -491,8 +495,8 @@ class _ConditionReportTile extends StatelessWidget {
   }
 }
 
-/// Bottom sheet content: owns [TextEditingController] so it is disposed only after
-/// the route removes this widget (avoids "used after being disposed" during IME teardown).
+/// Bottom sheet content: owns `TextEditingController` until the route removes
+/// this widget (avoids "used after being disposed" during IME teardown).
 class _ConditionReportSheet extends StatefulWidget {
   const _ConditionReportSheet({
     required this.launch,
@@ -513,9 +517,9 @@ class _ConditionReportSheet extends StatefulWidget {
 class _ConditionReportSheetState extends State<_ConditionReportSheet> {
   late final TextEditingController _controller;
 
-  /// After a successful submit, the [TextField] is removed before [Navigator.pop].
-  /// Otherwise the IME / viewInsets teardown can rebuild [TextField] while the
-  /// route disposal has already disposed [TextEditingController].
+  /// After submit, the `TextField` is removed before `Navigator.pop`.
+  /// Otherwise the IME / viewInsets teardown can rebuild `TextField` while the
+  /// route disposal has already disposed `TextEditingController`.
   bool _submittedClosing = false;
 
   @override
@@ -554,7 +558,7 @@ class _ConditionReportSheetState extends State<_ConditionReportSheet> {
         Navigator.pop(context);
         widget.onSuccessFeedback();
       });
-    } catch (e) {
+    } on Object catch (e) {
       widget.scaffoldMessenger?.showSnackBar(
         SnackBar(content: Text('Could not submit: $e')),
       );
@@ -668,7 +672,8 @@ class _AiSummaryCard extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Verify against the raw data below—AI can misread or omit details.',
+                'Verify against the raw data below—AI can misread or omit '
+                'details.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
@@ -782,7 +787,8 @@ class _GoNoGoCard extends StatelessWidget {
             ] else if (result.verdict == GoNoGoVerdict.go) ...[
               const SizedBox(height: 8),
               Text(
-                'No stub warnings from wind, marine text, or flow thresholds for this launch.',
+                'No stub warnings from wind, marine text, or flow thresholds '
+                'for this launch.',
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: onBg),
@@ -790,7 +796,8 @@ class _GoNoGoCard extends StatelessWidget {
             ],
             const SizedBox(height: 4),
             Text(
-              'Stub rules only—not a substitute for your judgment, skill, or scouting on site.',
+              'Stub rules only—not a substitute for your judgment, skill, or '
+              'scouting on site.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: onBg.withValues(alpha: 0.85),
                 fontStyle: FontStyle.italic,
@@ -809,18 +816,16 @@ class _ErrorBody extends StatelessWidget {
   final String message;
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Theme.of(context).colorScheme.error),
-        ),
+  Widget build(BuildContext context) => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: TextStyle(color: Theme.of(context).colorScheme.error),
       ),
-    );
-  }
+    ),
+  );
 }
 
 String _attributionLines(ConditionsSnapshot s) {
@@ -832,7 +837,8 @@ String _attributionLines(ConditionsSnapshot s) {
   }
   if (s.tides != null) {
     parts.add(
-      'Tides: NOAA CO-OPS (station ${s.tides!.stationId}, ${s.tides!.datumLabel}).',
+      'Tides: NOAA CO-OPS (station ${s.tides!.stationId}, '
+      '${s.tides!.datumLabel}).',
     );
   }
   if (s.marine != null) {
@@ -944,8 +950,12 @@ String _formatCfs(double v) {
 
 String _formatTime(DateTime t) {
   final local = t.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} '
-      '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
+  final y = local.year;
+  final mo = local.month.toString().padLeft(2, '0');
+  final d = local.day.toString().padLeft(2, '0');
+  final h = local.hour.toString().padLeft(2, '0');
+  final mi = local.minute.toString().padLeft(2, '0');
+  return '$y-$mo-$d $h:$mi';
 }
 
 class _TideCard extends StatelessWidget {
@@ -968,7 +978,8 @@ class _TideCard extends StatelessWidget {
             if (launch.tideRelevance == TideRelevance.minor) ...[
               const SizedBox(height: 4),
               Text(
-                'Reference only — timing/height differs upriver from the station.',
+                'Reference only — timing/height differs upriver from the '
+                'station.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -993,7 +1004,8 @@ class _TideCard extends StatelessWidget {
                     (e) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
-                        '${e.type} ${_formatHeight(e.heightFt)} · ${_formatTime(e.time)}',
+                        '${e.type} ${_formatHeight(e.heightFt)} · '
+                        '${_formatTime(e.time)}',
                       ),
                     ),
                   ),

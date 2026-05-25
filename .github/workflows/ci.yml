@@ -40,7 +40,7 @@ jobs:
       - run: dart pub global activate melos
       - run: melos bootstrap
       - run: melos exec --ignore=eddyscout -- "dart analyze --fatal-infos"
-      - run: melos exec --scope=eddyscout -- "dart analyze --no-fatal-warnings"
+      - run: melos exec --scope=eddyscout -- "dart analyze --fatal-infos"
 
   codegen-drift:
     name: Codegen Drift Check

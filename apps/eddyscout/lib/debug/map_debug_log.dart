@@ -1,15 +1,14 @@
 import 'dart:async' show unawaited;
 import 'dart:developer' as developer;
 
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import 'package:eddyscout_map/eddyscout_map.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
-
 /// Prefix on every line so `flutter run` shows them (`debugPrint`).
-/// `developer.log` alone often does not appear in the Flutter CLI—use this prefix
-/// to filter: `[eddyscout.map]`
+/// `developer.log` alone often does not appear in the Flutter CLI—use this
+/// prefix to filter: `[eddyscout.map]`
 ///
 /// **adb** (Android): `adb logcat -s flutter:I | rg eddyscout.map`
 /// or broader: `adb logcat | rg eddyscout`
@@ -29,8 +28,8 @@ void mapDebugLogTs(String phase) {
   }
 }
 
-/// [coordinateBoundsZoomForCamera] — useful when Standard zoom chrome disagrees
-/// with [getBounds] / [getCameraState].
+/// `coordinateBoundsZoomForCamera` — useful when Standard zoom chrome disagrees
+/// with `getBounds` / `getCameraState`.
 Future<void> mapDebugLogCoordinateBoundsZoom(
   MapboxMap map,
   String label,
@@ -53,12 +52,12 @@ Future<void> mapDebugLogCoordinateBoundsZoom(
       '$label | coordBoundsZoom.zoom=${cbz.zoom.toStringAsFixed(3)} '
       'geoInf=${bb.infiniteBounds}',
     );
-  } catch (e, st) {
+  } on Object catch (e, st) {
     mapDebugLog('$label | coordinateBoundsZoomForCamera failed: $e\n$st');
   }
 }
 
-/// Camera, [getBounds], style projection, and optionally gesture settings.
+/// Camera, `getBounds`, style projection, and optionally gesture settings.
 Future<void> mapDebugLogMapboxSnapshot(
   MapboxMap map,
   String label, {
@@ -78,7 +77,7 @@ Future<void> mapDebugLogMapboxSnapshot(
       'pitch=${cam.pitch.toStringAsFixed(1)} '
       'padding T=${pad.top} B=${pad.bottom} L=${pad.left} R=${pad.right}',
     );
-  } catch (e, st) {
+  } on Object catch (e, st) {
     mapDebugLog('$label | getCameraState failed: $e\n$st');
   }
   try {
@@ -96,13 +95,13 @@ Future<void> mapDebugLogMapboxSnapshot(
         '$label | bounds box SW=(${sw.lng},${sw.lat}) NE=(${ne.lng},${ne.lat})',
       );
     }
-  } catch (e, st) {
+  } on Object catch (e, st) {
     mapDebugLog('$label | getBounds failed: $e\n$st');
   }
   try {
     final p = await map.style.getProjection();
     mapDebugLog('$label | style.getProjection()=${p?.name}');
-  } catch (e) {
+  } on Object catch (e) {
     mapDebugLog('$label | getProjection failed: $e');
   }
   if (includeGestures) {
@@ -111,22 +110,23 @@ Future<void> mapDebugLogMapboxSnapshot(
       mapDebugLog(
         '$label | gestures pinchZoom=${g.pinchToZoomEnabled} '
         'scroll=${g.scrollEnabled} quickZoom=${g.quickZoomEnabled} '
-        'dblTapIn=${g.doubleTapToZoomInEnabled} dblTouchOut=${g.doubleTouchToZoomOutEnabled} '
+        'dblTapIn=${g.doubleTapToZoomInEnabled} '
+        'dblTouchOut=${g.doubleTouchToZoomOutEnabled} '
         'pinchPan=${g.pinchPanEnabled} zoomAnimAmt=${g.zoomAnimationAmount}',
       );
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('$label | gestures.getSettings failed: $e\n$st');
     }
     try {
       final gip = await map.isGestureInProgress();
       mapDebugLog('$label | isGestureInProgress=$gip');
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('$label | isGestureInProgress failed: $e\n$st');
     }
   }
 }
 
-/// Logs [mapDebugLogMapboxSnapshot] at several delays to catch **async**
+/// Logs `mapDebugLogMapboxSnapshot` at several delays to catch **async**
 /// bounds/projection changes after programmatic camera moves (Mapbox Standard).
 void mapDebugLogScheduleDeferredMapDiagnostics({
   required MapboxMap? Function() getMap,
@@ -173,7 +173,8 @@ void mapDebugLogRoutePolyline(String context, List<List<double>> lonLat) {
   );
 }
 
-/// Per-edge lengths (meters) — long max segments explain “straight” chords vs map water.
+/// Per-edge lengths (meters) — long max segments explain straight chords
+/// vs water.
 void mapDebugLogRouteSegmentMeters(List<List<double>> lonLat) {
   if (!kDebugMode || lonLat.length < 2) {
     return;
@@ -210,11 +211,12 @@ void mapDebugLogPolylinePositions(String context, List<Position> positions) {
   final m = positions[n ~/ 2];
   mapDebugLog(
     '$context | LineString positions=$n '
-    'first(lng,lat)=(${f.lng},${f.lat}) mid=(${m.lng},${m.lat}) last=(${l.lng},${l.lat})',
+    'first(lng,lat)=(${f.lng},${f.lat}) '
+    'mid=(${m.lng},${m.lat}) last=(${l.lng},${l.lat})',
   );
 }
 
-/// Pairs of distinct launches within [maxMeters] (explains stacked pins downtown).
+/// Pairs of distinct launches within [maxMeters] (stacked pins downtown).
 void mapDebugLogLaunchPairsWithin(double maxMeters) {
   if (!kDebugMode) {
     return;

@@ -1,1 +1,6 @@
-include: ../../tooling/analysis_options.legacy_app.yaml
+include: ../../tooling/analysis_options.app.yaml
+
+# Application shell — not a published library API surface.
+linter:
+  rules:
+    public_member_api_docs: false

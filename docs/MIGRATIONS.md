@@ -85,19 +85,13 @@ Feature packages live under `packages/features/`. The app shell (`apps/eddyscout
 
 ### Phase M6 — Analysis Baseline Removal
 
-**Status**: Not started
+**Status**: Done
 
-The legacy app uses `tooling/analysis_options.legacy_app.yaml` (lighter than package rules).
-Preflight and CI run `dart analyze --fatal-infos` on workspace packages and
-`dart analyze --no-fatal-warnings` on `apps/eddyscout` until migration completes.
+The app uses `tooling/analysis_options.app.yaml` (strict package rules; `public_member_api_docs: false` in the app shell only).
+Preflight and CI run `dart analyze --fatal-infos` on all workspace packages **including** `apps/eddyscout`.
 
-As files are migrated, tighten the legacy app profile toward `analysis_options.app.yaml`.
-
-Current baseline suppressions in `tooling/analysis_options.legacy_app.yaml`:
-- `avoid_print: warning` → must become `error` after replacing `debugPrint` with logger
-- `prefer_const_constructors: warning` → must become `error` after adding `const` where needed
-- `prefer_const_declarations: warning` → must become `error`
-- `prefer_const_literals_to_create_immutables: warning` → must become `error`
+`tooling/analysis_options.legacy_app.yaml` was removed. Remaining transitional relaxations live in
+`tooling/analysis_options.feature.yaml` for feature packages (cleanup deferred).
 
 ## Legacy File Inventory
 
@@ -266,7 +260,7 @@ Recommended migration order to minimize risk:
 3. **M3** — Swap http → dio (isolated to network layer)
 4. **M2** — Swap Navigator → go_router (requires touching all screens)
 5. **M5** — Extract feature packages (largest refactor)
-6. **M6** — Remove analysis baseline suppressions (final cleanup)
+6. **M6** — Done (app on strict `analysis_options.app.yaml`; feature-package ignores remain)
 
 ## Rules
 

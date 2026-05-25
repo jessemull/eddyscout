@@ -1,8 +1,8 @@
-import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout/screens/launch_detail_screen.dart';
 import 'package:eddyscout/screens/map_screen.dart';
 import 'package:eddyscout/screens/missing_mapbox_token_screen.dart';
 import 'package:eddyscout/screens/web_map_placeholder_screen.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,9 +13,7 @@ class MapRoute extends GoRouteData {
   const MapRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const MapScreen();
-  }
+  Widget build(BuildContext context, GoRouterState state) => const MapScreen();
 }
 
 @TypedGoRoute<LaunchDetailRoute>(path: '/launch/:launchId')
@@ -39,9 +37,8 @@ class MissingMapboxTokenRoute extends GoRouteData {
   const MissingMapboxTokenRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const MissingMapboxTokenScreen();
-  }
+  Widget build(BuildContext context, GoRouterState state) =>
+      const MissingMapboxTokenScreen();
 }
 
 @TypedGoRoute<WebMapPlaceholderRoute>(path: '/web')
@@ -49,9 +46,8 @@ class WebMapPlaceholderRoute extends GoRouteData {
   const WebMapPlaceholderRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const WebMapPlaceholderScreen();
-  }
+  Widget build(BuildContext context, GoRouterState state) =>
+      const WebMapPlaceholderScreen();
 }
 
 /// Fallback when a deep link references an unknown launch id.
@@ -59,19 +55,17 @@ class _LaunchNotFoundBody extends StatelessWidget {
   const _LaunchNotFoundBody();
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Launch not found')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            'That launch is not in the curated list.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Launch not found')),
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          'That launch is not in the curated list.',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
       ),
-    );
-  }
+    ),
+  );
 }

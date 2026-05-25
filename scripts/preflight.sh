@@ -40,7 +40,7 @@ echo "--- Static Analysis ---"
 # Packages: strict (infos are errors). Legacy app: warnings only until M6 migration.
 melos exec --ignore=eddyscout -- "dart analyze --fatal-infos"
 # Legacy app: no fatal warnings/infos until Phase M6 (see docs/MIGRATIONS.md).
-melos exec --scope=eddyscout -- "dart analyze --no-fatal-warnings"
+melos exec --scope=eddyscout -- "dart analyze --fatal-infos"
 
 # Tests
 echo ""

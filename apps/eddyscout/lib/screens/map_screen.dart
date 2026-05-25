@@ -1,22 +1,21 @@
 import 'dart:async' show unawaited;
 import 'dart:convert' show jsonEncode;
 
+import 'package:eddyscout/debug/map_debug_log.dart';
+import 'package:eddyscout/routing/app_routes.dart';
+import 'package:eddyscout/screens/map_planning_provider.dart';
+import 'package:eddyscout/screens/map_session_provider.dart';
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
-import 'package:eddyscout_map/eddyscout_map.dart';
-
-import '../debug/map_debug_log.dart';
-import '../routing/app_routes.dart';
-import 'map_planning_provider.dart';
-import 'map_session_provider.dart';
-
-/// Approximate centroid of [kLaunchPoints] for initial viewport.
+/// Approximate centroid of `kLaunchPoints` for initial viewport.
 Point get _regionCenter {
-  double lat = 0, lon = 0;
+  double lat = 0;
+  double lon = 0;
   for (final p in kLaunchPoints) {
     lat += p.latitude;
     lon += p.longitude;
@@ -33,16 +32,24 @@ class MapScreen extends ConsumerStatefulWidget {
 }
 
 class _MapScreenState extends ConsumerState<MapScreen> {
+  /// Stable instance: a new `CameraViewportState` each build re-applied zoom 9.
+  static final ViewportState _initialMapViewport = CameraViewportState(
+    center: _regionCenter,
+    zoom: 9,
+    pitch: 0,
+    bearing: 0,
+  );
+
   Cancelable? _tapCancelable;
   MapboxMap? _mapboxMap;
   bool _markersInstalled = false;
 
-  CircleAnnotationManager? _circleManager;
+  late CircleAnnotationManager? _circleManager;
 
   /// One-shot diagnostics (launch proximity) per map session.
   bool _mapDiagnosticsLogged = false;
 
-  /// Throttle noisy [onCameraChangeListener] logs (debug).
+  /// Throttle noisy `onCameraChangeListener` logs (debug).
   double? _debugLastLoggedCameraZoom;
   int _debugLastCameraChangeLogMs = 0;
 
@@ -61,9 +68,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     super.dispose();
   }
 
-  /// Mapbox Standard / programmatic camera moves can leave a high [minZoom] or
+  /// Mapbox Standard / programmatic camera moves can leave a high `minZoom` or
   /// tight bounds, which caps how far the user can zoom out. Reset to world
-  /// bounds and full zoom range (matches mapbox example [CameraBoundsOptions]).
+  /// bounds and full zoom range (matches mapbox `CameraBoundsOptions`).
   static const double _mapMinZoom = 0;
   static const double _mapMaxZoom = 25.5;
   static const double _mapMinPitch = 0;
@@ -92,27 +99,27 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         'setBounds(world + zoom $_mapMinZoom..$_mapMaxZoom '
         'pitch $_mapMinPitch..$_mapMaxPitch) OK',
       );
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('setBounds failed: $e\n$st');
     }
   }
 
   /// Mapbox Standard (especially on Android) often tightens camera bounds or
-  /// changes [ConstrainMode] after programmatic camera moves. Without this,
+  /// changes `ConstrainMode` after programmatic camera moves. Without this,
   /// pinch zoom-out can stay locked at the auto-fit zoom.
   Future<void> _reassertMapCameraLimits(MapboxMap map) async {
     try {
       await map.setConstrainMode(ConstrainMode.NONE);
       mapDebugLog('setConstrainMode(NONE) OK (reassert after camera)');
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('setConstrainMode(reassert) failed: $e\n$st');
     }
     await _relaxCameraBounds(map);
   }
 
-  /// [setCamera] on Android + Standard has been observed to leave pinch-zoom
-  /// broken; [easeTo] with ~0 ms duration goes through the animation pipeline and
-  /// clears the stuck state. Also forces [setGestureInProgress](false).
+  /// `setCamera` on Android + Standard has been observed to leave pinch-zoom
+  /// broken; `easeTo` with ~0 ms duration goes through the animation pipeline
+  /// and clears the stuck state. Also forces `setGestureInProgress`(false).
   Future<void> _instantEaseToCamera(
     MapboxMap map,
     CameraOptions target, {
@@ -120,28 +127,28 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }) async {
     try {
       await map.setGestureInProgress(false);
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('$debugTag setGestureInProgress(false) pre: $e\n$st');
     }
     await map.easeTo(target, MapAnimationOptions(duration: 1));
     try {
       await map.setGestureInProgress(false);
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('$debugTag setGestureInProgress(false) post: $e\n$st');
     }
     if (kDebugMode) {
       try {
         final gip = await map.isGestureInProgress();
         mapDebugLog('$debugTag after easeTo isGestureInProgress=$gip');
-      } catch (e, st) {
+      } on Object catch (e, st) {
         mapDebugLog('$debugTag isGestureInProgress: $e\n$st');
       }
     }
   }
 
-  /// Calling [setBounds] while [easeTo] is still settling makes Mapbox emit
-  /// bogus [CAMERA_CHANGED] frames (logs showed zoom ~8.97 then ~12.56) and
-  /// leaves Standard’s − / 1:1 ornaments wrong. Wait, then [setBounds] once.
+  /// Calling `setBounds` while `easeTo` is still settling makes Mapbox emit
+  /// bogus `CAMERA_CHANGED` frames (logs showed zoom ~8.97 then ~12.56) and
+  /// leaves Standard’s − / 1:1 ornaments wrong. Wait, then `setBounds` once.
   Future<void> _applyBoundsAfterCameraSettle(
     MapboxMap map, {
     required String debugTag,
@@ -209,7 +216,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         mapDebugLog(
           'CAMERA_CHANGED isGestureInProgress=${await m.isGestureInProgress()}',
         );
-      } catch (_) {}
+      } on Object catch (_) {}
     }());
   }
 
@@ -236,7 +243,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   /// Standard style defaults to globe; polyline annotations can render as a
-  /// near–straight chord at city zoom. Mercator keeps the line on the hydro path.
+  /// near–straight chord at city zoom. Mercator keeps the line on the hydro
+  /// path.
   Future<void> _configureStandardStyleMap(MapboxMap map) async {
     await mapDebugLogMapboxSnapshot(map, 'configureStandardStyleMap (before)');
     try {
@@ -244,7 +252,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         StyleProjection(name: StyleProjectionName.mercator),
       );
       mapDebugLog('setProjection(mercator) OK');
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('setProjection(mercator) failed: $e\n$st');
     }
     await _reassertMapCameraLimits(map);
@@ -278,13 +286,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       await mapDebugLogCoordinateBoundsZoom(map, 'LAUNCH_FIT pre-reassert');
       await _reassertMapCameraLimits(map);
       mapDebugLog('_fitViewportToAllLaunches OK');
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('_fitViewportToAllLaunches failed: $e\n$st');
     }
   }
 
   /// Style-layer route (GeoJSON) clears reliably on Android; polyline
-  /// annotations often ignore [delete]/[deleteAll] with Mapbox Standard.
+  /// annotations often ignore `delete`/`deleteAll` with Mapbox Standard.
   Future<void> _ensureRouteLineStyle(MapboxMap map) async {
     try {
       if (!await map.style.styleSourceExists(_routeSourceId)) {
@@ -305,18 +313,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         );
         mapDebugLog('route LineLayer added');
       }
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('_ensureRouteLineStyle failed: $e\n$st');
     }
   }
 
-  String _routeGeoJsonFromLonLat(List<List<double>> lonLat) {
-    return jsonEncode({
-      'type': 'Feature',
-      'properties': <String, dynamic>{},
-      'geometry': {'type': 'LineString', 'coordinates': lonLat},
-    });
-  }
+  String _routeGeoJsonFromLonLat(List<List<double>> lonLat) => jsonEncode({
+    'type': 'Feature',
+    'properties': <String, dynamic>{},
+    'geometry': {'type': 'LineString', 'coordinates': lonLat},
+  });
 
   Future<void> _installLaunchMarkersIfNeeded() async {
     if (_markersInstalled || _mapboxMap == null || !mounted) {
@@ -350,7 +356,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
       _tapCancelable?.cancel();
       _tapCancelable = _circleManager!.tapEvents(onTap: _onLaunchCircleTap);
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('_installLaunchMarkersIfNeeded failed: $e\n$st');
     } finally {
       if (mounted) {
@@ -371,7 +377,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     final planning = ref.read(routePlanningProvider);
     if (!planning.planningMode) {
-      LaunchDetailRoute(launchId: launch.id).push(context);
+      LaunchDetailRoute(launchId: launch.id).push<void>(context);
       return;
     }
 
@@ -432,7 +438,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     final ok = result as RouteSuccess;
     mapDebugLog(
-      'plan OK ${put.id} -> ${take.id} lengthM=${ok.lengthMeters.toStringAsFixed(0)}',
+      'plan OK ${put.id} -> ${take.id} '
+      'lengthM=${ok.lengthMeters.toStringAsFixed(0)}',
     );
     mapDebugLogRoutePolyline('planner output', ok.polylineLonLat);
     mapDebugLogRouteSegmentMeters(ok.polylineLonLat);
@@ -455,7 +462,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     try {
       await map.style.setStyleSourceProperty(_routeSourceId, 'data', data);
       mapDebugLog('route source updated coordCount=${lonLat.length}');
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('_drawRouteLine setStyleSourceProperty failed: $e\n$st');
     }
   }
@@ -474,7 +481,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         );
         mapDebugLog('_clearRouteLine: emptied GeoJSON source');
       }
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('_clearRouteLine failed: $e\n$st');
     }
   }
@@ -504,18 +511,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         16,
         null,
       );
+      final center = fitted.center?.coordinates;
       mapDebugLog(
         '_fitCameraToRoute fitted zoom=${fitted.zoom} '
-        'center=(${fitted.center?.coordinates.lng},${fitted.center?.coordinates.lat})',
+        'center=(${center?.lng},${center?.lat})',
       );
       mapDebugLogTs('ROUTE_FIT easeTo start');
       await _instantEaseToCamera(map, fitted, debugTag: '_fitCameraToRoute');
       mapDebugLog(
-        'ROUTE_FIT easeTo await returned; next setBounds deferred ~400ms '
-        '(was racing native animator — see CAMERA_CHANGED BIG_JUMP in old logs)',
+        'ROUTE_FIT easeTo await returned; setBounds deferred ~400ms '
+        '(was racing native animator — CAMERA_CHANGED BIG_JUMP in old logs)',
       );
       await _applyBoundsAfterCameraSettle(map, debugTag: 'ROUTE_FIT');
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('_fitCameraToRoute failed: $e\n$st');
     }
   }
@@ -550,7 +558,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Future<void> _onMapCreated(MapboxMap mapboxMap) async {
     _mapboxMap = mapboxMap;
-    mapDebugLog('onMapCreated (initial camera from MapWidget.cameraOptions)');
+    mapDebugLog('onMapCreated (initial camera from MapWidget viewport)');
     await mapDebugLogMapboxSnapshot(
       mapboxMap,
       'onMapCreated',
@@ -587,7 +595,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       );
       await map.setGestureInProgress(false);
       await _reassertMapCameraLimits(map);
-    } catch (e, st) {
+    } on Object catch (e, st) {
       mapDebugLog('_nudgeZoomBy failed: $e\n$st');
     }
   }
@@ -624,21 +632,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ignoring: !mapInteractive,
             child: MapWidget(
               key: const ValueKey<String>('eddyscout_map'),
-              styleUri: MapboxStyles.STANDARD,
+              // TLHC_HC avoids Android texture/surface bugs with Mapbox (experimental).
               // ignore: experimental_member_use
               androidHostingMode: AndroidPlatformViewHostingMode.TLHC_HC,
-              textureView: true,
-              cameraOptions: CameraOptions(
-                center: _regionCenter,
-                zoom: 9,
-                pitch: 0,
-                bearing: 0,
-              ),
+              viewport: _initialMapViewport,
               mapOptions: MapOptions(
                 pixelRatio: MediaQuery.devicePixelRatioOf(context),
               ),
-              // Omit viewport: a new CameraViewportState each build made Mapbox
-              // re-apply zoom 9 on every setState, undoing route fit and user zoom.
               onMapCreated: _onMapCreated,
               onStyleLoadedListener: _onStyleLoaded,
               onCameraChangeListener: kDebugMode ? _onDebugCameraChanged : null,
@@ -732,9 +732,12 @@ class _PlanningOverlay extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     'Tap a launch for put-in, then another for take-out. '
-                    'The line follows bundled open hydro data (approximate centerline)—not for navigation. '
-                    'Several downtown launches sit close together; overlapping pins are separate sites. '
-                    'Clear removes the route line and picks so you can start over. '
+                    'The line follows bundled open hydro data (approximate '
+                    'centerline)—not for navigation. '
+                    'Several downtown launches sit close together; overlapping '
+                    'pins are separate sites. '
+                    'Clear removes the route line and picks so you can '
+                    'start over. '
                     'Done closes this panel and clears the route.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
@@ -757,7 +760,8 @@ class _PlanningOverlay extends StatelessWidget {
                   if (routeLengthKm != null) ...[
                     const SizedBox(height: 6),
                     Text(
-                      'Along river (estimate): ${routeLengthKm!.toStringAsFixed(1)} km',
+                      'Along river (estimate): '
+                      '${routeLengthKm!.toStringAsFixed(1)} km',
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ],

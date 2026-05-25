@@ -9,64 +9,51 @@ environment:
   sdk: ^3.11.4
 
 dependencies:
-  flutter:
-    sdk: flutter
-
-  cupertino_icons: ^1.0.8
-  mapbox_maps_flutter: ^2.21.1
-  shared_preferences: ^2.3.3
-  firebase_core: ^3.8.1
   cloud_functions: ^5.2.1
-  firebase_auth: ^5.3.4
-
-  # State management (migration target — see docs/MIGRATIONS.md)
-  flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
-
-  # Navigation (migration target — see docs/MIGRATIONS.md)
-  go_router: ^14.8.1
-
-  # Networking (migration target — see docs/MIGRATIONS.md)
+  cupertino_icons: ^1.0.8
   dio: ^5.7.0
-
-  # Immutable models (migration target — see docs/MIGRATIONS.md)
-  freezed_annotation: ^3.0.0
-  json_annotation: ^4.9.0
-
-  # Workspace packages
+  eddyscout_analytics:
+    path: ../../packages/analytics
+  eddyscout_conditions:
+    path: ../../packages/features/conditions
   eddyscout_core:
     path: ../../packages/core
   eddyscout_design_system:
     path: ../../packages/design_system
-  eddyscout_networking:
-    path: ../../packages/networking
-  eddyscout_persistence:
-    path: ../../packages/persistence
-  eddyscout_analytics:
-    path: ../../packages/analytics
-  eddyscout_routing:
-    path: ../../packages/routing
+  eddyscout_hydro_routing:
+    path: ../../packages/features/hydro_routing
   eddyscout_localization:
     path: ../../packages/localization
   eddyscout_map:
     path: ../../packages/features/map
-  eddyscout_conditions:
-    path: ../../packages/features/conditions
-  eddyscout_hydro_routing:
-    path: ../../packages/features/hydro_routing
+  eddyscout_networking:
+    path: ../../packages/networking
+  eddyscout_persistence:
+    path: ../../packages/persistence
+  eddyscout_routing:
+    path: ../../packages/routing
+  firebase_auth: ^5.3.4
+  firebase_core: ^3.8.1
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  freezed_annotation: ^3.0.0
+  go_router: ^14.8.1
+  json_annotation: ^4.9.0
+  mapbox_maps_flutter: ^2.21.1
+  riverpod_annotation: ^2.6.1
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
+  build_runner: ^2.4.14
   flutter_test:
     sdk: flutter
-
-  very_good_analysis: ^7.0.0
-  mocktail: ^1.0.4
-  golden_toolkit: ^0.15.0
-  # Codegen (go_router_builder, freezed) — see docs/MIGRATIONS.md
-  build_runner: ^2.4.14
-  go_router_builder: 2.8.0
   freezed: ^3.0.0
+  go_router_builder: 2.8.0
+  golden_toolkit: ^0.15.0
   json_serializable: ^6.9.0
+  mocktail: ^1.0.4
+  very_good_analysis: ^7.0.0
 
 flutter:
   uses-material-design: true

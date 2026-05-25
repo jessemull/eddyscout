@@ -1,8 +1,7 @@
+import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:eddyscout_conditions/eddyscout_conditions.dart';
-
-/// Persists [GoNoGoProfile] for wind tier scaling in [GoNoGoEvaluator].
+/// Persists `GoNoGoProfile` for wind tier scaling in `GoNoGoEvaluator`.
 class GoNoGoProfileRepository {
   const GoNoGoProfileRepository(this._prefs);
 
@@ -10,16 +9,15 @@ class GoNoGoProfileRepository {
 
   final SharedPreferences _prefs;
 
-  GoNoGoProfile read() {
-    return parseStoredProfile(_prefs.getString(storageKey)) ??
-        GoNoGoProfile.intermediate;
-  }
+  GoNoGoProfile read() =>
+      parseStoredProfile(_prefs.getString(storageKey)) ??
+      GoNoGoProfile.intermediate;
 
   Future<void> write(GoNoGoProfile profile) async {
     await _prefs.setString(storageKey, profile.name);
   }
 
-  /// Parses a stored enum [name], or null when missing or unrecognized.
+  /// Parses a stored enum name, or null when missing or unrecognized.
   static GoNoGoProfile? parseStoredProfile(String? raw) {
     if (raw == null) {
       return null;
