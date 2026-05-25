@@ -25,6 +25,6 @@ jobs:
       - run: dart pub global activate melos
       - run: melos bootstrap
       - run: melos exec --fail-fast --dir-exists=test -- "flutter test"
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true

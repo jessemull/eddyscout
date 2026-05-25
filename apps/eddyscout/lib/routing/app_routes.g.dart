@@ -14,86 +14,105 @@ List<RouteBase> get $appRoutes => [
 ];
 
 RouteBase get $mapRoute =>
-    GoRouteData.$route(path: '/', factory: $MapRouteExtension._fromState);
+    GoRouteData.$route(path: '/', factory: $MapRoute._fromState);
 
-extension $MapRouteExtension on MapRoute {
+mixin $MapRoute on GoRouteData {
   static MapRoute _fromState(GoRouterState state) => const MapRoute();
 
+  @override
   String get location => GoRouteData.$location('/');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
 RouteBase get $launchDetailRoute => GoRouteData.$route(
   path: '/launch/:launchId',
-
-  factory: $LaunchDetailRouteExtension._fromState,
+  factory: $LaunchDetailRoute._fromState,
 );
 
-extension $LaunchDetailRouteExtension on LaunchDetailRoute {
+mixin $LaunchDetailRoute on GoRouteData {
   static LaunchDetailRoute _fromState(GoRouterState state) =>
       LaunchDetailRoute(launchId: state.pathParameters['launchId']!);
 
-  String get location =>
-      GoRouteData.$location('/launch/${Uri.encodeComponent(launchId)}');
+  LaunchDetailRoute get _self => this as LaunchDetailRoute;
 
+  @override
+  String get location =>
+      GoRouteData.$location('/launch/${Uri.encodeComponent(_self.launchId)}');
+
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
 RouteBase get $missingMapboxTokenRoute => GoRouteData.$route(
   path: '/missing-token',
-
-  factory: $MissingMapboxTokenRouteExtension._fromState,
+  factory: $MissingMapboxTokenRoute._fromState,
 );
 
-extension $MissingMapboxTokenRouteExtension on MissingMapboxTokenRoute {
+mixin $MissingMapboxTokenRoute on GoRouteData {
   static MissingMapboxTokenRoute _fromState(GoRouterState state) =>
       const MissingMapboxTokenRoute();
 
+  @override
   String get location => GoRouteData.$location('/missing-token');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
 RouteBase get $webMapPlaceholderRoute => GoRouteData.$route(
   path: '/web',
-
-  factory: $WebMapPlaceholderRouteExtension._fromState,
+  factory: $WebMapPlaceholderRoute._fromState,
 );
 
-extension $WebMapPlaceholderRouteExtension on WebMapPlaceholderRoute {
+mixin $WebMapPlaceholderRoute on GoRouteData {
   static WebMapPlaceholderRoute _fromState(GoRouterState state) =>
       const WebMapPlaceholderRoute();
 
+  @override
   String get location => GoRouteData.$location('/web');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }

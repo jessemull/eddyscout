@@ -20,6 +20,9 @@ workspace:
 dev_dependencies:
   melos: ^7.3.0
 
+dependency_overrides:
+  source_gen: 4.2.0
+
 melos:
   name: eddyscout
   sdkPath: auto

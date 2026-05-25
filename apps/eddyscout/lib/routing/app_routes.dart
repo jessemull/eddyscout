@@ -9,7 +9,7 @@ import 'package:go_router/go_router.dart';
 part 'app_routes.g.dart';
 
 @TypedGoRoute<MapRoute>(path: '/')
-class MapRoute extends GoRouteData {
+class MapRoute extends GoRouteData with $MapRoute {
   const MapRoute();
 
   @override
@@ -17,7 +17,7 @@ class MapRoute extends GoRouteData {
 }
 
 @TypedGoRoute<LaunchDetailRoute>(path: '/launch/:launchId')
-class LaunchDetailRoute extends GoRouteData {
+class LaunchDetailRoute extends GoRouteData with $LaunchDetailRoute {
   const LaunchDetailRoute({required this.launchId});
 
   final String launchId;
@@ -33,7 +33,8 @@ class LaunchDetailRoute extends GoRouteData {
 }
 
 @TypedGoRoute<MissingMapboxTokenRoute>(path: '/missing-token')
-class MissingMapboxTokenRoute extends GoRouteData {
+class MissingMapboxTokenRoute extends GoRouteData
+    with $MissingMapboxTokenRoute {
   const MissingMapboxTokenRoute();
 
   @override
@@ -42,7 +43,7 @@ class MissingMapboxTokenRoute extends GoRouteData {
 }
 
 @TypedGoRoute<WebMapPlaceholderRoute>(path: '/web')
-class WebMapPlaceholderRoute extends GoRouteData {
+class WebMapPlaceholderRoute extends GoRouteData with $WebMapPlaceholderRoute {
   const WebMapPlaceholderRoute();
 
   @override
