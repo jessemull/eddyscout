@@ -112,8 +112,8 @@ Forbidden dependencies:
 
 ## Rules
 
-- [ ] prefer `@riverpod` codegen for all providers
-- [ ] avoid manual provider declarations unless necessary
+- [ ] **new** providers SHOULD use `@riverpod` codegen (existing manual `FutureProvider` / `NotifierProvider` / `AsyncNotifier` are acceptable until migrated)
+- [ ] avoid new manual provider declarations unless codegen is blocked
 - [ ] keep providers small and focused
 
 ---

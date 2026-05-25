@@ -199,7 +199,13 @@ This rule assumes:
 
 ---
 
-# 9. Validation Checklist
+# 9. Related Cursor Skills
+
+- `feature-development`, `riverpod-usage` — `.cursor/skills/`
+
+---
+
+# 10. Validation Checklist
 
 Before committing:
 

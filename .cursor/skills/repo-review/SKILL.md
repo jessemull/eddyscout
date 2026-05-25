@@ -358,7 +358,7 @@ Review **every async operation** in the codebase.
 Review **every route and navigation call** in the codebase.
 
 - [ ] All routes typed correctly
-- [ ] Route ownership respected everywhere (feature routes; assembly in `packages/routing/`)
+- [ ] Route ownership respected everywhere (typed routes; global graph in `apps/eddyscout/lib/routing/` today, target `packages/routing/`)
 - [ ] Auth guards applied correctly on all protected routes
 - [ ] All deeplinks validated
 - [ ] Navigation side effects isolated everywhere

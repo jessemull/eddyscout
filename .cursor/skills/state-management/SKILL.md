@@ -122,7 +122,7 @@ Never:
 
 ## Rules
 
-- [ ] prefer `@riverpod` code generation for all providers
+- [ ] **new** providers SHOULD use `@riverpod` code generation (match patterns in `docs/STATE_MANAGEMENT.md`; migrate legacy manual providers incrementally)
 - [ ] avoid manual provider declarations unless required
 - [ ] keep providers small and composable
 - [ ] avoid monolithic “god providers”

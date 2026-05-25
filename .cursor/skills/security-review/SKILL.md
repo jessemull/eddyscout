@@ -89,7 +89,7 @@ UI is never a security boundary.
 ## Authentication Rules
 
 - [ ] tokens must never be hardcoded
-- [ ] tokens must be stored in secure storage (e.g. `flutter_secure_storage`)
+- [ ] tokens must be stored in secure storage (e.g. `flutter_secure_storage` when storing credentials — add dependency when first needed)
 - [ ] tokens must be refreshed safely and automatically
 - [ ] session expiration must be handled gracefully
 - [ ] logout must fully clear all sensitive state

@@ -186,7 +186,13 @@ Fix:
 
 ---
 
-# 9. Validation Checklist
+# 9. Related Cursor Skills
+
+- `code-generation` — `.cursor/skills/`
+
+---
+
+# 10. Validation Checklist
 
 Before committing:
 

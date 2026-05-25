@@ -8,6 +8,8 @@ alwaysApply: false
 
 These rules enforce **predictable UI structure, accessibility compliance, performance stability, and clean separation of concerns**.
 
+Primary screen widgets today live in `apps/eddyscout/lib/screens/` (app shell). Feature `presentation/` layers are the target for new UI owned by a feature package.
+
 All widgets must remain:
 - composable
 - testable
@@ -252,7 +254,13 @@ Each widget should support:
 
 ---
 
-# 14. Validation Checklist
+# 14. Related Cursor Skills
+
+- `form-creation`, `responsive-ui-validation`, `accessibility-review` — `.cursor/skills/`
+
+---
+
+# 15. Validation Checklist
 
 Before committing:
 

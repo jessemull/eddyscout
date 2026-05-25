@@ -210,7 +210,7 @@ All UI must target:
 # 9. Image & Asset Performance
 
 - [ ] use correctly sized images (no oversized decoding)
-- [ ] use caching where appropriate
+- [ ] use caching where appropriate (`CachedNetworkImage` when loading remote images in UI)
 - [ ] avoid decoding large assets in UI thread
 - [ ] prefer lazy loading for media-heavy screens
 
@@ -242,7 +242,13 @@ When diagnosing performance:
 
 ---
 
-# 12. Validation Checklist
+# 12. Related Cursor Skills
+
+- `performance-profiling` — `.cursor/skills/`
+
+---
+
+# 13. Validation Checklist
 
 Before committing:
 

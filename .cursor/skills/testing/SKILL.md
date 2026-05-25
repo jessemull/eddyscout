@@ -114,8 +114,11 @@ Prefer:
 Example:
 
 ```
-lib/features/auth/login.dart
-test/features/auth/login_test.dart
+packages/features/conditions/lib/src/data/conditions_provider.dart
+packages/features/conditions/test/...   # mirrors lib/ under test/
+
+apps/eddyscout/lib/screens/map_planning_provider.dart
+apps/eddyscout/test/screens/map_planning_provider_test.dart
 ```
 
 ---
@@ -210,6 +213,8 @@ Examples:
 ---
 
 # 7. Integration Testing Rules
+
+> **Current repo:** no `integration_test/` directory yet. Add under `apps/eddyscout/integration_test/` when implementing critical E2E flows.
 
 ## When Required
 

@@ -185,7 +185,13 @@ Before writing a comment, ask:
 
 ---
 
-# 7. Validation Checklist
+# 7. Related Documentation
+
+- `docs/COMMENTS.md` — canonical comment policy
+
+---
+
+# 8. Validation Checklist
 
 Before committing:
 

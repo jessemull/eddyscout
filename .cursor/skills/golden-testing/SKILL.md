@@ -41,6 +41,14 @@ They do NOT replace:
 
 ---
 
+## Current repo status
+
+- `golden_toolkit` is listed in `apps/eddyscout/pubspec.yaml` dev_dependencies.
+- There are **no** `*_golden_test.dart` files or committed golden PNGs yet.
+- **New** design-system widgets and stable layouts SHOULD add goldens per `docs/TESTING.md` (`test/goldens/` or `*_golden_test.dart` suffix — both conventions are valid).
+
+---
+
 # When to Use
 
 Use golden testing when:

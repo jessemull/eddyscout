@@ -36,8 +36,8 @@ State must be:
 ## Rules
 
 - [ ] prefer `NotifierProvider` / `AsyncNotifierProvider` over ad-hoc patterns
-- [ ] use `@riverpod` codegen where possible
-- [ ] avoid manual provider boilerplate unless necessary
+- [ ] **new** providers SHOULD use `@riverpod` codegen where possible (existing code may use manual `FutureProvider` / `NotifierProvider` until migrated)
+- [ ] avoid manual provider boilerplate for new code unless codegen is blocked
 
 ---
 
@@ -109,7 +109,7 @@ Only use `keepAlive` when:
 
 ## MUST NOT
 
-- ❌ use `ref.read()` inside `build()`
+- ❌ use `ref.read()` inside `build()` for values that should trigger rebuilds (reading `.notifier` in event handlers / `initState` is OK)
 - ❌ trigger side-effects in `build()`
 - ❌ mix read/watch incorrectly causing stale UI
 
@@ -226,7 +226,14 @@ All async providers MUST handle:
 
 ---
 
-# 12. Validation Checklist
+# 12. Related Cursor Skills
+
+- `state-management`, `riverpod-usage` — `.cursor/skills/`
+- `docs/ARCHITECTURE.md` § Current implementation status
+
+---
+
+# 13. Validation Checklist
 
 Before committing:
 

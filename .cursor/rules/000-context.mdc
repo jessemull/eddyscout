@@ -23,7 +23,15 @@ Read these in order:
 
 1. `CONTEXT.md` — mandatory loading order and precedence chain
 2. `AGENTS.md` — complete development rules and constraints
-3. All mandatory `docs/` listed in CONTEXT.md (items 5–10)
+3. All mandatory `docs/` from CONTEXT.md items 5–10:
+   - `docs/GOVERNANCE.md`
+   - `docs/ARCHITECTURE.md`
+   - `docs/TESTING.md`
+   - `docs/COMMENTS.md`
+   - `docs/PLATFORMS.md`
+   - `docs/DEPENDENCIES.md`
+   - `docs/SECURITY.md`
+   - `docs/RELEASES.md`
 
 ---
 
@@ -31,7 +39,7 @@ Read these in order:
 
 - [ ] read `CONTEXT.md` first
 - [ ] read `AGENTS.md` second
-- [ ] read ALL mandatory docs, not only those that seem relevant
+- [ ] read ALL mandatory docs above, not only those that seem relevant
 
 ---
 
@@ -70,7 +78,7 @@ These constraints are **absolute** — no exceptions without human approval.
 
 ## Architecture
 
-- [ ] feature-first monorepo with `presentation / domain / data` separation
+- [ ] feature-first monorepo with `presentation → domain ← data` separation
 - [ ] dependency direction: `presentation → domain ← data`
 - [ ] features MUST NOT import from other features
 
@@ -141,6 +149,14 @@ Read these docs when the task touches their domain:
 | `docs/THEMING.md` | theme / token changes |
 | `docs/NETWORKING.md` | HTTP / API layer |
 | `docs/ACCESSIBILITY.md` | a11y / semantics |
+| `docs/COMMENTS.md` | comment policy (if adding non-obvious comments) |
+| `docs/CODEGEN.md` | code generation / `make gen` |
+| `docs/STATE_MANAGEMENT.md` | Riverpod providers |
+| `docs/NAVIGATION.md` | routes / go_router |
+| `docs/UI.md` | widgets / UI states |
+| `docs/REVIEW.md` | PR review severity |
+| `docs/RELEASES.md` | release / versioning |
+| `docs/CURSOR_CONSISTENCY_AUDIT.md` | rules/skills vs. codebase gaps |
 
 ---
 

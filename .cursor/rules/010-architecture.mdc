@@ -48,7 +48,8 @@ eddyscout/
 
 - [ ] every feature lives in its own package under `packages/features/`
 - [ ] shared concerns live in dedicated shared packages
-- [ ] app-level code in `apps/eddyscout/` is minimal (bootstrap + assembly only)
+- [ ] app shell in `apps/eddyscout/` composes features (bootstrap, routing, screens) — see `docs/ARCHITECTURE.md`
+- [ ] screen-level UI may live in `apps/eddyscout/lib/screens/` until migrated into feature `presentation/` layers
 
 ---
 
@@ -78,9 +79,13 @@ packages/features/<feature_name>/
 
 ## MUST
 
-- [ ] separate presentation, domain, and data layers
+- [ ] separate presentation, domain, and data layers where the feature has UI (target layout per `packages/features/_TEMPLATE/`)
 - [ ] test structure mirrors lib structure exactly
 - [ ] one primary public class per file (private helpers allowed)
+
+## Current repo note
+
+Today, `conditions`, `map`, and `hydro_routing` are **partially layered** (e.g. `map` is mostly data; primary screens live in the app shell). New features SHOULD follow full layering; existing code SHOULD migrate incrementally. See `docs/ARCHITECTURE.md` § Current implementation status.
 
 ---
 
@@ -250,9 +255,9 @@ Allowed via:
 
 ## routing/
 
-- go_router provider and route assembly
-- composes feature routes into app router
-- auth guards and redirects
+- target: go_router provider and route assembly in `packages/routing/`
+- **today:** `packages/routing/` is a scaffold; live router is `apps/eddyscout/lib/routing/` (`app_routes.dart`, `app_router_provider.dart`)
+- composes typed routes into `GoRouter`; platform/token redirects live in app router
 
 ---
 
@@ -260,9 +265,9 @@ Allowed via:
 
 ## Package Boundaries
 
-- [ ] all I/O operations return `Future<Result<T, AppFailure>>`
-- [ ] never throw exceptions across package boundaries
-- [ ] wrap external exceptions in `AppFailure`
+- [ ] new I/O at package boundaries SHOULD return `Future<Result<T, AppFailure>>` (type lives in `packages/core/`)
+- [ ] never throw exceptions across package boundaries in new code
+- [ ] wrap external exceptions in `AppFailure` when adopting `Result`
 
 ---
 
@@ -290,7 +295,14 @@ Allowed via:
 
 ---
 
-# 10. Validation Checklist
+# 10. Related Cursor Skills
+
+- `feature-development`, `riverpod-usage` — `.cursor/skills/`
+- `docs/ARCHITECTURE.md`, `docs/CURSOR_CONSISTENCY_AUDIT.md`
+
+---
+
+# 11. Validation Checklist
 
 Before committing:
 

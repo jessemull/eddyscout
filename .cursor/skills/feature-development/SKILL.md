@@ -106,6 +106,10 @@ Rules:
 - `domain` depends on neither `presentation` nor `data`
 - `presentation` must never directly depend on data sources
 
+**App shell:** Screen widgets may live in `apps/eddyscout/lib/screens/` while feature packages mature. New UI SHOULD move toward feature `presentation/` when the feature owns the screen. See `docs/ARCHITECTURE.md` § Current implementation status.
+
+**Routing:** Register typed routes in `apps/eddyscout/lib/routing/` today (`navigation-change` skill). Target: compose in `packages/routing/`.
+
 ---
 
 ## Feature Ownership

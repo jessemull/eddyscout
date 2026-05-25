@@ -25,9 +25,9 @@ All navigation must be:
 - [ ] use `go_router` as the only navigation system
 - [ ] use `go_router_builder` for typed routes
 - [ ] support deep linking for ALL public routes
-- [ ] enforce auth via router-level redirects (not UI logic)
-- [ ] define routes per feature module
-- [ ] assemble all routes in `packages/routing` (or equivalent central router layer)
+- [ ] enforce protected-route access via router-level `redirect` when session/auth exists (not widget checks)
+- [ ] define typed routes in `apps/eddyscout/lib/routing/` (today) or feature modules as they gain routes
+- [ ] keep a single global route graph (today: `goRouterProvider` in `app_router_provider.dart`; target: compose in `packages/routing/`)
 
 ---
 
@@ -54,9 +54,9 @@ Each feature MUST:
 
 ## Central Router Composition
 
-- all feature routes are composed in `packages/routing`
-- routing layer is the only place where global route graph exists
-- features MUST NOT depend on each other’s route definitions directly
+- **today:** app owns `GoRouter` in `apps/eddyscout/lib/routing/`; `packages/routing/` is a scaffold (see `docs/ARCHITECTURE.md`)
+- **target:** compose feature route subtrees in `packages/routing/`
+- only one global route graph; features MUST NOT depend on each other’s route definitions directly
 
 ---
 
@@ -109,6 +109,8 @@ Each feature MUST:
 ---
 
 # 5. Stateful Navigation (Tabs / Shells)
+
+> Required **when** adding tab-based or multi-stack navigation. Not used in the current single-stack app.
 
 ## Required Pattern
 
@@ -169,6 +171,8 @@ Each feature MUST:
 
 # 8. Auth & Guard Rules
 
+> Required **when** adding login, session, or role-protected routes. Today the app uses platform/token redirects in `app_router_provider.dart`, not session auth guards.
+
 ## Required
 
 - auth checks MUST happen in router `redirect`
@@ -228,7 +232,13 @@ Each feature MUST:
 
 ---
 
-# 13. Validation Checklist
+# 13. Related Cursor Skills
+
+- `navigation-change` — `.cursor/skills/`
+
+---
+
+# 14. Validation Checklist
 
 Before committing:
 

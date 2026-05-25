@@ -10,6 +10,8 @@
 
 Riverpod is the **only** state management solution. No exceptions.
 
+> **Current codebase:** Most providers are hand-written (`FutureProvider`, `NotifierProvider`, `AsyncNotifier`). **New** providers SHOULD use `@riverpod` codegen per below. See `docs/ARCHITECTURE.md` § Current implementation status.
+
 ### Banned alternatives
 
 | Package / pattern | Why it's banned |

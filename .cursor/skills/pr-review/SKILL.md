@@ -332,7 +332,7 @@ Higher-risk changes require deeper review scrutiny.
 ## 7. Navigation review
 
 - [ ] Routes typed correctly
-- [ ] Route ownership respected (feature routes; assembly in `packages/routing/`)
+- [ ] Route ownership respected (typed routes; global graph in `apps/eddyscout/lib/routing/` today, target `packages/routing/`)
 - [ ] Auth guards applied correctly
 - [ ] Deeplinks validated
 - [ ] Navigation side effects isolated

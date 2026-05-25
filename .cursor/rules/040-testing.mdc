@@ -63,9 +63,9 @@ All tests must be:
 Tests MUST mirror `lib/` structure.
 
 ```
-test/features/auth/domain/...
-test/features/auth/data/...
-test/features/auth/presentation/...
+packages/features/conditions/test/data/go_no_go_profile_repository_test.dart
+packages/features/map/test/launch_providers_test.dart
+apps/eddyscout/test/screens/map_planning_provider_test.dart
 ```
 
 ---
@@ -150,6 +150,8 @@ Widget tests MUST cover:
 
 # 7. Integration Testing Rules
 
+> **Current repo:** no `integration_test/` directory yet. Add when implementing critical E2E journeys (see `docs/ARCHITECTURE.md` § Current implementation status).
+
 ## Required for:
 
 - authentication flows
@@ -171,7 +173,9 @@ Widget tests MUST cover:
 
 # 8. Test Naming Standards
 
-## Format
+## Preferred test description
+
+Use behavior-oriented descriptions inside `test()`:
 
 ```
 should [expected behavior] when [condition]
@@ -183,14 +187,14 @@ should [expected behavior] when [condition]
 
 - should return error when network request fails
 - should display empty state when no items exist
-- should navigate to login when session expires
+- should redirect to missing-token route when Mapbox token is empty
 
 ---
 
 ## Rules
 
 - [ ] test names must describe behavior, not implementation
-- [ ] use `group()` for logical grouping
+- [ ] use `group()` to group related cases (by provider, widget, or class) — this is the common repo pattern
 - [ ] avoid vague names like “test login”
 
 ---
@@ -246,7 +250,13 @@ flutter test --coverage
 
 ---
 
-# 12. Validation Checklist
+# 12. Related Cursor Skills
+
+- `testing`, `golden-testing` — `.cursor/skills/`
+
+---
+
+# 13. Validation Checklist
 
 Before committing:
 

@@ -42,7 +42,7 @@ Example usage:
 
 ### Runtime secret storage
 
-- [ ] use `flutter_secure_storage` for sensitive data
+- [ ] use `flutter_secure_storage` for tokens, credentials, and other sensitive runtime data (add dependency when first needed — not in repo today)
 - [ ] treat as platform-protected storage (Keychain / Keystore)
 
 ---
@@ -214,7 +214,13 @@ Design accordingly.
 
 ---
 
-# 11. Validation Checklist
+# 11. Related Cursor Skills
+
+- `security-review` — `.cursor/skills/`
+
+---
+
+# 12. Validation Checklist
 
 Before committing:
 

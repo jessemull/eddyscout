@@ -170,7 +170,7 @@ Key signals:
 ## Image Performance
 
 - [ ] ensure images are sized appropriately
-- [ ] use caching (`CachedNetworkImage` or equivalent)
+- [ ] use caching for remote images (`CachedNetworkImage` or equivalent when UI loads network images)
 - [ ] avoid decoding large images on main thread
 - [ ] avoid repeated image rebuilds
 

@@ -153,6 +153,27 @@ This is enforced by package boundaries: `packages/core/` (domain) has no depende
 
 ---
 
+## Current implementation status
+
+Target architecture vs. what exists today. Cursor rules and skills reference this section so agents do not assume unfinished work is already done.
+
+| Area | Target | Today |
+|------|--------|-------|
+| Feature layering | `presentation` / `domain` / `data` per feature package | Partial: UI primarily in `apps/eddyscout/lib/screens/`; `map` is mostly data; `conditions` has domain + data + one presentation provider |
+| Riverpod codegen | `@riverpod` for new providers | Manual `FutureProvider`, `StateProvider`, `NotifierProvider`, `AsyncNotifier` throughout |
+| `Result<T, AppFailure>` | Package I/O boundaries | Type in `packages/core/`; feature I/O mostly raw `Future` / exceptions |
+| Router assembly | `packages/routing/` | Scaffold only; live router in `apps/eddyscout/lib/routing/` |
+| Auth redirects | Session/login guards when needed | Mapbox token + web platform redirects only |
+| Tab / shell nav | `StatefulShellRoute` when multi-tab | Single-stack typed routes |
+| Golden tests | Design system + stable layouts | `golden_toolkit` in app dev_deps; no golden test files yet |
+| Integration tests | Critical journeys in `integration_test/` | No `integration_test/` directory yet |
+| Secure storage | `flutter_secure_storage` for secrets | Not in pubspecs; `persistence` uses SharedPreferences for non-sensitive prefs |
+| Remote images | Sized + cached network images | No `CachedNetworkImage` usage yet |
+
+**New code** SHOULD move toward the target column. **Existing code** MAY migrate incrementally. Full audit trail: `docs/CURSOR_CONSISTENCY_AUDIT.md`.
+
+---
+
 ## Package boundaries and dependency rules
 
 ### Rules

@@ -66,7 +66,7 @@ These constraints apply to **every change** in this repository. No exceptions wi
 - **Run `make gen` to regenerate**: if a model changes, regenerate — never hand-edit output
 
 ### Architecture
-- **Feature-first architecture**: every feature follows `presentation/` → `domain/` → `data/` separation
+- **Feature-first architecture**: every feature follows `presentation → domain ← data` separation (both presentation and data depend on domain; domain depends on neither)
 - **Package boundaries are enforced**: see Architecture Boundaries below
 
 ---

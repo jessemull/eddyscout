@@ -35,8 +35,10 @@ Every page/screen must have widget tests covering:
 ### Integration Tests
 
 - **Scope**: Critical user flows end-to-end
-- **Location**: `integration_test/`
+- **Location**: `integration_test/` (typically under `apps/eddyscout/`)
 - **Runner**: `integration_test` package
+
+> **Current repo:** no `integration_test/` directory yet. Add when implementing critical E2E journeys (see `docs/ARCHITECTURE.md` § Current implementation status).
 
 Required for:
 - App startup flow
@@ -47,8 +49,10 @@ Required for:
 ### Golden Tests
 
 - **Scope**: Design system components, complex layouts
-- **Location**: `test/goldens/`
+- **Location**: `test/goldens/` and/or files named `*_golden_test.dart` (both conventions allowed)
 - **Runner**: `golden_toolkit`
+
+> **Current repo:** `golden_toolkit` is in app dev_dependencies; no golden test files committed yet.
 
 Required for:
 - All design system widgets
