@@ -1,23 +1,198 @@
 ---
-description: "Code generation governance for build_runner, freezed, json_serializable."
+description: "Strict governance rules for Dart/Flutter code generation using build_runner ecosystem (freezed, json_serializable, riverpod_generator, go_router_builder)."
 globs: ["**/*.g.dart", "**/*.freezed.dart", "**/*.gr.dart", "**/build.yaml"]
 alwaysApply: false
 ---
 
-# Code Generation Rules
+# Code Generation Rules (Flutter/Dart)
 
-## Governed Generators
-- freezed — immutable model classes
-- json_serializable — JSON serialization
-- riverpod_generator — typed providers
-- go_router_builder — typed routes
+Code generation is a **first-class build dependency**, not an optional tool.
 
-## Rules
-- Run `make gen` after changing models, providers, or routes
-- NEVER manually edit *.g.dart, *.freezed.dart, or *.gr.dart
-- Generated files ARE committed to version control
-- CI verifies codegen is fresh via `scripts/codegen_verify.sh`
+It must be:
+- deterministic
+- reproducible
+- CI-verified
+- never manually modified
 
-## Verification
-Before committing: `make gen-check`
-This runs build_runner and checks for uncommitted generated file changes.
+---
+
+# 1. Governed Code Generators
+
+These generators are explicitly allowed and supported:
+
+| Generator | Purpose |
+|----------|--------|
+| `freezed` | Immutable data models, unions, copyWith |
+| `json_serializable` | JSON (de)serialization |
+| `riverpod_generator` | Typed providers / state management |
+| `go_router_builder` | Typed routing & navigation |
+
+---
+
+# 2. Core Rules (CRITICAL)
+
+## MUST
+
+- [ ] run `make gen` after any change to:
+  - models
+  - providers
+  - routes
+  - annotated classes (`@freezed`, `@riverpod`, etc.)
+- [ ] treat generated code as build output, not source logic
+- [ ] commit generated files to version control
+- [ ] ensure CI always validates generated output consistency
+
+---
+
+## MUST NOT
+
+- ❌ manually edit any generated file:
+  - `*.g.dart`
+  - `*.freezed.dart`
+  - `*.gr.dart`
+- ❌ rely on stale generated files during development
+- ❌ bypass code generation step in feature completion
+
+---
+
+# 3. Build Pipeline Rules
+
+## Required Commands
+
+### Generate Code
+
+```bash
+make gen
+```
+
+- runs `build_runner`
+- regenerates all annotated outputs
+- resolves conflicts automatically (`--delete-conflicting-outputs` assumed via tooling)
+
+---
+
+### Verify Codegen Consistency
+
+```bash
+make gen-check
+```
+
+- ensures generated files match source state
+- fails if uncommitted or outdated generated code exists
+- must pass before any commit or PR
+
+---
+
+# 4. CI Enforcement
+
+## Required CI Behavior
+
+- [ ] code generation must be validated in CI
+- [ ] stale generated files must fail build
+- [ ] no untracked generated changes allowed in PRs
+
+---
+
+## Scripts (if present)
+
+- `scripts/codegen_verify.sh` is authoritative check
+- must be equivalent to local `make gen-check`
+
+---
+
+# 5. Dependency Awareness
+
+Codegen correctness depends on:
+
+- correct annotations
+- correct `part` directives
+- correct build.yaml configuration
+- compatible generator versions
+
+---
+
+## MUST VERIFY
+
+- `part '<file>.g.dart';` exists where required
+- annotations match generator expectations
+- no missing build.yaml configurations
+
+---
+
+# 6. Generated File Ownership Model
+
+## Ownership Rule
+
+- Source code = developer-owned
+- Generated code = machine-owned
+
+---
+
+## Implication
+
+- only source files are reviewed in PR logic discussions
+- generated files are reviewed only for correctness/regression
+- generated diffs are expected and required
+
+---
+
+# 7. Failure Modes (COMMON ISSUES)
+
+## Stale Generation
+
+Symptoms:
+- runtime mismatch with model fields
+- missing JSON fields
+- broken routes or providers
+
+Fix:
+```bash
+make gen
+```
+
+---
+
+## Missing Parts / Imports
+
+Symptoms:
+- build_runner errors
+- missing `.g.dart` references
+
+Fix:
+- verify `part` directives
+- re-run `make gen`
+
+---
+
+## Conflicting Outputs
+
+Symptoms:
+- duplicate symbol errors
+
+Fix:
+- ensure `--delete-conflicting-outputs` behavior via tooling
+
+---
+
+# 8. Anti-Patterns (DO NOT DO)
+
+## MUST NOT
+
+- manually patch generated files
+- commit without running `make gen`
+- ignore build_runner failures
+- disable codegen in CI
+- partially regenerate files without verifying full build
+
+---
+
+# 9. Validation Checklist
+
+Before committing:
+
+- [ ] `make gen` executed after any relevant change
+- [ ] `make gen-check` passes
+- [ ] no manual edits to generated files exist
+- [ ] CI codegen checks satisfied
+- [ ] annotations and `part` directives correct
+- [ ] preflight passes

@@ -1,27 +1,237 @@
 ---
-description: "Import hygiene and package boundary enforcement."
+description: "Strict import hygiene, monorepo boundary enforcement, and dependency direction rules for Flutter/Dart workspace."
 globs: ["**/lib/**/*.dart"]
 alwaysApply: false
 ---
 
-# Import & Boundary Rules
+# Import & Dependency Boundary Rules (Flutter/Dart Monorepo)
 
-## Package Imports
-- Use package imports, not relative imports across packages
-- Relative imports OK within the same package/lib
+These rules enforce **clean architecture boundaries**, **monorepo isolation**, and **deterministic dependency direction**.
 
-## Forbidden Imports
-- packages/* must NEVER import from apps/*
-- Feature packages must NEVER import from other feature packages
-- presentation/ must NEVER import from data/ (go through domain/)
-- domain/ must NEVER import from presentation/ or data/
+Violations of these rules are considered **architectural defects**, not style issues.
 
-## Import Order (enforced by directives_ordering lint)
-1. dart: imports
-2. package: imports (third-party)
-3. package: imports (workspace packages)
-4. relative imports
+---
 
-## Generated Files
-- Import the source file, not the generated file
-- The part directive handles generated file inclusion
+# 1. Import Type Rules
+
+## Required Import Order (lint enforced)
+
+Must follow `directives_ordering`:
+
+1. `dart:` imports
+2. `package:` imports (external dependencies)
+3. `package:` imports (workspace / internal packages)
+4. Relative imports (same library only)
+
+---
+
+## Import Style Rules
+
+### MUST
+
+- Use `package:` imports for all cross-package references
+- Use relative imports ONLY within the same `lib/` directory tree
+- Import public APIs, not internal implementation files
+
+### MUST NOT
+
+- Use relative imports across package boundaries
+- Import deep internal paths from other packages (e.g. `src/`, `internal/`)
+- Circumvent public API boundaries for convenience
+
+---
+
+# 2. Monorepo Boundary Enforcement
+
+This repository is a **Melos-style monorepo** (or equivalent workspace).
+
+## Absolute Rules
+
+### Packages Isolation
+
+- ❌ `packages/*` MUST NOT import from `apps/*`
+- ❌ `apps/*` MUST NOT import from other apps
+- ❌ Feature packages MUST NOT import sibling feature packages directly
+
+### Allowed Cross-Package Access
+
+Only allowed via:
+- shared packages (e.g. `packages/core`, `packages/shared`)
+- explicitly exported public APIs
+
+---
+
+## Feature Isolation (Clean Architecture)
+
+Within a feature:
+
+```
+presentation → domain ← data
+```
+
+### MUST
+
+- presentation may depend on domain
+- data may depend on domain
+- domain must be dependency-free (pure Dart where possible)
+
+### MUST NOT
+
+- domain importing data
+- domain importing presentation
+- data importing presentation
+- presentation importing other features directly
+
+---
+
+# 3. Layer Import Rules
+
+## domain/
+
+- MUST NOT import:
+  - Flutter (`flutter/material.dart`)
+  - presentation layer
+  - data layer
+
+## data/
+
+- MAY import:
+  - domain layer
+  - external APIs / SDKs
+- MUST NOT import:
+  - presentation layer
+
+## presentation/
+
+- MAY import:
+  - domain layer
+  - UI frameworks (Flutter)
+- MUST NOT import:
+  - data layer directly
+  - other feature internal implementation
+
+---
+
+# 4. Generated Code Rules
+
+## Codegen Handling
+
+- ALWAYS import the **source file**, not generated output
+- `part` directives manage generated bindings automatically
+
+### MUST NOT
+
+- Import `.g.dart`, `.freezed.dart`, `.gr.dart` directly
+- Manually modify generated files
+
+### MUST
+
+- Keep generated files as implementation detail only
+- Run `build_runner` via project tooling (`make gen` or melos scripts)
+
+---
+
+# 5. Public API Enforcement
+
+## Cross-Package Access Rule
+
+Other packages MUST only access:
+
+- `/lib/<package>.dart` entrypoints
+- explicitly exported `index.dart` or barrel files
+
+### MUST NOT
+
+- import internal `/src/` or `/internal/` directories
+- depend on undocumented module structure
+
+---
+
+# 6. Dependency Direction Rule (Critical)
+
+Dependency direction (per `AGENTS.md`):
+```
+presentation → domain ← data
+```
+
+Both presentation and data depend on domain. Domain depends on neither.
+
+Call flow (how requests propagate at runtime):
+```
+UI → Provider → Domain → Data → External APIs
+```
+
+### MUST NOT VIOLATE
+
+- Data → UI
+- Domain → Data (concrete implementations)
+- Domain → Flutter framework
+- Cross-feature imports bypassing domain
+
+---
+
+# 7. Lint Enforcement Expectations
+
+This rule assumes:
+
+- `analysis_options.yaml` enforces:
+  - `directives_ordering`
+  - `avoid_relative_lib_imports`
+  - `package_api_usage` (if configured)
+  - custom rules for feature boundaries (recommended)
+
+---
+
+# 8. Common Violation Patterns (DO NOT DO)
+
+## Architectural Violations
+
+- importing another feature’s `data/` layer
+- bypassing repositories via direct API client access in UI
+- using relative imports across packages
+- reaching into `src/` of another package
+
+## Code Hygiene Violations
+
+- mixing internal and external imports out of order
+- importing generated files directly
+- duplicating logic across features instead of sharing domain contracts
+
+---
+
+# 9. Validation Checklist
+
+Before committing:
+
+- [ ] all imports follow correct ordering
+- [ ] no relative cross-package imports exist
+- [ ] no feature-to-feature direct imports
+- [ ] no domain → data/presentation violations
+- [ ] only public APIs used across packages
+- [ ] generated files not directly imported
+- [ ] preflight passes
+
+---
+
+# 10. Enforcement Severity
+
+- **MUST NOT** = build-breaking architectural violation
+- **SHOULD NOT** = refactor required soon
+- **PREFERRED** = improves maintainability but not blocking
+
+---
+
+# 11. Output Expectation for Agents
+
+When fixing import issues, agents must:
+
+## Report
+
+- violated boundaries
+- corrected import paths
+- affected modules
+
+## Confirm
+
+- dependency graph still valid
+- no feature coupling introduced

@@ -1,24 +1,196 @@
 ---
-description: "Comment policy — minimize, make meaningful."
+description: "Strict comment policy enforcing minimal, high-value, intent-driven documentation in Dart/Flutter code."
 globs: ["**/lib/**/*.dart"]
 alwaysApply: false
 ---
 
-# Comment Policy
+# Comment Policy (Flutter/Dart)
 
-See docs/COMMENTS.md for the full policy.
+Comments are **expensive maintenance debt** unless they provide irreplaceable context.
 
-## Write comments ONLY for:
-- Non-obvious intent or "why" (never "what")
-- Architecture decisions
-- Security constraints
-- Platform quirks or workarounds
-- Performance tradeoffs
-- Public API documentation (/// doc comments)
+The goal is:
+> Code should explain *what* it does. Comments should explain *why it exists at all*.
 
-## NEVER write:
-- Obvious comments ("// increment counter")
-- Section dividers ("// ---- Methods ----")
-- Commented-out code (delete it, use git)
-- TODOs without a ticket/issue reference
-- Implementation narration
+---
+
+# 1. When Comments ARE Allowed
+
+## ONLY write comments for:
+
+### Architectural Intent
+
+- why a pattern exists
+- why a layer boundary is enforced
+- why a workaround is needed
+
+---
+
+### Non-obvious Business Logic
+
+- domain rules that are not self-evident from code
+- edge cases that cannot be inferred safely from types
+
+---
+
+### Security Constraints
+
+- why something is sanitized or restricted
+- why sensitive data is handled in a specific way
+- threat-model-driven decisions
+
+---
+
+### Performance Decisions
+
+- why caching is used
+- why a computation is avoided in build()
+- why a specific algorithm/approach was chosen
+
+---
+
+### Platform-Specific Workarounds
+
+- Android/iOS/Web inconsistencies
+- SDK bugs or framework limitations
+- version-specific behavior differences
+
+---
+
+### Public API Documentation (Required where applicable)
+
+- `///` doc comments for exported APIs
+- explain contract, not implementation
+- describe inputs/outputs and guarantees
+
+---
+
+# 2. When Comments are FORBIDDEN
+
+## MUST NOT write:
+
+### Obvious Code Narration
+
+```dart
+// increment counter
+counter++;
+```
+
+---
+
+### Structural Noise
+
+- section dividers
+- decorative separators
+- redundant headings inside code
+
+Example (BAD):
+
+```dart
+// -------- Widget Build --------
+```
+
+---
+
+### Commented-Out Code
+
+- ❌ never keep dead code in comments
+- use git history instead
+
+---
+
+### TODOs Without Ownership
+
+- ❌ `// TODO fix this`
+- must include:
+  - ticket ID
+  - owner or tracking reference
+
+Example (GOOD):
+
+```dart
+// TODO(APP-123): handle offline retry logic for auth failure
+```
+
+---
+
+### Implementation Narration
+
+- ❌ describing step-by-step logic already obvious from code
+- ❌ restating variable names or operations
+
+---
+
+# 3. Comment Quality Standard
+
+## A good comment must:
+
+- add new information not visible in code
+- explain intent or constraint
+- reduce future cognitive load
+- justify non-obvious decisions
+
+## If it doesn't do this → DO NOT WRITE IT
+
+---
+
+# 4. Documentation Style Rules
+
+## Inline Comments (`//`)
+
+Use ONLY for:
+
+- constraints
+- reasoning
+- warnings
+
+---
+
+## API Documentation (`///`)
+
+Required for:
+
+- public classes
+- public methods
+- exported interfaces
+
+Must include:
+
+- purpose
+- parameters
+- return behavior
+- side effects (if any)
+
+---
+
+# 5. Anti-Patterns (DO NOT DO)
+
+## MUST NOT
+
+- explain obvious operations
+- duplicate code meaning in comments
+- leave stale comments after refactor
+- add decorative formatting comments
+- use comments instead of better naming
+
+---
+
+# 6. Decision Rule
+
+Before writing a comment, ask:
+
+> “Will this help someone understand something they cannot infer from the code?”
+
+- YES → write comment
+- NO → do not write comment
+
+---
+
+# 7. Validation Checklist
+
+Before committing:
+
+- [ ] every comment adds non-obvious value
+- [ ] no commented-out code exists
+- [ ] no TODOs without tracking reference
+- [ ] no redundant explanations of code
+- [ ] public APIs documented with `///`

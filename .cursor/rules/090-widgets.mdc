@@ -1,31 +1,279 @@
 ---
-description: "Widget design rules for Flutter."
+description: "Strict Flutter widget design rules enforcing composition, accessibility, performance, and state correctness."
 globs: ["**/presentation/**/*.dart", "**/widgets/**/*.dart", "**/pages/**/*.dart", "**/screens/**/*.dart"]
 alwaysApply: false
 ---
 
-# Widget Design Rules
+# Widget Design Rules (Flutter)
 
-## Size Limits
-- Max ~300 lines per widget file
-- Extract sub-widgets for complex build() methods
-- One widget per file (private helpers OK)
+These rules enforce **predictable UI structure, accessibility compliance, performance stability, and clean separation of concerns**.
 
-## Composition
-- Prefer composition over inheritance
-- Use ConsumerWidget for Riverpod-connected widgets
-- Use StatelessWidget when no state or refs needed
-- Use StatefulWidget only for animation controllers, focus nodes, text controllers
+All widgets must remain:
+- composable
+- testable
+- accessible
+- responsive
+- free of business logic
+
+---
+
+# 1. File & Size Constraints
+
+## File Size Limits
+
+- [ ] Target ≤ 300 lines per widget file
+- [ ] Hard limit: split if build method becomes unclear or multi-responsibility
+- [ ] One primary widget per file
+- [ ] Private helper widgets allowed only if tightly scoped
+
+---
+
+## When to Split Widgets
+
+Split when:
+- build() exceeds ~80–120 lines
+- multiple visual states exist in one widget
+- multiple responsibilities are mixed (layout + logic + state handling)
+- nested conditional UI becomes hard to follow
+
+---
+
+# 2. Widget Responsibility Rules
+
+## MUST
+
+Widgets are responsible for:
+- rendering UI
+- reacting to state
+- dispatching user intent (callbacks → providers/use cases)
+
+## MUST NOT
+
+Widgets must NOT:
+- contain business logic
+- perform data fetching directly
+- mutate application state directly
+- implement domain rules
+- coordinate cross-feature logic
+
+---
+
+# 3. Widget Type Selection
+
+## Preferred Patterns
+
+- `ConsumerWidget` → Riverpod-connected UI
+- `StatelessWidget` → pure UI with no local state
+- `StatefulWidget` → only when strictly required
+
+---
+
+## StatefulWidget Allowed Only For
+
+- animation controllers
+- focus nodes
+- text editing controllers
+- lifecycle-bound UI concerns
+
+## MUST NOT
+
+- use StatefulWidget for business logic
+- use StatefulWidget to manage remote state
+- use StatefulWidget as a substitute for Riverpod
+
+---
+
+# 4. Composition Rules
+
+## Core Principle
+
+> Prefer composition over inheritance
+
+---
+
+## Rules
+
+- [ ] break UI into small reusable widgets
+- [ ] keep widgets single-purpose
+- [ ] lift state up only when necessary
+- [ ] avoid deeply nested widget trees (max ~5–7 levels where possible)
+
+---
+
+## Anti-Patterns
+
+- giant monolithic screen widgets
+- deeply nested `Column > Column > Column`
+- conditional UI logic embedded directly in build()
+- duplicated UI blocks instead of reusable components
+
+---
+
+# 5. Required UI States (Mandatory)
+
+Every data-driven widget MUST handle all states:
 
 ## Required States
-Every data-driven widget MUST handle:
-- Loading state (skeleton or spinner)
-- Error state (user-friendly message + retry action)
-- Empty state (helpful message)
-- Data state (primary content)
 
-## Accessibility
-- Semantics widget for custom interactive components
-- Minimum 48x48 touch targets
-- Semantic labels on all icons and images
-- Support text scaling (no fixed font sizes)
+- Loading
+- Error
+- Empty
+- Data
+
+---
+
+## Rules
+
+- [ ] loading state must be visible and intentional (not blank screen)
+- [ ] error state must be user-friendly (not raw exceptions)
+- [ ] empty state must provide guidance or next action
+- [ ] data state must be primary default rendering path
+
+---
+
+## Async Handling (Riverpod)
+
+- [ ] always handle `AsyncValue` fully
+- [ ] never assume data exists without null safety handling
+- [ ] never ignore error state
+
+---
+
+# 6. Accessibility Requirements (MANDATORY)
+
+## Touch Targets
+
+- [ ] minimum 48x48 dp for all interactive elements
+- [ ] sufficient spacing between interactive elements
+
+---
+
+## Semantics
+
+- [ ] all icons must have semantic labels
+- [ ] all images must have `semanticLabel`
+- [ ] custom components must expose semantics via `Semantics`
+- [ ] decorative elements must be excluded from semantics tree
+
+---
+
+## Screen Reader Support
+
+- [ ] logical reading order matches visual order
+- [ ] meaningful labels for all actions
+- [ ] state changes must be announced when relevant
+
+---
+
+## Text Scaling
+
+- [ ] fully support system font scaling (up to 2x)
+- [ ] no hardcoded font sizes unless justified
+- [ ] no clipped or overflowed text at high scale factors
+
+---
+
+# 7. Performance Rules
+
+- [ ] use `const` constructors wherever possible
+- [ ] avoid unnecessary rebuilds
+- [ ] keep widget trees shallow where possible
+- [ ] use `ListView.builder` for large lists
+- [ ] avoid expensive work inside build()
+
+---
+
+## Rebuild Control
+
+- [ ] scope `ref.watch` as narrowly as possible
+- [ ] prefer `ref.select` for fine-grained updates
+- [ ] split large widgets to isolate rebuild regions
+
+---
+
+# 8. Styling Rules
+
+- [ ] use design system tokens only
+- [ ] no hardcoded colors outside theme system
+- [ ] no hardcoded spacing values unless defined in constants
+- [ ] support light and dark mode natively
+
+---
+
+# 9. Layout Responsiveness
+
+- [ ] use `LayoutBuilder` for adaptive layouts
+- [ ] use `Flexible` / `Expanded` instead of fixed widths
+- [ ] avoid overflow-prone fixed sizing
+- [ ] ensure UI works across phone/tablet/desktop breakpoints
+
+---
+
+# 10. Navigation Rules (UI Layer)
+
+- [ ] navigation must use typed routing system
+- [ ] avoid raw string routes in widgets
+- [ ] do not embed navigation logic deeply in child widgets
+- [ ] prefer navigation intent callbacks passed down from parent
+
+---
+
+# 11. Error Handling Rules
+
+- [ ] errors must be user-readable
+- [ ] no stack traces shown in UI
+- [ ] include retry actions where appropriate
+- [ ] handle offline and timeout states explicitly
+
+---
+
+# 12. Testing Requirements
+
+Each widget should support:
+
+- [ ] rendering tests (default state)
+- [ ] loading state tests
+- [ ] error state tests
+- [ ] interaction tests (tap, input, scroll)
+
+---
+
+# 13. Anti-Patterns (DO NOT DO)
+
+## MUST NOT
+
+- business logic inside widgets
+- direct API calls in UI layer
+- ignoring loading/error/empty states
+- uncontrolled widget growth (>300 lines without split)
+- excessive nesting without extraction
+- missing semantic labels
+- fixed layouts that break responsiveness
+
+---
+
+# 14. Validation Checklist
+
+Before committing:
+
+- [ ] widget is within size limits or justified
+- [ ] all required states implemented
+- [ ] accessibility rules satisfied
+- [ ] responsive layout verified
+- [ ] performance considerations followed
+- [ ] no business logic in UI
+- [ ] preflight passes
+
+---
+
+# 15. Output Expectations
+
+When completing widget work:
+
+## Provide
+
+- widget breakdown (if refactored)
+- state handling summary
+- accessibility notes
+- performance considerations
+- responsiveness validation

@@ -1,28 +1,228 @@
 ---
-description: "Security rules for Flutter development."
+description: "Strict security rules for Flutter/Dart applications covering secrets management, networking, logging, dependencies, and data protection."
 globs: ["**/lib/**/*.dart"]
 alwaysApply: false
 ---
 
-# Security Rules
+# Security Rules (Flutter/Dart)
 
-## Secrets
-- NEVER hardcode API keys, tokens, or passwords
-- Use --dart-define for compile-time configuration
-- Use flutter_secure_storage for runtime secrets
-- SharedPreferences is NOT secure — never store tokens there
+Security is a **hard requirement**, not an optional concern.
 
-## Logging
-- NEVER log authentication tokens or credentials
-- NEVER log PII (emails, phone numbers, names)
-- NEVER log full HTTP request/response bodies in production
-- Use structured logging with severity levels
+These rules protect against:
+- secret leakage
+- insecure storage
+- unsafe network handling
+- dependency vulnerabilities
+- data exposure via logs or UI
 
-## Network
-- HTTPS only — no HTTP exceptions
-- Validate all deep link URLs before navigation
-- Sanitize user input before display or transmission
+---
 
-## Dependencies
-- Audit for vulnerabilities monthly
-- No packages with known security issues
+# 1. Secrets Management (CRITICAL)
+
+## MUST NEVER DO
+
+- ❌ hardcode API keys, tokens, or credentials
+- ❌ store secrets in source control
+- ❌ embed secrets in widget code, providers, or configs
+
+---
+
+## Required Practices
+
+### Compile-time configuration
+
+- [ ] use `--dart-define` for environment-specific values
+- [ ] separate dev/staging/prod configurations
+
+Example usage:
+- API endpoints
+- public keys (non-sensitive only)
+
+---
+
+### Runtime secret storage
+
+- [ ] use `flutter_secure_storage` for sensitive data
+- [ ] treat as platform-protected storage (Keychain / Keystore)
+
+---
+
+### Insecure Storage (FORBIDDEN)
+
+- ❌ `SharedPreferences` for:
+  - auth tokens
+  - refresh tokens
+  - credentials
+  - sensitive identifiers
+
+SharedPreferences is **non-secure by design**
+
+---
+
+# 2. Logging Rules (CRITICAL)
+
+## MUST NOT LOG
+
+- authentication tokens
+- API keys
+- session identifiers
+- PII (personally identifiable information):
+  - emails
+  - phone numbers
+  - names
+  - addresses
+- full request/response payloads in production
+
+---
+
+## Required Logging Standards
+
+- [ ] use structured logging (level + message)
+- [ ] sanitize all sensitive fields before logging
+- [ ] log only what is required for debugging
+
+---
+
+## Safe Logging Examples
+
+- request IDs
+- error codes (not full stack-sensitive payloads)
+- feature flags (non-sensitive)
+- timing metrics
+
+---
+
+# 3. Network Security Rules
+
+## Transport Security
+
+- [ ] HTTPS ONLY for all network communication
+- [ ] no HTTP endpoints permitted in production builds
+- [ ] enforce secure transport at API client layer
+
+---
+
+## Input Validation
+
+- [ ] validate all deep links before navigation
+- [ ] sanitize user input before:
+  - rendering in UI
+  - sending to APIs
+- [ ] reject malformed or unexpected URL schemes
+
+---
+
+## API Safety
+
+- [ ] never trust client-side input
+- [ ] assume all external data is untrusted
+- [ ] validate JSON before deserialization
+- [ ] handle API failures without exposing internal errors
+
+---
+
+# 4. Dependency Security
+
+## Required Practices
+
+- [ ] audit dependencies regularly (monthly minimum)
+- [ ] prefer actively maintained packages
+- [ ] ensure null-safety and Dart 3 compatibility
+- [ ] review transitive dependency trees for risk
+
+---
+
+## MUST NOT
+
+- use packages with known unresolved vulnerabilities
+- introduce abandoned or unmaintained libraries
+- ignore security advisories from pub.dev or tooling
+
+---
+
+# 5. Data Protection Rules
+
+## Sensitive Data Handling
+
+- [ ] minimize stored sensitive data
+- [ ] avoid long-lived in-memory retention of secrets
+- [ ] clear sensitive state on logout
+- [ ] avoid caching sensitive API responses unnecessarily
+
+---
+
+## UI Exposure Rules
+
+- [ ] never display raw sensitive backend errors to users
+- [ ] sanitize error messages before UI rendering
+- [ ] ensure logs are not exposed through debug UI
+
+---
+
+# 6. Authentication & Session Safety
+
+- [ ] isolate auth state in dedicated secure provider layer
+- [ ] ensure tokens are rotated/invalidated properly
+- [ ] handle session expiration gracefully
+- [ ] clear all auth-related state on logout
+
+---
+
+# 7. Deep Link & Navigation Security
+
+- [ ] validate all incoming routes
+- [ ] reject unknown or malformed routes
+- [ ] prevent unauthorized route access via URL manipulation
+- [ ] enforce auth guards at router level, not UI level only
+
+---
+
+# 8. Production Safety Rules
+
+## MUST NOT
+
+- enable debug logging in production
+- expose internal stack traces to UI
+- ship debug-only endpoints or configurations
+- leave test credentials in builds
+
+---
+
+# 9. Threat Awareness (Baseline Model)
+
+Assume:
+
+- network is untrusted
+- device storage may be compromised
+- user input is malicious
+- APIs may return unexpected data
+
+Design accordingly.
+
+---
+
+# 10. Anti-Patterns (DO NOT DO)
+
+## MUST NOT
+
+- store secrets in plain text storage
+- log sensitive payloads "for debugging"
+- bypass HTTPS for convenience
+- trust client-side validation alone
+- expose raw errors in UI
+- ignore dependency vulnerabilities
+
+---
+
+# 11. Validation Checklist
+
+Before committing:
+
+- [ ] no secrets in codebase
+- [ ] secure storage used correctly
+- [ ] logging is sanitized
+- [ ] HTTPS enforced everywhere
+- [ ] dependencies reviewed
+- [ ] input validation implemented
+- [ ] auth/session safety verified
+- [ ] preflight passes

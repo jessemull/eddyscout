@@ -1,30 +1,255 @@
 ---
-description: "Performance rules for Flutter widgets and rendering."
+description: "Strict Flutter performance rules covering rendering, rebuild control, memory, and frame budget compliance."
 globs: ["**/lib/**/*.dart"]
 alwaysApply: false
 ---
 
-# Performance Rules
+# Performance Rules (Flutter)
 
-## Frame Budget
-- Target: 16ms per frame (60fps)
-- Use const constructors everywhere possible
-- Use ConsumerWidget for Riverpod, not ConsumerStatefulWidget unless lifecycle needed
+Performance is a **core architectural constraint**, not an optimization step.
 
-## Rebuild Minimization
-- Use ref.watch with select() for granular rebuilds
-- Extract sub-widgets rather than large build() methods
-- Use const for static subtrees
+All UI must target:
+- smooth 60fps (16ms/frame budget)
+- minimal rebuild scope
+- predictable memory usage
+- no work inside render pipeline unless necessary
 
-## Lists
-- SliverList/SliverGrid for lists >20 items
-- Use itemExtent when items have fixed height
-- Never ListView without itemCount (unbounded)
-- Never nest ScrollViews without NeverScrollableScrollPhysics
+---
+
+# 1. Frame Budget Rules
+
+## Target
+
+- [ ] 16ms per frame (60fps) on standard devices
+- [ ] 8ms per frame (120fps) on high-refresh-rate devices
+- [ ] avoid jank on scroll, animations, and transitions
+- [ ] no blocking synchronous work on UI thread
+
+---
+
+## MUST NOT
+
+- block UI thread with computation
+- perform expensive work during build/render
+- trigger cascading rebuild chains unintentionally
+
+---
+
+# 2. Widget Rebuild Rules
+
+## Core Principle
+
+> Rebuild only what must change — nothing more.
+
+---
+
+## Required Practices
+
+- [ ] use `const` constructors wherever possible
+- [ ] split large widgets into smaller sub-widgets
+- [ ] isolate rebuild boundaries intentionally
+- [ ] prefer composition over deep widget trees
+
+---
+
+## Riverpod Rules
+
+- [ ] use `ref.watch` only where UI depends on state
+- [ ] use `ref.select` for fine-grained rebuild control
+- [ ] avoid watching large objects unnecessarily
+- [ ] avoid provider over-subscription in top-level widgets
+
+---
+
+## MUST NOT
+
+- trigger rebuilds from unrelated state changes
+- use broad `watch` when narrow selection is sufficient
+- place all state consumption at root widget level
+
+---
+
+# 3. build() Method Rules
 
 ## Forbidden in build()
-- Network calls
-- File I/O
-- Heavy computation
-- setState cascades
-- Provider creation
+
+### MUST NOT
+
+- network requests
+- file I/O
+- database queries
+- heavy computation
+- provider creation or initialization
+- side effects (`setState`, navigation, logging side-effects)
+
+---
+
+## Allowed in build()
+
+- pure UI composition
+- lightweight formatting
+- state reading (via Riverpod)
+
+---
+
+# 4. Widget Structure Optimization
+
+## Required Practices
+
+- [ ] extract sub-widgets to isolate rebuild regions
+- [ ] keep build methods small and readable
+- [ ] prefer stateless composition
+- [ ] use `const` for static subtrees
+
+---
+
+## Anti-Patterns
+
+- giant monolithic build methods
+- deeply nested widget trees without extraction
+- recomputing derived values inside build
+
+---
+
+# 5. List & Scroll Performance
+
+## Required Patterns
+
+### Large Lists (>20 items)
+
+- [ ] use `ListView.builder`
+- [ ] or `SliverList` / `SliverGrid` in `CustomScrollView`
+
+---
+
+### Fixed-Size Items
+
+- [ ] use `itemExtent` when height is known
+- [ ] improves scroll performance significantly
+
+---
+
+### Scroll Rules
+
+- [ ] avoid nested scroll views
+- [ ] if nesting required:
+  - use `NeverScrollableScrollPhysics`
+  - or restructure with slivers
+
+---
+
+## MUST NOT
+
+- use unbounded `ListView` without itemCount
+- nest scroll views without explicit control
+
+---
+
+# 6. Memory Management Rules
+
+## Providers
+
+- [ ] use `autoDispose` by default (Riverpod)
+- [ ] avoid long-lived unnecessary state
+- [ ] clean up listeners and controllers
+
+---
+
+## Controllers
+
+- [ ] dispose `TextEditingController`
+- [ ] dispose `AnimationController`
+- [ ] dispose `ScrollController`
+- [ ] avoid leaks from streams and subscriptions
+
+---
+
+# 7. Rendering Optimization
+
+## Required Practices
+
+- [ ] use `RepaintBoundary` for expensive isolated widgets (only when justified)
+- [ ] avoid unnecessary opacity layers
+- [ ] prefer `AnimatedOpacity` over heavy rebuild animations
+- [ ] cache computed values outside build when possible
+
+---
+
+## MUST NOT
+
+- overuse `Opacity` widget in large trees
+- trigger full-screen repaints unnecessarily
+- rebuild entire pages for small state changes
+
+---
+
+# 8. Computation Rules
+
+## Allowed
+
+- lightweight formatting
+- simple mapping over small lists
+
+## Forbidden
+
+- heavy loops in build()
+- expensive filtering/sorting without caching
+- repeated computation of derived values per frame
+
+---
+
+## Required Pattern
+
+- move expensive computation into:
+  - providers
+  - memoized functions
+  - domain layer
+
+---
+
+# 9. Image & Asset Performance
+
+- [ ] use correctly sized images (no oversized decoding)
+- [ ] use caching where appropriate
+- [ ] avoid decoding large assets in UI thread
+- [ ] prefer lazy loading for media-heavy screens
+
+---
+
+# 10. Debugging Performance Issues
+
+When diagnosing performance:
+
+- [ ] use Flutter DevTools timeline
+- [ ] inspect rebuild frequency
+- [ ] identify widget repaint boundaries
+- [ ] measure frame times >16ms
+- [ ] check Riverpod provider fan-out
+
+---
+
+# 11. Anti-Patterns (DO NOT DO)
+
+## MUST NOT
+
+- heavy computation in build()
+- unnecessary provider watching at root level
+- rebuilding entire screens for small updates
+- unbounded lists
+- missing const optimizations
+- leaking controllers or streams
+- ignoring frame budget violations
+
+---
+
+# 12. Validation Checklist
+
+Before committing:
+
+- [ ] build methods are lightweight
+- [ ] rebuild scope minimized
+- [ ] lists optimized for performance
+- [ ] controllers properly disposed
+- [ ] no forbidden operations in build()
+- [ ] const used where possible
+- [ ] preflight passes
