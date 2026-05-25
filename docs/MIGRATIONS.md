@@ -105,7 +105,7 @@ Every Dart file in the legacy codebase with its migration status:
 ### `lib/screens/map_screen.dart`
 - **Migration**: M1, M5
 - **Status**: Done — Mapbox lifecycle in `map_screen.dart`; `map/map_planning_overlay.dart` extracted
-- **Notes**: Further map controller extraction is optional follow-up.
+- **Notes**: Mapbox logic lives in `screens/map/mapbox_map_controller.dart`.
 
 ### `lib/screens/launch_detail_screen.dart`
 - **Migration**: M1, M5
@@ -259,6 +259,14 @@ Recommended migration order to minimize risk:
 4. **M2** — Swap Navigator → go_router (requires touching all screens)
 5. **M5** — Extract feature packages (largest refactor)
 6. **M6** — Done (app on strict `analysis_options.app.yaml`; feature-package ignores remain)
+
+## Post-migration follow-ups (TODO)
+
+Phases M1–M6 are complete. Remaining cleanup:
+
+1. ~~**Map controller extraction**~~ — Done: `mapboxMapControllerProvider` owns Mapbox lifecycle; `map_screen.dart` is composition-only (~120 lines).
+2. **Feature-package analysis tightening** — Remove ignores in `tooling/analysis_options.feature.yaml` one rule at a time; fix findings in `packages/features/*` under `--fatal-infos`.
+3. **Legacy inventory doc sync** — Rewrite the Legacy File Inventory below so paths and statuses match the monorepo (many rows still say `Not started` for code already in feature packages).
 
 ## Rules
 
