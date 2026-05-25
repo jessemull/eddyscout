@@ -1,31 +1,240 @@
 ---
-description: "Riverpod state management rules and patterns."
+description: "Strict Riverpod state management rules enforcing architecture-safe, testable, and performance-optimized state design."
 globs: ["**/lib/**/*.dart"]
 alwaysApply: false
 ---
 
-# Riverpod State Management
+# Riverpod State Management Rules
 
-## Allowed Providers
-- Provider — computed/derived values
-- StateProvider — simple mutable atoms
-- NotifierProvider / AsyncNotifierProvider — complex state with methods
-- FutureProvider — one-shot async data
-- StreamProvider — reactive streams
+Riverpod is the **single source of truth for all application state**.
+
+State must be:
+- predictable
+- testable
+- scoped correctly
+- side-effect safe
+- UI-decoupled
+
+---
+
+# 1. Allowed Provider Types
+
+## Core Providers
+
+| Type | Use Case |
+|------|----------|
+| `Provider` | computed / derived values |
+| `StateProvider` | simple mutable primitives (UI atoms only) |
+| `StateNotifierProvider` | legacy complex state (prefer NotifierProvider) |
+| `NotifierProvider` | complex synchronous state with methods |
+| `AsyncNotifierProvider` | async state with mutations |
+| `FutureProvider` | one-shot async fetch |
+| `StreamProvider` | continuous reactive streams |
+
+---
 
 ## Rules
-- State lives in providers, NEVER in widgets
-- Use autoDispose unless explicit keepAlive is justified
-- Use ref.watch() in build, ref.read() in callbacks, ref.listen() for side-effects
-- Every async provider must handle loading/error/data via AsyncValue
-- Use select() to minimize rebuilds
-- Never use ref.read() in build — it won't rebuild on changes
-- Provider families for parameterized providers
 
-## Forbidden
-- Provider package (use flutter_riverpod)
-- BLoC/Cubit
-- setState for business logic
-- Mutable global variables
-- Business logic inside Widget.build()
-- Side-effects in build() — use ref.listen() instead
+- [ ] prefer `NotifierProvider` / `AsyncNotifierProvider` over ad-hoc patterns
+- [ ] use `@riverpod` codegen where possible
+- [ ] avoid manual provider boilerplate unless necessary
+
+---
+
+# 2. State Ownership Rules
+
+## MUST
+
+- [ ] all state must live in Riverpod providers
+- [ ] widgets MUST NOT own business state
+- [ ] providers are the single source of truth
+
+---
+
+## MUST NOT
+
+- ❌ store business logic in widgets
+- ❌ use `setState` for application logic
+- ❌ maintain duplicate state across providers and UI
+- ❌ use global mutable variables
+
+---
+
+# 3. Provider Lifecycle Rules
+
+## autoDispose
+
+- [ ] default to `autoDispose`
+- [ ] prevents memory leaks and stale state
+- [ ] ensures clean feature lifecycle
+
+---
+
+## keepAlive
+
+Only use `keepAlive` when:
+
+- auth session state
+- global app configuration
+- cached critical data
+
+---
+
+## Rule
+
+> If state is feature-scoped → autoDispose  
+> If state is app-global → keepAlive (explicitly justified)
+
+---
+
+# 4. Riverpod Access Rules
+
+## read vs watch vs listen
+
+| Method | Purpose |
+|--------|--------|
+| `ref.watch()` | reactive UI rebuilds |
+| `ref.read()` | one-time access (callbacks only) |
+| `ref.listen()` | side-effects (navigation, snackbars, logging) |
+
+---
+
+## MUST
+
+- [ ] use `ref.watch()` inside `build()`
+- [ ] use `ref.read()` ONLY in callbacks / event handlers
+- [ ] use `ref.listen()` for side-effects
+
+---
+
+## MUST NOT
+
+- ❌ use `ref.read()` inside `build()`
+- ❌ trigger side-effects in `build()`
+- ❌ mix read/watch incorrectly causing stale UI
+
+---
+
+# 5. AsyncValue Handling (CRITICAL)
+
+All async providers MUST handle:
+
+- loading
+- data
+- error
+
+---
+
+## Required Pattern
+
+- [ ] use `.when()` in UI
+- [ ] never assume `.value` exists
+- [ ] display user-friendly error states
+
+---
+
+## Anti-Pattern
+
+- ❌ `.value!` without null handling
+- ❌ ignoring loading/error states
+- ❌ leaking exceptions to UI
+
+---
+
+# 6. Performance Rules
+
+## MUST
+
+- [ ] use `select()` for granular rebuilds
+- [ ] avoid watching entire provider when only a field is needed
+- [ ] split providers for large state objects
+
+---
+
+## Example Principle
+
+> Prefer: watching a field  
+> Over: watching entire state object
+
+---
+
+# 7. Provider Design Rules
+
+## Provider Families
+
+- [ ] use `.family` for parameterized providers
+- [ ] avoid global parameter storage inside providers
+
+---
+
+## Separation of Concerns
+
+- data providers → fetch/store data
+- domain providers → business logic
+- presentation providers → UI state only
+
+---
+
+# 8. Side-Effects Rules
+
+## MUST
+
+- [ ] use `ref.listen()` for:
+  - navigation
+  - snackbars
+  - analytics
+  - logging
+
+---
+
+## MUST NOT
+
+- ❌ perform side-effects in provider `build()`
+- ❌ trigger UI actions from `ref.watch()`
+- ❌ mix state updates with navigation logic
+
+---
+
+# 9. Testing Requirements
+
+- [ ] use `ProviderContainer` for unit tests
+- [ ] override dependencies explicitly
+- [ ] test state transitions (initial → loading → data/error)
+- [ ] test notifier methods independently
+
+---
+
+# 10. Forbidden Patterns
+
+## MUST NOT
+
+- ❌ use BLoC / Cubit patterns
+- ❌ use Provider package (only `flutter_riverpod`)
+- ❌ use global mutable state
+- ❌ embed business logic in widgets
+- ❌ use `setState` for anything other than ephemeral UI
+
+---
+
+# 11. Anti-Patterns (COMMON FAILURES)
+
+- overusing `StateProvider` for complex state
+- duplicating state across multiple providers
+- using `ref.read()` incorrectly in UI
+- ignoring AsyncValue states
+- leaking async errors directly to UI
+
+---
+
+# 12. Validation Checklist
+
+Before committing:
+
+- [ ] all state is in providers
+- [ ] correct provider types selected
+- [ ] no setState business logic exists
+- [ ] AsyncValue handled everywhere
+- [ ] no ref.read in build()
+- [ ] side-effects isolated to ref.listen
+- [ ] performance optimizations applied
+- [ ] preflight passes

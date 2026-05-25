@@ -1,28 +1,260 @@
 ---
-description: "Testing standards and requirements."
+description: "Strict testing standards for Flutter/Dart ensuring deterministic, layered, and CI-enforced test quality."
 globs: ["**/test/**/*.dart", "**/integration_test/**/*.dart"]
 alwaysApply: false
 ---
 
-# Testing Rules
+# Testing Rules (Flutter/Dart)
 
-## Required Tests
-- Unit tests for all domain logic and data layer
-- Widget tests for all pages and complex widgets
-- Integration tests for critical user flows
+Testing is a **hard quality gate**, not an optional validation step.
 
-## Standards
-- Use mocktail for mocking (NOT mockito)
-- Tests must be deterministic — mock all I/O
-- Async: use pump/pumpAndSettle, never real timers
-- Group related tests with group()
-- Descriptive test names: "should [expected] when [condition]"
+All tests must be:
+- deterministic
+- isolated
+- repeatable
+- architecture-aware
+- CI-safe
 
-## File Structure
-- Test files mirror lib/ structure
-- test/unit/, test/widget/, test/integration/ OR
-- test/<feature>/presentation/, test/<feature>/domain/, test/<feature>/data/
+---
 
-## Coverage
-- Minimums defined in tooling/coverage.yaml
-- CI fails if coverage regresses below threshold
+# 1. Required Test Coverage
+
+## Mandatory Coverage Areas
+
+- [ ] domain layer → unit tests required
+- [ ] data layer → unit tests required (mock external dependencies)
+- [ ] presentation layer → widget tests required
+- [ ] critical flows → integration tests required
+
+---
+
+## Minimum Requirement
+
+- all business logic must be tested
+- all user-facing flows must have widget coverage
+- all critical paths must have regression protection
+
+---
+
+# 2. Test Type Strategy
+
+| Type | Purpose |
+|------|--------|
+| Unit | domain logic, use cases, pure functions |
+| Widget | UI behavior, rendering, interaction |
+| Integration | full user journeys |
+| Golden | visual regression (only stable UI) |
+
+---
+
+## Rules
+
+- [ ] prefer unit tests for logic
+- [ ] prefer widget tests for UI behavior
+- [ ] use integration tests sparingly (only critical flows)
+- [ ] avoid overusing golden tests
+
+---
+
+# 3. File Structure Rules
+
+## Required Structure
+
+Tests MUST mirror `lib/` structure.
+
+```
+test/features/auth/domain/...
+test/features/auth/data/...
+test/features/auth/presentation/...
+```
+
+---
+
+## Rules
+
+- [ ] test location must reflect source ownership
+- [ ] test files must end in `_test.dart`
+- [ ] maintain clear mapping between source and test
+
+---
+
+# 4. Mocking Rules
+
+## Required Tooling
+
+- MUST use `mocktail`
+- MUST NOT use `mockito` unless explicitly required for legacy constraints
+
+---
+
+## Mocking Principles
+
+- [ ] mock external dependencies only
+- [ ] do not mock domain logic
+- [ ] prefer fake implementations for complex systems
+- [ ] keep mocks minimal and behavior-focused
+
+---
+
+# 5. Deterministic Test Rules
+
+## MUST BE TRUE
+
+Tests must NOT depend on:
+
+- real network calls
+- real databases
+- real file system
+- real time
+- real randomness (without seeding)
+
+---
+
+## Required Tools
+
+- `fakeAsync` → time-based logic
+- `pump` / `pumpAndSettle` → widget async resolution
+- in-memory fakes → storage/network simulation
+
+---
+
+## MUST NOT
+
+- use real timers
+- rely on animation timing without control
+- depend on external services
+- introduce flaky async behavior
+
+---
+
+# 6. Widget Testing Rules
+
+## Required Coverage
+
+Widget tests MUST cover:
+
+- rendering states (loading / error / data / empty)
+- user interactions (tap, input, scroll)
+- provider integration (via overrides)
+- responsive behavior where relevant
+
+---
+
+## Required Setup
+
+- [ ] wrap widgets in `MaterialApp` (or app shell)
+- [ ] wrap in `ProviderScope(overrides: ...)`
+- [ ] ensure correct MediaQuery if needed
+
+---
+
+# 7. Integration Testing Rules
+
+## Required for:
+
+- authentication flows
+- onboarding flows
+- payment flows (if applicable)
+- multi-screen navigation journeys
+- critical business workflows
+
+---
+
+## Rules
+
+- [ ] run on real device/emulator
+- [ ] avoid mocking core app layers
+- [ ] isolate external services where possible
+- [ ] treat as regression-critical tests
+
+---
+
+# 8. Test Naming Standards
+
+## Format
+
+```
+should [expected behavior] when [condition]
+```
+
+---
+
+## Examples
+
+- should return error when network request fails
+- should display empty state when no items exist
+- should navigate to login when session expires
+
+---
+
+## Rules
+
+- [ ] test names must describe behavior, not implementation
+- [ ] use `group()` for logical grouping
+- [ ] avoid vague names like “test login”
+
+---
+
+# 9. Async Testing Rules
+
+## Required Practices
+
+- [ ] use `pump()` for frame advancement
+- [ ] use `pumpAndSettle()` for full UI stabilization
+- [ ] never rely on real-time delays
+- [ ] control async execution explicitly
+
+---
+
+# 10. Coverage Requirements
+
+## Enforcement
+
+- [ ] coverage thresholds defined in `tooling/coverage.yaml`
+- [ ] CI fails on coverage regression
+- [ ] new code must include corresponding tests
+
+---
+
+## Command
+
+```bash
+flutter test --coverage
+```
+
+---
+
+# 11. Anti-Patterns (DO NOT DO)
+
+## MUST NOT
+
+- test implementation details instead of behavior
+- rely on real network or storage
+- ignore async handling
+- create flaky timing-dependent tests
+- duplicate production logic in tests
+- skip edge cases
+
+---
+
+## SHOULD AVOID
+
+- excessive mocking of internal logic
+- brittle UI selectors
+- overly complex test setups
+- integration tests for trivial logic
+
+---
+
+# 12. Validation Checklist
+
+Before committing:
+
+- [ ] correct test type selected
+- [ ] deterministic execution guaranteed
+- [ ] mocks properly isolated
+- [ ] widget states fully covered
+- [ ] integration coverage added where required
+- [ ] naming follows standards
+- [ ] coverage thresholds met
+- [ ] preflight passes

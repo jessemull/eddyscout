@@ -1,26 +1,241 @@
 ---
-description: "go_router navigation rules and patterns."
+description: "Strict go_router navigation rules enforcing typed routing, deep linking, and architecture-safe navigation patterns."
 globs: ["**/routing/**/*.dart", "**/router/**/*.dart", "**/navigation/**/*.dart"]
 alwaysApply: false
 ---
 
 # Navigation Rules (go_router)
 
-## Requirements
-- Use GoRouter with typed routes (go_router_builder)
-- Support deep linking for all public routes
-- Auth guards via redirect, not widget-level checks
-- Each feature declares its own route subtree
-- Routes assembled in packages/routing
+Navigation is a **core architectural boundary**, not a UI convenience.
 
-## Patterns
-- Use context.go() for declarative navigation
-- Use context.push() only when back-stack is needed
-- Extra data via path/query parameters, NOT via extra (not type-safe)
-- Nested navigation via StatefulShellRoute for tab-based layouts
+All navigation must be:
+- typed
+- declarative
+- deep-link safe
+- feature-owned
+- testable
+- free of business logic inside widgets
 
-## Forbidden
-- Navigator.push/pop directly
-- MaterialPageRoute construction
-- Passing complex objects via GoRouter extra parameter
-- Navigation logic inside widgets (use redirects)
+---
+
+# 1. Core Requirements
+
+## MUST
+
+- [ ] use `go_router` as the only navigation system
+- [ ] use `go_router_builder` for typed routes
+- [ ] support deep linking for ALL public routes
+- [ ] enforce auth via router-level redirects (not UI logic)
+- [ ] define routes per feature module
+- [ ] assemble all routes in `packages/routing` (or equivalent central router layer)
+
+---
+
+## MUST NOT
+
+- ❌ use `Navigator.push/pop`
+- ❌ use `MaterialPageRoute`
+- ❌ embed navigation logic inside widgets
+- ❌ bypass router for “quick navigation fixes”
+
+---
+
+# 2. Routing Architecture Rules
+
+## Feature-Owned Routes
+
+Each feature MUST:
+
+- declare its own route subtree
+- define route parameters via typed route classes
+- expose routes via public API only
+
+---
+
+## Central Router Composition
+
+- all feature routes are composed in `packages/routing`
+- routing layer is the only place where global route graph exists
+- features MUST NOT depend on each other’s route definitions directly
+
+---
+
+# 3. Typed Routing (MANDATORY)
+
+## Required Tooling
+
+- `go_router_builder`
+
+---
+
+## Rules
+
+- [ ] all routes must be typed (`@TypedGoRoute`)
+- [ ] path + query params must be strongly typed fields
+- [ ] no string-based route definitions for public navigation
+
+---
+
+## MUST NOT
+
+- use raw string routes in app code
+- manually construct URLs in widgets
+- bypass generated route helpers
+
+---
+
+# 4. Navigation Methods
+
+## context.go()
+
+- [ ] use for **replacement navigation**
+- [ ] resets navigation stack
+- [ ] used for top-level transitions (login → home, tab switching)
+
+---
+
+## context.push()
+
+- [ ] use only when back-stack is required
+- [ ] used for drill-down navigation (detail pages, modals)
+
+---
+
+## Rule
+
+> If user expects "back" behavior → use `push()`
+> If user does NOT expect back behavior → use `go()`
+
+---
+
+# 5. Stateful Navigation (Tabs / Shells)
+
+## Required Pattern
+
+- use `StatefulShellRoute` for tab-based layouts
+- maintain independent navigation stacks per tab
+- preserve state across tab switching
+
+---
+
+## Rules
+
+- [ ] each tab has isolated navigator stack
+- [ ] switching tabs must not reset inner navigation
+- [ ] deep links must resolve to correct shell branch
+
+---
+
+# 6. Deep Linking Rules (CRITICAL)
+
+## Required
+
+- [ ] all public routes must be deep-linkable
+- [ ] app must restore correct navigation state from cold start
+- [ ] invalid deep links must fallback safely
+
+---
+
+## Validation
+
+- [ ] test cold start navigation
+- [ ] test direct URL entry
+- [ ] test malformed URL handling
+
+---
+
+# 7. Parameter Passing Rules
+
+## Allowed
+
+- path parameters
+- query parameters
+
+---
+
+## FORBIDDEN
+
+- ❌ `extra:` for passing business-critical data
+- ❌ passing complex objects through navigation layer
+- ❌ relying on runtime object reconstruction in routes
+
+---
+
+## Rule
+
+> Navigation must remain serializable and deep-link safe at all times.
+
+---
+
+# 8. Auth & Guard Rules
+
+## Required
+
+- auth checks MUST happen in router `redirect`
+- use Riverpod or equivalent auth state provider
+- redirect unauthenticated users to login route
+
+---
+
+## MUST NOT
+
+- check authentication inside widgets
+- manually block UI rendering for protected routes
+- duplicate auth logic across screens
+
+---
+
+# 9. Error & Edge Case Handling
+
+- [ ] invalid routes must redirect to safe fallback screen
+- [ ] missing parameters must not crash app
+- [ ] expired sessions must redirect cleanly
+- [ ] deep links must fail gracefully
+
+---
+
+# 10. Testing Requirements
+
+## Must test:
+
+- deep link resolution
+- navigation stack behavior
+- auth redirects
+- tab state preservation
+- invalid route fallback
+
+---
+
+# 11. Performance Rules
+
+- [ ] avoid rebuilding entire router unnecessarily
+- [ ] keep route definitions modular
+- [ ] avoid heavy logic in route builders
+- [ ] lazy-load feature routes where possible
+
+---
+
+# 12. Anti-Patterns (DO NOT DO)
+
+## MUST NOT
+
+- use Navigator API directly
+- bypass typed routing system
+- pass objects via `extra`
+- put navigation logic inside widgets
+- duplicate route definitions across features
+- hardcode route strings
+
+---
+
+# 13. Validation Checklist
+
+Before committing:
+
+- [ ] all routes are typed
+- [ ] deep linking verified
+- [ ] auth guards in router only
+- [ ] no Navigator usage exists
+- [ ] correct go/push usage applied
+- [ ] shell navigation works correctly
+- [ ] preflight passes
