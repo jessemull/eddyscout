@@ -1,7 +1,3 @@
-// Router provider stub.
+// Router assembly lives in the app until feature packages own their routes.
 //
-// Once Riverpod is fully adopted, this will be a Provider that
-// creates and owns the GoRouter instance.
-//
-// See docs/NAVIGATION.md for routing governance.
-// TODO(migration): implement GoRouter provider with typed routes.
+// See `apps/eddyscout/lib/routing/app_router_provider.dart` and `docs/NAVIGATION.md`.

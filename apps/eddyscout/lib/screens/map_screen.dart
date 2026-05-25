@@ -12,7 +12,7 @@ import '../debug/map_debug_log.dart';
 import '../routing/route_result.dart';
 import '../routing/river_route_planner.dart';
 import '../routing/river_route_planner_provider.dart';
-import 'launch_detail_screen.dart';
+import '../routing/app_routes.dart';
 import 'map_planning_provider.dart';
 import 'map_session_provider.dart';
 
@@ -373,11 +373,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     final planning = ref.read(routePlanningProvider);
     if (!planning.planningMode) {
-      Navigator.of(context).push<void>(
-        MaterialPageRoute<void>(
-          builder: (context) => LaunchDetailScreen(launch: launch),
-        ),
-      );
+      LaunchDetailRoute(launchId: launch.id).push(context);
       return;
     }
 

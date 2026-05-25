@@ -27,15 +27,15 @@ The app uses Riverpod for shared and async application state. Remaining `Statefu
 
 ### Phase M2 — Navigation (MaterialApp → go_router)
 
-**Status**: Not started
+**Status**: Complete
 
-The app currently uses `MaterialApp` with direct `Navigator.push`. Must migrate to `GoRouter` with typed routes.
+Navigation uses `MaterialApp.router` with typed `go_router_builder` routes in `apps/eddyscout/lib/routing/`. Platform/token redirects live in `app_router_provider.dart`.
 
-| Action | Target |
-|--------|--------|
-| Replace `MaterialApp` with `MaterialApp.router` | `apps/eddyscout/lib/main.dart` |
-| Define typed routes for all screens | `packages/routing/` |
-| Replace `Navigator.push` with `context.go`/`context.push` | All screen files |
+| Action | Target | Status |
+|--------|--------|--------|
+| Replace `MaterialApp` with `MaterialApp.router` | `apps/eddyscout/lib/main.dart` | Done |
+| Define typed routes for all screens | `apps/eddyscout/lib/routing/app_routes.dart` | Done |
+| Replace `Navigator.push` with `context.go`/`context.push` | All screen files | Done |
 
 ### Phase M3 — Networking (http → dio)
 
@@ -103,8 +103,8 @@ Every Dart file in the legacy codebase with its migration status:
 
 ### `lib/main.dart`
 - **Migration**: M1 (Riverpod ProviderScope), M2 (GoRouter)
-- **Status**: In progress — `ProviderScope` added; GoRouter pending
-- **Notes**: Entry point. Replace MaterialApp with MaterialApp.router (M2).
+- **Status**: M2 done — `MaterialApp.router` + `goRouterProvider`
+- **Notes**: Token/web gate screens moved to `screens/` and routed via go_router.
 
 ### `lib/screens/map_screen.dart` (26,547 lines)
 - **Migration**: M1, M5
@@ -235,6 +235,14 @@ Every Dart file in the legacy codebase with its migration status:
 ### `lib/screens/map_planning_provider.dart`
 - **Migration**: M1
 - **Status**: Done — `routePlanningProvider`
+
+### `lib/routing/app_routes.dart`
+- **Migration**: M2
+- **Status**: Done — typed routes (`MapRoute`, `LaunchDetailRoute`, token/web routes)
+
+### `lib/routing/app_router_provider.dart`
+- **Migration**: M2
+- **Status**: Done — `goRouterProvider` with redirects
 
 ### `lib/screens/map_session_provider.dart`
 - **Migration**: M1

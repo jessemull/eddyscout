@@ -57,8 +57,9 @@ dev_dependencies:
   very_good_analysis: ^7.0.0
   mocktail: ^1.0.4
   golden_toolkit: ^0.15.0
-  # Codegen and advanced lint (dart_code_linter, riverpod_generator, build_runner)
-  # deferred to feature migration — see docs/MIGRATIONS.md
+  # Codegen (go_router_builder) — see docs/MIGRATIONS.md M2+
+  build_runner: ^2.4.14
+  go_router_builder: 2.8.0
 
 flutter:
   uses-material-design: true
