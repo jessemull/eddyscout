@@ -55,7 +55,7 @@ void main() {
       await container.read(
         conditionReportsListProvider('cathedral_park').future,
       );
-      container.read(conditionReportsRefreshTokenProvider.notifier).state++;
+      container.read(conditionReportsRefreshTokenProvider.notifier).increment();
       await container.read(
         conditionReportsListProvider('cathedral_park').future,
       );

@@ -246,7 +246,7 @@ class _ConditionReportSheet extends ConsumerStatefulWidget {
 class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
   late final TextEditingController _controller;
 
-  /// After submit, the `TextField` is removed before `Navigator.pop`.
+  /// After submit, the `TextField` is removed before `context.pop()`.
   /// Otherwise the IME / viewInsets teardown can rebuild `TextField` while the
   /// route disposal has already disposed `TextEditingController`.
   bool _submittedClosing = false;
@@ -295,7 +295,7 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
       if (!mounted) {
         return;
       }
-      Navigator.pop(context);
+      context.pop();
       widget.onSuccessFeedback();
     });
   }

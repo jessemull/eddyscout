@@ -6,6 +6,7 @@ import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 part 'launch_detail/helpers.dart';
 part 'launch_detail/widgets_conditions.dart';
@@ -148,9 +149,9 @@ class LaunchDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 _TideCard(snapshot: data, launch: launch),
               ],
-              if (launch.marineZoneId != null) ...[
+              if (launch.marineZoneId case final zoneId?) ...[
                 const SizedBox(height: 12),
-                _MarineCard(snapshot: data, zoneId: launch.marineZoneId!),
+                _MarineCard(snapshot: data, zoneId: zoneId),
               ],
               const SizedBox(height: 24),
               Text('Disclaimer', style: Theme.of(context).textTheme.titleSmall),

@@ -1,0 +1,23 @@
+name: Dependency Audit
+
+on:
+  schedule:
+    # Weekly Monday 09:00 UTC — surfaces outdated packages; does not block merges.
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    name: Outdated dependency report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .tool-versions
+          channel: stable
+          cache: true
+      - run: dart pub get
+      - run: dart pub global activate melos
+      - run: melos bootstrap
+      - run: ./scripts/dependency_audit.sh

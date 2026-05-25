@@ -10,7 +10,7 @@ void main() {
 
       expect(container.read(conditionReportsRefreshTokenProvider), 0);
 
-      container.read(conditionReportsRefreshTokenProvider.notifier).state++;
+      container.read(conditionReportsRefreshTokenProvider.notifier).increment();
 
       expect(container.read(conditionReportsRefreshTokenProvider), 1);
     });

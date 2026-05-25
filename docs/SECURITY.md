@@ -31,7 +31,12 @@ No API keys, tokens, passwords, signing keys, or service account credentials in 
 ### `.local.env` rules
 
 - **Never committed.** Must be in `.gitignore`.
-- Each developer creates their own from a `.local.env.example` template (committed, with placeholder values).
+- Each developer creates their own from [`apps/eddyscout/env.example`](../apps/eddyscout/env.example) (committed template with placeholder values):
+
+  ```bash
+  cd apps/eddyscout && cp env.example .local.env
+  ```
+
 - Contains only development keys. Production keys are managed via CI secrets and build-time injection.
 
 ---

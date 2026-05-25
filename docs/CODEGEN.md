@@ -129,3 +129,11 @@ The part file name must exactly match the source file name with the appropriate 
 - Ensure your local Dart/Flutter SDK version matches CI (check `.tool-versions`).
 - Run `dart pub get` before `build_runner` to ensure dependency alignment.
 - Verify you committed from a clean generation state, not a partial one.
+
+## Riverpod codegen pilot
+
+The first `@riverpod` migration target is the conditions refresh token. A reference implementation lives at:
+
+`docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`
+
+Production code uses a manual `AutoDisposeNotifier` in `packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart` because `riverpod_generator` 2.x conflicts with the workspace `source_gen: 4.2.0` override (see `docs/ARCHITECTURE.md`). When upstream deps align, copy the pilot into the feature package, add `riverpod_annotation` / `riverpod_generator` to `pubspec.yaml`, register the file in `build.yaml`, remove the manual notifier, and run `make gen`.

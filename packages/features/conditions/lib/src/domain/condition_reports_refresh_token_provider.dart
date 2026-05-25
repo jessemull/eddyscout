@@ -3,7 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Incremented after a paddler submits a condition report to refresh the list.
 ///
 /// Lives in domain so data providers can watch without presentation imports.
-final AutoDisposeStateProvider<int> conditionReportsRefreshTokenProvider =
-    StateProvider.autoDispose<int>(
-      (ref) => 0,
+/// Codegen pilot source: docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart
+class ConditionReportsRefreshTokenNotifier extends AutoDisposeNotifier<int> {
+  @override
+  int build() => 0;
+
+  /// Bumps the epoch so list providers watching this token refetch.
+  void increment() => state++;
+}
+
+/// Refresh epoch for condition report list providers.
+final AutoDisposeNotifierProvider<ConditionReportsRefreshTokenNotifier, int>
+conditionReportsRefreshTokenProvider =
+    NotifierProvider.autoDispose<ConditionReportsRefreshTokenNotifier, int>(
+      ConditionReportsRefreshTokenNotifier.new,
     );

@@ -23,7 +23,6 @@ class MapboxMapController extends AutoDisposeNotifier<void> {
   MapboxMap? _mapboxMap;
   Cancelable? _tapCancelable;
   bool _markersInstalled = false;
-  late CircleAnnotationManager? _circleManager;
   bool _mapDiagnosticsLogged = false;
 
   double? _debugLastLoggedCameraZoom;
@@ -426,20 +425,20 @@ class MapboxMapController extends AutoDisposeNotifier<void> {
   });
 
   Future<void> _installLaunchMarkersIfNeeded() async {
-    if (_markersInstalled || _mapboxMap == null || !_alive) {
-      if (!_alive && _mapboxMap != null) {
+    final mapboxMap = _mapboxMap;
+    if (_markersInstalled || mapboxMap == null || !_alive) {
+      if (!_alive && mapboxMap != null) {
         mapDebugLog(
           '_installLaunchMarkersIfNeeded skipped (controller disposed)',
         );
       }
       return;
     }
-    final mapboxMap = _mapboxMap!;
     try {
       await _configureStandardStyleMap(mapboxMap);
       await _ensureRouteLineStyle(mapboxMap);
 
-      _circleManager = await mapboxMap.annotations
+      final circleManager = await mapboxMap.annotations
           .createCircleAnnotationManager();
 
       final options = kLaunchPoints
@@ -455,7 +454,7 @@ class MapboxMapController extends AutoDisposeNotifier<void> {
           )
           .toList();
 
-      await _circleManager!.createMulti(options);
+      await circleManager.createMulti(options);
       _markersInstalled = true;
       mapDebugLog(
         '_installLaunchMarkersIfNeeded OK markers=${kLaunchPoints.length}',
@@ -464,7 +463,7 @@ class MapboxMapController extends AutoDisposeNotifier<void> {
       await _fitViewportToAllLaunches(mapboxMap);
 
       _tapCancelable?.cancel();
-      _tapCancelable = _circleManager!.tapEvents(onTap: onLaunchCircleTap);
+      _tapCancelable = circleManager.tapEvents(onTap: onLaunchCircleTap);
     } on Object catch (e, st) {
       mapDebugLog('_installLaunchMarkersIfNeeded failed: $e\n$st');
     } finally {

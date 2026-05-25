@@ -51,6 +51,11 @@ if ! $STAGED_ONLY; then
   echo ""
   echo "--- Codegen Verification ---"
   "$SCRIPT_DIR/codegen_verify.sh"
+
+  echo ""
+  echo "--- Coverage Thresholds ---"
+  melos exec --fail-fast --dir-exists=test -- "flutter test --coverage"
+  "$SCRIPT_DIR/check_coverage.sh"
 fi
 
 echo ""

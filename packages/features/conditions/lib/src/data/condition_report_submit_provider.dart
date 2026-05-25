@@ -38,7 +38,7 @@ class ConditionReportSubmitNotifier
         message: trimmed,
         clientConditionsFetchedAt: arg.clientConditionsFetchedAt,
       );
-      ref.read(conditionReportsRefreshTokenProvider.notifier).state++;
+      ref.read(conditionReportsRefreshTokenProvider.notifier).increment();
     });
     return !state.hasError;
   }
