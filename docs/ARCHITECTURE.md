@@ -11,38 +11,31 @@
 ```
 eddyscout/
 ├── apps/
-│   └── eddyscout/              # Main Flutter application
+│   └── eddyscout/              # Main Flutter application (composition shell)
 │       ├── lib/
 │       │   ├── main.dart
-│       │   ├── screens/        # Screen-level widgets
-│       │   ├── routing/        # Route planner, river graph, geodesy
-│       │   ├── conditions/     # Conditions service + parsing
-│       │   ├── decision/       # Go/No-Go evaluator + thresholds
-│       │   ├── data/           # Launch data models + static datasets
-│       │   ├── firebase/       # Firebase bootstrap, callables, payloads
-│       │   ├── network/        # HTTP client wrappers
-│       │   ├── preferences/    # User preference persistence
+│       │   ├── screens/        # Screen-level widgets + Mapbox controller
+│       │   ├── routing/        # go_router typed routes + provider
+│       │   ├── preferences/    # App-level Riverpod wiring for persistence
 │       │   └── debug/          # Debug-only utilities
 │       ├── test/               # App-level tests
 │       ├── assets/             # Static assets (GeoJSON, images)
-│       ├── android/            # Android platform project
-│       ├── ios/                # iOS platform project
-│       ├── web/                # Web platform project
-│       ├── macos/              # macOS platform project
-│       ├── linux/              # Linux platform project
-│       ├── windows/            # Windows platform project
-│       ├── firebase/           # Firebase Functions + config
-│       └── scripts/            # App-specific scripts
+│       └── (platform dirs)     # android/, ios/, web/, macos/, linux/, windows/
 ├── packages/
-│   ├── core/                   # Shared domain models, utilities, constants
-│   ├── design_system/          # Shared widgets, theme, typography, spacing
-│   ├── networking/             # dio client, interceptors, API abstractions
-│   ├── persistence/            # drift database, secure storage, prefs
-│   ├── analytics/              # Analytics abstraction + providers
-│   ├── routing/                # go_router config, typed routes, guards
-│   └── localization/           # ARB files, generated l10n
-├── tooling/                    # Build scripts, code generators, dev tools
-├── scripts/                    # Monorepo-level scripts (preflight, android)
+│   ├── core/                   # LaunchPoint, Result, AppFailure, typedefs
+│   ├── design_system/          # Material 3 theme, tokens, shared widgets
+│   ├── networking/             # Dio factory, interceptors, HTTP client
+│   ├── persistence/            # Key-value and structured storage abstractions
+│   ├── analytics/              # Analytics client interface
+│   ├── routing/                # go_router provider and route assembly (scaffold)
+│   ├── localization/           # ARB-based l10n
+│   └── features/
+│       ├── conditions/         # Conditions fetching, go/no-go, Firebase
+│       ├── map/                # Launch catalog and map-related types
+│       ├── hydro_routing/      # River-line routing on bundled hydro geometry
+│       └── _TEMPLATE/          # Scaffold for new feature packages
+├── tooling/                    # Shared analysis_options, build config, coverage thresholds
+├── scripts/                    # Automation scripts (preflight, codegen, coverage)
 ├── docs/                       # Governance and project documentation
 └── pubspec.yaml                # Workspace root (melos config)
 ```
@@ -54,19 +47,73 @@ eddyscout/
 | `apps/eddyscout/` | Runnable application — composes packages into a product | Nothing imports apps |
 | `packages/core/` | Domain models, value objects, shared constants, pure utilities | Any package or app |
 | `packages/design_system/` | Theme data, shared widgets, spacing/typography tokens | App and feature code |
-| `packages/networking/` | dio instance, interceptors, base API client, response types | App data layer |
-| `packages/persistence/` | drift DB, secure storage wrapper, shared prefs abstraction | App data layer |
+| `packages/networking/` | Dio instance, interceptors, base HTTP client, response types | Feature data layers |
+| `packages/persistence/` | Secure storage wrapper, shared prefs abstraction | Feature data layers |
 | `packages/analytics/` | Analytics event abstraction, provider adapters | App and feature code |
-| `packages/routing/` | go_router configuration, typed routes, auth guards | App composition root |
+| `packages/routing/` | go_router configuration, typed routes, auth guards (scaffold) | App composition root |
 | `packages/localization/` | ARB strings, generated `AppLocalizations` | Any package or app |
+| `packages/features/*` | Feature packages with `presentation/domain/data` layers | App imports barrels |
 | `tooling/` | Custom lint rules, build helpers, codegen scripts | Dev-time only |
-| `scripts/` | `preflight.sh`, `run_android.sh`, hydro data docs | Dev-time only |
+| `scripts/` | `preflight.sh`, `codegen.sh`, `coverage.sh` | Dev-time only |
+
+---
+
+## App shell — `apps/eddyscout/lib/`
+
+The app shell is a **composition layer**: it wires feature packages together into a runnable product. It does not contain domain logic, data access, or parsing — those live in feature packages.
+
+| Path | Role |
+|------|------|
+| `main.dart` | `ProviderScope`, Firebase init, `MaterialApp.router` |
+| `routing/app_routes.dart` | Typed `go_router_builder` routes |
+| `routing/app_router_provider.dart` | `goRouterProvider`, token/web redirects |
+| `screens/map_screen.dart` | Map composition; Mapbox widget host |
+| `screens/map/mapbox_map_controller.dart` | Mapbox lifecycle (`mapboxMapControllerProvider`) |
+| `screens/map/map_constants.dart` | Map style / camera constants |
+| `screens/map/map_planning_overlay.dart` | Route planning UI overlay |
+| `screens/map/map_ui_callbacks.dart` | Map gesture callbacks (types) |
+| `screens/map/map_ui_callbacks_provider.dart` | Callback holder provider |
+| `screens/map_planning_provider.dart` | `routePlanningProvider` |
+| `screens/map_session_provider.dart` | `mapInteractiveProvider` |
+| `screens/launch_detail_screen.dart` | Launch detail page (+ `launch_detail/` parts) |
+| `screens/missing_mapbox_token_screen.dart` | `--dart-define` gate |
+| `screens/web_map_placeholder_screen.dart` | Web placeholder |
+| `preferences/key_value_store_provider.dart` | `KeyValueStore` → persistence |
+| `preferences/go_no_go_profile_provider.dart` | Skill profile Riverpod |
+| `debug/map_debug_log.dart` | Debug-only map/route logging |
+
+---
+
+## Feature packages — `packages/features/`
+
+Each feature is a standalone Dart package with `presentation/domain/data` layering under `lib/src/`.
+
+### `conditions` — conditions fetching, go/no-go evaluation, Firebase
+
+| Layer | Key files |
+|-------|-----------|
+| Domain | `conditions_models.dart`, `go_no_go.dart`, `go_no_go_thresholds.dart` |
+| Data | `conditions_service.dart`, `conditions_provider.dart`, `parsing/*.dart`, `firebase/*.dart`, `repositories/go_no_go_profile_repository.dart` |
+| Presentation | `condition_reports_refresh_token_provider.dart` |
+
+### `map` — launch catalog and map-related types
+
+| Layer | Key files |
+|-------|-----------|
+| Data | `launch_points.dart` (static catalog), `launch_providers.dart` |
+
+Domain models (`LaunchPoint`, `LaunchFlowBands`) live in `packages/core/lib/src/launch_models.dart`. The barrel re-exports them.
+
+### `hydro_routing` — river-line routing on bundled hydro geometry
+
+| Layer | Key files |
+|-------|-----------|
+| Domain | `route_result.dart` (`@freezed` success/failure union) |
+| Data | `geodesy.dart`, `river_geojson.dart`, `river_graph.dart`, `river_route_planner.dart`, `river_route_planner_provider.dart` |
 
 ---
 
 ## Architecture pattern: feature-first + layered
-
-Each feature in `apps/eddyscout/lib/` is organized by domain concern, and within each concern the code follows a layered architecture.
 
 ### Layer responsibilities
 
@@ -117,18 +164,22 @@ This is enforced by package boundaries: `packages/core/` (domain) has no depende
 5. **Design system depends on core (for model types) and Flutter SDK.** It must not depend on networking, persistence, or routing.
 6. **Networking depends on core (for domain types) and dio.** It must not depend on Flutter SDK unless required for interceptors.
 7. **Persistence depends on core (for domain types), drift, and platform packages.** It must not depend on networking.
+8. **Feature packages may depend on shared packages but never on other features.** Cross-feature communication flows through `packages/core/` types or Riverpod providers in the app shell.
 
 ### Dependency graph (allowed directions)
 
 ```
 apps/eddyscout
   ├── packages/core
-  ├── packages/design_system → core
-  ├── packages/networking    → core
-  ├── packages/persistence   → core
-  ├── packages/analytics     → core
-  ├── packages/routing       → core
-  └── packages/localization  (standalone)
+  ├── packages/design_system       → core
+  ├── packages/networking          → core
+  ├── packages/persistence         → core
+  ├── packages/analytics           → core
+  ├── packages/routing             → core
+  ├── packages/localization        (standalone)
+  ├── packages/features/conditions → core, networking, persistence
+  ├── packages/features/map        → core
+  └── packages/features/hydro_routing → core
 ```
 
 ---
@@ -137,19 +188,18 @@ apps/eddyscout
 
 ### New features
 
-Add a new directory under `apps/eddyscout/lib/<feature_name>/` with internal layering:
+Create a new package under `packages/features/`:
 
-```
-lib/
-└── <feature_name>/
-    ├── models/           # freezed models specific to this feature
-    ├── providers/        # Riverpod providers and notifiers
-    ├── services/         # Business logic, data orchestration
-    ├── widgets/          # Feature-specific widgets
-    └── <feature>_screen.dart
-```
+1. Copy `packages/features/_TEMPLATE/` to `packages/features/<feature_name>/`.
+2. Rename references in `pubspec.yaml`, barrel exports, and directory names.
+3. Add the package path to the root `pubspec.yaml` under `workspace:`.
+4. Follow the `presentation/domain/data` layering from `_TEMPLATE/TEMPLATE.md`.
 
 If the feature introduces **shared domain models**, those go in `packages/core/`. If it introduces **shared widgets**, those go in `packages/design_system/`.
+
+### App-only screens
+
+Screens that compose feature packages without introducing new domain logic live in `apps/eddyscout/lib/screens/`. Feature-specific widgets that are **not reusable** stay in the app.
 
 ### Shared widgets
 
@@ -166,62 +216,44 @@ design_system/lib/
 └── design_system.dart     # barrel export
 ```
 
-Feature-specific widgets that are **not reusable** stay in the feature directory under `apps/`.
-
 ### State (providers and notifiers)
 
-- **Feature-scoped providers:** `apps/eddyscout/lib/<feature>/providers/`
-- **App-wide providers:** `apps/eddyscout/lib/providers/` (if needed)
-- **Package-provided providers:** Each package may expose providers (e.g., `packages/networking/` could expose a `dioProvider`). These live in the package's `lib/src/providers/` directory.
+- **Feature-scoped providers:** `packages/features/<pkg>/lib/src/data/` or `lib/src/presentation/`
+- **App-wide providers:** `apps/eddyscout/lib/preferences/` or alongside screens
+- **Package-provided providers:** Each package may expose providers (e.g., `packages/networking/` could expose a `dioProvider`). These live in the package's `lib/src/` directory.
 
 See `STATE_MANAGEMENT.md` for provider type selection and lifecycle rules.
 
 ### API clients
 
-`packages/networking/lib/src/` — one client class per external API:
-
-```
-networking/lib/src/
-├── clients/
-│   ├── nws_client.dart
-│   ├── usgs_client.dart
-│   └── noaa_tides_client.dart
-├── interceptors/
-├── models/              # API-specific DTOs (not domain models)
-└── networking.dart      # barrel export
-```
-
-HTTP clients live in `packages/networking/`; conditions HTTP wiring is in `packages/features/conditions/` (`conditions_http_provider.dart`).
+HTTP clients live in `packages/networking/`. Feature-specific HTTP wiring (provider creating and disposing a client) lives in the feature's data layer — e.g., `packages/features/conditions/lib/src/data/conditions_http_provider.dart`.
 
 ### Navigation
-
-`packages/routing/lib/` — route configuration, typed routes, guards:
-
-```
-routing/lib/src/
-├── router.dart          # GoRouter instance
-├── routes/              # Typed route definitions per feature
-├── guards/              # Auth guards, onboarding gates
-└── routing.dart         # barrel export
-```
 
 App routes are defined in `apps/eddyscout/lib/routing/` (`app_routes.dart`, `app_router_provider.dart`). Shared router assembly may move to `packages/routing/` over time.
 
 ### Tests
 
-Tests mirror the source structure with a `test/` directory in each package and app:
+Tests live in `test/` within each package and the app:
 
 ```
 apps/eddyscout/test/
 ├── screens/             # Widget tests for screens
-├── decision/            # Unit tests for Go/No-Go logic
-├── conditions/          # Unit tests for parsing, service
-├── routing/             # Unit tests for river route planner
-└── golden/              # Golden image tests
+├── routing/             # Unit tests for route config
+├── preferences/         # Unit tests for profile providers
+└── firebase/            # Unit tests for Firebase providers
+
+packages/features/conditions/test/
+├── *.dart               # Parsing, go/no-go, payload tests
+
+packages/features/hydro_routing/test/
+├── *.dart               # River graph, route planner tests
+
+packages/features/map/test/
+├── *.dart               # Launch provider tests
 
 packages/core/test/
-├── models/
-└── utils/
+├── *.dart               # Result type tests
 ```
 
 See `TESTING.md` for naming conventions and coverage requirements.
@@ -247,7 +279,7 @@ Generated files live alongside their source files:
 - `*.freezed.dart` — freezed output
 - `*.gr.dart` — go_router_builder output
 
-Generated files **are committed** to the repository. CI verifies they are up to date via `melos run gen:check`.
+Generated files **are committed** to the repository. CI verifies they are up to date via `scripts/codegen_verify.sh`.
 
 ---
 
@@ -272,7 +304,7 @@ Generated files **are committed** to the repository. CI verifies they are up to 
 
 ### Code generation
 
-- Run `melos run gen` after changing any file annotated with `@freezed`, `@JsonSerializable`, `@riverpod`, or `@TypedGoRoute`.
+- Run `make gen` after changing any file annotated with `@freezed`, `@JsonSerializable`, `@riverpod`, or `@TypedGoRoute`.
 - CI enforces generated code freshness.
 
 ### Platform-specific code
@@ -280,3 +312,11 @@ Generated files **are committed** to the repository. CI verifies they are up to 
 - Minimize platform-specific code. Use Flutter's platform abstractions first.
 - When unavoidable, isolate platform code behind abstract interfaces in `packages/core/` with implementations in the relevant package.
 - Platform permissions follow the principle of least privilege. See `SECURITY.md`.
+
+---
+
+## Known tech debt
+
+- Two style rules (`prefer_constructors_over_static_methods`, `prefer_expression_function_bodies`) are suppressed in `tooling/analysis_options.feature.yaml` for feature packages.
+- `dependency_overrides: source_gen: 4.2.0` in the root `pubspec.yaml` works around a `build_runner` / `analyzer` compatibility issue. Remove when upstream deps align.
+- App coverage threshold is 40%. Raise as widget test coverage improves.

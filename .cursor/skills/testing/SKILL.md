@@ -28,7 +28,7 @@ Use when writing new tests or updating existing test suites.
 
 ### 2. Create Test File
 
-- [ ] Mirror the source file path: `lib/features/foo/bar.dart` → `test/features/foo/bar_test.dart`
+- [ ] Mirror the source file path: `lib/src/domain/foo.dart` → `test/src/domain/foo_test.dart`
 - [ ] Use `_test.dart` suffix for all test files
 
 ### 3. Set Up Mocks

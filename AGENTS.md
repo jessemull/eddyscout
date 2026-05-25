@@ -32,7 +32,7 @@ eddyscout/
 │   ├── analytics/              # Analytics client interface
 │   ├── routing/                # go_router provider and route assembly
 │   ├── localization/           # ARB-based l10n
-│   └── features/               # Feature packages (template only)
+│   └── features/               # Feature packages (conditions, map, hydro_routing)
 ├── tooling/                    # Shared analysis_options, build config, coverage thresholds
 ├── docs/                       # All governance documentation
 ├── scripts/                    # Automation scripts

@@ -11,5 +11,10 @@ thresholds:
   eddyscout_routing: 70
   eddyscout_localization: 60
 
-  # App (lower initially due to legacy code)
+  # Feature packages
+  eddyscout_conditions: 70
+  eddyscout_map: 60
+  eddyscout_hydro_routing: 60
+
+  # App
   eddyscout: 40

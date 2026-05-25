@@ -69,7 +69,10 @@ Current thresholds:
 - `eddyscout_routing`: 70%
 - `eddyscout_design_system`: 60%
 - `eddyscout_localization`: 60%
-- `eddyscout` (app): 40% (low due to legacy code, raise as migration progresses)
+- `eddyscout_conditions`: 70%
+- `eddyscout_map`: 60%
+- `eddyscout_hydro_routing`: 60%
+- `eddyscout` (app): 40%
 
 ## Mocking Strategy
 

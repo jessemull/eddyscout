@@ -25,7 +25,7 @@ Exceptions: log messages, debug-only text, and developer-facing assertions.
 Localization uses Flutter's built-in `gen-l10n` tool with ARB (Application Resource Bundle) files.
 
 ```
-apps/eddyscout/lib/l10n/
+packages/localization/lib/l10n/
 ├── app_en.arb        # English — source of truth
 ├── app_es.arb        # Spanish (example)
 └── ...
