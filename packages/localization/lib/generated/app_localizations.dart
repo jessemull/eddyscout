@@ -172,6 +172,12 @@ abstract class AppLocalizations {
   /// **'No bundled river line for \"{river}\" yet — routing is only available where hydro GeoJSON exists.'**
   String mapRouteFailureNoBundledLine(String river);
 
+  /// No description provided for @mapRouteFailureNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'River route data is not available yet.'**
+  String get mapRouteFailureNoData;
+
   /// No description provided for @mapRouteFailurePutInTooFar.
   ///
   /// In en, this message translates to:
@@ -238,6 +244,24 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get mapPlanningDoneLabel;
 
+  /// No description provided for @commonDash.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get commonDash;
+
+  /// No description provided for @commonBullet.
+  ///
+  /// In en, this message translates to:
+  /// **'•'**
+  String get commonBullet;
+
+  /// No description provided for @commonDotSeparator.
+  ///
+  /// In en, this message translates to:
+  /// **' · '**
+  String get commonDotSeparator;
+
   /// No description provided for @launchDetailConditionsErrorNetwork.
   ///
   /// In en, this message translates to:
@@ -255,6 +279,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skill (wind thresholds)'**
   String get launchDetailSkillSectionTitle;
+
+  /// No description provided for @launchDetailWindExposureSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind exposure {label}'**
+  String launchDetailWindExposureSemantics(String label);
+
+  /// No description provided for @launchDetailRiverSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'River {river}'**
+  String launchDetailRiverSemantics(String river);
+
+  /// No description provided for @launchDetailTideRelevanceSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Tide {label}'**
+  String launchDetailTideRelevanceSemantics(String label);
 
   /// No description provided for @launchDetailSkillBeginner.
   ///
@@ -562,11 +604,29 @@ abstract class AppLocalizations {
   /// **'River flow (USGS)'**
   String get launchDetailRiverFlowTitle;
 
+  /// No description provided for @launchDetailRiverFlowSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{cfs} cfs · {time}'**
+  String launchDetailRiverFlowSubtitle(String cfs, String time);
+
   /// No description provided for @launchDetailTidesTitle.
   ///
   /// In en, this message translates to:
   /// **'Tides'**
   String get launchDetailTidesTitle;
+
+  /// No description provided for @launchDetailFeetValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{feet} ft'**
+  String launchDetailFeetValue(String feet);
+
+  /// No description provided for @launchDetailTideEventLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} {height} · {time}'**
+  String launchDetailTideEventLine(String type, String height, String time);
 
   /// No description provided for @launchDetailNoTideData.
   ///
@@ -597,6 +657,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open-Meteo (backup)'**
   String get launchDetailWeatherSourceOpenMeteoBackup;
+
+  /// No description provided for @launchDetailWeatherSourceOpenMeteo.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-Meteo'**
+  String get launchDetailWeatherSourceOpenMeteo;
 
   /// No description provided for @launchDetailWeatherSourceNws.
   ///

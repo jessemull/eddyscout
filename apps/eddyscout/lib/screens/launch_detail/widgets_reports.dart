@@ -215,7 +215,7 @@ class _ConditionReportTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  ' · $when',
+                  '${l10n.commonDotSeparator}$when',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),

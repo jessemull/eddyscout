@@ -112,10 +112,13 @@ final class MapboxMapController extends MapboxMapControllerBase
     }
 
     if (result is RouteFailure) {
-      mapDebugLog('plan FAILED ${put.id} -> ${take.id}: ${result.message}');
+      mapDebugLog(
+        'plan FAILED ${put.id} -> ${take.id}: '
+        '${result.code}(${result.riverSystemName ?? ''})',
+      );
       ref.read(routePlanningProvider.notifier).setRouteLengthKm(null);
       unawaited(clearRouteLine());
-      ui.showSnackBar?.call(result.message);
+      ui.showSnackBar?.call(result);
       return;
     }
 

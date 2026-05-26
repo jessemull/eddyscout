@@ -14,6 +14,27 @@ import 'package:eddyscout_conditions/src/domain/repositories/conditions_reposito
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_networking/eddyscout_networking.dart';
 
+const _weatherFallbackNoDataCode = 'weather_fallback_no_data';
+const _weatherNwsPointsFailedCode = 'weather_nws_points_failed';
+const _weatherNwsHourlyUrlMissingCode = 'weather_nws_hourly_url_missing';
+const _weatherNwsHourlyFailedCode = 'weather_nws_hourly_failed';
+const _weatherNwsHourlyParseFailedCode = 'weather_nws_hourly_parse_failed';
+const _weatherNwsErrorCode = 'weather_nws_error';
+const _tidesNoPredictionsCode = 'tides_no_predictions';
+const _tidesErrorCode = 'tides_error';
+const _marineZoneLookupFailedCode = 'marine_zone_lookup_failed';
+const _marineNoOfficeLinkedCode = 'marine_no_office_linked';
+const _marineOfficeListUnavailableCode = 'marine_office_list_unavailable';
+const _marineNoProductsForOfficeCode = 'marine_no_products_for_office';
+const _marineProductLoadFailedCode = 'marine_product_load_failed';
+const _marineProductNoTextCode = 'marine_product_no_text';
+const _marineZoneMissingInProductCode = 'marine_zone_missing_in_product';
+const _marineErrorCode = 'marine_error';
+const _riverRequestFailedCode = 'river_request_failed';
+const _riverUnexpectedResponseCode = 'river_unexpected_response';
+const _riverNoDischargeNowCode = 'river_no_discharge_now';
+const _riverErrorCode = 'river_error';
+
 /// Fetches NOAA/NWS/Open-Meteo/USGS data per launch metadata (no backend).
 class ConditionsService implements ConditionsRepository {
   /// Creates a service that uses the given HTTP client for upstream API calls.
@@ -96,10 +117,10 @@ class ConditionsService implements ConditionsRepository {
     DateTime now, {
     CancelToken? cancelToken,
   }) async {
-    Future<_WeatherResult> openMeteoOrError(String message) async {
+    Future<_WeatherResult> openMeteoOrError(String code) async {
       final w = await _openMeteoWeather(lat, lon, cancelToken: cancelToken);
       if (w != null) return _WeatherResult(w, null);
-      return _WeatherResult(null, message);
+      return _WeatherResult(null, code);
     }
 
     try {
@@ -112,39 +133,31 @@ class ConditionsService implements ConditionsRepository {
         cancelToken: cancelToken,
       );
       if (pointsJson == null) {
-        return openMeteoOrError(
-          'NWS location lookup failed; Open-Meteo had no data.',
-        );
+        return openMeteoOrError(_weatherNwsPointsFailedCode);
       }
       final hourlyUri = nwsHourlyForecastUriFromPoints(pointsJson);
       if (hourlyUri == null) {
-        return openMeteoOrError(
-          'NWS hourly URL missing; Open-Meteo had no data.',
-        );
+        return openMeteoOrError(_weatherNwsHourlyUrlMissingCode);
       }
       final hourlyJson = await _http.getNwsJson(
         hourlyUri,
         cancelToken: cancelToken,
       );
       if (hourlyJson == null) {
-        return openMeteoOrError(
-          'NWS hourly forecast failed; Open-Meteo had no data.',
-        );
+        return openMeteoOrError(_weatherNwsHourlyFailedCode);
       }
       final parsed = weatherFromNwsHourly(hourlyJson, now: now);
       if (parsed == null) {
-        return openMeteoOrError(
-          'Could not parse NWS hourly; Open-Meteo had no data.',
-        );
+        return openMeteoOrError(_weatherNwsHourlyParseFailedCode);
       }
       return _WeatherResult(parsed, null);
-    } on Exception catch (e) {
+    } on Exception catch (_) {
       try {
-        return await openMeteoOrError(
-          'NWS error ($e); Open-Meteo had no data.',
-        );
-      } on Exception catch (e2) {
-        return _WeatherResult(null, '$e2');
+        return await openMeteoOrError(_weatherNwsErrorCode);
+      } on Exception catch (_) {
+        // Preserve exception boundaries without leaking technical details
+        // to user-visible strings.
+        return _WeatherResult(null, _weatherFallbackNoDataCode);
       }
     }
   }
@@ -157,8 +170,12 @@ class ConditionsService implements ConditionsRepository {
     final uri = Uri.https('api.open-meteo.com', '/v1/forecast', {
       'latitude': lat.toStringAsFixed(5),
       'longitude': lon.toStringAsFixed(5),
-      'current':
-          'temperature_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m',
+      'current': [
+        'temperature_2m',
+        'wind_speed_10m',
+        'wind_gusts_10m',
+        'wind_direction_10m',
+      ].join(','),
       'temperature_unit': 'fahrenheit',
       'wind_speed_unit': 'mph',
     });
@@ -209,9 +226,6 @@ class ConditionsService implements ConditionsRepository {
         map,
         stationId: station,
         datumLabel: datum,
-        referenceNote: launch.tideRelevance == TideRelevance.minor
-            ? 'Pool stage lags the estuary; use as a regional cue only.'
-            : null,
       );
     }
 
@@ -220,9 +234,9 @@ class ConditionsService implements ConditionsRepository {
       if (crd != null) return _TideResult(crd, null);
       final mllw = await tryDatum('MLLW');
       if (mllw != null) return _TideResult(mllw, null);
-      return _TideResult(null, 'No tide predictions for station $station.');
-    } on Exception catch (e) {
-      return _TideResult(null, '$e');
+      return _TideResult(null, _tidesNoPredictionsCode);
+    } on Exception catch (_) {
+      return _TideResult(null, _tidesErrorCode);
     }
   }
 
@@ -247,8 +261,8 @@ class ConditionsService implements ConditionsRepository {
         if (m != null) return _MarineResult(m, null);
       }
       return _loadMarineFromCwf(zone, cancelToken: cancelToken);
-    } on Exception catch (e) {
-      return _MarineResult(null, '$e');
+    } on Exception catch (_) {
+      return _MarineResult(null, _marineErrorCode);
     }
   }
 
@@ -262,11 +276,11 @@ class ConditionsService implements ConditionsRepository {
       cancelToken: cancelToken,
     );
     if (zoneJson == null) {
-      return _MarineResult(null, 'Could not look up marine zone $zone.');
+      return _MarineResult(null, _marineZoneLookupFailedCode);
     }
     final office = nwsMarineZoneCwaOffice(zoneJson);
     if (office == null || office.isEmpty) {
-      return _MarineResult(null, 'No forecast office linked to zone $zone.');
+      return _MarineResult(null, _marineNoOfficeLinkedCode);
     }
 
     final listUri = Uri.parse(
@@ -277,14 +291,11 @@ class ConditionsService implements ConditionsRepository {
       cancelToken: cancelToken,
     );
     if (listJson == null) {
-      return _MarineResult(
-        null,
-        'Coastal waters forecast unavailable for office $office.',
-      );
+      return _MarineResult(null, _marineOfficeListUnavailableCode);
     }
     final productId = nwsLatestCwfProductId(listJson);
     if (productId == null) {
-      return _MarineResult(null, 'No CWF products for office $office.');
+      return _MarineResult(null, _marineNoProductsForOfficeCode);
     }
 
     final productUri = Uri.parse('https://api.weather.gov/products/$productId');
@@ -293,18 +304,15 @@ class ConditionsService implements ConditionsRepository {
       cancelToken: cancelToken,
     );
     if (productJson == null) {
-      return _MarineResult(null, 'Could not load forecast product.');
+      return _MarineResult(null, _marineProductLoadFailedCode);
     }
     final text = productJson['productText'];
     if (text is! String || text.isEmpty) {
-      return _MarineResult(null, 'Forecast product had no text.');
+      return _MarineResult(null, _marineProductNoTextCode);
     }
     final summary = marineSummaryFromCwfProductText(text, zone);
     if (summary == null) {
-      return _MarineResult(
-        null,
-        'Zone $zone missing from latest coastal waters forecast.',
-      );
+      return _MarineResult(null, _marineZoneMissingInProductCode);
     }
     return _MarineResult(summary, null);
   }
@@ -324,19 +332,19 @@ class ConditionsService implements ConditionsRepository {
       });
       final res = await _http.get(uri, cancelToken: cancelToken);
       if (res.statusCode < 200 || res.statusCode >= 300) {
-        return _RiverResult(null, 'USGS request failed (${res.statusCode}).');
+        return _RiverResult(null, _riverRequestFailedCode);
       }
       final map = jsonDecode(res.body);
       if (map is! Map<String, dynamic>) {
-        return _RiverResult(null, 'Unexpected USGS response.');
+        return _RiverResult(null, _riverUnexpectedResponseCode);
       }
       final reading = riverFlowFromUsgsIv(map, siteId: site);
       return _RiverResult(
         reading,
-        reading == null ? 'No discharge (cfs) at this site right now.' : null,
+        reading == null ? _riverNoDischargeNowCode : null,
       );
-    } on Exception catch (e) {
-      return _RiverResult(null, '$e');
+    } on Exception catch (_) {
+      return _RiverResult(null, _riverErrorCode);
     }
   }
 }

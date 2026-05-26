@@ -116,8 +116,12 @@ String launchDetailAttributionLines(
 ) {
   final parts = <String>[l10n.launchDetailAttributionLaunchList];
   if (s.weather != null) {
+    final weatherSource = switch (s.weather!.source) {
+      WeatherDataSource.nws => l10n.launchDetailWeatherSourceNws,
+      WeatherDataSource.openMeteo => l10n.launchDetailWeatherSourceOpenMeteo,
+    };
     parts.add(
-      l10n.launchDetailAttributionWeather(s.weather!.source.displayName),
+      l10n.launchDetailAttributionWeather(weatherSource),
     );
   }
   if (s.tides != null) {
@@ -158,11 +162,6 @@ String _formatTime(DateTime t) {
   final h = local.hour.toString().padLeft(2, '0');
   final mi = local.minute.toString().padLeft(2, '0');
   return '$y-$mo-$d $h:$mi';
-}
-
-String _formatHeight(double? ft) {
-  if (ft == null) return '—';
-  return '${ft.toStringAsFixed(2)} ft';
 }
 
 class _ErrorBody extends StatelessWidget {

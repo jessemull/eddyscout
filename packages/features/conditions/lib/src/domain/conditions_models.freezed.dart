@@ -15,7 +15,14 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$WeatherConditions {
 
- WeatherDataSource get source; int? get temperatureF; int? get windSpeedMph; int? get windGustMph; String? get windDirection; String? get shortForecast; DateTime? get periodStart;
+/// Data source used for this card.
+ WeatherDataSource get source;/// Air temperature in °F when available.
+ int? get temperatureF;/// Sustained wind in mph when available.
+ int? get windSpeedMph;/// Wind gust in mph when available.
+ int? get windGustMph;/// Compass or cardinal wind direction label.
+ String? get windDirection;/// Short NWS phrase or Open-Meteo summary line.
+ String? get shortForecast;/// Start of the forecast period used for wind (local time).
+ DateTime? get periodStart;
 /// Create a copy of WeatherConditions
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -218,12 +225,19 @@ class _WeatherConditions implements WeatherConditions {
   const _WeatherConditions({required this.source, this.temperatureF, this.windSpeedMph, this.windGustMph, this.windDirection, this.shortForecast, this.periodStart});
   factory _WeatherConditions.fromJson(Map<String, dynamic> json) => _$WeatherConditionsFromJson(json);
 
+/// Data source used for this card.
 @override final  WeatherDataSource source;
+/// Air temperature in °F when available.
 @override final  int? temperatureF;
+/// Sustained wind in mph when available.
 @override final  int? windSpeedMph;
+/// Wind gust in mph when available.
 @override final  int? windGustMph;
+/// Compass or cardinal wind direction label.
 @override final  String? windDirection;
+/// Short NWS phrase or Open-Meteo summary line.
 @override final  String? shortForecast;
+/// Start of the forecast period used for wind (local time).
 @override final  DateTime? periodStart;
 
 /// Create a copy of WeatherConditions
@@ -296,7 +310,10 @@ as DateTime?,
 /// @nodoc
 mixin _$TideEvent {
 
- String get type; DateTime get time; double? get heightFt;
+/// NOAA event type (e.g. H, L).
+ String get type;/// Local or station time for the event.
+ DateTime get time;/// Predicted height in feet when present.
+ double? get heightFt;
 /// Create a copy of TideEvent
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -495,8 +512,11 @@ class _TideEvent implements TideEvent {
   const _TideEvent({required this.type, required this.time, this.heightFt});
   factory _TideEvent.fromJson(Map<String, dynamic> json) => _$TideEventFromJson(json);
 
+/// NOAA event type (e.g. H, L).
 @override final  String type;
+/// Local or station time for the event.
 @override final  DateTime time;
+/// Predicted height in feet when present.
 @override final  double? heightFt;
 
 /// Create a copy of TideEvent
@@ -565,7 +585,11 @@ as double?,
 /// @nodoc
 mixin _$TideSummary {
 
- String get stationId; String get datumLabel; List<TideEvent> get events; String? get referenceNote;
+/// NOAA station identifier.
+ String get stationId;/// Datum label (e.g. CRD, MLLW).
+ String get datumLabel;/// Upcoming high/low events in the fetch window.
+ List<TideEvent> get events;/// Optional caveat for pool / lagged stage launches.
+ String? get referenceNote;
 /// Create a copy of TideSummary
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -765,15 +789,20 @@ class _TideSummary implements TideSummary {
   const _TideSummary({required this.stationId, required this.datumLabel, required final  List<TideEvent> events, this.referenceNote}): _events = events;
   factory _TideSummary.fromJson(Map<String, dynamic> json) => _$TideSummaryFromJson(json);
 
+/// NOAA station identifier.
 @override final  String stationId;
+/// Datum label (e.g. CRD, MLLW).
 @override final  String datumLabel;
+/// Upcoming high/low events in the fetch window.
  final  List<TideEvent> _events;
+/// Upcoming high/low events in the fetch window.
 @override List<TideEvent> get events {
   if (_events is EqualUnmodifiableListView) return _events;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_events);
 }
 
+/// Optional caveat for pool / lagged stage launches.
 @override final  String? referenceNote;
 
 /// Create a copy of TideSummary
@@ -843,7 +872,9 @@ as String?,
 /// @nodoc
 mixin _$MarinePeriod {
 
- String get name; String get detailedForecast;
+/// Period name from NWS JSON or CWF section title.
+ String get name;/// Full text used for keyword go/no-go scanning.
+ String get detailedForecast;
 /// Create a copy of MarinePeriod
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1041,7 +1072,9 @@ class _MarinePeriod implements MarinePeriod {
   const _MarinePeriod({required this.name, required this.detailedForecast});
   factory _MarinePeriod.fromJson(Map<String, dynamic> json) => _$MarinePeriodFromJson(json);
 
+/// Period name from NWS JSON or CWF section title.
 @override final  String name;
+/// Full text used for keyword go/no-go scanning.
 @override final  String detailedForecast;
 
 /// Create a copy of MarinePeriod
@@ -1109,7 +1142,9 @@ as String,
 /// @nodoc
 mixin _$MarineSummary {
 
- String get zoneId; List<MarinePeriod> get periods;
+/// NWS marine zone id (e.g. PZZ210).
+ String get zoneId;/// One or more forecast periods for display and rules.
+ List<MarinePeriod> get periods;
 /// Create a copy of MarineSummary
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1307,8 +1342,11 @@ class _MarineSummary implements MarineSummary {
   const _MarineSummary({required this.zoneId, required final  List<MarinePeriod> periods}): _periods = periods;
   factory _MarineSummary.fromJson(Map<String, dynamic> json) => _$MarineSummaryFromJson(json);
 
+/// NWS marine zone id (e.g. PZZ210).
 @override final  String zoneId;
+/// One or more forecast periods for display and rules.
  final  List<MarinePeriod> _periods;
+/// One or more forecast periods for display and rules.
 @override List<MarinePeriod> get periods {
   if (_periods is EqualUnmodifiableListView) return _periods;
   // ignore: implicit_dynamic_type
@@ -1381,7 +1419,10 @@ as List<MarinePeriod>,
 /// @nodoc
 mixin _$RiverFlowReading {
 
- String get siteId; double get cfs; DateTime get observedAt;
+/// USGS site id (parameter 00060).
+ String get siteId;/// Discharge in cubic feet per second.
+ double get cfs;/// Observation timestamp from USGS IV JSON.
+ DateTime get observedAt;
 /// Create a copy of RiverFlowReading
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1580,8 +1621,11 @@ class _RiverFlowReading implements RiverFlowReading {
   const _RiverFlowReading({required this.siteId, required this.cfs, required this.observedAt});
   factory _RiverFlowReading.fromJson(Map<String, dynamic> json) => _$RiverFlowReadingFromJson(json);
 
+/// USGS site id (parameter 00060).
 @override final  String siteId;
+/// Discharge in cubic feet per second.
 @override final  double cfs;
+/// Observation timestamp from USGS IV JSON.
 @override final  DateTime observedAt;
 
 /// Create a copy of RiverFlowReading
@@ -1650,7 +1694,16 @@ as DateTime,
 /// @nodoc
 mixin _$ConditionsSnapshot {
 
- DateTime get fetchedAt; WeatherConditions? get weather; String? get weatherError; TideSummary? get tides; String? get tideError; MarineSummary? get marine; String? get marineError; RiverFlowReading? get riverFlow; String? get riverError;
+/// When this snapshot was assembled on device.
+ DateTime get fetchedAt;/// Parsed weather, if the weather pipeline succeeded.
+ WeatherConditions? get weather;/// User-facing weather error when [weather] is null.
+ String? get weatherError;/// Parsed tides when the launch uses a NOAA station.
+ TideSummary? get tides;/// User-facing tide error when tides were expected but failed.
+ String? get tideError;/// Parsed marine summary when a marine zone is configured.
+ MarineSummary? get marine;/// User-facing marine error when a zone was configured but failed.
+ String? get marineError;/// Parsed USGS discharge when a site id is configured.
+ RiverFlowReading? get riverFlow;/// User-facing river error when USGS was expected but failed.
+ String? get riverError;
 /// Create a copy of ConditionsSnapshot
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1903,14 +1956,23 @@ class _ConditionsSnapshot implements ConditionsSnapshot {
   const _ConditionsSnapshot({required this.fetchedAt, this.weather, this.weatherError, this.tides, this.tideError, this.marine, this.marineError, this.riverFlow, this.riverError});
   factory _ConditionsSnapshot.fromJson(Map<String, dynamic> json) => _$ConditionsSnapshotFromJson(json);
 
+/// When this snapshot was assembled on device.
 @override final  DateTime fetchedAt;
+/// Parsed weather, if the weather pipeline succeeded.
 @override final  WeatherConditions? weather;
+/// User-facing weather error when [weather] is null.
 @override final  String? weatherError;
+/// Parsed tides when the launch uses a NOAA station.
 @override final  TideSummary? tides;
+/// User-facing tide error when tides were expected but failed.
 @override final  String? tideError;
+/// Parsed marine summary when a marine zone is configured.
 @override final  MarineSummary? marine;
+/// User-facing marine error when a zone was configured but failed.
 @override final  String? marineError;
+/// Parsed USGS discharge when a site id is configured.
 @override final  RiverFlowReading? riverFlow;
+/// User-facing river error when USGS was expected but failed.
 @override final  String? riverError;
 
 /// Create a copy of ConditionsSnapshot

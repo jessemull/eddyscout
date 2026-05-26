@@ -80,26 +80,26 @@ class RiverLineGraph {
     double maxSnapMeters = 900,
   }) {
     if (_lat.isEmpty) {
-      return const RouteFailure('No river geometry loaded.');
+      return const RouteFailure(code: RouteFailureCode.noRiverGeometryLoaded);
     }
 
     final startIdx = _nearestVertexWithin(startLat, startLon, maxSnapMeters);
     final endIdx = _nearestVertexWithin(endLat, endLon, maxSnapMeters);
     if (startIdx == null) {
       return const RouteFailure(
-        'Put-in is too far from the modeled river line. Try another launch.',
+        code: RouteFailureCode.putInTooFar,
       );
     }
     if (endIdx == null) {
       return const RouteFailure(
-        'Take-out is too far from the modeled river line. Try another launch.',
+        code: RouteFailureCode.takeOutTooFar,
       );
     }
 
     final path = _dijkstra(startIdx, endIdx);
     if (path == null) {
       return const RouteFailure(
-        'No connected river path between these points in the current data.',
+        code: RouteFailureCode.noConnectedPath,
       );
     }
 

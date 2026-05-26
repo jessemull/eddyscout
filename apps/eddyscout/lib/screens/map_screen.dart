@@ -8,6 +8,7 @@ import 'package:eddyscout/screens/map/mapbox_map_controller.dart';
 import 'package:eddyscout/screens/map_planning_provider.dart';
 import 'package:eddyscout/screens/map_session_provider.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -48,10 +49,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               if (!context.mounted) {
                 return;
               }
-              final localized = _localizedMapSnackBarMessage(
-                l10n: l10n,
-                raw: message,
-              );
+              final localized = switch (message) {
+                RouteFailure(:final code, :final riverSystemName) =>
+                  _localizedRouteFailure(
+                    l10n: l10n,
+                    code: code,
+                    riverSystemName: riverSystemName,
+                  ),
+                String() => message,
+                _ => l10n.launchDetailUnavailable,
+              };
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(localized)));
@@ -68,39 +75,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         );
   }
 
-  String _localizedMapSnackBarMessage({
+  String _localizedRouteFailure({
     required AppLocalizations l10n,
-    required String raw,
-  }) {
-    if (raw == 'Choose two different launches.') {
-      return l10n.mapRouteFailureSameLaunch;
-    }
-    if (raw ==
-        'Pick two launches on the same river system for river routing.') {
-      return l10n.mapRouteFailureDifferentSystem;
-    }
-    const noBundledPrefix = 'No bundled river line for "';
-    if (raw.startsWith(noBundledPrefix)) {
-      const start = noBundledPrefix.length;
-      final end = raw.indexOf('"', start);
-      final river = end != -1 ? raw.substring(start, end) : '';
-      return l10n.mapRouteFailureNoBundledLine(river);
-    }
-    if (raw ==
-        'Put-in is too far from the modeled river line. Try another launch.') {
-      return l10n.mapRouteFailurePutInTooFar;
-    }
-    if (raw ==
-        'Take-out is too far from the modeled river line. '
-            'Try another launch.') {
-      return l10n.mapRouteFailureTakeOutTooFar;
-    }
-    if (raw ==
-        'No connected river path between these points in the current data.') {
-      return l10n.mapRouteFailureNoConnectedPath;
-    }
-    return raw;
-  }
+    required RouteFailureCode code,
+    required String? riverSystemName,
+  }) => switch (code) {
+    RouteFailureCode.sameLaunch => l10n.mapRouteFailureSameLaunch,
+    RouteFailureCode.differentSystem => l10n.mapRouteFailureDifferentSystem,
+    RouteFailureCode.noBundledLine => l10n.mapRouteFailureNoBundledLine(
+      riverSystemName ?? '',
+    ),
+    RouteFailureCode.noRiverGeometryLoaded => l10n.mapRouteFailureNoData,
+    RouteFailureCode.putInTooFar => l10n.mapRouteFailurePutInTooFar,
+    RouteFailureCode.takeOutTooFar => l10n.mapRouteFailureTakeOutTooFar,
+    RouteFailureCode.noConnectedPath => l10n.mapRouteFailureNoConnectedPath,
+  };
 
   @override
   Widget build(BuildContext context) {

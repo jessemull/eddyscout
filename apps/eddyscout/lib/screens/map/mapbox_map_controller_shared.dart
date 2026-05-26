@@ -5,7 +5,11 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 /// Shared map session state for map controller mixins.
 abstract class MapboxMapControllerBase extends AutoDisposeNotifier<void> {
-  MapUiCallbacks _ui = const MapUiCallbacks();
+  // Initialized with empty strings; the MapScreen binds localized values.
+  MapUiCallbacks _ui = const MapUiCallbacks(
+    pickDifferentTakeOutMessage: '',
+    riverDataLoadingMessage: '',
+  );
 
   /// Snackbar and navigation hooks from the map screen (set after first frame).
   // ignore: use_setters_to_change_properties -- setter triggers conflicting lints.

@@ -3,13 +3,16 @@ import 'package:eddyscout_map/eddyscout_map.dart';
 /// UI actions the map controller cannot perform without widget context.
 class MapUiCallbacks {
   const MapUiCallbacks({
+    required this.pickDifferentTakeOutMessage,
+    required this.riverDataLoadingMessage,
     this.showSnackBar,
     this.openLaunchDetail,
-    this.pickDifferentTakeOutMessage = 'Pick a different launch for take-out.',
-    this.riverDataLoadingMessage = 'Still loading river data… try again.',
   });
 
-  final void Function(String message)? showSnackBar;
+  /// Either a localized `String` or a typed domain object
+  /// (e.g. `RouteFailure`).
+  /// Widgets should localize domain objects via `AppLocalizations`.
+  final void Function(Object message)? showSnackBar;
   final void Function(LaunchPoint launch)? openLaunchDetail;
 
   /// Localized snack bar when take-out equals put-in.

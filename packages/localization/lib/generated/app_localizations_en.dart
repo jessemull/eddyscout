@@ -51,6 +51,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get mapRouteFailureNoData => 'River route data is not available yet.';
+
+  @override
   String get mapRouteFailurePutInTooFar =>
       'Put-in is too far from the modeled river line. Try another launch.';
 
@@ -94,6 +97,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapPlanningDoneLabel => 'Done';
 
   @override
+  String get commonDash => '—';
+
+  @override
+  String get commonBullet => '•';
+
+  @override
+  String get commonDotSeparator => ' · ';
+
+  @override
   String get launchDetailConditionsErrorNetwork =>
       'Could not load conditions. Check your connection and try again.';
 
@@ -103,6 +115,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchDetailSkillSectionTitle => 'Skill (wind thresholds)';
+
+  @override
+  String launchDetailWindExposureSemantics(String label) {
+    return 'Wind exposure $label';
+  }
+
+  @override
+  String launchDetailRiverSemantics(String river) {
+    return 'River $river';
+  }
+
+  @override
+  String launchDetailTideRelevanceSemantics(String label) {
+    return 'Tide $label';
+  }
 
   @override
   String get launchDetailSkillBeginner => 'Beginner';
@@ -293,7 +320,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get launchDetailRiverFlowTitle => 'River flow (USGS)';
 
   @override
+  String launchDetailRiverFlowSubtitle(String cfs, String time) {
+    return '$cfs cfs · $time';
+  }
+
+  @override
   String get launchDetailTidesTitle => 'Tides';
+
+  @override
+  String launchDetailFeetValue(String feet) {
+    return '$feet ft';
+  }
+
+  @override
+  String launchDetailTideEventLine(String type, String height, String time) {
+    return '$type $height · $time';
+  }
 
   @override
   String get launchDetailNoTideData => 'No tide data';
@@ -311,6 +353,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchDetailWeatherSourceOpenMeteoBackup => 'Open-Meteo (backup)';
+
+  @override
+  String get launchDetailWeatherSourceOpenMeteo => 'Open-Meteo';
 
   @override
   String get launchDetailWeatherSourceNws => 'National Weather Service';

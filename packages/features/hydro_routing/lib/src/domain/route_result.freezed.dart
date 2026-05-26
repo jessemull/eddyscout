@@ -119,11 +119,11 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<List<double>> polylineLonLat,  double lengthMeters)?  success,TResult Function( String message)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<List<double>> polylineLonLat,  double lengthMeters)?  success,TResult Function( RouteFailureCode code,  String? riverSystemName)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case RouteSuccess() when success != null:
 return success(_that.polylineLonLat,_that.lengthMeters);case RouteFailure() when failure != null:
-return failure(_that.message);case _:
+return failure(_that.code,_that.riverSystemName);case _:
   return orElse();
 
 }
@@ -141,11 +141,11 @@ return failure(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<List<double>> polylineLonLat,  double lengthMeters)  success,required TResult Function( String message)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<List<double>> polylineLonLat,  double lengthMeters)  success,required TResult Function( RouteFailureCode code,  String? riverSystemName)  failure,}) {final _that = this;
 switch (_that) {
 case RouteSuccess():
 return success(_that.polylineLonLat,_that.lengthMeters);case RouteFailure():
-return failure(_that.message);}
+return failure(_that.code,_that.riverSystemName);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -159,11 +159,11 @@ return failure(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<List<double>> polylineLonLat,  double lengthMeters)?  success,TResult? Function( String message)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<List<double>> polylineLonLat,  double lengthMeters)?  success,TResult? Function( RouteFailureCode code,  String? riverSystemName)?  failure,}) {final _that = this;
 switch (_that) {
 case RouteSuccess() when success != null:
 return success(_that.polylineLonLat,_that.lengthMeters);case RouteFailure() when failure != null:
-return failure(_that.message);case _:
+return failure(_that.code,_that.riverSystemName);case _:
   return null;
 
 }
@@ -255,10 +255,12 @@ as double,
 
 
 class RouteFailure extends RouteResult {
-  const RouteFailure(this.message): super._();
+  const RouteFailure({required this.code, this.riverSystemName}): super._();
   
 
- final  String message;
+ final  RouteFailureCode code;
+/// River system name (for messaging like: no bundled line).
+ final  String? riverSystemName;
 
 /// Create a copy of RouteResult
 /// with the given fields replaced by the non-null parameter values.
@@ -270,16 +272,16 @@ $RouteFailureCopyWith<RouteFailure> get copyWith => _$RouteFailureCopyWithImpl<R
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteFailure&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteFailure&&(identical(other.code, code) || other.code == code)&&(identical(other.riverSystemName, riverSystemName) || other.riverSystemName == riverSystemName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,code,riverSystemName);
 
 @override
 String toString() {
-  return 'RouteResult.failure(message: $message)';
+  return 'RouteResult.failure(code: $code, riverSystemName: $riverSystemName)';
 }
 
 
@@ -290,7 +292,7 @@ abstract mixin class $RouteFailureCopyWith<$Res> implements $RouteResultCopyWith
   factory $RouteFailureCopyWith(RouteFailure value, $Res Function(RouteFailure) _then) = _$RouteFailureCopyWithImpl;
 @useResult
 $Res call({
- String message
+ RouteFailureCode code, String? riverSystemName
 });
 
 
@@ -307,10 +309,11 @@ class _$RouteFailureCopyWithImpl<$Res>
 
 /// Create a copy of RouteResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? code = null,Object? riverSystemName = freezed,}) {
   return _then(RouteFailure(
-null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as RouteFailureCode,riverSystemName: freezed == riverSystemName ? _self.riverSystemName : riverSystemName // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

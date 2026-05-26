@@ -1,5 +1,37 @@
 part of '../launch_detail_screen.dart';
 
+String _localizedConditionsError(AppLocalizations l10n, String code) =>
+    switch (code) {
+      // Weather
+      'weather_fallback_no_data' ||
+      'weather_nws_points_failed' ||
+      'weather_nws_hourly_url_missing' ||
+      'weather_nws_hourly_failed' ||
+      'weather_nws_hourly_parse_failed' ||
+      'weather_nws_error' => l10n.launchDetailUnavailable,
+
+      // Tides
+      'tides_no_predictions' || 'tides_error' => l10n.launchDetailNoTideData,
+
+      // Marine
+      'marine_zone_lookup_failed' ||
+      'marine_no_office_linked' ||
+      'marine_office_list_unavailable' ||
+      'marine_no_products_for_office' ||
+      'marine_product_load_failed' ||
+      'marine_product_no_text' ||
+      'marine_zone_missing_in_product' ||
+      'marine_error' => l10n.launchDetailNoMarineForecast,
+
+      // River
+      'river_request_failed' ||
+      'river_unexpected_response' ||
+      'river_error' => l10n.launchDetailRiverFlowNoData,
+      'river_no_discharge_now' => l10n.launchDetailRiverFlowNoData,
+
+      _ => l10n.launchDetailUnavailable,
+    };
+
 class _AiSummaryCard extends ConsumerWidget {
   const _AiSummaryCard({
     required this.launch,
@@ -166,7 +198,13 @@ class _GoNoGoCard extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('• ', style: TextStyle(color: onBg)),
+                      Text(
+                        l10n.commonBullet,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: onBg),
+                      ),
+                      const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           r.message,
@@ -217,7 +255,11 @@ class _WeatherCard extends StatelessWidget {
       return Card(
         child: ListTile(
           title: Text(l10n.launchDetailWeatherTitle),
-          subtitle: Text(err ?? l10n.launchDetailUnavailable),
+          subtitle: Text(
+            err == null
+                ? l10n.launchDetailUnavailable
+                : _localizedConditionsError(l10n, err),
+          ),
         ),
       );
     }
@@ -290,8 +332,13 @@ class _RiverCard extends StatelessWidget {
         title: Text(l10n.launchDetailRiverFlowTitle),
         subtitle: Text(
           r != null
-              ? '${_formatCfs(r.cfs)} cfs · ${_formatTime(r.observedAt)}'
-              : (err ?? l10n.launchDetailRiverFlowNoData),
+              ? l10n.launchDetailRiverFlowSubtitle(
+                  _formatCfs(r.cfs),
+                  _formatTime(r.observedAt),
+                )
+              : (err == null
+                    ? l10n.launchDetailRiverFlowNoData
+                    : _localizedConditionsError(l10n, err)),
         ),
       ),
     );
@@ -339,7 +386,11 @@ class _TideCard extends StatelessWidget {
             ],
             const SizedBox(height: 8),
             if (t == null)
-              Text(err ?? l10n.launchDetailNoTideData)
+              Text(
+                err == null
+                    ? l10n.launchDetailNoTideData
+                    : _localizedConditionsError(l10n, err),
+              )
             else
               ...t.events
                   .take(6)
@@ -347,8 +398,15 @@ class _TideCard extends StatelessWidget {
                     (e) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
-                        '${e.type} ${_formatHeight(e.heightFt)} · '
-                        '${_formatTime(e.time)}',
+                        l10n.launchDetailTideEventLine(
+                          e.type,
+                          e.heightFt == null
+                              ? l10n.commonDash
+                              : l10n.launchDetailFeetValue(
+                                  e.heightFt!.toStringAsFixed(2),
+                                ),
+                          _formatTime(e.time),
+                        ),
                       ),
                     ),
                   ),
@@ -374,7 +432,11 @@ class _MarineCard extends StatelessWidget {
       return Card(
         child: ListTile(
           title: Text(l10n.launchDetailMarineTitle(zoneId)),
-          subtitle: Text(err ?? l10n.launchDetailNoMarineForecast),
+          subtitle: Text(
+            err == null
+                ? l10n.launchDetailNoMarineForecast
+                : _localizedConditionsError(l10n, err),
+          ),
         ),
       );
     }

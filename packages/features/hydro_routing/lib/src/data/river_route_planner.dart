@@ -40,19 +40,17 @@ class RiverRoutePlanner {
   /// Plans a river-line path between [putIn] and [takeOut] on the same system.
   RouteResult plan(LaunchPoint putIn, LaunchPoint takeOut) {
     if (putIn.id == takeOut.id) {
-      return const RouteFailure('Choose two different launches.');
+      return const RouteFailure(code: RouteFailureCode.sameLaunch);
     }
     if (putIn.riverSystem != takeOut.riverSystem) {
-      return const RouteFailure(
-        'Pick two launches on the same river system for river routing.',
-      );
+      return const RouteFailure(code: RouteFailureCode.differentSystem);
     }
     final key = putIn.riverSystem.name;
     final graph = _graphsByRiver[key];
     if (graph == null) {
       return RouteFailure(
-        'No bundled river line for "${putIn.riverSystem.name}" yet — '
-        'routing is only available where hydro GeoJSON exists.',
+        code: RouteFailureCode.noBundledLine,
+        riverSystemName: putIn.riverSystem.name,
       );
     }
     return graph.route(

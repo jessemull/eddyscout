@@ -16,13 +16,13 @@ _LaunchSummary _$LaunchSummaryFromJson(Map<String, dynamic> json) =>
       riverSystem: $enumDecode(_$RiverSystemEnumMap, json['riverSystem']),
       windExposure: $enumDecode(_$WindExposureEnumMap, json['windExposure']),
       tideRelevance: $enumDecode(_$TideRelevanceEnumMap, json['tideRelevance']),
+      skillProfile: $enumDecode(_$GoNoGoProfileEnumMap, json['skillProfile']),
       noaaTideStationId: json['noaaTideStationId'] as String?,
       marineZoneId: json['marineZoneId'] as String?,
       usgsSiteId: json['usgsSiteId'] as String?,
       flowBands: json['flowBands'] == null
           ? null
           : LaunchFlowBands.fromJson(json['flowBands'] as Map<String, dynamic>),
-      skillProfile: $enumDecode(_$GoNoGoProfileEnumMap, json['skillProfile']),
     );
 
 Map<String, dynamic> _$LaunchSummaryToJson(_LaunchSummary instance) =>
@@ -35,11 +35,11 @@ Map<String, dynamic> _$LaunchSummaryToJson(_LaunchSummary instance) =>
       'riverSystem': _$RiverSystemEnumMap[instance.riverSystem]!,
       'windExposure': _$WindExposureEnumMap[instance.windExposure]!,
       'tideRelevance': _$TideRelevanceEnumMap[instance.tideRelevance]!,
+      'skillProfile': _$GoNoGoProfileEnumMap[instance.skillProfile]!,
       'noaaTideStationId': instance.noaaTideStationId,
       'marineZoneId': instance.marineZoneId,
       'usgsSiteId': instance.usgsSiteId,
       'flowBands': instance.flowBands?.toJson(),
-      'skillProfile': _$GoNoGoProfileEnumMap[instance.skillProfile]!,
     };
 
 const _$RiverSystemEnumMap = {

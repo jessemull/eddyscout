@@ -164,8 +164,8 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 | Router assembly | `packages/routing/` | Scaffold only; live router in `apps/eddyscout/lib/routing/` |
 | Auth redirects | Session/login guards when needed | Mapbox token + web platform redirects only |
 | Tab / shell nav | `StatefulShellRoute` when multi-tab | Single-stack typed routes |
-| Golden tests | Design system + stable layouts | `golden_toolkit` in app dev_deps; no golden test files yet |
-| Integration tests | Critical journeys in `integration_test/` | No `integration_test/` directory yet |
+| Golden tests | Design system + stable layouts | Design system golden tests exist (e.g. `packages/design_system/test/goldens/app_theme_golden_test.dart`) |
+| Integration tests | Critical journeys in `integration_test/` | Starter integration test exists at `apps/eddyscout/integration_test/app_navigation_test.dart` |
 | Secure storage | `flutter_secure_storage` for secrets | Not in pubspecs; `persistence` uses SharedPreferences for non-sensitive prefs |
 | Remote images | Sized + cached network images | No `CachedNetworkImage` usage yet |
 

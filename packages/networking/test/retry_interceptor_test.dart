@@ -4,6 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('EddyScoutRetryInterceptor', () {
+    test('parseRetryAfter supports seconds', () {
+      final d = EddyScoutRetryInterceptor.parseRetryAfter(
+        value: '5',
+        now: DateTime(2026),
+      );
+      expect(d, const Duration(seconds: 5));
+    });
+
     test('retries once on connection error then succeeds', () async {
       var calls = 0;
       final dio = Dio(BaseOptions(baseUrl: 'https://example.test'));
@@ -39,6 +47,35 @@ void main() {
       expect(response.statusCode, 200);
       expect(response.data?['ok'], isTrue);
       expect(calls, 2);
+    });
+
+    test('cancellation during backoff prevents retry', () async {
+      var calls = 0;
+      final dio = Dio(BaseOptions(baseUrl: 'https://example.test'));
+      dio.interceptors.add(
+        EddyScoutRetryInterceptor(
+          dio: dio,
+          maxRetries: 2,
+          baseDelay: const Duration(milliseconds: 200),
+        ),
+      );
+      dio.httpClientAdapter = _FlakyAdapter(
+        onFetch: () {
+          calls++;
+          throw DioException(
+            requestOptions: RequestOptions(path: '/data'),
+            type: DioExceptionType.connectionError,
+          );
+        },
+      );
+
+      final cancelToken = CancelToken();
+      final future = dio.get<void>('/data', cancelToken: cancelToken);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      cancelToken.cancel('cancel during backoff');
+
+      await expectLater(future, throwsA(isA<DioException>()));
+      expect(calls, 1);
     });
   });
 

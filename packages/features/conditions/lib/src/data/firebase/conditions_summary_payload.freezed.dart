@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LaunchSummary {
 
- String get id; String get name; double get latitude; double get longitude; String get shortNote; RiverSystem get riverSystem; WindExposure get windExposure; TideRelevance get tideRelevance; String? get noaaTideStationId; String? get marineZoneId; String? get usgsSiteId; LaunchFlowBands? get flowBands; GoNoGoProfile get skillProfile;
+ String get id; String get name; double get latitude; double get longitude; String get shortNote; RiverSystem get riverSystem; WindExposure get windExposure; TideRelevance get tideRelevance; GoNoGoProfile get skillProfile; String? get noaaTideStationId; String? get marineZoneId; String? get usgsSiteId; LaunchFlowBands? get flowBands;
 /// Create a copy of LaunchSummary
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $LaunchSummaryCopyWith<LaunchSummary> get copyWith => _$LaunchSummaryCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LaunchSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.shortNote, shortNote) || other.shortNote == shortNote)&&(identical(other.riverSystem, riverSystem) || other.riverSystem == riverSystem)&&(identical(other.windExposure, windExposure) || other.windExposure == windExposure)&&(identical(other.tideRelevance, tideRelevance) || other.tideRelevance == tideRelevance)&&(identical(other.noaaTideStationId, noaaTideStationId) || other.noaaTideStationId == noaaTideStationId)&&(identical(other.marineZoneId, marineZoneId) || other.marineZoneId == marineZoneId)&&(identical(other.usgsSiteId, usgsSiteId) || other.usgsSiteId == usgsSiteId)&&(identical(other.flowBands, flowBands) || other.flowBands == flowBands)&&(identical(other.skillProfile, skillProfile) || other.skillProfile == skillProfile));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LaunchSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.shortNote, shortNote) || other.shortNote == shortNote)&&(identical(other.riverSystem, riverSystem) || other.riverSystem == riverSystem)&&(identical(other.windExposure, windExposure) || other.windExposure == windExposure)&&(identical(other.tideRelevance, tideRelevance) || other.tideRelevance == tideRelevance)&&(identical(other.skillProfile, skillProfile) || other.skillProfile == skillProfile)&&(identical(other.noaaTideStationId, noaaTideStationId) || other.noaaTideStationId == noaaTideStationId)&&(identical(other.marineZoneId, marineZoneId) || other.marineZoneId == marineZoneId)&&(identical(other.usgsSiteId, usgsSiteId) || other.usgsSiteId == usgsSiteId)&&(identical(other.flowBands, flowBands) || other.flowBands == flowBands));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,latitude,longitude,shortNote,riverSystem,windExposure,tideRelevance,noaaTideStationId,marineZoneId,usgsSiteId,flowBands,skillProfile);
+int get hashCode => Object.hash(runtimeType,id,name,latitude,longitude,shortNote,riverSystem,windExposure,tideRelevance,skillProfile,noaaTideStationId,marineZoneId,usgsSiteId,flowBands);
 
 @override
 String toString() {
-  return 'LaunchSummary(id: $id, name: $name, latitude: $latitude, longitude: $longitude, shortNote: $shortNote, riverSystem: $riverSystem, windExposure: $windExposure, tideRelevance: $tideRelevance, noaaTideStationId: $noaaTideStationId, marineZoneId: $marineZoneId, usgsSiteId: $usgsSiteId, flowBands: $flowBands, skillProfile: $skillProfile)';
+  return 'LaunchSummary(id: $id, name: $name, latitude: $latitude, longitude: $longitude, shortNote: $shortNote, riverSystem: $riverSystem, windExposure: $windExposure, tideRelevance: $tideRelevance, skillProfile: $skillProfile, noaaTideStationId: $noaaTideStationId, marineZoneId: $marineZoneId, usgsSiteId: $usgsSiteId, flowBands: $flowBands)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $LaunchSummaryCopyWith<$Res>  {
   factory $LaunchSummaryCopyWith(LaunchSummary value, $Res Function(LaunchSummary) _then) = _$LaunchSummaryCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, double latitude, double longitude, String shortNote, RiverSystem riverSystem, WindExposure windExposure, TideRelevance tideRelevance, String? noaaTideStationId, String? marineZoneId, String? usgsSiteId, LaunchFlowBands? flowBands, GoNoGoProfile skillProfile
+ String id, String name, double latitude, double longitude, String shortNote, RiverSystem riverSystem, WindExposure windExposure, TideRelevance tideRelevance, GoNoGoProfile skillProfile, String? noaaTideStationId, String? marineZoneId, String? usgsSiteId, LaunchFlowBands? flowBands
 });
 
 
@@ -65,7 +65,7 @@ class _$LaunchSummaryCopyWithImpl<$Res>
 
 /// Create a copy of LaunchSummary
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? latitude = null,Object? longitude = null,Object? shortNote = null,Object? riverSystem = null,Object? windExposure = null,Object? tideRelevance = null,Object? noaaTideStationId = freezed,Object? marineZoneId = freezed,Object? usgsSiteId = freezed,Object? flowBands = freezed,Object? skillProfile = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? latitude = null,Object? longitude = null,Object? shortNote = null,Object? riverSystem = null,Object? windExposure = null,Object? tideRelevance = null,Object? skillProfile = null,Object? noaaTideStationId = freezed,Object? marineZoneId = freezed,Object? usgsSiteId = freezed,Object? flowBands = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -75,12 +75,12 @@ as double,shortNote: null == shortNote ? _self.shortNote : shortNote // ignore: 
 as String,riverSystem: null == riverSystem ? _self.riverSystem : riverSystem // ignore: cast_nullable_to_non_nullable
 as RiverSystem,windExposure: null == windExposure ? _self.windExposure : windExposure // ignore: cast_nullable_to_non_nullable
 as WindExposure,tideRelevance: null == tideRelevance ? _self.tideRelevance : tideRelevance // ignore: cast_nullable_to_non_nullable
-as TideRelevance,noaaTideStationId: freezed == noaaTideStationId ? _self.noaaTideStationId : noaaTideStationId // ignore: cast_nullable_to_non_nullable
+as TideRelevance,skillProfile: null == skillProfile ? _self.skillProfile : skillProfile // ignore: cast_nullable_to_non_nullable
+as GoNoGoProfile,noaaTideStationId: freezed == noaaTideStationId ? _self.noaaTideStationId : noaaTideStationId // ignore: cast_nullable_to_non_nullable
 as String?,marineZoneId: freezed == marineZoneId ? _self.marineZoneId : marineZoneId // ignore: cast_nullable_to_non_nullable
 as String?,usgsSiteId: freezed == usgsSiteId ? _self.usgsSiteId : usgsSiteId // ignore: cast_nullable_to_non_nullable
 as String?,flowBands: freezed == flowBands ? _self.flowBands : flowBands // ignore: cast_nullable_to_non_nullable
-as LaunchFlowBands?,skillProfile: null == skillProfile ? _self.skillProfile : skillProfile // ignore: cast_nullable_to_non_nullable
-as GoNoGoProfile,
+as LaunchFlowBands?,
   ));
 }
 /// Create a copy of LaunchSummary
@@ -177,10 +177,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands,  GoNoGoProfile skillProfile)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  GoNoGoProfile skillProfile,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LaunchSummary() when $default != null:
-return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands,_that.skillProfile);case _:
+return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.skillProfile,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands);case _:
   return orElse();
 
 }
@@ -198,10 +198,10 @@ return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNo
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands,  GoNoGoProfile skillProfile)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  GoNoGoProfile skillProfile,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands)  $default,) {final _that = this;
 switch (_that) {
 case _LaunchSummary():
-return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands,_that.skillProfile);case _:
+return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.skillProfile,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -218,10 +218,10 @@ return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNo
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands,  GoNoGoProfile skillProfile)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  GoNoGoProfile skillProfile,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands)?  $default,) {final _that = this;
 switch (_that) {
 case _LaunchSummary() when $default != null:
-return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands,_that.skillProfile);case _:
+return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.skillProfile,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands);case _:
   return null;
 
 }
@@ -233,7 +233,7 @@ return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNo
 @JsonSerializable()
 
 class _LaunchSummary implements LaunchSummary {
-  const _LaunchSummary({required this.id, required this.name, required this.latitude, required this.longitude, required this.shortNote, required this.riverSystem, required this.windExposure, required this.tideRelevance, this.noaaTideStationId, this.marineZoneId, this.usgsSiteId, this.flowBands, required this.skillProfile});
+  const _LaunchSummary({required this.id, required this.name, required this.latitude, required this.longitude, required this.shortNote, required this.riverSystem, required this.windExposure, required this.tideRelevance, required this.skillProfile, this.noaaTideStationId, this.marineZoneId, this.usgsSiteId, this.flowBands});
   factory _LaunchSummary.fromJson(Map<String, dynamic> json) => _$LaunchSummaryFromJson(json);
 
 @override final  String id;
@@ -244,11 +244,11 @@ class _LaunchSummary implements LaunchSummary {
 @override final  RiverSystem riverSystem;
 @override final  WindExposure windExposure;
 @override final  TideRelevance tideRelevance;
+@override final  GoNoGoProfile skillProfile;
 @override final  String? noaaTideStationId;
 @override final  String? marineZoneId;
 @override final  String? usgsSiteId;
 @override final  LaunchFlowBands? flowBands;
-@override final  GoNoGoProfile skillProfile;
 
 /// Create a copy of LaunchSummary
 /// with the given fields replaced by the non-null parameter values.
@@ -263,16 +263,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LaunchSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.shortNote, shortNote) || other.shortNote == shortNote)&&(identical(other.riverSystem, riverSystem) || other.riverSystem == riverSystem)&&(identical(other.windExposure, windExposure) || other.windExposure == windExposure)&&(identical(other.tideRelevance, tideRelevance) || other.tideRelevance == tideRelevance)&&(identical(other.noaaTideStationId, noaaTideStationId) || other.noaaTideStationId == noaaTideStationId)&&(identical(other.marineZoneId, marineZoneId) || other.marineZoneId == marineZoneId)&&(identical(other.usgsSiteId, usgsSiteId) || other.usgsSiteId == usgsSiteId)&&(identical(other.flowBands, flowBands) || other.flowBands == flowBands)&&(identical(other.skillProfile, skillProfile) || other.skillProfile == skillProfile));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LaunchSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.shortNote, shortNote) || other.shortNote == shortNote)&&(identical(other.riverSystem, riverSystem) || other.riverSystem == riverSystem)&&(identical(other.windExposure, windExposure) || other.windExposure == windExposure)&&(identical(other.tideRelevance, tideRelevance) || other.tideRelevance == tideRelevance)&&(identical(other.skillProfile, skillProfile) || other.skillProfile == skillProfile)&&(identical(other.noaaTideStationId, noaaTideStationId) || other.noaaTideStationId == noaaTideStationId)&&(identical(other.marineZoneId, marineZoneId) || other.marineZoneId == marineZoneId)&&(identical(other.usgsSiteId, usgsSiteId) || other.usgsSiteId == usgsSiteId)&&(identical(other.flowBands, flowBands) || other.flowBands == flowBands));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,latitude,longitude,shortNote,riverSystem,windExposure,tideRelevance,noaaTideStationId,marineZoneId,usgsSiteId,flowBands,skillProfile);
+int get hashCode => Object.hash(runtimeType,id,name,latitude,longitude,shortNote,riverSystem,windExposure,tideRelevance,skillProfile,noaaTideStationId,marineZoneId,usgsSiteId,flowBands);
 
 @override
 String toString() {
-  return 'LaunchSummary(id: $id, name: $name, latitude: $latitude, longitude: $longitude, shortNote: $shortNote, riverSystem: $riverSystem, windExposure: $windExposure, tideRelevance: $tideRelevance, noaaTideStationId: $noaaTideStationId, marineZoneId: $marineZoneId, usgsSiteId: $usgsSiteId, flowBands: $flowBands, skillProfile: $skillProfile)';
+  return 'LaunchSummary(id: $id, name: $name, latitude: $latitude, longitude: $longitude, shortNote: $shortNote, riverSystem: $riverSystem, windExposure: $windExposure, tideRelevance: $tideRelevance, skillProfile: $skillProfile, noaaTideStationId: $noaaTideStationId, marineZoneId: $marineZoneId, usgsSiteId: $usgsSiteId, flowBands: $flowBands)';
 }
 
 
@@ -283,7 +283,7 @@ abstract mixin class _$LaunchSummaryCopyWith<$Res> implements $LaunchSummaryCopy
   factory _$LaunchSummaryCopyWith(_LaunchSummary value, $Res Function(_LaunchSummary) _then) = __$LaunchSummaryCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, double latitude, double longitude, String shortNote, RiverSystem riverSystem, WindExposure windExposure, TideRelevance tideRelevance, String? noaaTideStationId, String? marineZoneId, String? usgsSiteId, LaunchFlowBands? flowBands, GoNoGoProfile skillProfile
+ String id, String name, double latitude, double longitude, String shortNote, RiverSystem riverSystem, WindExposure windExposure, TideRelevance tideRelevance, GoNoGoProfile skillProfile, String? noaaTideStationId, String? marineZoneId, String? usgsSiteId, LaunchFlowBands? flowBands
 });
 
 
@@ -300,7 +300,7 @@ class __$LaunchSummaryCopyWithImpl<$Res>
 
 /// Create a copy of LaunchSummary
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? latitude = null,Object? longitude = null,Object? shortNote = null,Object? riverSystem = null,Object? windExposure = null,Object? tideRelevance = null,Object? noaaTideStationId = freezed,Object? marineZoneId = freezed,Object? usgsSiteId = freezed,Object? flowBands = freezed,Object? skillProfile = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? latitude = null,Object? longitude = null,Object? shortNote = null,Object? riverSystem = null,Object? windExposure = null,Object? tideRelevance = null,Object? skillProfile = null,Object? noaaTideStationId = freezed,Object? marineZoneId = freezed,Object? usgsSiteId = freezed,Object? flowBands = freezed,}) {
   return _then(_LaunchSummary(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -310,12 +310,12 @@ as double,shortNote: null == shortNote ? _self.shortNote : shortNote // ignore: 
 as String,riverSystem: null == riverSystem ? _self.riverSystem : riverSystem // ignore: cast_nullable_to_non_nullable
 as RiverSystem,windExposure: null == windExposure ? _self.windExposure : windExposure // ignore: cast_nullable_to_non_nullable
 as WindExposure,tideRelevance: null == tideRelevance ? _self.tideRelevance : tideRelevance // ignore: cast_nullable_to_non_nullable
-as TideRelevance,noaaTideStationId: freezed == noaaTideStationId ? _self.noaaTideStationId : noaaTideStationId // ignore: cast_nullable_to_non_nullable
+as TideRelevance,skillProfile: null == skillProfile ? _self.skillProfile : skillProfile // ignore: cast_nullable_to_non_nullable
+as GoNoGoProfile,noaaTideStationId: freezed == noaaTideStationId ? _self.noaaTideStationId : noaaTideStationId // ignore: cast_nullable_to_non_nullable
 as String?,marineZoneId: freezed == marineZoneId ? _self.marineZoneId : marineZoneId // ignore: cast_nullable_to_non_nullable
 as String?,usgsSiteId: freezed == usgsSiteId ? _self.usgsSiteId : usgsSiteId // ignore: cast_nullable_to_non_nullable
 as String?,flowBands: freezed == flowBands ? _self.flowBands : flowBands // ignore: cast_nullable_to_non_nullable
-as LaunchFlowBands?,skillProfile: null == skillProfile ? _self.skillProfile : skillProfile // ignore: cast_nullable_to_non_nullable
-as GoNoGoProfile,
+as LaunchFlowBands?,
   ));
 }
 

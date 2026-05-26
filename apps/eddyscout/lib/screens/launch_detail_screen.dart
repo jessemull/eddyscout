@@ -49,16 +49,18 @@ class LaunchDetailScreen extends ConsumerWidget {
                 runSpacing: Spacing.sm,
                 children: [
                   Semantics(
-                    label: 'Wind exposure ${launch.windExposure.label}',
+                    label: l10n.launchDetailWindExposureSemantics(
+                      launch.windExposure.label,
+                    ),
                     child: Chip(
                       label: Text(launch.windExposure.label),
                       visualDensity: VisualDensity.compact,
                     ),
                   ),
                   Semantics(
-                    label:
-                        'River '
-                        '${launchDetailRiverLabel(l10n, launch.riverSystem)}',
+                    label: l10n.launchDetailRiverSemantics(
+                      launchDetailRiverLabel(l10n, launch.riverSystem),
+                    ),
                     child: Chip(
                       label: Text(
                         launchDetailRiverLabel(l10n, launch.riverSystem),
@@ -67,7 +69,9 @@ class LaunchDetailScreen extends ConsumerWidget {
                     ),
                   ),
                   Semantics(
-                    label: 'Tide ${launch.tideRelevance.shortLabel}',
+                    label: l10n.launchDetailTideRelevanceSemantics(
+                      launch.tideRelevance.shortLabel,
+                    ),
                     child: Chip(
                       label: Text(launch.tideRelevance.shortLabel),
                       visualDensity: VisualDensity.compact,

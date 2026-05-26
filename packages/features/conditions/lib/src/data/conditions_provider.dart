@@ -8,16 +8,15 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Shared conditions repository (HTTP-backed [ConditionsService]).
-final Provider<ConditionsRepository> conditionsRepositoryProvider =
-    Provider<ConditionsRepository>((ref) {
+final Provider<ConditionsService> conditionsServiceProvider =
+    Provider<ConditionsService>((ref) {
       return ConditionsService(ref.watch(conditionsHttpClientProvider));
     });
 
-/// Alias for tests and overrides that need the concrete service type.
-final Provider<ConditionsService> conditionsServiceProvider =
-    Provider<ConditionsService>((ref) {
-      final repo = ref.watch(conditionsRepositoryProvider);
-      return repo as ConditionsService;
+/// Shared conditions repository (HTTP-backed [ConditionsService]).
+final Provider<ConditionsRepository> conditionsRepositoryProvider =
+    Provider<ConditionsRepository>((ref) {
+      return ref.watch(conditionsServiceProvider);
     });
 
 /// Loads environmental conditions for a launch.

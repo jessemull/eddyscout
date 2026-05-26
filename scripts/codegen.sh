@@ -9,7 +9,7 @@ cd "$REPO_ROOT"
 
 echo "=== Running Code Generation ==="
 
-melos exec -- "dart run build_runner build --delete-conflicting-outputs" \
-  --depends-on=build_runner
+melos exec --depends-on=build_runner -- \
+  "dart run build_runner build --delete-conflicting-outputs"
 
 echo "=== Code Generation Complete ==="

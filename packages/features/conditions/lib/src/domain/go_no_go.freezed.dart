@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$GoNoGoReason {
 
- String get code; String get message; GoNoGoReasonSeverity get severity;
+/// Machine-readable reason id for analytics and tests.
+ String get code;/// Paddler-facing explanation.
+ String get message;/// How this reason affects [GoNoGoVerdict].
+ GoNoGoReasonSeverity get severity;
 /// Create a copy of GoNoGoReason
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -214,8 +217,11 @@ class _GoNoGoReason implements GoNoGoReason {
   const _GoNoGoReason({required this.code, required this.message, required this.severity});
   factory _GoNoGoReason.fromJson(Map<String, dynamic> json) => _$GoNoGoReasonFromJson(json);
 
+/// Machine-readable reason id for analytics and tests.
 @override final  String code;
+/// Paddler-facing explanation.
 @override final  String message;
+/// How this reason affects [GoNoGoVerdict].
 @override final  GoNoGoReasonSeverity severity;
 
 /// Create a copy of GoNoGoReason

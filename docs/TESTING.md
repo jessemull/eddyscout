@@ -38,7 +38,7 @@ Every page/screen must have widget tests covering:
 - **Location**: `integration_test/` (typically under `apps/eddyscout/`)
 - **Runner**: `integration_test` package
 
-> **Current repo:** no `integration_test/` directory yet. Add when implementing critical E2E journeys (see `docs/ARCHITECTURE.md` § Current implementation status).
+> **Current repo:** has a starter integration test at `apps/eddyscout/integration_test/app_navigation_test.dart`. Expand coverage as critical E2E journeys are implemented (see `docs/ARCHITECTURE.md` § Current implementation status).
 
 Required for:
 - App startup flow
@@ -52,7 +52,7 @@ Required for:
 - **Location**: `test/goldens/` and/or files named `*_golden_test.dart` (both conventions allowed)
 - **Runner**: `golden_toolkit`
 
-> **Current repo:** `golden_toolkit` is in app dev_dependencies; no golden test files committed yet.
+> **Current repo:** golden tests exist (e.g. `packages/design_system/test/goldens/app_theme_golden_test.dart`).
 
 Required for:
 - All design system widgets
@@ -66,17 +66,17 @@ Optional for feature widgets.
 Minimum thresholds are defined in `tooling/coverage.yaml`. CI fails if coverage drops below the threshold for any package.
 
 Current thresholds:
-- `eddyscout_core`: 80%
-- `eddyscout_networking`: 75%
-- `eddyscout_persistence`: 75%
-- `eddyscout_analytics`: 70%
-- `eddyscout_routing`: 70%
-- `eddyscout_design_system`: 60%
-- `eddyscout_localization`: 60%
-- `eddyscout_conditions`: 70%
-- `eddyscout_map`: 60%
+- `eddyscout_core`: 20%
+- `eddyscout_design_system`: 25%
+- `eddyscout_networking`: 50%
+- `eddyscout_persistence`: 45%
+- `eddyscout_analytics`: 5%
+- `eddyscout_routing`: 0%
+- `eddyscout_localization`: 0%
+- `eddyscout_conditions`: 40%
+- `eddyscout_map`: 45%
 - `eddyscout_hydro_routing`: 60%
-- `eddyscout` (app): 40%
+- `eddyscout` (app): 10%
 
 ## Mocking Strategy
 

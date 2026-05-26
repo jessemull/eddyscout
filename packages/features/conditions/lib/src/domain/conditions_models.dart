@@ -12,15 +12,6 @@ enum WeatherDataSource {
   openMeteo,
 }
 
-/// Human-readable labels for [WeatherDataSource].
-extension WeatherDataSourceLabel on WeatherDataSource {
-  /// Display name for attribution in the UI.
-  String get displayName => switch (this) {
-    WeatherDataSource.nws => 'National Weather Service',
-    WeatherDataSource.openMeteo => 'Open-Meteo',
-  };
-}
-
 /// Current weather from NWS or Open-Meteo for go/no-go wind rules.
 @freezed
 abstract class WeatherConditions with _$WeatherConditions {

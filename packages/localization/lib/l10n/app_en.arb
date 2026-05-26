@@ -21,6 +21,7 @@
       "river": {"type": "String"}
     }
   },
+  "mapRouteFailureNoData": "River route data is not available yet.",
   "mapRouteFailurePutInTooFar": "Put-in is too far from the modeled river line. Try another launch.",
   "mapRouteFailureTakeOutTooFar": "Take-out is too far from the modeled river line. Try another launch.",
   "mapRouteFailureNoConnectedPath": "No connected river path between these points in the current data.",
@@ -47,9 +48,30 @@
   },
   "mapPlanningClearLabel": "Clear",
   "mapPlanningDoneLabel": "Done",
+  "commonDash": "—",
+  "commonBullet": "•",
+  "commonDotSeparator": " · ",
   "launchDetailConditionsErrorNetwork": "Could not load conditions. Check your connection and try again.",
   "launchDetailConditionsErrorGeneric": "Could not load conditions. Pull to refresh or try again later.",
   "launchDetailSkillSectionTitle": "Skill (wind thresholds)",
+  "launchDetailWindExposureSemantics": "Wind exposure {label}",
+  "@launchDetailWindExposureSemantics": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
+  "launchDetailRiverSemantics": "River {river}",
+  "@launchDetailRiverSemantics": {
+    "placeholders": {
+      "river": {"type": "String"}
+    }
+  },
+  "launchDetailTideRelevanceSemantics": "Tide {label}",
+  "@launchDetailTideRelevanceSemantics": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
   "launchDetailSkillBeginner": "Beginner",
   "launchDetailSkillIntermediate": "Intermed.",
   "launchDetailSkillAdvanced": "Advanced",
@@ -147,7 +169,28 @@
   "launchDetailGoNoGoStubDisclaimer": "Stub rules only—not a substitute for your judgment, skill, or scouting on site.",
   "launchDetailWeatherTitle": "Weather",
   "launchDetailRiverFlowTitle": "River flow (USGS)",
+  "launchDetailRiverFlowSubtitle": "{cfs} cfs · {time}",
+  "@launchDetailRiverFlowSubtitle": {
+    "placeholders": {
+      "cfs": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
   "launchDetailTidesTitle": "Tides",
+  "launchDetailFeetValue": "{feet} ft",
+  "@launchDetailFeetValue": {
+    "placeholders": {
+      "feet": {"type": "String"}
+    }
+  },
+  "launchDetailTideEventLine": "{type} {height} · {time}",
+  "@launchDetailTideEventLine": {
+    "placeholders": {
+      "type": {"type": "String"},
+      "height": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
   "launchDetailNoTideData": "No tide data",
   "launchDetailMarineTitle": "Marine (NWS {zone})",
   "@launchDetailMarineTitle": {
@@ -158,6 +201,7 @@
   "launchDetailUnavailable": "Unavailable",
   "launchDetailNoMarineForecast": "No marine forecast",
   "launchDetailWeatherSourceOpenMeteoBackup": "Open-Meteo (backup)",
+  "launchDetailWeatherSourceOpenMeteo": "Open-Meteo",
   "launchDetailWeatherSourceNws": "National Weather Service",
   "launchDetailTideMinorReferenceNote": "Reference only — timing/height differs upriver from the station.",
   "launchDetailRiverFlowNoData": "No data",
