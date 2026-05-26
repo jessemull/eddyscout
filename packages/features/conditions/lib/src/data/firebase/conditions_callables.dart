@@ -3,9 +3,32 @@ import 'dart:convert';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
+
+/// Test overrides for Callable unit tests (never set in production).
+@visibleForTesting
+class ConditionsCallablesTestHooks {
+  ConditionsCallablesTestHooks._();
+
+  /// Skips [FirebaseAuth] when set (tests only).
+  @visibleForTesting
+  static Future<void> Function()? ensureIdToken;
+
+  /// Replaces [_functions] when set (tests only).
+  @visibleForTesting
+  static FirebaseFunctions? functions;
+
+  /// Clears overrides between tests.
+  @visibleForTesting
+  static void reset() {
+    ensureIdToken = null;
+    functions = null;
+  }
+}
 
 /// Default [Firebase] app and region (`us-west2`) for deployed Callables.
 FirebaseFunctions get _functions =>
+    ConditionsCallablesTestHooks.functions ??
     FirebaseFunctions.instanceFor(app: Firebase.app(), region: 'us-west2');
 
 Map<String, dynamic> _jsonSafePayload(Map<String, Object?> payload) {
@@ -17,6 +40,10 @@ Map<String, dynamic> _jsonSafePayload(Map<String, Object?> payload) {
 /// Ensures a fresh ID token is attached to the next Callable request (avoids
 /// `firebase_functions/unauthenticated` after restore / stale sessions).
 Future<void> _ensureIdTokenForCallables() async {
+  final override = ConditionsCallablesTestHooks.ensureIdToken;
+  if (override != null) {
+    return override();
+  }
   final user = FirebaseAuth.instance.currentUser;
   if (user == null) {
     throw FirebaseAuthException(

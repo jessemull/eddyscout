@@ -13,7 +13,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
-  const MapScreen({super.key});
+  const MapScreen({super.key, this.mapSlot});
+
+  /// Replaces [MapWidget] in widget tests (avoids Mapbox platform views).
+  @visibleForTesting
+  final Widget? mapSlot;
 
   @override
   ConsumerState<MapScreen> createState() => _MapScreenState();
@@ -83,22 +87,24 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         children: [
           IgnorePointer(
             ignoring: !mapInteractive,
-            child: MapWidget(
-              key: const ValueKey<String>('eddyscout_map'),
-              // TLHC_HC avoids Android texture/surface bugs with Mapbox (experimental).
-              // ignore: experimental_member_use
-              androidHostingMode: AndroidPlatformViewHostingMode.TLHC_HC,
-              viewport: kInitialMapViewport,
-              mapOptions: MapOptions(
-                pixelRatio: MediaQuery.devicePixelRatioOf(context),
-              ),
-              onMapCreated: map.onMapCreated,
-              onStyleLoadedListener: (_) => map.onStyleLoaded(),
-              onCameraChangeListener: kDebugMode
-                  ? map.onDebugCameraChanged
-                  : null,
-              onZoomListener: kDebugMode ? map.onDebugMapZoomEnded : null,
-            ),
+            child:
+                widget.mapSlot ??
+                MapWidget(
+                  key: const ValueKey<String>('eddyscout_map'),
+                  // TLHC_HC avoids Android texture/surface bugs with Mapbox (experimental).
+                  // ignore: experimental_member_use
+                  androidHostingMode: AndroidPlatformViewHostingMode.TLHC_HC,
+                  viewport: kInitialMapViewport,
+                  mapOptions: MapOptions(
+                    pixelRatio: MediaQuery.devicePixelRatioOf(context),
+                  ),
+                  onMapCreated: map.onMapCreated,
+                  onStyleLoadedListener: (_) => map.onStyleLoaded(),
+                  onCameraChangeListener: kDebugMode
+                      ? map.onDebugCameraChanged
+                      : null,
+                  onZoomListener: kDebugMode ? map.onDebugMapZoomEnded : null,
+                ),
           ),
           if (mapInteractive)
             Positioned(
