@@ -66,17 +66,17 @@ Optional for feature widgets.
 Minimum thresholds are defined in `tooling/coverage.yaml`. CI fails if coverage drops below the threshold for any package.
 
 Current thresholds:
-- `eddyscout_core`: 20%
-- `eddyscout_design_system`: 25%
-- `eddyscout_networking`: 50%
-- `eddyscout_persistence`: 45%
-- `eddyscout_analytics`: 5%
-- `eddyscout_routing`: 0%
-- `eddyscout_localization`: 0%
-- `eddyscout_conditions`: 40%
-- `eddyscout_map`: 45%
-- `eddyscout_hydro_routing`: 60%
-- `eddyscout` (app): 10%
+- `eddyscout_core`: 85%
+- `eddyscout_design_system`: 85%
+- `eddyscout_networking`: 85%
+- `eddyscout_persistence`: 85%
+- `eddyscout_analytics`: 85%
+- `eddyscout_routing`: 85%
+- `eddyscout_localization`: 85%
+- `eddyscout_conditions`: 85%
+- `eddyscout_map`: 85%
+- `eddyscout_hydro_routing`: 85%
+- `eddyscout` (app): 85%
 
 ## Mocking Strategy
 

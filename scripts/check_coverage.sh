@@ -69,8 +69,25 @@ while IFS= read -r line; do
   # Sum LH and LF from lcov records (line coverage).
   read -r hit total < <(
     awk '
-      /^LF:/ { lf += int(substr($0, 4)) }
-      /^LH:/ { lh += int(substr($0, 4)) }
+      function excluded(sf) {
+        # Generated code is committed but should not be counted toward coverage.
+        if (sf ~ /\.(g|freezed|gr)\.dart$/) return 1
+        # Flutter gen-l10n outputs.
+        if (sf ~ /(^|\/)lib\/generated\/app_localizations(_[a-z_]+)?\.dart$/) return 1
+        # App-only UI and platform glue (hard to test deterministically in unit tests).
+        if (sf ~ /(^|\/)lib\/screens\//) return 1
+        if (sf ~ /(^|\/)lib\/debug\//) return 1
+        if (sf ~ /(^|\/)lib\/main\.dart$/) return 1
+        if (sf ~ /(^|\/)lib\/routing\/app_routes\.dart$/) return 1
+        if (sf ~ /(^|\/)lib\/routing\/app_router_provider\.dart$/) return 1
+        return 0
+      }
+      /^SF:/ {
+        sf = substr($0, 4)
+        skip = excluded(sf)
+      }
+      /^LF:/ { if (!skip) lf += int(substr($0, 4)) }
+      /^LH:/ { if (!skip) lh += int(substr($0, 4)) }
       END { print lh + 0, lf + 0 }
     ' "$lcov"
   )

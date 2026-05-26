@@ -104,6 +104,17 @@ void main() {
       verify(() => functions.httpsCallable('summarizeConditions')).called(1);
     });
 
+    test('callSummarizeConditions falls back to summary key', () async {
+      when(() => result.data).thenReturn({'summary': 'Fallback ok.'});
+      when(
+        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+      ).thenAnswer((_) async => result);
+
+      final text = await callSummarizeConditions({'launchId': 'test'});
+
+      expect(text, 'Fallback ok.');
+    });
+
     test('callSummarizeConditions throws when summary missing', () async {
       when(() => result.data).thenReturn(<String, dynamic>{});
       when(
@@ -115,6 +126,23 @@ void main() {
         throwsA(isA<StateError>()),
       );
     });
+
+    test(
+      'callables rethrow non-unauthenticated FirebaseFunctionsException',
+      () async {
+        when(
+          () =>
+              callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+        ).thenThrow(
+          FirebaseFunctionsException(code: 'internal', message: 'nope'),
+        );
+
+        await expectLater(
+          () => callSummarizeConditions({'launchId': 'test'}),
+          throwsA(isA<FirebaseFunctionsException>()),
+        );
+      },
+    );
 
     test('callListConditionReports maps report rows', () async {
       when(() => result.data).thenReturn({

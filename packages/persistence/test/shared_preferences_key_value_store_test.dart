@@ -27,5 +27,40 @@ void main() {
       await store.remove('k');
       expect(await store.getString('k'), isNull);
     });
+
+    test('setBool and getBool round-trip', () async {
+      await store.setBool('b', value: true);
+      expect(await store.getBool('b'), isTrue);
+    });
+
+    test('getBool returns null when absent', () async {
+      expect(await store.getBool('missing'), isNull);
+    });
+
+    test('setInt and getInt round-trip', () async {
+      await store.setInt('i', 123);
+      expect(await store.getInt('i'), 123);
+    });
+
+    test('getInt returns null when absent', () async {
+      expect(await store.getInt('missing'), isNull);
+    });
+
+    test('clear removes all keys', () async {
+      await store.setString('k', 'v');
+      await store.setBool('b', value: true);
+      await store.setInt('i', 1);
+      await store.clear();
+      expect(await store.getString('k'), isNull);
+      expect(await store.getBool('b'), isNull);
+      expect(await store.getInt('i'), isNull);
+    });
+
+    test('wraps an already-open SharedPreferences instance', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final wrapped = SharedPreferencesKeyValueStore(prefs);
+      await wrapped.setString('k', 'v');
+      expect(await store.getString('k'), 'v');
+    });
   });
 }
