@@ -35,8 +35,10 @@ void main() {
         tideRelevance: TideRelevance.none,
       );
 
-      final snapshot = await service.load(launch);
+      final result = await service.load(launch);
 
+      expect(result.isSuccess, isTrue);
+      final snapshot = result.valueOrNull!;
       expect(snapshot.weather, isNull);
       expect(snapshot.weatherError, isNotNull);
     },

@@ -2,7 +2,9 @@ import 'dart:async' show unawaited;
 
 import 'package:eddyscout/preferences/go_no_go_profile_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_design_system/eddyscout_design_system.dart';
+import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,12 +25,13 @@ class LaunchDetailScreen extends ConsumerWidget {
     final skillProfile =
         ref.watch(goNoGoProfileProvider).value ?? GoNoGoProfile.intermediate;
     final conditionsAsync = ref.watch(conditionsSnapshotProvider(launch));
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(launch.name)),
       body: conditionsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => _ErrorBody(
-          message: launchDetailConditionsErrorMessage(error),
+          message: launchDetailConditionsErrorMessage(l10n, error),
         ),
         data: (data) {
           final goNoGo = ref.watch(
@@ -39,57 +42,70 @@ class LaunchDetailScreen extends ConsumerWidget {
             )),
           );
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(Spacing.md),
             children: [
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: Spacing.sm,
+                runSpacing: Spacing.sm,
                 children: [
-                  Chip(
-                    label: Text(launch.windExposure.label),
-                    visualDensity: VisualDensity.compact,
+                  Semantics(
+                    label: 'Wind exposure ${launch.windExposure.label}',
+                    child: Chip(
+                      label: Text(launch.windExposure.label),
+                      visualDensity: VisualDensity.compact,
+                    ),
                   ),
-                  Chip(
-                    label: Text(launchDetailRiverLabel(launch.riverSystem)),
-                    visualDensity: VisualDensity.compact,
+                  Semantics(
+                    label:
+                        'River ${launchDetailRiverLabel(launch.riverSystem)}',
+                    child: Chip(
+                      label: Text(launchDetailRiverLabel(launch.riverSystem)),
+                      visualDensity: VisualDensity.compact,
+                    ),
                   ),
-                  Chip(
-                    label: Text(launch.tideRelevance.shortLabel),
-                    visualDensity: VisualDensity.compact,
+                  Semantics(
+                    label: 'Tide ${launch.tideRelevance.shortLabel}',
+                    child: Chip(
+                      label: Text(launch.tideRelevance.shortLabel),
+                      visualDensity: VisualDensity.compact,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: Spacing.md - Spacing.xs),
               Text(
-                'Skill (wind thresholds)',
+                l10n.launchDetailSkillSectionTitle,
                 style: Theme.of(context).textTheme.labelLarge,
               ),
-              const SizedBox(height: 8),
-              SegmentedButton<GoNoGoProfile>(
-                segments: const [
-                  ButtonSegment(
-                    value: GoNoGoProfile.beginner,
-                    label: Text('Beginner'),
-                  ),
-                  ButtonSegment(
-                    value: GoNoGoProfile.intermediate,
-                    label: Text('Intermed.'),
-                  ),
-                  ButtonSegment(
-                    value: GoNoGoProfile.advanced,
-                    label: Text('Advanced'),
-                  ),
-                ],
-                selected: {skillProfile},
-                onSelectionChanged: (next) {
-                  unawaited(
-                    ref
-                        .read(goNoGoProfileProvider.notifier)
-                        .setProfile(next.single),
-                  );
-                },
+              const SizedBox(height: Spacing.sm),
+              Semantics(
+                label: l10n.launchDetailSkillSectionTitle,
+                child: SegmentedButton<GoNoGoProfile>(
+                  segments: [
+                    ButtonSegment(
+                      value: GoNoGoProfile.beginner,
+                      label: Text(l10n.launchDetailSkillBeginner),
+                    ),
+                    ButtonSegment(
+                      value: GoNoGoProfile.intermediate,
+                      label: Text(l10n.launchDetailSkillIntermediate),
+                    ),
+                    ButtonSegment(
+                      value: GoNoGoProfile.advanced,
+                      label: Text(l10n.launchDetailSkillAdvanced),
+                    ),
+                  ],
+                  selected: {skillProfile},
+                  onSelectionChanged: (next) {
+                    unawaited(
+                      ref
+                          .read(goNoGoProfileProvider.notifier)
+                          .setProfile(next.single),
+                    );
+                  },
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: Spacing.md - Spacing.xs),
               Text(
                 launch.shortNote,
                 style: Theme.of(context).textTheme.bodyLarge,

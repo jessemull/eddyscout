@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
+import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

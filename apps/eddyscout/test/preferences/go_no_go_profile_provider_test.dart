@@ -12,7 +12,7 @@ void main() {
   group('goNoGoProfileProvider', () {
     test('reads stored profile from repository', () async {
       SharedPreferences.setMockInitialValues({
-        GoNoGoProfileRepository.storageKey: GoNoGoProfile.beginner.name,
+        GoNoGoProfileRepositoryImpl.storageKey: GoNoGoProfile.beginner.name,
       });
       final store = await SharedPreferencesKeyValueStore.open();
       final container = ProviderContainer(
@@ -42,7 +42,7 @@ void main() {
         GoNoGoProfile.advanced,
       );
       expect(
-        await store.getString(GoNoGoProfileRepository.storageKey),
+        await store.getString(GoNoGoProfileRepositoryImpl.storageKey),
         GoNoGoProfile.advanced.name,
       );
     });

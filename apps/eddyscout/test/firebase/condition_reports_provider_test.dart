@@ -1,4 +1,5 @@
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -24,7 +25,7 @@ void main() {
       ];
       when(
         () => repository.listReports('cathedral_park'),
-      ).thenAnswer((_) async => reports);
+      ).thenAnswer((_) async => Result.success(reports));
 
       final container = ProviderContainer(
         overrides: [
@@ -43,7 +44,7 @@ void main() {
     test('refetches when refresh token changes', () async {
       when(
         () => repository.listReports('cathedral_park'),
-      ).thenAnswer((_) async => []);
+      ).thenAnswer((_) async => const Result.success([]));
 
       final container = ProviderContainer(
         overrides: [
@@ -97,7 +98,7 @@ void main() {
           launchId: 'cathedral_park',
           forceRefresh: false,
         ),
-      ).thenAnswer((_) async => result);
+      ).thenAnswer((_) async => const Result.success(result));
 
       final container = ProviderContainer(
         overrides: [
@@ -122,7 +123,11 @@ void main() {
           launchId: 'cathedral_park',
           forceRefresh: false,
         ),
-      ).thenThrow(Exception('network down'));
+      ).thenAnswer(
+        (_) async => Result.failure(
+          NetworkFailure(message: 'network down'),
+        ),
+      );
 
       final container = ProviderContainer(
         overrides: [
@@ -139,7 +144,7 @@ void main() {
         container
             .read(launchReportsDigestProvider('cathedral_park'))
             .errorMessage,
-        'Could not load digest. Try again.',
+        'network down',
       );
     });
   });

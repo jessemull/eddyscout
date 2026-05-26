@@ -28,6 +28,7 @@ class EddyScoutHttpClient {
   Future<EddyScoutHttpResponse> get(
     Uri uri, {
     Map<String, String>? headers,
+    CancelToken? cancelToken,
   }) async {
     final response = await _dio.get<String>(
       uri.toString(),
@@ -36,6 +37,7 @@ class EddyScoutHttpClient {
         receiveTimeout: requestTimeout,
         responseType: ResponseType.plain,
       ),
+      cancelToken: cancelToken,
     );
     return EddyScoutHttpResponse(
       statusCode: response.statusCode ?? 0,
@@ -44,11 +46,20 @@ class EddyScoutHttpClient {
   }
 
   /// NWS prefers `application/geo+json` for api.weather.gov.
-  Future<EddyScoutHttpResponse> getNws(Uri uri) =>
-      get(uri, headers: {'Accept': 'application/geo+json'});
+  Future<EddyScoutHttpResponse> getNws(
+    Uri uri, {
+    CancelToken? cancelToken,
+  }) => get(
+    uri,
+    headers: {'Accept': 'application/geo+json'},
+    cancelToken: cancelToken,
+  );
 
   /// GET [uri] as JSON; returns null on non-2xx or transport errors.
-  Future<Map<String, dynamic>?> getJson(Uri uri) async {
+  Future<Map<String, dynamic>?> getJson(
+    Uri uri, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.get<dynamic>(
         uri.toString(),
@@ -56,6 +67,7 @@ class EddyScoutHttpClient {
           receiveTimeout: requestTimeout,
           responseType: ResponseType.json,
         ),
+        cancelToken: cancelToken,
       );
       final status = response.statusCode ?? 0;
       if (status < 200 || status >= 300) {
@@ -68,7 +80,10 @@ class EddyScoutHttpClient {
   }
 
   /// NWS GET with geo+json Accept; null on failure like [getJson].
-  Future<Map<String, dynamic>?> getNwsJson(Uri uri) async {
+  Future<Map<String, dynamic>?> getNwsJson(
+    Uri uri, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.get<dynamic>(
         uri.toString(),
@@ -77,6 +92,7 @@ class EddyScoutHttpClient {
           receiveTimeout: requestTimeout,
           responseType: ResponseType.json,
         ),
+        cancelToken: cancelToken,
       );
       final status = response.statusCode ?? 0;
       if (status < 200 || status >= 300) {

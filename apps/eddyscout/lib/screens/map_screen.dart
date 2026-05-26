@@ -7,6 +7,8 @@ import 'package:eddyscout/screens/map/map_ui_callbacks.dart';
 import 'package:eddyscout/screens/map/mapbox_map_controller.dart';
 import 'package:eddyscout/screens/map_planning_provider.dart';
 import 'package:eddyscout/screens/map_session_provider.dart';
+import 'package:eddyscout_design_system/eddyscout_design_system.dart';
+import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,10 +37,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     if (!mounted) {
       return;
     }
+    final l10n = context.l10n;
     ref
         .read(mapboxMapControllerProvider.notifier)
         .bindUiCallbacks(
           MapUiCallbacks(
+            pickDifferentTakeOutMessage: l10n.mapPickDifferentTakeOut,
+            riverDataLoadingMessage: l10n.mapRiverDataLoading,
             showSnackBar: (message) {
               if (!context.mounted) {
                 return;
@@ -69,16 +74,23 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final planning = ref.watch(routePlanningProvider);
     final mapInteractive = ref.watch(mapInteractiveProvider);
 
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('EddyScout'),
+        title: Text(l10n.mapScreenTitle),
         actions: [
-          IconButton(
-            tooltip: planning.planningMode
-                ? 'Exit route planning'
-                : 'Plan river route',
-            onPressed: map.togglePlanningMode,
-            icon: Icon(planning.planningMode ? Icons.close : Icons.alt_route),
+          Semantics(
+            button: true,
+            label: planning.planningMode
+                ? l10n.mapExitPlanningTooltip
+                : l10n.mapPlanRouteTooltip,
+            child: IconButton(
+              tooltip: planning.planningMode
+                  ? l10n.mapExitPlanningTooltip
+                  : l10n.mapPlanRouteTooltip,
+              onPressed: map.togglePlanningMode,
+              icon: Icon(planning.planningMode ? Icons.close : Icons.alt_route),
+            ),
           ),
         ],
       ),
@@ -108,35 +120,39 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
           if (mapInteractive)
             Positioned(
-              left: 8,
+              left: Spacing.sm,
               bottom: MediaQuery.viewPaddingOf(context).bottom + 120,
-              child: Material(
-                elevation: 4,
-                borderRadius: BorderRadius.circular(10),
-                color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      tooltip: 'Zoom in',
-                      icon: const Icon(Icons.add),
-                      onPressed: () =>
-                          unawaited(map.nudgeZoomBy(kMapChromeZoomStep)),
-                    ),
-                    const Divider(height: 1),
-                    IconButton(
-                      tooltip: 'Zoom out',
-                      icon: const Icon(Icons.remove),
-                      onPressed: () =>
-                          unawaited(map.nudgeZoomBy(-kMapChromeZoomStep)),
-                    ),
-                    const Divider(height: 1),
-                    IconButton(
-                      tooltip: 'Show all launches',
-                      icon: const Icon(Icons.zoom_out_map),
-                      onPressed: () => unawaited(map.fitRegionFromChrome()),
-                    ),
-                  ],
+              child: Semantics(
+                container: true,
+                label: 'Map zoom controls',
+                child: Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(10),
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: l10n.mapZoomInLabel,
+                        icon: const Icon(Icons.add),
+                        onPressed: () =>
+                            unawaited(map.nudgeZoomBy(kMapChromeZoomStep)),
+                      ),
+                      const Divider(height: 1),
+                      IconButton(
+                        tooltip: l10n.mapZoomOutLabel,
+                        icon: const Icon(Icons.remove),
+                        onPressed: () =>
+                            unawaited(map.nudgeZoomBy(-kMapChromeZoomStep)),
+                      ),
+                      const Divider(height: 1),
+                      IconButton(
+                        tooltip: l10n.mapShowAllLaunchesLabel,
+                        icon: const Icon(Icons.zoom_out_map),
+                        onPressed: () => unawaited(map.fitRegionFromChrome()),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

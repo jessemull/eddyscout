@@ -11,7 +11,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -44,7 +44,9 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
             else if (digestState.errorMessage != null) ...[
               Text(
                 digestState.errorMessage!,
-                style: TextStyle(color: scheme.error, fontSize: 13),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: scheme.error),
               ),
               TextButton.icon(
                 onPressed: () => ref

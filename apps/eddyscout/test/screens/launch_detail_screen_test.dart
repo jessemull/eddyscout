@@ -10,6 +10,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../test_localized_app.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -52,7 +54,9 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp(home: LaunchDetailScreen(launch: launch)),
+        child: testLocalizedApp(
+          child: LaunchDetailScreen(launch: launch),
+        ),
       ),
     );
     await tester.pump();

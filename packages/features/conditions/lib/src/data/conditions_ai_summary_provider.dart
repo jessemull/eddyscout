@@ -82,7 +82,11 @@ class ConditionsAiSummaryNotifier
           );
       state = ConditionsAiSummaryState(summary: summary);
     } on Object catch (error) {
-      state = ConditionsAiSummaryState(errorMessage: '$error');
+      state = ConditionsAiSummaryState(
+        errorMessage: error is AppFailure
+            ? error.message
+            : 'Could not load AI summary. Try again.',
+      );
     }
   }
 }

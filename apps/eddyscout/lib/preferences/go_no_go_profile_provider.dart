@@ -6,7 +6,7 @@ final goNoGoProfileRepositoryProvider = Provider<GoNoGoProfileRepository>((
   ref,
 ) {
   final store = ref.watch(keyValueStoreProvider).requireValue;
-  return GoNoGoProfileRepository(store);
+  return GoNoGoProfileRepositoryImpl(store);
 });
 
 /// User skill profile for go/no-go wind thresholds.
@@ -19,11 +19,23 @@ class GoNoGoProfileNotifier extends AsyncNotifier<GoNoGoProfile> {
   @override
   Future<GoNoGoProfile> build() async {
     await ref.watch(keyValueStoreProvider.future);
-    return ref.read(goNoGoProfileRepositoryProvider).read();
+    final result = await ref.read(goNoGoProfileRepositoryProvider).read();
+    return result.when(
+      success: (value) => value,
+      failure: (error) => throw Exception(error.message),
+    );
   }
 
   Future<void> setProfile(GoNoGoProfile profile) async {
     state = AsyncData(profile);
-    await ref.read(goNoGoProfileRepositoryProvider).write(profile);
+    final result = await ref
+        .read(goNoGoProfileRepositoryProvider)
+        .write(profile);
+    result.when(
+      success: (_) {},
+      failure: (error) {
+        state = AsyncError(error, error.stackTrace ?? StackTrace.current);
+      },
+    );
   }
 }

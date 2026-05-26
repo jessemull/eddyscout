@@ -27,7 +27,7 @@ class _AiSummaryCard extends ConsumerWidget {
         );
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -50,7 +50,9 @@ class _AiSummaryCard extends ConsumerWidget {
             else if (summaryState.errorMessage != null) ...[
               Text(
                 summaryState.errorMessage!,
-                style: TextStyle(color: scheme.error, fontSize: 13),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: scheme.error),
               ),
               TextButton.icon(
                 onPressed: runSummary,
@@ -123,7 +125,7 @@ class _GoNoGoCard extends StatelessWidget {
       elevation: 0,
       color: bg,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -226,7 +228,7 @@ class _WeatherCard extends StatelessWidget {
     ];
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -299,7 +301,7 @@ class _TideCard extends StatelessWidget {
     final err = snapshot.tideError;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

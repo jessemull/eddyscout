@@ -3,5 +3,109 @@
   "appTitle": "EddyScout",
   "@appTitle": {
     "description": "The application title"
+  },
+  "mapScreenTitle": "EddyScout",
+  "@mapScreenTitle": {
+    "description": "Map screen app bar title"
+  },
+  "mapPlanRouteTooltip": "Plan river route",
+  "@mapPlanRouteTooltip": {
+    "description": "App bar action to enter route planning mode"
+  },
+  "mapExitPlanningTooltip": "Exit route planning",
+  "@mapExitPlanningTooltip": {
+    "description": "App bar action to leave route planning mode"
+  },
+  "mapZoomInLabel": "Zoom in",
+  "@mapZoomInLabel": {
+    "description": "Accessibility label for map zoom in control"
+  },
+  "mapZoomOutLabel": "Zoom out",
+  "@mapZoomOutLabel": {
+    "description": "Accessibility label for map zoom out control"
+  },
+  "mapShowAllLaunchesLabel": "Show all launches",
+  "@mapShowAllLaunchesLabel": {
+    "description": "Accessibility label for fit-all-launches control"
+  },
+  "mapPickDifferentTakeOut": "Pick a different launch for take-out.",
+  "@mapPickDifferentTakeOut": {
+    "description": "Snack bar when take-out equals put-in"
+  },
+  "mapRiverDataLoading": "Still loading river data… try again.",
+  "@mapRiverDataLoading": {
+    "description": "Snack bar when hydro planner is not ready"
+  },
+  "launchDetailConditionsErrorNetwork": "Could not load conditions. Check your connection and try again.",
+  "@launchDetailConditionsErrorNetwork": {
+    "description": "Error when conditions fetch fails due to network"
+  },
+  "launchDetailConditionsErrorGeneric": "Could not load conditions. Pull to refresh or try again later.",
+  "@launchDetailConditionsErrorGeneric": {
+    "description": "Generic conditions load error"
+  },
+  "launchDetailSkillSectionTitle": "Skill (wind thresholds)",
+  "@launchDetailSkillSectionTitle": {
+    "description": "Section title for go/no-go skill profile selector"
+  },
+  "launchDetailSkillBeginner": "Beginner",
+  "@launchDetailSkillBeginner": {
+    "description": "Beginner skill profile segment label"
+  },
+  "launchDetailSkillIntermediate": "Intermed.",
+  "@launchDetailSkillIntermediate": {
+    "description": "Intermediate skill profile segment label"
+  },
+  "launchDetailSkillAdvanced": "Advanced",
+  "@launchDetailSkillAdvanced": {
+    "description": "Advanced skill profile segment label"
+  },
+  "launchDetailReportSubmitError": "Could not submit report. Try again in a moment.",
+  "@launchDetailReportSubmitError": {
+    "description": "Error after failed condition report submit"
+  },
+  "launchDetailDigestError": "Could not load digest. Try again.",
+  "@launchDetailDigestError": {
+    "description": "Error after failed community digest fetch"
+  },
+  "launchDetailAiSummaryError": "Could not load AI summary. Try again.",
+  "@launchDetailAiSummaryError": {
+    "description": "Error after failed AI conditions summary"
+  },
+  "cancelButton": "Cancel",
+  "@cancelButton": {
+    "description": "Generic cancel button label"
+  },
+  "submitButton": "Submit",
+  "@submitButton": {
+    "description": "Generic submit button label"
+  },
+  "mapPlanningPutInLabel": "Put-in",
+  "@mapPlanningPutInLabel": {
+    "description": "Route planning put-in launch label"
+  },
+  "mapPlanningTakeOutLabel": "Take-out",
+  "@mapPlanningTakeOutLabel": {
+    "description": "Route planning take-out launch label"
+  },
+  "mapPlanningClearLabel": "Clear",
+  "@mapPlanningClearLabel": {
+    "description": "Clear route planning selection"
+  },
+  "mapPlanningDoneLabel": "Done",
+  "@mapPlanningDoneLabel": {
+    "description": "Finish route planning mode"
+  },
+  "missingMapboxTokenTitle": "Mapbox token required",
+  "@missingMapboxTokenTitle": {
+    "description": "Screen title when MAPBOX_ACCESS_TOKEN is missing"
+  },
+  "webMapPlaceholderTitle": "Map on mobile",
+  "@webMapPlaceholderTitle": {
+    "description": "Web placeholder screen title"
+  },
+  "webMapPlaceholderBody": "Use the Android or iOS app for the interactive map.",
+  "@webMapPlaceholderBody": {
+    "description": "Web placeholder screen body"
   }
 }

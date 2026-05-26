@@ -38,44 +38,48 @@ class _MemoryKeyValueStore implements KeyValueStore {
 }
 
 void main() {
-  group('GoNoGoProfileRepository', () {
-    late GoNoGoProfileRepository repository;
+  group('GoNoGoProfileRepositoryImpl', () {
+    late GoNoGoProfileRepositoryImpl repository;
 
     setUp(() {
-      repository = GoNoGoProfileRepository(_MemoryKeyValueStore());
+      repository = GoNoGoProfileRepositoryImpl(_MemoryKeyValueStore());
     });
 
     test('read returns intermediate when storage is empty', () async {
-      expect(await repository.read(), GoNoGoProfile.intermediate);
+      final result = await repository.read();
+      expect(result.valueOrNull, GoNoGoProfile.intermediate);
     });
 
     test('write persists profile and read returns stored value', () async {
-      await repository.write(GoNoGoProfile.advanced);
-      expect(await repository.read(), GoNoGoProfile.advanced);
+      final writeResult = await repository.write(GoNoGoProfile.advanced);
+      expect(writeResult.isSuccess, isTrue);
+      final readResult = await repository.read();
+      expect(readResult.valueOrNull, GoNoGoProfile.advanced);
     });
 
     test('read returns intermediate for unrecognized stored value', () async {
       final store = _MemoryKeyValueStore();
-      await store.setString(GoNoGoProfileRepository.storageKey, 'expert');
-      final repo = GoNoGoProfileRepository(store);
-      expect(await repo.read(), GoNoGoProfile.intermediate);
+      await store.setString(GoNoGoProfileRepositoryImpl.storageKey, 'expert');
+      final repo = GoNoGoProfileRepositoryImpl(store);
+      final result = await repo.read();
+      expect(result.valueOrNull, GoNoGoProfile.intermediate);
     });
   });
 
-  group('GoNoGoProfileRepository.parseStoredProfile', () {
+  group('GoNoGoProfileRepositoryImpl.parseStoredProfile', () {
     test('returns null for null input', () {
-      expect(GoNoGoProfileRepository.parseStoredProfile(null), isNull);
+      expect(GoNoGoProfileRepositoryImpl.parseStoredProfile(null), isNull);
     });
 
     test('returns matching profile for valid stored name', () {
       expect(
-        GoNoGoProfileRepository.parseStoredProfile('beginner'),
+        GoNoGoProfileRepositoryImpl.parseStoredProfile('beginner'),
         GoNoGoProfile.beginner,
       );
     });
 
     test('returns null for unknown stored name', () {
-      expect(GoNoGoProfileRepository.parseStoredProfile('expert'), isNull);
+      expect(GoNoGoProfileRepositoryImpl.parseStoredProfile('expert'), isNull);
     });
   });
 }

@@ -1,33 +1,13 @@
-import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
+import 'package:eddyscout_conditions/src/data/repositories/condition_reports_repository_impl.dart';
+import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/condition_reports_refresh_token_provider.dart';
+import 'package:eddyscout_conditions/src/domain/repositories/condition_reports_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-/// Firebase-backed condition report reads and AI digest calls.
-class ConditionReportsRepository {
-  /// Creates a stateless repository for Callable wrappers.
-  const ConditionReportsRepository();
-
-  /// Lists recent community reports for [launchId].
-  Future<List<ConditionReportListItem>> listReports(String launchId) async {
-    return callListConditionReports(launchId: launchId);
-  }
-
-  /// Summarizes recent reports into an on-demand digest.
-  Future<LaunchReportsDigestResult> summarizeLaunchReports({
-    required String launchId,
-    bool forceRefresh = false,
-  }) {
-    return callSummarizeLaunchReports(
-      launchId: launchId,
-      forceRefresh: forceRefresh,
-    );
-  }
-}
 
 /// Injectable [ConditionReportsRepository] for tests and overrides.
 final Provider<ConditionReportsRepository> conditionReportsRepositoryProvider =
     Provider<ConditionReportsRepository>(
-      (ref) => const ConditionReportsRepository(),
+      (ref) => const ConditionReportsRepositoryImpl(),
     );
 
 /// Recent paddler reports for a launch.
@@ -35,9 +15,15 @@ final Provider<ConditionReportsRepository> conditionReportsRepositoryProvider =
 /// Refetches when [conditionReportsRefreshTokenProvider] changes.
 final AutoDisposeFutureProviderFamily<List<ConditionReportListItem>, String>
 conditionReportsListProvider = FutureProvider.autoDispose
-    .family<List<ConditionReportListItem>, String>((ref, launchId) {
+    .family<List<ConditionReportListItem>, String>((ref, launchId) async {
       ref.watch(conditionReportsRefreshTokenProvider);
-      return ref.read(conditionReportsRepositoryProvider).listReports(launchId);
+      final result = await ref
+          .read(conditionReportsRepositoryProvider)
+          .listReports(launchId);
+      return result.when(
+        success: (value) => value,
+        failure: (error) => throw Exception(error.message),
+      );
     });
 
 /// UI state for the on-demand community digest card.
@@ -73,16 +59,13 @@ class LaunchReportsDigestNotifier
   /// Fetches or refreshes the community digest for this family's launch id.
   Future<void> summarize({bool forceRefresh = false}) async {
     state = const LaunchReportsDigestState(isLoading: true);
-    try {
-      final result = await ref
-          .read(conditionReportsRepositoryProvider)
-          .summarizeLaunchReports(launchId: arg, forceRefresh: forceRefresh);
-      state = LaunchReportsDigestState(result: result);
-    } on Object catch (_) {
-      state = const LaunchReportsDigestState(
-        errorMessage: 'Could not load digest. Try again.',
-      );
-    }
+    final result = await ref
+        .read(conditionReportsRepositoryProvider)
+        .summarizeLaunchReports(launchId: arg, forceRefresh: forceRefresh);
+    state = result.when(
+      success: (value) => LaunchReportsDigestState(result: value),
+      failure: (error) => LaunchReportsDigestState(errorMessage: error.message),
+    );
   }
 }
 

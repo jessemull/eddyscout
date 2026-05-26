@@ -127,7 +127,7 @@ void main() {
         container
             .read(conditionsAiSummaryProvider('cathedral_park'))
             .errorMessage,
-        contains('callable failed'),
+        'Could not load AI summary. Try again.',
       );
     });
   });

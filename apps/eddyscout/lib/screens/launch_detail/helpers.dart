@@ -27,12 +27,21 @@ String launchDetailFirebaseUnavailableMessage() {
       'and rebuild with `USE_FIREBASE=true` in `.local.env` (`make run`).';
 }
 
-String launchDetailConditionsErrorMessage(Object error) {
+String launchDetailConditionsErrorMessage(
+  AppLocalizations l10n,
+  Object error,
+) {
+  if (error is ConditionsLoadException) {
+    return error.failure.message;
+  }
+  if (error is AppFailure) {
+    return error.message;
+  }
   final msg = error.toString().toLowerCase();
   if (msg.contains('socket') || msg.contains('network')) {
-    return 'Could not load conditions. Check your connection and try again.';
+    return l10n.launchDetailConditionsErrorNetwork;
   }
-  return 'Could not load conditions. Pull to refresh or try again later.';
+  return l10n.launchDetailConditionsErrorGeneric;
 }
 
 String launchDetailRiverLabel(RiverSystem r) => switch (r) {
@@ -166,7 +175,7 @@ class _ErrorBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(Spacing.lg),
       child: Text(
         message,
         textAlign: TextAlign.center,
