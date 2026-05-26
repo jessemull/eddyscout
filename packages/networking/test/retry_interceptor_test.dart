@@ -163,6 +163,68 @@ void main() {
       expect(calls, 2);
     });
 
+    test('cancels during non-zero backoff when cancelToken fires', () async {
+      var calls = 0;
+      final dio = Dio(BaseOptions(baseUrl: 'https://example.test'));
+      dio.interceptors.add(
+        EddyScoutRetryInterceptor(
+          dio: dio,
+          maxRetries: 2,
+          baseDelay: const Duration(milliseconds: 100),
+        ),
+      );
+      dio.httpClientAdapter = _SequenceAdapter(
+        onFetch: () {
+          calls++;
+          throw DioException(
+            requestOptions: RequestOptions(path: '/data'),
+            type: DioExceptionType.connectionError,
+          );
+        },
+      );
+
+      final cancelToken = CancelToken();
+      final future = dio.get<void>(
+        '/data',
+        cancelToken: cancelToken,
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      cancelToken.cancel('stop');
+
+      await expectLater(future, throwsA(isA<DioException>()));
+      expect(calls, 1);
+    });
+
+    test('retries on unknown DioException type', () async {
+      var calls = 0;
+      final dio = Dio(BaseOptions(baseUrl: 'https://example.test'));
+      dio.interceptors.add(
+        EddyScoutRetryInterceptor(
+          dio: dio,
+          maxRetries: 1,
+          baseDelay: Duration.zero,
+        ),
+      );
+      dio.httpClientAdapter = _SequenceAdapter(
+        onFetch: () {
+          calls++;
+          if (calls == 1) {
+            throw DioException(
+              requestOptions: RequestOptions(path: '/unknown'),
+            );
+          }
+          return _SeqResponse(statusCode: 200, body: '{"ok":true}');
+        },
+      );
+
+      final response = await dio.get<Map<String, dynamic>>(
+        '/unknown',
+        options: Options(responseType: ResponseType.json),
+      );
+      expect(response.statusCode, 200);
+      expect(calls, 2);
+    });
+
     test('cancellation during backoff prevents retry', () async {
       var calls = 0;
       final dio = Dio(BaseOptions(baseUrl: 'https://example.test'));
@@ -201,6 +263,13 @@ void main() {
         dio.interceptors.any((i) => i is EddyScoutRetryInterceptor),
         isTrue,
       );
+    });
+
+    test('uses default configuration values', () {
+      const factory = EddyScoutDioFactory();
+      expect(factory.userAgent, contains('EddyScout'));
+      expect(factory.maxRetries, 3);
+      expect(factory.retryBaseDelay, const Duration(milliseconds: 500));
     });
   });
 }

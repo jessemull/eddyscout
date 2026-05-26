@@ -72,6 +72,21 @@ void main() {
       close();
       expect(close, returnsNormally);
     });
+
+    test('default constructor builds client from factory', () {
+      final client = EddyScoutHttpClient();
+      addTearDown(client.close);
+      expect(client, isA<EddyScoutHttpClient>());
+    });
+
+    test('getNwsJson decodes non-typed Map bodies', () async {
+      adapter.nextJsonBody = <Object, Object?>{'temperature': 55};
+      final client = EddyScoutHttpClient(dio: dio);
+      final json = await client.getNwsJson(
+        Uri.parse('https://api.test/nws_map'),
+      );
+      expect(json?['temperature'], 55);
+    });
   });
 }
 
