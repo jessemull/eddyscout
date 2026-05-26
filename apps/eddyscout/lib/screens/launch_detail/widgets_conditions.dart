@@ -226,7 +226,8 @@ class _WeatherCard extends StatelessWidget {
         : null;
     final windParts = <String>[
       if (w.windSpeedMph != null) '${w.windSpeedMph} mph',
-      if (w.windDirection != null) 'from ${w.windDirection}',
+      if (w.windDirection != null)
+        l10n.launchDetailWindFromDirection(w.windDirection!),
     ];
     return Card(
       child: Padding(

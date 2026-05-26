@@ -39,6 +39,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapRiverDataLoading => 'Still loading river data… try again.';
 
   @override
+  String get mapRouteFailureSameLaunch => 'Choose two different launches.';
+
+  @override
+  String get mapRouteFailureDifferentSystem =>
+      'Pick two launches on the same river system for river routing.';
+
+  @override
+  String mapRouteFailureNoBundledLine(String river) {
+    return 'No bundled river line for \"$river\" yet — routing is only available where hydro GeoJSON exists.';
+  }
+
+  @override
+  String get mapRouteFailurePutInTooFar =>
+      'Put-in is too far from the modeled river line. Try another launch.';
+
+  @override
+  String get mapRouteFailureTakeOutTooFar =>
+      'Take-out is too far from the modeled river line. Try another launch.';
+
+  @override
+  String get mapRouteFailureNoConnectedPath =>
+      'No connected river path between these points in the current data.';
+
+  @override
   String get mapPlanningSemanticsLabel => 'River route planning';
 
   @override
@@ -322,6 +346,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String launchDetailWindLine(String details) {
     return 'Wind: $details';
+  }
+
+  @override
+  String launchDetailWindFromDirection(String direction) {
+    return 'from $direction';
   }
 
   @override

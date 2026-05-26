@@ -154,6 +154,42 @@ abstract class AppLocalizations {
   /// **'Still loading river data… try again.'**
   String get mapRiverDataLoading;
 
+  /// No description provided for @mapRouteFailureSameLaunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose two different launches.'**
+  String get mapRouteFailureSameLaunch;
+
+  /// No description provided for @mapRouteFailureDifferentSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick two launches on the same river system for river routing.'**
+  String get mapRouteFailureDifferentSystem;
+
+  /// No description provided for @mapRouteFailureNoBundledLine.
+  ///
+  /// In en, this message translates to:
+  /// **'No bundled river line for \"{river}\" yet — routing is only available where hydro GeoJSON exists.'**
+  String mapRouteFailureNoBundledLine(String river);
+
+  /// No description provided for @mapRouteFailurePutInTooFar.
+  ///
+  /// In en, this message translates to:
+  /// **'Put-in is too far from the modeled river line. Try another launch.'**
+  String get mapRouteFailurePutInTooFar;
+
+  /// No description provided for @mapRouteFailureTakeOutTooFar.
+  ///
+  /// In en, this message translates to:
+  /// **'Take-out is too far from the modeled river line. Try another launch.'**
+  String get mapRouteFailureTakeOutTooFar;
+
+  /// No description provided for @mapRouteFailureNoConnectedPath.
+  ///
+  /// In en, this message translates to:
+  /// **'No connected river path between these points in the current data.'**
+  String get mapRouteFailureNoConnectedPath;
+
   /// No description provided for @mapPlanningSemanticsLabel.
   ///
   /// In en, this message translates to:
@@ -615,6 +651,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wind: {details}'**
   String launchDetailWindLine(String details);
+
+  /// No description provided for @launchDetailWindFromDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'from {direction}'**
+  String launchDetailWindFromDirection(String direction);
 
   /// No description provided for @launchDetailTemperatureF.
   ///

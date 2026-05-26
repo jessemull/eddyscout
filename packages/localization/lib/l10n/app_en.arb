@@ -13,6 +13,17 @@
   "mapZoomControlsSemantics": "Map zoom controls",
   "mapPickDifferentTakeOut": "Pick a different launch for take-out.",
   "mapRiverDataLoading": "Still loading river data… try again.",
+  "mapRouteFailureSameLaunch": "Choose two different launches.",
+  "mapRouteFailureDifferentSystem": "Pick two launches on the same river system for river routing.",
+  "mapRouteFailureNoBundledLine": "No bundled river line for \"{river}\" yet — routing is only available where hydro GeoJSON exists.",
+  "@mapRouteFailureNoBundledLine": {
+    "placeholders": {
+      "river": {"type": "String"}
+    }
+  },
+  "mapRouteFailurePutInTooFar": "Put-in is too far from the modeled river line. Try another launch.",
+  "mapRouteFailureTakeOutTooFar": "Take-out is too far from the modeled river line. Try another launch.",
+  "mapRouteFailureNoConnectedPath": "No connected river path between these points in the current data.",
   "mapPlanningSemanticsLabel": "River route planning",
   "mapPlanningTitleBeta": "River route (beta)",
   "mapPlanningInstructions": "Tap a launch for put-in, then another for take-out. The line follows bundled open hydro data (approximate centerline)—not for navigation. Several downtown launches sit close together; overlapping pins are separate sites. Clear removes the route line and picks so you can start over. Done closes this panel and clears the route.",
@@ -174,6 +185,12 @@
   "@launchDetailWindLine": {
     "placeholders": {
       "details": {"type": "String"}
+    }
+  },
+  "launchDetailWindFromDirection": "from {direction}",
+  "@launchDetailWindFromDirection": {
+    "placeholders": {
+      "direction": {"type": "String"}
     }
   },
   "launchDetailTemperatureF": "{temp}°F",

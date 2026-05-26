@@ -48,9 +48,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               if (!context.mounted) {
                 return;
               }
+              final localized = _localizedMapSnackBarMessage(
+                l10n: l10n,
+                raw: message,
+              );
               ScaffoldMessenger.of(
                 context,
-              ).showSnackBar(SnackBar(content: Text(message)));
+              ).showSnackBar(SnackBar(content: Text(localized)));
             },
             openLaunchDetail: (launch) {
               if (!context.mounted) {
@@ -62,6 +66,40 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             },
           ),
         );
+  }
+
+  String _localizedMapSnackBarMessage({
+    required AppLocalizations l10n,
+    required String raw,
+  }) {
+    if (raw == 'Choose two different launches.') {
+      return l10n.mapRouteFailureSameLaunch;
+    }
+    if (raw ==
+        'Pick two launches on the same river system for river routing.') {
+      return l10n.mapRouteFailureDifferentSystem;
+    }
+    const noBundledPrefix = 'No bundled river line for "';
+    if (raw.startsWith(noBundledPrefix)) {
+      const start = noBundledPrefix.length;
+      final end = raw.indexOf('"', start);
+      final river = end != -1 ? raw.substring(start, end) : '';
+      return l10n.mapRouteFailureNoBundledLine(river);
+    }
+    if (raw ==
+        'Put-in is too far from the modeled river line. Try another launch.') {
+      return l10n.mapRouteFailurePutInTooFar;
+    }
+    if (raw ==
+        'Take-out is too far from the modeled river line. '
+            'Try another launch.') {
+      return l10n.mapRouteFailureTakeOutTooFar;
+    }
+    if (raw ==
+        'No connected river path between these points in the current data.') {
+      return l10n.mapRouteFailureNoConnectedPath;
+    }
+    return raw;
   }
 
   @override
