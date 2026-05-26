@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:eddyscout_networking/eddyscout_networking.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -165,6 +167,7 @@ void main() {
 
     test('cancels during non-zero backoff when cancelToken fires', () async {
       var calls = 0;
+      final firstFetch = Completer<void>();
       final dio = Dio(BaseOptions(baseUrl: 'https://example.test'));
       dio.interceptors.add(
         EddyScoutRetryInterceptor(
@@ -176,6 +179,9 @@ void main() {
       dio.httpClientAdapter = _SequenceAdapter(
         onFetch: () {
           calls++;
+          if (!firstFetch.isCompleted) {
+            firstFetch.complete();
+          }
           throw DioException(
             requestOptions: RequestOptions(path: '/data'),
             type: DioExceptionType.connectionError,
@@ -188,7 +194,7 @@ void main() {
         '/data',
         cancelToken: cancelToken,
       );
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await firstFetch.future;
       cancelToken.cancel('stop');
 
       await expectLater(future, throwsA(isA<DioException>()));
