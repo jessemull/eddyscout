@@ -122,6 +122,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [x] **(Phase E)** **Default model** path — Haiku via Cloud Function for summaries
 - [x] **(Phase E)** **Snapshot summary (v1)** — `summarizeConditions` + “Summarize with AI” on launch detail
 - [x] **(Phase E)** **Reports digest** (community notes paraphrase; see **Reports** rows above)
+- [x] **(Infra)** Result-based providers + cancellation (CancelToken / callable cancel guards) for conditions, reports, and AI summary
 
 ### Not yet
 
@@ -130,21 +131,38 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase C)** Route planner follow-ups — more rivers / NHD-quality lines, GPX, saved trips
 - [ ] **(Phase C)** GPX export / import
 - [ ] **(Phase C)** Trip log
+- [ ] **(Phase C)** Saved routes (v1) — name/description, categories, favorites, notes, private by default
+- [ ] **(Phase C)** Saved routes metadata (v1) — difficulty, distance, time estimate, exposure, tide dependency, skill level
+- [ ] **(Phase C)** Route editing (v1) — add waypoint(s), drag points, multi-stop, loop routes
 - [ ] **(Phase C)** **Auth** when identity is required for saves
 - [ ] **(Phase D)** Planned trips / trip intent
 - [ ] **(Phase D)** Moderation posture (policy + product, beyond technical queue above)
 - [ ] **(Phase D)** **Live pins** only with explicit privacy/product decision
+- [ ] **(Phase D)** User profile (v1) — basic stats, achievements placeholder, activity history
+- [ ] **(Phase D)** Social feed (v1) — follow, likes/comments, basic posting
+- [ ] **(Phase D)** Trip sharing (v1) — share cards + route screenshots + privacy controls
+- [ ] **(Phase D)** Privacy controls (v1) — public/private trips, blur start/end, hide home launch
+- [ ] **(Phase D)** Community reports expansion — hazards, debris, closures, boat traffic, algae blooms, wildlife
+- [ ] **(Phase D)** Launch contributions (v1) — add/edit launches, photos, description edits, report inaccuracies
+- [ ] **(Phase D)** Reputation / trust (v1) — badges, verified reports, moderation hooks
 - [ ] **(Phase E)** **Model-agnostic client** (`LlmClient`-style abstraction)
 - [ ] **(Phase E)** **Chat + tools** (refresh conditions, list launches, etc.)
 - [ ] **(Phase E)** **Route validation** (LLM + structured gaps, no invented hazards)
 - [ ] **(Phase E)** **Safety intelligence** (canonical facts + optional LLM phrasing)
 - [ ] **(Phase E)** **Ops** — quotas, logging, cost dashboards
+- [ ] **(Phase E)** Go / No-go typed reasons → localized labels (enum/codes + ARB; no raw reason strings in UI)
+- [ ] **(Phase E)** Conditions intelligence (v2) — user thresholds (wind/current/temp), alerts, time windows
+- [ ] **(Phase E)** Dynamic risk scoring (v1) — beginner safe / caution / expert only (wind/gust/current/tide/darkness/temp/exposure)
+- [ ] **(Phase E)** Float plans (v1) — route + emergency contacts + return time + overdue reminder flow
+- [ ] **(Phase E)** Safety alerts (v1) — “storm approaching”, “exceeds your threshold”, “current increasing”
 - [ ] **(Phase F)** **Embedding model** (pluggable API / local)
 - [ ] **(Phase F)** **Launch similarity (v1)** — profiles + nearest neighbors (“Similar ramps”)
 - [ ] **(Phase F)** **Query paths** — from launch + optional NL
 - [ ] **(Phase F)** **Route similarity** (after routes exist)
 - [ ] **(Phase F)** **Hybrid search** (geo / river / skill filters)
 - [ ] **(Phase F)** **Ops** — index versioning, backfill, no live cfs in embeddings
+- [ ] **(Phase F)** AI route recommendations (v1) — “protected for wind”, “good on outgoing tide”, “beginner-friendly nearby”
+- [ ] **(Phase F)** Route discovery surfaces (v1) — nearby, trending, beginner, scenic, weather-appropriate
 
 ### Remaining major features (from the feature table, not all on the build checklist)
 
@@ -155,6 +173,15 @@ These themes in **Feature list (your themes + gaps)** are still largely **future
 - **On-water:** **User location + bearing** to waypoint; **offline** maps / cached conditions
 - **Data / trust:** **Access / permits / tribal** metadata + UI tags
 - **Social (beyond reports):** **Trip log** as history; fuller **social** (find paddlers, etc.) with the MVP non-goals still in mind
+
+Additional feature themes explicitly on the product roadmap but not fully itemized above yet:
+
+- **Trip recording (GPS)** — record/pause/resume/background + distance/duration/speed; later wind/current/tide-adjusted metrics
+- **Live navigation** — on-route guidance, off-route detection, audible/vibration alerts, offline nav
+- **Offline support** — offline maps, offline routes, offline navigation, offline recording, background sync on reconnect
+- **Media** — photos/videos, trip cards, auto-generated summaries
+- **Search & filtering** — route + launch search with facets (distance/difficulty/water type/wind protection/tide suitability/scenic)
+- **Gamification** — achievements, challenges, streaks
 
 ---
 
