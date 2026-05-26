@@ -124,7 +124,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               bottom: MediaQuery.viewPaddingOf(context).bottom + 120,
               child: Semantics(
                 container: true,
-                label: 'Map zoom controls',
+                label: l10n.mapZoomControlsSemantics,
                 child: Material(
                   elevation: 4,
                   borderRadius: BorderRadius.circular(10),

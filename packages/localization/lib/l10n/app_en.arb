@@ -5,107 +5,194 @@
     "description": "The application title"
   },
   "mapScreenTitle": "EddyScout",
-  "@mapScreenTitle": {
-    "description": "Map screen app bar title"
-  },
   "mapPlanRouteTooltip": "Plan river route",
-  "@mapPlanRouteTooltip": {
-    "description": "App bar action to enter route planning mode"
-  },
   "mapExitPlanningTooltip": "Exit route planning",
-  "@mapExitPlanningTooltip": {
-    "description": "App bar action to leave route planning mode"
-  },
   "mapZoomInLabel": "Zoom in",
-  "@mapZoomInLabel": {
-    "description": "Accessibility label for map zoom in control"
-  },
   "mapZoomOutLabel": "Zoom out",
-  "@mapZoomOutLabel": {
-    "description": "Accessibility label for map zoom out control"
-  },
   "mapShowAllLaunchesLabel": "Show all launches",
-  "@mapShowAllLaunchesLabel": {
-    "description": "Accessibility label for fit-all-launches control"
-  },
+  "mapZoomControlsSemantics": "Map zoom controls",
   "mapPickDifferentTakeOut": "Pick a different launch for take-out.",
-  "@mapPickDifferentTakeOut": {
-    "description": "Snack bar when take-out equals put-in"
-  },
   "mapRiverDataLoading": "Still loading river data… try again.",
-  "@mapRiverDataLoading": {
-    "description": "Snack bar when hydro planner is not ready"
+  "mapPlanningSemanticsLabel": "River route planning",
+  "mapPlanningTitleBeta": "River route (beta)",
+  "mapPlanningInstructions": "Tap a launch for put-in, then another for take-out. The line follows bundled open hydro data (approximate centerline)—not for navigation. Several downtown launches sit close together; overlapping pins are separate sites. Clear removes the route line and picks so you can start over. Done closes this panel and clears the route.",
+  "mapPlanningPutInName": "Put-in: {name}",
+  "@mapPlanningPutInName": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
   },
-  "launchDetailConditionsErrorNetwork": "Could not load conditions. Check your connection and try again.",
-  "@launchDetailConditionsErrorNetwork": {
-    "description": "Error when conditions fetch fails due to network"
+  "mapPlanningTakeOutName": "Take-out: {name}",
+  "@mapPlanningTakeOutName": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
   },
-  "launchDetailConditionsErrorGeneric": "Could not load conditions. Pull to refresh or try again later.",
-  "@launchDetailConditionsErrorGeneric": {
-    "description": "Generic conditions load error"
-  },
-  "launchDetailSkillSectionTitle": "Skill (wind thresholds)",
-  "@launchDetailSkillSectionTitle": {
-    "description": "Section title for go/no-go skill profile selector"
-  },
-  "launchDetailSkillBeginner": "Beginner",
-  "@launchDetailSkillBeginner": {
-    "description": "Beginner skill profile segment label"
-  },
-  "launchDetailSkillIntermediate": "Intermed.",
-  "@launchDetailSkillIntermediate": {
-    "description": "Intermediate skill profile segment label"
-  },
-  "launchDetailSkillAdvanced": "Advanced",
-  "@launchDetailSkillAdvanced": {
-    "description": "Advanced skill profile segment label"
-  },
-  "launchDetailReportSubmitError": "Could not submit report. Try again in a moment.",
-  "@launchDetailReportSubmitError": {
-    "description": "Error after failed condition report submit"
-  },
-  "launchDetailDigestError": "Could not load digest. Try again.",
-  "@launchDetailDigestError": {
-    "description": "Error after failed community digest fetch"
-  },
-  "launchDetailAiSummaryError": "Could not load AI summary. Try again.",
-  "@launchDetailAiSummaryError": {
-    "description": "Error after failed AI conditions summary"
-  },
-  "cancelButton": "Cancel",
-  "@cancelButton": {
-    "description": "Generic cancel button label"
-  },
-  "submitButton": "Submit",
-  "@submitButton": {
-    "description": "Generic submit button label"
-  },
-  "mapPlanningPutInLabel": "Put-in",
-  "@mapPlanningPutInLabel": {
-    "description": "Route planning put-in launch label"
-  },
-  "mapPlanningTakeOutLabel": "Take-out",
-  "@mapPlanningTakeOutLabel": {
-    "description": "Route planning take-out launch label"
+  "mapPlanningRouteLengthKm": "Along river (estimate): {km} km",
+  "@mapPlanningRouteLengthKm": {
+    "placeholders": {
+      "km": {"type": "String"}
+    }
   },
   "mapPlanningClearLabel": "Clear",
-  "@mapPlanningClearLabel": {
-    "description": "Clear route planning selection"
-  },
   "mapPlanningDoneLabel": "Done",
-  "@mapPlanningDoneLabel": {
-    "description": "Finish route planning mode"
+  "launchDetailConditionsErrorNetwork": "Could not load conditions. Check your connection and try again.",
+  "launchDetailConditionsErrorGeneric": "Could not load conditions. Pull to refresh or try again later.",
+  "launchDetailSkillSectionTitle": "Skill (wind thresholds)",
+  "launchDetailSkillBeginner": "Beginner",
+  "launchDetailSkillIntermediate": "Intermed.",
+  "launchDetailSkillAdvanced": "Advanced",
+  "launchDetailReportSubmitError": "Could not submit report. Try again in a moment.",
+  "launchDetailDigestError": "Could not load digest. Try again.",
+  "launchDetailAiSummaryError": "Could not load AI summary. Try again.",
+  "launchDetailReportConditionsTitle": "Report conditions",
+  "launchDetailReportConditionsSubtitle": "Short note to help others (stored securely)",
+  "launchDetailConditionsSection": "Conditions",
+  "launchDetailDisclaimerTitle": "Disclaimer",
+  "launchDetailDisclaimerBody": "EddyScout shows third-party data for planning only. It is not a substitute for your judgment, skill assessment, or on-site scouting. River and marine conditions can change rapidly.",
+  "launchDetailDataSourcesTitle": "Data sources",
+  "launchDetailFirebaseUnavailableIntro": "Firebase did not start, so AI summary and reports are unavailable.",
+  "launchDetailFirebaseUnavailableBody": "Firebase features need a successful app init and anonymous sign-in. Add google-services.json, enable Anonymous auth, deploy functions, and rebuild with USE_FIREBASE=true in .local.env (make run).",
+  "launchDetailFirebaseErrorLabel": "Error: {error}",
+  "@launchDetailFirebaseErrorLabel": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
   },
+  "launchDetailRiverWillamette": "Willamette",
+  "launchDetailRiverColumbia": "Columbia / regional",
+  "launchDetailRiverClackamas": "Clackamas",
+  "launchDetailRiverSlough": "Slough / confluence",
+  "launchDetailReportThanks": "Thanks—report submitted.",
+  "launchDetailReportAddMessageFirst": "Add a short message first.",
+  "launchDetailReportsLoadError": "Could not load reports: {message}",
+  "@launchDetailReportsLoadError": {
+    "placeholders": {
+      "message": {"type": "String"}
+    }
+  },
+  "launchDetailReportsUnauthHint": "If this persists: fully stop the app and run again (not hot reload); confirm listConditionReports is deployed with Cloud Run invoker public (see firebase/DEPLOY.md); on emulators, use a Google Play system image.",
+  "launchDetailTimeJustNow": "Just now",
+  "launchDetailTimeMinutesAgo": "{count}m ago",
+  "@launchDetailTimeMinutesAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "launchDetailTimeHoursAgo": "{count}h ago",
+  "@launchDetailTimeHoursAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "launchDetailTimeDaysAgo": "{count}d ago",
+  "@launchDetailTimeDaysAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "launchDetailAttributionLaunchList": "Launch list: curated for EddyScout (verify access locally).",
+  "launchDetailAttributionWeather": "Weather: {source}.",
+  "@launchDetailAttributionWeather": {
+    "placeholders": {
+      "source": {"type": "String"}
+    }
+  },
+  "launchDetailAttributionTides": "Tides: NOAA CO-OPS (station {station}, {datum}).",
+  "@launchDetailAttributionTides": {
+    "placeholders": {
+      "station": {"type": "String"},
+      "datum": {"type": "String"}
+    }
+  },
+  "launchDetailAttributionMarine": "Marine: NWS zone {zone}.",
+  "@launchDetailAttributionMarine": {
+    "placeholders": {
+      "zone": {"type": "String"}
+    }
+  },
+  "launchDetailAttributionFlow": "Flow: USGS NWIS (site {site}).",
+  "@launchDetailAttributionFlow": {
+    "placeholders": {
+      "site": {"type": "String"}
+    }
+  },
+  "launchDetailAiSummaryTitle": "AI summary",
+  "launchDetailAiSummaryVerifyHint": "Verify against the raw data below—AI can misread or omit details.",
+  "launchDetailCommunityDigestTitle": "Community digest (AI)",
+  "launchDetailCommunityDigestSubtitle": "Paraphrases recent paddler notes below—not official conditions or river status.",
+  "launchDetailDigestNoReports": "No paddler reports to summarize yet.",
+  "launchDetailDigestFromCache": "From cache (same reports; regenerate if someone just posted).",
+  "launchDetailDigestReadIndividualHint": "Read individual reports below—summaries can miss nuance.",
+  "launchDetailRecentReportsTitle": "Recent reports",
+  "launchDetailRecentReportsSubtitle": "Raw messages (newest first). Compare with the digest above.",
+  "launchDetailNoPaddlerReports": "No paddler reports yet.",
+  "launchDetailReportYou": "You",
+  "launchDetailReportAnonymous": "Anonymous paddler",
+  "launchDetailConditionReportTitle": "Condition report",
+  "launchDetailConditionReportHint": "What are you seeing on the water?",
+  "launchDetailGoNoGoTitle": "Go / No-go (informational)",
+  "launchDetailGoNoGoNoWarnings": "No stub warnings from wind, marine text, or flow thresholds for this launch.",
+  "launchDetailGoNoGoStubDisclaimer": "Stub rules only—not a substitute for your judgment, skill, or scouting on site.",
+  "launchDetailWeatherTitle": "Weather",
+  "launchDetailRiverFlowTitle": "River flow (USGS)",
+  "launchDetailTidesTitle": "Tides",
+  "launchDetailNoTideData": "No tide data",
+  "launchDetailMarineTitle": "Marine (NWS {zone})",
+  "@launchDetailMarineTitle": {
+    "placeholders": {
+      "zone": {"type": "String"}
+    }
+  },
+  "launchDetailUnavailable": "Unavailable",
+  "launchDetailNoMarineForecast": "No marine forecast",
+  "launchDetailWeatherSourceOpenMeteoBackup": "Open-Meteo (backup)",
+  "launchDetailWeatherSourceNws": "National Weather Service",
+  "launchDetailTideMinorReferenceNote": "Reference only — timing/height differs upriver from the station.",
+  "launchDetailRiverFlowNoData": "No data",
+  "launchDetailMarineExpandHint": "{count} period(s) · tap to read",
+  "@launchDetailMarineExpandHint": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "launchDetailMarinePeriodLabel": "Period {number}",
+  "@launchDetailMarinePeriodLabel": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "launchNotFoundTitle": "Launch not found",
+  "launchNotFoundBody": "That launch is not in the curated list.",
+  "launchDetailWindGust": "Gust {speed} mph",
+  "@launchDetailWindGust": {
+    "placeholders": {
+      "speed": {"type": "String"}
+    }
+  },
+  "launchDetailWindLine": "Wind: {details}",
+  "@launchDetailWindLine": {
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "launchDetailTemperatureF": "{temp}°F",
+  "@launchDetailTemperatureF": {
+    "placeholders": {
+      "temp": {"type": "String"}
+    }
+  },
+  "retryButton": "Retry",
+  "regenerateButton": "Regenerate",
+  "checkAgainButton": "Check again",
+  "summarizeWithAiButton": "Summarize with AI",
+  "summarizeRecentReportsButton": "Summarize recent reports",
+  "cancelButton": "Cancel",
+  "submitButton": "Submit",
   "missingMapboxTokenTitle": "Mapbox token required",
-  "@missingMapboxTokenTitle": {
-    "description": "Screen title when MAPBOX_ACCESS_TOKEN is missing"
-  },
+  "missingMapboxTokenDevIntro": "Local dev: create .local.env from the template and run via the script:",
+  "missingMapboxTokenCompileIntro": "Or pass at compile time:",
+  "missingMapboxTokenSecurityNote": "Never commit .local.env. Use a restricted public token in Mapbox.",
   "webMapPlaceholderTitle": "Map on mobile",
-  "@webMapPlaceholderTitle": {
-    "description": "Web placeholder screen title"
-  },
-  "webMapPlaceholderBody": "Use the Android or iOS app for the interactive map.",
-  "@webMapPlaceholderBody": {
-    "description": "Web placeholder screen body"
-  }
+  "webMapPlaceholderBody": "Use the Android or iOS app for the interactive map."
 }

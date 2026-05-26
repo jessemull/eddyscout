@@ -100,157 +100,601 @@ abstract class AppLocalizations {
   /// **'EddyScout'**
   String get appTitle;
 
-  /// Map screen app bar title
+  /// No description provided for @mapScreenTitle.
   ///
   /// In en, this message translates to:
   /// **'EddyScout'**
   String get mapScreenTitle;
 
-  /// App bar action to enter route planning mode
+  /// No description provided for @mapPlanRouteTooltip.
   ///
   /// In en, this message translates to:
   /// **'Plan river route'**
   String get mapPlanRouteTooltip;
 
-  /// App bar action to leave route planning mode
+  /// No description provided for @mapExitPlanningTooltip.
   ///
   /// In en, this message translates to:
   /// **'Exit route planning'**
   String get mapExitPlanningTooltip;
 
-  /// Accessibility label for map zoom in control
+  /// No description provided for @mapZoomInLabel.
   ///
   /// In en, this message translates to:
   /// **'Zoom in'**
   String get mapZoomInLabel;
 
-  /// Accessibility label for map zoom out control
+  /// No description provided for @mapZoomOutLabel.
   ///
   /// In en, this message translates to:
   /// **'Zoom out'**
   String get mapZoomOutLabel;
 
-  /// Accessibility label for fit-all-launches control
+  /// No description provided for @mapShowAllLaunchesLabel.
   ///
   /// In en, this message translates to:
   /// **'Show all launches'**
   String get mapShowAllLaunchesLabel;
 
-  /// Snack bar when take-out equals put-in
+  /// No description provided for @mapZoomControlsSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Map zoom controls'**
+  String get mapZoomControlsSemantics;
+
+  /// No description provided for @mapPickDifferentTakeOut.
   ///
   /// In en, this message translates to:
   /// **'Pick a different launch for take-out.'**
   String get mapPickDifferentTakeOut;
 
-  /// Snack bar when hydro planner is not ready
+  /// No description provided for @mapRiverDataLoading.
   ///
   /// In en, this message translates to:
   /// **'Still loading river data… try again.'**
   String get mapRiverDataLoading;
 
-  /// Error when conditions fetch fails due to network
+  /// No description provided for @mapPlanningSemanticsLabel.
   ///
   /// In en, this message translates to:
-  /// **'Could not load conditions. Check your connection and try again.'**
-  String get launchDetailConditionsErrorNetwork;
+  /// **'River route planning'**
+  String get mapPlanningSemanticsLabel;
 
-  /// Generic conditions load error
+  /// No description provided for @mapPlanningTitleBeta.
   ///
   /// In en, this message translates to:
-  /// **'Could not load conditions. Pull to refresh or try again later.'**
-  String get launchDetailConditionsErrorGeneric;
+  /// **'River route (beta)'**
+  String get mapPlanningTitleBeta;
 
-  /// Section title for go/no-go skill profile selector
+  /// No description provided for @mapPlanningInstructions.
   ///
   /// In en, this message translates to:
-  /// **'Skill (wind thresholds)'**
-  String get launchDetailSkillSectionTitle;
+  /// **'Tap a launch for put-in, then another for take-out. The line follows bundled open hydro data (approximate centerline)—not for navigation. Several downtown launches sit close together; overlapping pins are separate sites. Clear removes the route line and picks so you can start over. Done closes this panel and clears the route.'**
+  String get mapPlanningInstructions;
 
-  /// Beginner skill profile segment label
+  /// No description provided for @mapPlanningPutInName.
   ///
   /// In en, this message translates to:
-  /// **'Beginner'**
-  String get launchDetailSkillBeginner;
+  /// **'Put-in: {name}'**
+  String mapPlanningPutInName(String name);
 
-  /// Intermediate skill profile segment label
+  /// No description provided for @mapPlanningTakeOutName.
   ///
   /// In en, this message translates to:
-  /// **'Intermed.'**
-  String get launchDetailSkillIntermediate;
+  /// **'Take-out: {name}'**
+  String mapPlanningTakeOutName(String name);
 
-  /// Advanced skill profile segment label
+  /// No description provided for @mapPlanningRouteLengthKm.
   ///
   /// In en, this message translates to:
-  /// **'Advanced'**
-  String get launchDetailSkillAdvanced;
+  /// **'Along river (estimate): {km} km'**
+  String mapPlanningRouteLengthKm(String km);
 
-  /// Error after failed condition report submit
-  ///
-  /// In en, this message translates to:
-  /// **'Could not submit report. Try again in a moment.'**
-  String get launchDetailReportSubmitError;
-
-  /// Error after failed community digest fetch
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load digest. Try again.'**
-  String get launchDetailDigestError;
-
-  /// Error after failed AI conditions summary
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load AI summary. Try again.'**
-  String get launchDetailAiSummaryError;
-
-  /// Generic cancel button label
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get cancelButton;
-
-  /// Generic submit button label
-  ///
-  /// In en, this message translates to:
-  /// **'Submit'**
-  String get submitButton;
-
-  /// Route planning put-in launch label
-  ///
-  /// In en, this message translates to:
-  /// **'Put-in'**
-  String get mapPlanningPutInLabel;
-
-  /// Route planning take-out launch label
-  ///
-  /// In en, this message translates to:
-  /// **'Take-out'**
-  String get mapPlanningTakeOutLabel;
-
-  /// Clear route planning selection
+  /// No description provided for @mapPlanningClearLabel.
   ///
   /// In en, this message translates to:
   /// **'Clear'**
   String get mapPlanningClearLabel;
 
-  /// Finish route planning mode
+  /// No description provided for @mapPlanningDoneLabel.
   ///
   /// In en, this message translates to:
   /// **'Done'**
   String get mapPlanningDoneLabel;
 
-  /// Screen title when MAPBOX_ACCESS_TOKEN is missing
+  /// No description provided for @launchDetailConditionsErrorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load conditions. Check your connection and try again.'**
+  String get launchDetailConditionsErrorNetwork;
+
+  /// No description provided for @launchDetailConditionsErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load conditions. Pull to refresh or try again later.'**
+  String get launchDetailConditionsErrorGeneric;
+
+  /// No description provided for @launchDetailSkillSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Skill (wind thresholds)'**
+  String get launchDetailSkillSectionTitle;
+
+  /// No description provided for @launchDetailSkillBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner'**
+  String get launchDetailSkillBeginner;
+
+  /// No description provided for @launchDetailSkillIntermediate.
+  ///
+  /// In en, this message translates to:
+  /// **'Intermed.'**
+  String get launchDetailSkillIntermediate;
+
+  /// No description provided for @launchDetailSkillAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get launchDetailSkillAdvanced;
+
+  /// No description provided for @launchDetailReportSubmitError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not submit report. Try again in a moment.'**
+  String get launchDetailReportSubmitError;
+
+  /// No description provided for @launchDetailDigestError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load digest. Try again.'**
+  String get launchDetailDigestError;
+
+  /// No description provided for @launchDetailAiSummaryError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load AI summary. Try again.'**
+  String get launchDetailAiSummaryError;
+
+  /// No description provided for @launchDetailReportConditionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report conditions'**
+  String get launchDetailReportConditionsTitle;
+
+  /// No description provided for @launchDetailReportConditionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Short note to help others (stored securely)'**
+  String get launchDetailReportConditionsSubtitle;
+
+  /// No description provided for @launchDetailConditionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions'**
+  String get launchDetailConditionsSection;
+
+  /// No description provided for @launchDetailDisclaimerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disclaimer'**
+  String get launchDetailDisclaimerTitle;
+
+  /// No description provided for @launchDetailDisclaimerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'EddyScout shows third-party data for planning only. It is not a substitute for your judgment, skill assessment, or on-site scouting. River and marine conditions can change rapidly.'**
+  String get launchDetailDisclaimerBody;
+
+  /// No description provided for @launchDetailDataSourcesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data sources'**
+  String get launchDetailDataSourcesTitle;
+
+  /// No description provided for @launchDetailFirebaseUnavailableIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Firebase did not start, so AI summary and reports are unavailable.'**
+  String get launchDetailFirebaseUnavailableIntro;
+
+  /// No description provided for @launchDetailFirebaseUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Firebase features need a successful app init and anonymous sign-in. Add google-services.json, enable Anonymous auth, deploy functions, and rebuild with USE_FIREBASE=true in .local.env (make run).'**
+  String get launchDetailFirebaseUnavailableBody;
+
+  /// No description provided for @launchDetailFirebaseErrorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String launchDetailFirebaseErrorLabel(String error);
+
+  /// No description provided for @launchDetailRiverWillamette.
+  ///
+  /// In en, this message translates to:
+  /// **'Willamette'**
+  String get launchDetailRiverWillamette;
+
+  /// No description provided for @launchDetailRiverColumbia.
+  ///
+  /// In en, this message translates to:
+  /// **'Columbia / regional'**
+  String get launchDetailRiverColumbia;
+
+  /// No description provided for @launchDetailRiverClackamas.
+  ///
+  /// In en, this message translates to:
+  /// **'Clackamas'**
+  String get launchDetailRiverClackamas;
+
+  /// No description provided for @launchDetailRiverSlough.
+  ///
+  /// In en, this message translates to:
+  /// **'Slough / confluence'**
+  String get launchDetailRiverSlough;
+
+  /// No description provided for @launchDetailReportThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks—report submitted.'**
+  String get launchDetailReportThanks;
+
+  /// No description provided for @launchDetailReportAddMessageFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a short message first.'**
+  String get launchDetailReportAddMessageFirst;
+
+  /// No description provided for @launchDetailReportsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load reports: {message}'**
+  String launchDetailReportsLoadError(String message);
+
+  /// No description provided for @launchDetailReportsUnauthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If this persists: fully stop the app and run again (not hot reload); confirm listConditionReports is deployed with Cloud Run invoker public (see firebase/DEPLOY.md); on emulators, use a Google Play system image.'**
+  String get launchDetailReportsUnauthHint;
+
+  /// No description provided for @launchDetailTimeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get launchDetailTimeJustNow;
+
+  /// No description provided for @launchDetailTimeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String launchDetailTimeMinutesAgo(int count);
+
+  /// No description provided for @launchDetailTimeHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String launchDetailTimeHoursAgo(int count);
+
+  /// No description provided for @launchDetailTimeDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String launchDetailTimeDaysAgo(int count);
+
+  /// No description provided for @launchDetailAttributionLaunchList.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch list: curated for EddyScout (verify access locally).'**
+  String get launchDetailAttributionLaunchList;
+
+  /// No description provided for @launchDetailAttributionWeather.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather: {source}.'**
+  String launchDetailAttributionWeather(String source);
+
+  /// No description provided for @launchDetailAttributionTides.
+  ///
+  /// In en, this message translates to:
+  /// **'Tides: NOAA CO-OPS (station {station}, {datum}).'**
+  String launchDetailAttributionTides(String station, String datum);
+
+  /// No description provided for @launchDetailAttributionMarine.
+  ///
+  /// In en, this message translates to:
+  /// **'Marine: NWS zone {zone}.'**
+  String launchDetailAttributionMarine(String zone);
+
+  /// No description provided for @launchDetailAttributionFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Flow: USGS NWIS (site {site}).'**
+  String launchDetailAttributionFlow(String site);
+
+  /// No description provided for @launchDetailAiSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI summary'**
+  String get launchDetailAiSummaryTitle;
+
+  /// No description provided for @launchDetailAiSummaryVerifyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify against the raw data below—AI can misread or omit details.'**
+  String get launchDetailAiSummaryVerifyHint;
+
+  /// No description provided for @launchDetailCommunityDigestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Community digest (AI)'**
+  String get launchDetailCommunityDigestTitle;
+
+  /// No description provided for @launchDetailCommunityDigestSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paraphrases recent paddler notes below—not official conditions or river status.'**
+  String get launchDetailCommunityDigestSubtitle;
+
+  /// No description provided for @launchDetailDigestNoReports.
+  ///
+  /// In en, this message translates to:
+  /// **'No paddler reports to summarize yet.'**
+  String get launchDetailDigestNoReports;
+
+  /// No description provided for @launchDetailDigestFromCache.
+  ///
+  /// In en, this message translates to:
+  /// **'From cache (same reports; regenerate if someone just posted).'**
+  String get launchDetailDigestFromCache;
+
+  /// No description provided for @launchDetailDigestReadIndividualHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Read individual reports below—summaries can miss nuance.'**
+  String get launchDetailDigestReadIndividualHint;
+
+  /// No description provided for @launchDetailRecentReportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent reports'**
+  String get launchDetailRecentReportsTitle;
+
+  /// No description provided for @launchDetailRecentReportsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw messages (newest first). Compare with the digest above.'**
+  String get launchDetailRecentReportsSubtitle;
+
+  /// No description provided for @launchDetailNoPaddlerReports.
+  ///
+  /// In en, this message translates to:
+  /// **'No paddler reports yet.'**
+  String get launchDetailNoPaddlerReports;
+
+  /// No description provided for @launchDetailReportYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get launchDetailReportYou;
+
+  /// No description provided for @launchDetailReportAnonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous paddler'**
+  String get launchDetailReportAnonymous;
+
+  /// No description provided for @launchDetailConditionReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition report'**
+  String get launchDetailConditionReportTitle;
+
+  /// No description provided for @launchDetailConditionReportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you seeing on the water?'**
+  String get launchDetailConditionReportHint;
+
+  /// No description provided for @launchDetailGoNoGoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Go / No-go (informational)'**
+  String get launchDetailGoNoGoTitle;
+
+  /// No description provided for @launchDetailGoNoGoNoWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'No stub warnings from wind, marine text, or flow thresholds for this launch.'**
+  String get launchDetailGoNoGoNoWarnings;
+
+  /// No description provided for @launchDetailGoNoGoStubDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Stub rules only—not a substitute for your judgment, skill, or scouting on site.'**
+  String get launchDetailGoNoGoStubDisclaimer;
+
+  /// No description provided for @launchDetailWeatherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather'**
+  String get launchDetailWeatherTitle;
+
+  /// No description provided for @launchDetailRiverFlowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'River flow (USGS)'**
+  String get launchDetailRiverFlowTitle;
+
+  /// No description provided for @launchDetailTidesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tides'**
+  String get launchDetailTidesTitle;
+
+  /// No description provided for @launchDetailNoTideData.
+  ///
+  /// In en, this message translates to:
+  /// **'No tide data'**
+  String get launchDetailNoTideData;
+
+  /// No description provided for @launchDetailMarineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Marine (NWS {zone})'**
+  String launchDetailMarineTitle(String zone);
+
+  /// No description provided for @launchDetailUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get launchDetailUnavailable;
+
+  /// No description provided for @launchDetailNoMarineForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'No marine forecast'**
+  String get launchDetailNoMarineForecast;
+
+  /// No description provided for @launchDetailWeatherSourceOpenMeteoBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-Meteo (backup)'**
+  String get launchDetailWeatherSourceOpenMeteoBackup;
+
+  /// No description provided for @launchDetailWeatherSourceNws.
+  ///
+  /// In en, this message translates to:
+  /// **'National Weather Service'**
+  String get launchDetailWeatherSourceNws;
+
+  /// No description provided for @launchDetailTideMinorReferenceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference only — timing/height differs upriver from the station.'**
+  String get launchDetailTideMinorReferenceNote;
+
+  /// No description provided for @launchDetailRiverFlowNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get launchDetailRiverFlowNoData;
+
+  /// No description provided for @launchDetailMarineExpandHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} period(s) · tap to read'**
+  String launchDetailMarineExpandHint(int count);
+
+  /// No description provided for @launchDetailMarinePeriodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Period {number}'**
+  String launchDetailMarinePeriodLabel(int number);
+
+  /// No description provided for @launchNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch not found'**
+  String get launchNotFoundTitle;
+
+  /// No description provided for @launchNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'That launch is not in the curated list.'**
+  String get launchNotFoundBody;
+
+  /// No description provided for @launchDetailWindGust.
+  ///
+  /// In en, this message translates to:
+  /// **'Gust {speed} mph'**
+  String launchDetailWindGust(String speed);
+
+  /// No description provided for @launchDetailWindLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind: {details}'**
+  String launchDetailWindLine(String details);
+
+  /// No description provided for @launchDetailTemperatureF.
+  ///
+  /// In en, this message translates to:
+  /// **'{temp}°F'**
+  String launchDetailTemperatureF(String temp);
+
+  /// No description provided for @retryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retryButton;
+
+  /// No description provided for @regenerateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Regenerate'**
+  String get regenerateButton;
+
+  /// No description provided for @checkAgainButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get checkAgainButton;
+
+  /// No description provided for @summarizeWithAiButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize with AI'**
+  String get summarizeWithAiButton;
+
+  /// No description provided for @summarizeRecentReportsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize recent reports'**
+  String get summarizeRecentReportsButton;
+
+  /// No description provided for @cancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelButton;
+
+  /// No description provided for @submitButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submitButton;
+
+  /// No description provided for @missingMapboxTokenTitle.
   ///
   /// In en, this message translates to:
   /// **'Mapbox token required'**
   String get missingMapboxTokenTitle;
 
-  /// Web placeholder screen title
+  /// No description provided for @missingMapboxTokenDevIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Local dev: create .local.env from the template and run via the script:'**
+  String get missingMapboxTokenDevIntro;
+
+  /// No description provided for @missingMapboxTokenCompileIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Or pass at compile time:'**
+  String get missingMapboxTokenCompileIntro;
+
+  /// No description provided for @missingMapboxTokenSecurityNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Never commit .local.env. Use a restricted public token in Mapbox.'**
+  String get missingMapboxTokenSecurityNote;
+
+  /// No description provided for @webMapPlaceholderTitle.
   ///
   /// In en, this message translates to:
   /// **'Map on mobile'**
   String get webMapPlaceholderTitle;
 
-  /// Web placeholder screen body
+  /// No description provided for @webMapPlaceholderBody.
   ///
   /// In en, this message translates to:
   /// **'Use the Android or iOS app for the interactive map.'**

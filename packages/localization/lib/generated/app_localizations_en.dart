@@ -30,10 +30,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapShowAllLaunchesLabel => 'Show all launches';
 
   @override
+  String get mapZoomControlsSemantics => 'Map zoom controls';
+
+  @override
   String get mapPickDifferentTakeOut => 'Pick a different launch for take-out.';
 
   @override
   String get mapRiverDataLoading => 'Still loading river data… try again.';
+
+  @override
+  String get mapPlanningSemanticsLabel => 'River route planning';
+
+  @override
+  String get mapPlanningTitleBeta => 'River route (beta)';
+
+  @override
+  String get mapPlanningInstructions =>
+      'Tap a launch for put-in, then another for take-out. The line follows bundled open hydro data (approximate centerline)—not for navigation. Several downtown launches sit close together; overlapping pins are separate sites. Clear removes the route line and picks so you can start over. Done closes this panel and clears the route.';
+
+  @override
+  String mapPlanningPutInName(String name) {
+    return 'Put-in: $name';
+  }
+
+  @override
+  String mapPlanningTakeOutName(String name) {
+    return 'Take-out: $name';
+  }
+
+  @override
+  String mapPlanningRouteLengthKm(String km) {
+    return 'Along river (estimate): $km km';
+  }
+
+  @override
+  String get mapPlanningClearLabel => 'Clear';
+
+  @override
+  String get mapPlanningDoneLabel => 'Done';
 
   @override
   String get launchDetailConditionsErrorNetwork =>
@@ -67,25 +101,268 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not load AI summary. Try again.';
 
   @override
+  String get launchDetailReportConditionsTitle => 'Report conditions';
+
+  @override
+  String get launchDetailReportConditionsSubtitle =>
+      'Short note to help others (stored securely)';
+
+  @override
+  String get launchDetailConditionsSection => 'Conditions';
+
+  @override
+  String get launchDetailDisclaimerTitle => 'Disclaimer';
+
+  @override
+  String get launchDetailDisclaimerBody =>
+      'EddyScout shows third-party data for planning only. It is not a substitute for your judgment, skill assessment, or on-site scouting. River and marine conditions can change rapidly.';
+
+  @override
+  String get launchDetailDataSourcesTitle => 'Data sources';
+
+  @override
+  String get launchDetailFirebaseUnavailableIntro =>
+      'Firebase did not start, so AI summary and reports are unavailable.';
+
+  @override
+  String get launchDetailFirebaseUnavailableBody =>
+      'Firebase features need a successful app init and anonymous sign-in. Add google-services.json, enable Anonymous auth, deploy functions, and rebuild with USE_FIREBASE=true in .local.env (make run).';
+
+  @override
+  String launchDetailFirebaseErrorLabel(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get launchDetailRiverWillamette => 'Willamette';
+
+  @override
+  String get launchDetailRiverColumbia => 'Columbia / regional';
+
+  @override
+  String get launchDetailRiverClackamas => 'Clackamas';
+
+  @override
+  String get launchDetailRiverSlough => 'Slough / confluence';
+
+  @override
+  String get launchDetailReportThanks => 'Thanks—report submitted.';
+
+  @override
+  String get launchDetailReportAddMessageFirst => 'Add a short message first.';
+
+  @override
+  String launchDetailReportsLoadError(String message) {
+    return 'Could not load reports: $message';
+  }
+
+  @override
+  String get launchDetailReportsUnauthHint =>
+      'If this persists: fully stop the app and run again (not hot reload); confirm listConditionReports is deployed with Cloud Run invoker public (see firebase/DEPLOY.md); on emulators, use a Google Play system image.';
+
+  @override
+  String get launchDetailTimeJustNow => 'Just now';
+
+  @override
+  String launchDetailTimeMinutesAgo(int count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String launchDetailTimeHoursAgo(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String launchDetailTimeDaysAgo(int count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String get launchDetailAttributionLaunchList =>
+      'Launch list: curated for EddyScout (verify access locally).';
+
+  @override
+  String launchDetailAttributionWeather(String source) {
+    return 'Weather: $source.';
+  }
+
+  @override
+  String launchDetailAttributionTides(String station, String datum) {
+    return 'Tides: NOAA CO-OPS (station $station, $datum).';
+  }
+
+  @override
+  String launchDetailAttributionMarine(String zone) {
+    return 'Marine: NWS zone $zone.';
+  }
+
+  @override
+  String launchDetailAttributionFlow(String site) {
+    return 'Flow: USGS NWIS (site $site).';
+  }
+
+  @override
+  String get launchDetailAiSummaryTitle => 'AI summary';
+
+  @override
+  String get launchDetailAiSummaryVerifyHint =>
+      'Verify against the raw data below—AI can misread or omit details.';
+
+  @override
+  String get launchDetailCommunityDigestTitle => 'Community digest (AI)';
+
+  @override
+  String get launchDetailCommunityDigestSubtitle =>
+      'Paraphrases recent paddler notes below—not official conditions or river status.';
+
+  @override
+  String get launchDetailDigestNoReports =>
+      'No paddler reports to summarize yet.';
+
+  @override
+  String get launchDetailDigestFromCache =>
+      'From cache (same reports; regenerate if someone just posted).';
+
+  @override
+  String get launchDetailDigestReadIndividualHint =>
+      'Read individual reports below—summaries can miss nuance.';
+
+  @override
+  String get launchDetailRecentReportsTitle => 'Recent reports';
+
+  @override
+  String get launchDetailRecentReportsSubtitle =>
+      'Raw messages (newest first). Compare with the digest above.';
+
+  @override
+  String get launchDetailNoPaddlerReports => 'No paddler reports yet.';
+
+  @override
+  String get launchDetailReportYou => 'You';
+
+  @override
+  String get launchDetailReportAnonymous => 'Anonymous paddler';
+
+  @override
+  String get launchDetailConditionReportTitle => 'Condition report';
+
+  @override
+  String get launchDetailConditionReportHint =>
+      'What are you seeing on the water?';
+
+  @override
+  String get launchDetailGoNoGoTitle => 'Go / No-go (informational)';
+
+  @override
+  String get launchDetailGoNoGoNoWarnings =>
+      'No stub warnings from wind, marine text, or flow thresholds for this launch.';
+
+  @override
+  String get launchDetailGoNoGoStubDisclaimer =>
+      'Stub rules only—not a substitute for your judgment, skill, or scouting on site.';
+
+  @override
+  String get launchDetailWeatherTitle => 'Weather';
+
+  @override
+  String get launchDetailRiverFlowTitle => 'River flow (USGS)';
+
+  @override
+  String get launchDetailTidesTitle => 'Tides';
+
+  @override
+  String get launchDetailNoTideData => 'No tide data';
+
+  @override
+  String launchDetailMarineTitle(String zone) {
+    return 'Marine (NWS $zone)';
+  }
+
+  @override
+  String get launchDetailUnavailable => 'Unavailable';
+
+  @override
+  String get launchDetailNoMarineForecast => 'No marine forecast';
+
+  @override
+  String get launchDetailWeatherSourceOpenMeteoBackup => 'Open-Meteo (backup)';
+
+  @override
+  String get launchDetailWeatherSourceNws => 'National Weather Service';
+
+  @override
+  String get launchDetailTideMinorReferenceNote =>
+      'Reference only — timing/height differs upriver from the station.';
+
+  @override
+  String get launchDetailRiverFlowNoData => 'No data';
+
+  @override
+  String launchDetailMarineExpandHint(int count) {
+    return '$count period(s) · tap to read';
+  }
+
+  @override
+  String launchDetailMarinePeriodLabel(int number) {
+    return 'Period $number';
+  }
+
+  @override
+  String get launchNotFoundTitle => 'Launch not found';
+
+  @override
+  String get launchNotFoundBody => 'That launch is not in the curated list.';
+
+  @override
+  String launchDetailWindGust(String speed) {
+    return 'Gust $speed mph';
+  }
+
+  @override
+  String launchDetailWindLine(String details) {
+    return 'Wind: $details';
+  }
+
+  @override
+  String launchDetailTemperatureF(String temp) {
+    return '$temp°F';
+  }
+
+  @override
+  String get retryButton => 'Retry';
+
+  @override
+  String get regenerateButton => 'Regenerate';
+
+  @override
+  String get checkAgainButton => 'Check again';
+
+  @override
+  String get summarizeWithAiButton => 'Summarize with AI';
+
+  @override
+  String get summarizeRecentReportsButton => 'Summarize recent reports';
+
+  @override
   String get cancelButton => 'Cancel';
 
   @override
   String get submitButton => 'Submit';
 
   @override
-  String get mapPlanningPutInLabel => 'Put-in';
-
-  @override
-  String get mapPlanningTakeOutLabel => 'Take-out';
-
-  @override
-  String get mapPlanningClearLabel => 'Clear';
-
-  @override
-  String get mapPlanningDoneLabel => 'Done';
-
-  @override
   String get missingMapboxTokenTitle => 'Mapbox token required';
+
+  @override
+  String get missingMapboxTokenDevIntro =>
+      'Local dev: create .local.env from the template and run via the script:';
+
+  @override
+  String get missingMapboxTokenCompileIntro => 'Or pass at compile time:';
+
+  @override
+  String get missingMapboxTokenSecurityNote =>
+      'Never commit .local.env. Use a restricted public token in Mapbox.';
 
   @override
   String get webMapPlaceholderTitle => 'Map on mobile';

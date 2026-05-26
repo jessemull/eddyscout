@@ -1,36 +1,15 @@
-import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
-import 'package:eddyscout_conditions/src/data/firebase/conditions_summary_payload.dart';
+import 'package:dio/dio.dart';
+import 'package:eddyscout_conditions/src/data/repositories/conditions_ai_summary_repository_impl.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
+import 'package:eddyscout_conditions/src/domain/repositories/conditions_ai_summary_repository.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-/// Calls Firebase `summarizeConditions` for a launch snapshot.
-class ConditionsAiSummaryRepository {
-  /// Creates a stateless repository for Callable wrappers.
-  const ConditionsAiSummaryRepository();
-
-  /// Returns AI summary text for the given launch and conditions state.
-  Future<String> summarize({
-    required LaunchPoint launch,
-    required ConditionsSnapshot snapshot,
-    required GoNoGoResult goNoGo,
-    required GoNoGoProfile skillProfile,
-  }) {
-    final payload = conditionsSummaryPayload(
-      launch: launch,
-      snapshot: snapshot,
-      goNoGo: goNoGo,
-      skillProfile: skillProfile,
-    );
-    return callSummarizeConditions(payload);
-  }
-}
 
 /// Injectable [ConditionsAiSummaryRepository] for tests and overrides.
 final Provider<ConditionsAiSummaryRepository>
 conditionsAiSummaryRepositoryProvider = Provider<ConditionsAiSummaryRepository>(
-  (ref) => const ConditionsAiSummaryRepository(),
+  (ref) => const ConditionsAiSummaryRepositoryImpl(),
 );
 
 /// UI state for the on-demand conditions AI summary card.
@@ -58,8 +37,13 @@ class ConditionsAiSummaryState {
 /// Notifier for the conditions AI summary card.
 class ConditionsAiSummaryNotifier
     extends FamilyNotifier<ConditionsAiSummaryState, String> {
+  CancelToken? _activeCancelToken;
+
   @override
   ConditionsAiSummaryState build(String launchId) {
+    ref.onDispose(() {
+      _activeCancelToken?.cancel('conditionsAiSummaryProvider disposed');
+    });
     return const ConditionsAiSummaryState();
   }
 
@@ -70,24 +54,29 @@ class ConditionsAiSummaryNotifier
     required GoNoGoResult goNoGo,
     required GoNoGoProfile skillProfile,
   }) async {
+    _activeCancelToken?.cancel('superseded');
+    final cancelToken = CancelToken();
+    _activeCancelToken = cancelToken;
+
     state = const ConditionsAiSummaryState(isLoading: true);
-    try {
-      final summary = await ref
-          .read(conditionsAiSummaryRepositoryProvider)
-          .summarize(
-            launch: launch,
-            snapshot: snapshot,
-            goNoGo: goNoGo,
-            skillProfile: skillProfile,
-          );
-      state = ConditionsAiSummaryState(summary: summary);
-    } on Object catch (error) {
-      state = ConditionsAiSummaryState(
-        errorMessage: error is AppFailure
-            ? error.message
-            : 'Could not load AI summary. Try again.',
-      );
+    final result = await ref
+        .read(conditionsAiSummaryRepositoryProvider)
+        .summarize(
+          launch: launch,
+          snapshot: snapshot,
+          goNoGo: goNoGo,
+          skillProfile: skillProfile,
+          cancelToken: cancelToken,
+        );
+
+    if (cancelToken.isCancelled) {
+      return;
     }
+
+    state = result.when(
+      success: (summary) => ConditionsAiSummaryState(summary: summary),
+      failure: (error) => ConditionsAiSummaryState(errorMessage: error.message),
+    );
   }
 }
 

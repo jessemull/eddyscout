@@ -57,9 +57,12 @@ class LaunchDetailScreen extends ConsumerWidget {
                   ),
                   Semantics(
                     label:
-                        'River ${launchDetailRiverLabel(launch.riverSystem)}',
+                        'River '
+                        '${launchDetailRiverLabel(l10n, launch.riverSystem)}',
                     child: Chip(
-                      label: Text(launchDetailRiverLabel(launch.riverSystem)),
+                      label: Text(
+                        launchDetailRiverLabel(l10n, launch.riverSystem),
+                      ),
                       visualDensity: VisualDensity.compact,
                     ),
                   ),
@@ -128,10 +131,8 @@ class LaunchDetailScreen extends ConsumerWidget {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.feedback_outlined),
-                  title: const Text('Report conditions'),
-                  subtitle: const Text(
-                    'Short note to help others (stored securely)',
-                  ),
+                  title: Text(l10n.launchDetailReportConditionsTitle),
+                  subtitle: Text(l10n.launchDetailReportConditionsSubtitle),
                   onTap: () => openLaunchDetailConditionReportSheet(
                     ref,
                     context,
@@ -142,7 +143,7 @@ class LaunchDetailScreen extends ConsumerWidget {
               ] else if (kUseFirebase && !kIsWeb) ...[
                 const SizedBox(height: 12),
                 Text(
-                  launchDetailFirebaseUnavailableMessage(),
+                  launchDetailFirebaseUnavailableMessage(l10n),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: FirebaseBootstrap.lastError != null
                         ? Theme.of(context).colorScheme.error
@@ -152,7 +153,7 @@ class LaunchDetailScreen extends ConsumerWidget {
               ],
               const SizedBox(height: 24),
               Text(
-                'Conditions',
+                l10n.launchDetailConditionsSection,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
@@ -170,25 +171,25 @@ class LaunchDetailScreen extends ConsumerWidget {
                 _MarineCard(snapshot: data, zoneId: zoneId),
               ],
               const SizedBox(height: 24),
-              Text('Disclaimer', style: Theme.of(context).textTheme.titleSmall),
+              Text(
+                l10n.launchDetailDisclaimerTitle,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
               const SizedBox(height: 4),
               Text(
-                'EddyScout shows third-party data for planning only. '
-                'It is not a substitute for your judgment, skill assessment, '
-                'or on-site scouting. '
-                'River and marine conditions can change rapidly.',
+                l10n.launchDetailDisclaimerBody,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                'Data sources',
+                l10n.launchDetailDataSourcesTitle,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 4),
               Text(
-                launchDetailAttributionLines(data),
+                launchDetailAttributionLines(l10n, data),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),

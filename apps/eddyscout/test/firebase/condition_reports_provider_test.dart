@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,10 @@ class _MockConditionReportsRepository extends Mock
     implements ConditionReportsRepository {}
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(CancelToken());
+  });
+
   group('conditionReportsListProvider', () {
     late _MockConditionReportsRepository repository;
 
@@ -24,7 +29,10 @@ void main() {
         ),
       ];
       when(
-        () => repository.listReports('cathedral_park'),
+        () => repository.listReports(
+          'cathedral_park',
+          cancelToken: any(named: 'cancelToken'),
+        ),
       ).thenAnswer((_) async => Result.success(reports));
 
       final container = ProviderContainer(
@@ -43,7 +51,10 @@ void main() {
 
     test('refetches when refresh token changes', () async {
       when(
-        () => repository.listReports('cathedral_park'),
+        () => repository.listReports(
+          'cathedral_park',
+          cancelToken: any(named: 'cancelToken'),
+        ),
       ).thenAnswer((_) async => const Result.success([]));
 
       final container = ProviderContainer(
@@ -61,7 +72,12 @@ void main() {
         conditionReportsListProvider('cathedral_park').future,
       );
 
-      verify(() => repository.listReports('cathedral_park')).called(2);
+      verify(
+        () => repository.listReports(
+          'cathedral_park',
+          cancelToken: any(named: 'cancelToken'),
+        ),
+      ).called(2);
     });
   });
 
@@ -97,6 +113,7 @@ void main() {
         () => repository.summarizeLaunchReports(
           launchId: 'cathedral_park',
           forceRefresh: false,
+          cancelToken: any(named: 'cancelToken'),
         ),
       ).thenAnswer((_) async => const Result.success(result));
 
@@ -122,6 +139,7 @@ void main() {
         () => repository.summarizeLaunchReports(
           launchId: 'cathedral_park',
           forceRefresh: false,
+          cancelToken: any(named: 'cancelToken'),
         ),
       ).thenAnswer(
         (_) async => Result.failure(

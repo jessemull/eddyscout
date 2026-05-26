@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:dio/dio.dart';
+import 'package:eddyscout_conditions/src/data/firebase/callable_cancel.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -65,15 +67,22 @@ Future<void> _ensureIdTokenForCallables() async {
 /// `unauthenticated` on the first Callable right after sign-in; a short delay
 /// plus a second token refresh usually succeeds. Also helps if Cloud Run IAM
 /// briefly rejects before the client retries.
-Future<T> _callWithAuthRetry<T>(Future<T> Function() invokeCallable) async {
+Future<T> _callWithAuthRetry<T>(
+  Future<T> Function() invokeCallable, {
+  CancelToken? cancelToken,
+}) async {
+  ensureCallableNotCancelled(cancelToken);
   await _ensureIdTokenForCallables();
   try {
+    ensureCallableNotCancelled(cancelToken);
     return await invokeCallable();
   } on FirebaseFunctionsException catch (e) {
     if (e.code.toLowerCase() != 'unauthenticated') {
       rethrow;
     }
+    ensureCallableNotCancelled(cancelToken);
     await Future<void>.delayed(const Duration(milliseconds: 400));
+    ensureCallableNotCancelled(cancelToken);
     await _ensureIdTokenForCallables();
     return invokeCallable();
   }
@@ -81,7 +90,10 @@ Future<T> _callWithAuthRetry<T>(Future<T> Function() invokeCallable) async {
 
 /// Calls `summarizeConditions` with a JSON-safe map from
 /// `conditionsSummaryPayload`.
-Future<String> callSummarizeConditions(Map<String, Object?> payload) async {
+Future<String> callSummarizeConditions(
+  Map<String, Object?> payload, {
+  CancelToken? cancelToken,
+}) async {
   return _callWithAuthRetry(() async {
     final callable = _functions.httpsCallable('summarizeConditions');
     final result = await callable.call<Map<String, dynamic>>(
@@ -93,7 +105,7 @@ Future<String> callSummarizeConditions(Map<String, Object?> payload) async {
       throw StateError('summarizeConditions: missing summaryText');
     }
     return text;
-  });
+  }, cancelToken: cancelToken);
 }
 
 /// Calls `submitConditionReport`.
@@ -101,6 +113,7 @@ Future<void> callSubmitConditionReport({
   required String launchId,
   required String message,
   String? clientConditionsFetchedAt,
+  CancelToken? cancelToken,
 }) async {
   await _callWithAuthRetry(() async {
     final callable = _functions.httpsCallable('submitConditionReport');
@@ -111,13 +124,14 @@ Future<void> callSubmitConditionReport({
         'clientConditionsFetchedAt': clientConditionsFetchedAt,
       }),
     );
-  });
+  }, cancelToken: cancelToken);
 }
 
 /// Calls `listConditionReports`.
 Future<List<ConditionReportListItem>> callListConditionReports({
   required String launchId,
   int limit = 20,
+  CancelToken? cancelToken,
 }) async {
   return _callWithAuthRetry(() async {
     final callable = _functions.httpsCallable('listConditionReports');
@@ -136,7 +150,7 @@ Future<List<ConditionReportListItem>> callListConditionReports({
           ),
         )
         .toList();
-  });
+  }, cancelToken: cancelToken);
 }
 
 /// Calls `summarizeLaunchReports`.
@@ -144,6 +158,7 @@ Future<LaunchReportsDigestResult> callSummarizeLaunchReports({
   required String launchId,
   bool forceRefresh = false,
   int reportLimit = 20,
+  CancelToken? cancelToken,
 }) async {
   return _callWithAuthRetry(() async {
     final callable = _functions.httpsCallable('summarizeLaunchReports');
@@ -156,5 +171,5 @@ Future<LaunchReportsDigestResult> callSummarizeLaunchReports({
     );
     final data = Map<Object?, Object?>.from(result.data as Map);
     return LaunchReportsDigestResult.fromJson(data);
-  });
+  }, cancelToken: cancelToken);
 }

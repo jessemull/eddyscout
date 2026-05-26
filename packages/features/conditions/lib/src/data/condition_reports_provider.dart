@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/data/repositories/condition_reports_repository_impl.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/condition_reports_refresh_token_provider.dart';
@@ -17,9 +18,15 @@ final AutoDisposeFutureProviderFamily<List<ConditionReportListItem>, String>
 conditionReportsListProvider = FutureProvider.autoDispose
     .family<List<ConditionReportListItem>, String>((ref, launchId) async {
       ref.watch(conditionReportsRefreshTokenProvider);
+      final cancelToken = CancelToken();
+      ref.onDispose(() {
+        if (!cancelToken.isCancelled) {
+          cancelToken.cancel('conditionReportsListProvider disposed');
+        }
+      });
       final result = await ref
           .read(conditionReportsRepositoryProvider)
-          .listReports(launchId);
+          .listReports(launchId, cancelToken: cancelToken);
       return result.when(
         success: (value) => value,
         failure: (error) => throw Exception(error.message),
@@ -51,17 +58,34 @@ class LaunchReportsDigestState {
 /// Notifier for the launch reports digest card.
 class LaunchReportsDigestNotifier
     extends FamilyNotifier<LaunchReportsDigestState, String> {
+  CancelToken? _activeCancelToken;
+
   @override
   LaunchReportsDigestState build(String launchId) {
+    ref.onDispose(() {
+      _activeCancelToken?.cancel('launchReportsDigestProvider disposed');
+    });
     return const LaunchReportsDigestState();
   }
 
   /// Fetches or refreshes the community digest for this family's launch id.
   Future<void> summarize({bool forceRefresh = false}) async {
+    _activeCancelToken?.cancel('superseded');
+    final cancelToken = CancelToken();
+    _activeCancelToken = cancelToken;
+
     state = const LaunchReportsDigestState(isLoading: true);
     final result = await ref
         .read(conditionReportsRepositoryProvider)
-        .summarizeLaunchReports(launchId: arg, forceRefresh: forceRefresh);
+        .summarizeLaunchReports(
+          launchId: arg,
+          forceRefresh: forceRefresh,
+          cancelToken: cancelToken,
+        );
+
+    if (cancelToken.isCancelled) {
+      return;
+    }
     state = result.when(
       success: (value) => LaunchReportsDigestState(result: value),
       failure: (error) => LaunchReportsDigestState(errorMessage: error.message),

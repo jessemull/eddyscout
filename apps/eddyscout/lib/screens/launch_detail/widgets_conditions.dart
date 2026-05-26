@@ -16,6 +16,7 @@ class _AiSummaryCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final summaryState = ref.watch(conditionsAiSummaryProvider(launch.id));
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     Future<void> runSummary() => ref
         .read(conditionsAiSummaryProvider(launch.id).notifier)
@@ -36,7 +37,7 @@ class _AiSummaryCard extends ConsumerWidget {
                 Icon(Icons.auto_awesome_outlined, color: scheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  'AI summary',
+                  l10n.launchDetailAiSummaryTitle,
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
               ],
@@ -57,7 +58,7 @@ class _AiSummaryCard extends ConsumerWidget {
               TextButton.icon(
                 onPressed: runSummary,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(l10n.retryButton),
               ),
             ] else if (summaryState.summary != null) ...[
               Text(
@@ -66,8 +67,7 @@ class _AiSummaryCard extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Verify against the raw data below—AI can misread or omit '
-                'details.',
+                l10n.launchDetailAiSummaryVerifyHint,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
@@ -75,13 +75,13 @@ class _AiSummaryCard extends ConsumerWidget {
               ),
               TextButton(
                 onPressed: runSummary,
-                child: const Text('Regenerate'),
+                child: Text(l10n.regenerateButton),
               ),
             ] else
               FilledButton.tonalIcon(
                 onPressed: runSummary,
                 icon: const Icon(Icons.summarize_outlined),
-                label: const Text('Summarize with AI'),
+                label: Text(l10n.summarizeWithAiButton),
               ),
           ],
         ),
@@ -97,6 +97,7 @@ class _GoNoGoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final (Color bg, Color onBg, IconData icon) = switch (result.verdict) {
       GoNoGoVerdict.go => (
@@ -139,7 +140,7 @@ class _GoNoGoCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Go / No-go (informational)',
+                        l10n.launchDetailGoNoGoTitle,
                         style: Theme.of(
                           context,
                         ).textTheme.labelMedium?.copyWith(color: onBg),
@@ -181,8 +182,7 @@ class _GoNoGoCard extends StatelessWidget {
             ] else if (result.verdict == GoNoGoVerdict.go) ...[
               const SizedBox(height: 8),
               Text(
-                'No stub warnings from wind, marine text, or flow thresholds '
-                'for this launch.',
+                l10n.launchDetailGoNoGoNoWarnings,
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: onBg),
@@ -190,8 +190,7 @@ class _GoNoGoCard extends StatelessWidget {
             ],
             const SizedBox(height: 4),
             Text(
-              'Stub rules only—not a substitute for your judgment, skill, or '
-              'scouting on site.',
+              l10n.launchDetailGoNoGoStubDisclaimer,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: onBg.withValues(alpha: 0.85),
                 fontStyle: FontStyle.italic,
@@ -211,17 +210,20 @@ class _WeatherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final w = snapshot.weather;
     final err = snapshot.weatherError;
     if (w == null) {
       return Card(
         child: ListTile(
-          title: const Text('Weather'),
-          subtitle: Text(err ?? 'Unavailable'),
+          title: Text(l10n.launchDetailWeatherTitle),
+          subtitle: Text(err ?? l10n.launchDetailUnavailable),
         ),
       );
     }
-    final gust = w.windGustMph != null ? '${w.windGustMph} mph gusts' : null;
+    final gust = w.windGustMph != null
+        ? l10n.launchDetailWindGust(w.windGustMph.toString())
+        : null;
     final windParts = <String>[
       if (w.windSpeedMph != null) '${w.windSpeedMph} mph',
       if (w.windDirection != null) 'from ${w.windDirection}',
@@ -234,11 +236,14 @@ class _WeatherCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text('Weather', style: Theme.of(context).textTheme.titleSmall),
+                Text(
+                  l10n.launchDetailWeatherTitle,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
                 const Spacer(),
                 if (w.source == WeatherDataSource.openMeteo)
                   Text(
-                    'Open-Meteo (backup)',
+                    l10n.launchDetailWeatherSourceOpenMeteoBackup,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
@@ -249,15 +254,17 @@ class _WeatherCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  'National Weather Service',
+                  l10n.launchDetailWeatherSourceNws,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
             const SizedBox(height: 8),
-            if (w.temperatureF != null) Text('${w.temperatureF}°F'),
-            if (windParts.isNotEmpty) Text('Wind: ${windParts.join(' ')}'),
+            if (w.temperatureF != null)
+              Text(l10n.launchDetailTemperatureF(w.temperatureF.toString())),
+            if (windParts.isNotEmpty)
+              Text(l10n.launchDetailWindLine(windParts.join(' '))),
             if (gust != null) Text(gust),
             if (w.shortForecast != null) Text(w.shortForecast!),
           ],
@@ -274,15 +281,16 @@ class _RiverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final r = snapshot.riverFlow;
     final err = snapshot.riverError;
     return Card(
       child: ListTile(
-        title: const Text('River flow (USGS)'),
+        title: Text(l10n.launchDetailRiverFlowTitle),
         subtitle: Text(
           r != null
               ? '${_formatCfs(r.cfs)} cfs · ${_formatTime(r.observedAt)}'
-              : (err ?? 'No data'),
+              : (err ?? l10n.launchDetailRiverFlowNoData),
         ),
       ),
     );
@@ -297,6 +305,7 @@ class _TideCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final t = snapshot.tides;
     final err = snapshot.tideError;
     return Card(
@@ -305,12 +314,14 @@ class _TideCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Tides', style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              l10n.launchDetailTidesTitle,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
             if (launch.tideRelevance == TideRelevance.minor) ...[
               const SizedBox(height: 4),
               Text(
-                'Reference only — timing/height differs upriver from the '
-                'station.',
+                l10n.launchDetailTideMinorReferenceNote,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -327,7 +338,7 @@ class _TideCard extends StatelessWidget {
             ],
             const SizedBox(height: 8),
             if (t == null)
-              Text(err ?? 'No tide data')
+              Text(err ?? l10n.launchDetailNoTideData)
             else
               ...t.events
                   .take(6)
@@ -355,21 +366,22 @@ class _MarineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final m = snapshot.marine;
     final err = snapshot.marineError;
     if (m == null || m.periods.isEmpty) {
       return Card(
         child: ListTile(
-          title: Text('Marine (NWS $zoneId)'),
-          subtitle: Text(err ?? 'No marine forecast'),
+          title: Text(l10n.launchDetailMarineTitle(zoneId)),
+          subtitle: Text(err ?? l10n.launchDetailNoMarineForecast),
         ),
       );
     }
     return Card(
       child: ExpansionTile(
-        title: Text('Marine (NWS $zoneId)'),
+        title: Text(l10n.launchDetailMarineTitle(zoneId)),
         subtitle: Text(
-          '${m.periods.length} period(s) · tap to read',
+          l10n.launchDetailMarineExpandHint(m.periods.length),
           style: Theme.of(context).textTheme.bodySmall,
         ),
         children: [
@@ -377,7 +389,7 @@ class _MarineCard extends StatelessWidget {
             ListTile(
               title: Text(
                 m.periods[i].name.isEmpty
-                    ? 'Period ${i + 1}'
+                    ? l10n.launchDetailMarinePeriodLabel(i + 1)
                     : m.periods[i].name,
               ),
               subtitle: Text(m.periods[i].detailedForecast),

@@ -1,4 +1,5 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -174,6 +175,15 @@ void main() {
 
       expect(text, 'Retry ok.');
       expect(calls, 2);
+    });
+
+    test('callSummarizeConditions throws when cancel token is cancelled', () {
+      final token = CancelToken()..cancel('test');
+
+      expect(
+        () => callSummarizeConditions({'launchId': 'test'}, cancelToken: token),
+        throwsA(isA<DioException>()),
+      );
     });
   });
 }

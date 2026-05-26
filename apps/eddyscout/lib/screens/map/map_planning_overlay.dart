@@ -36,7 +36,7 @@ class MapPlanningOverlay extends StatelessWidget {
           ),
           child: Semantics(
             container: true,
-            label: 'River route planning',
+            label: l10n.mapPlanningSemanticsLabel,
             child: Material(
               elevation: 4,
               borderRadius: BorderRadius.circular(12),
@@ -48,19 +48,12 @@ class MapPlanningOverlay extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'River route (beta)',
+                      l10n.mapPlanningTitleBeta,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: Spacing.sm - 2),
                     Text(
-                      'Tap a launch for put-in, then another for take-out. '
-                      'The line follows bundled open hydro data (approximate '
-                      'centerline)—not for navigation. '
-                      'Several downtown launches sit close together; '
-                      'overlapping pins are separate sites. '
-                      'Clear removes the route line and picks so you can '
-                      'start over. '
-                      'Done closes this panel and clears the route.',
+                      l10n.mapPlanningInstructions,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -68,22 +61,23 @@ class MapPlanningOverlay extends StatelessWidget {
                     if (putIn != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Put-in: ${putIn!.name}',
+                        l10n.mapPlanningPutInName(putIn!.name),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                     if (takeOut != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        'Take-out: ${takeOut!.name}',
+                        l10n.mapPlanningTakeOutName(takeOut!.name),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                     if (routeLengthKm != null) ...[
                       const SizedBox(height: 6),
                       Text(
-                        'Along river (estimate): '
-                        '${routeLengthKm!.toStringAsFixed(1)} km',
+                        l10n.mapPlanningRouteLengthKm(
+                          routeLengthKm!.toStringAsFixed(1),
+                        ),
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                     ],

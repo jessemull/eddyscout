@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 
@@ -5,12 +6,14 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 abstract interface class ConditionReportsRepository {
   /// Lists recent paddler reports for [launchId].
   FutureResult<List<ConditionReportListItem>, AppFailure> listReports(
-    String launchId,
-  );
+    String launchId, {
+    CancelToken? cancelToken,
+  });
 
   /// Summarizes recent reports into an on-demand digest.
   FutureResult<LaunchReportsDigestResult, AppFailure> summarizeLaunchReports({
     required String launchId,
     bool forceRefresh = false,
+    CancelToken? cancelToken,
   });
 }

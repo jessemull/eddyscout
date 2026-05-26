@@ -8,6 +8,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final digestState = ref.watch(launchReportsDigestProvider(launchId));
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     return Card(
       child: Padding(
@@ -21,7 +22,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Community digest (AI)',
+                    l10n.launchDetailCommunityDigestTitle,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
@@ -29,8 +30,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Paraphrases recent paddler notes below—not official conditions '
-              'or river status.',
+              l10n.launchDetailCommunityDigestSubtitle,
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
@@ -53,7 +53,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
                     .read(launchReportsDigestProvider(launchId).notifier)
                     .summarize(),
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(l10n.retryButton),
               ),
             ] else if (digestState.result != null) ...[
               if (digestState.result!.noReports)
@@ -61,7 +61,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'No paddler reports to summarize yet.',
+                      l10n.launchDetailDigestNoReports,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -70,7 +70,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
                       onPressed: () => ref
                           .read(launchReportsDigestProvider(launchId).notifier)
                           .summarize(),
-                      child: const Text('Check again'),
+                      child: Text(l10n.checkAgainButton),
                     ),
                   ],
                 )
@@ -82,8 +82,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
                 if (digestState.result!.cached) ...[
                   const SizedBox(height: 6),
                   Text(
-                    'From cache (same reports; regenerate if someone just '
-                    'posted).',
+                    l10n.launchDetailDigestFromCache,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -91,7 +90,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
                 ],
                 const SizedBox(height: 8),
                 Text(
-                  'Read individual reports below—summaries can miss nuance.',
+                  l10n.launchDetailDigestReadIndividualHint,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: scheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
@@ -101,7 +100,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
                   onPressed: () => ref
                       .read(launchReportsDigestProvider(launchId).notifier)
                       .summarize(forceRefresh: true),
-                  child: const Text('Regenerate'),
+                  child: Text(l10n.regenerateButton),
                 ),
               ],
             ] else
@@ -110,7 +109,7 @@ class _LaunchReportsDigestCard extends ConsumerWidget {
                     .read(launchReportsDigestProvider(launchId).notifier)
                     .summarize(),
                 icon: const Icon(Icons.topic_outlined),
-                label: const Text('Summarize recent reports'),
+                label: Text(l10n.summarizeRecentReportsButton),
               ),
           ],
         ),
@@ -127,13 +126,17 @@ class _RecentConditionReports extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final reportsAsync = ref.watch(conditionReportsListProvider(launchId));
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Recent reports', style: Theme.of(context).textTheme.titleSmall),
+        Text(
+          l10n.launchDetailRecentReportsTitle,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
         const SizedBox(height: 4),
         Text(
-          'Raw messages (newest first). Compare with the digest above.',
+          l10n.launchDetailRecentReportsSubtitle,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -151,7 +154,7 @@ class _RecentConditionReports extends ConsumerWidget {
             ),
           ),
           error: (error, _) => Text(
-            _recentReportsErrorMessage(error),
+            _recentReportsErrorMessage(l10n, error),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.error,
             ),
@@ -159,7 +162,7 @@ class _RecentConditionReports extends ConsumerWidget {
           data: (items) {
             if (items.isEmpty) {
               return Text(
-                'No paddler reports yet.',
+                l10n.launchDetailNoPaddlerReports,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -189,8 +192,11 @@ class _ConditionReportTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final attribution = report.isMine ? 'You' : 'Anonymous paddler';
-    final when = _formatConditionReportTime(context, report.createdAt);
+    final l10n = context.l10n;
+    final attribution = report.isMine
+        ? l10n.launchDetailReportYou
+        : l10n.launchDetailReportAnonymous;
+    final when = _formatConditionReportTime(context, l10n, report.createdAt);
     return Material(
       color: scheme.surfaceContainerHighest.withValues(alpha: 0.35),
       borderRadius: BorderRadius.circular(12),
@@ -269,7 +275,7 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
     final text = _controller.text.trim();
     if (text.isEmpty) {
       widget.scaffoldMessenger?.showSnackBar(
-        const SnackBar(content: Text('Add a short message first.')),
+        SnackBar(content: Text(context.l10n.launchDetailReportAddMessageFirst)),
       );
       return;
     }
@@ -287,7 +293,11 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
     if (!ok) {
       final err = ref.read(conditionReportSubmitProvider(submitArgs).notifier);
       widget.scaffoldMessenger?.showSnackBar(
-        SnackBar(content: Text(err.errorMessage ?? 'Could not submit report.')),
+        SnackBar(
+          content: Text(
+            err.errorMessage ?? context.l10n.launchDetailReportSubmitError,
+          ),
+        ),
       );
       return;
     }
@@ -306,16 +316,16 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
   Widget build(BuildContext context) {
     if (_submittedClosing) {
       return const Padding(
-        padding: EdgeInsets.all(32),
+        padding: EdgeInsets.all(Spacing.xl),
         child: Center(child: CircularProgressIndicator()),
       );
     }
     return Padding(
       padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + 16,
+        left: Spacing.md,
+        right: Spacing.md,
+        top: Spacing.md,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + Spacing.md,
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -323,21 +333,24 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Condition report',
+              context.l10n.launchDetailConditionReportTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Spacing.sm),
             TextField(
               controller: _controller,
               maxLength: 800,
               maxLines: 5,
-              decoration: const InputDecoration(
-                hintText: 'What are you seeing on the water?',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: context.l10n.launchDetailConditionReportHint,
+                border: const OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 12),
-            FilledButton(onPressed: _submit, child: const Text('Submit')),
+            const SizedBox(height: Spacing.md - Spacing.xs),
+            FilledButton(
+              onPressed: _submit,
+              child: Text(context.l10n.submitButton),
+            ),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -37,6 +38,10 @@ GoNoGoResult _goNoGo() {
 }
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(CancelToken());
+  });
+
   group('conditionsAiSummaryProvider', () {
     late _MockConditionsAiSummaryRepository repository;
     late LaunchPoint launch;
@@ -72,8 +77,11 @@ void main() {
           snapshot: snapshot,
           goNoGo: goNoGo,
           skillProfile: GoNoGoProfile.intermediate,
+          cancelToken: any(named: 'cancelToken'),
         ),
-      ).thenAnswer((_) async => 'Calm morning on the Willamette.');
+      ).thenAnswer(
+        (_) async => const Result.success('Calm morning on the Willamette.'),
+      );
 
       final container = ProviderContainer(
         overrides: [
@@ -104,8 +112,13 @@ void main() {
           snapshot: snapshot,
           goNoGo: goNoGo,
           skillProfile: GoNoGoProfile.intermediate,
+          cancelToken: any(named: 'cancelToken'),
         ),
-      ).thenThrow(Exception('callable failed'));
+      ).thenAnswer(
+        (_) async => Result.failure(
+          UnexpectedFailure(message: 'callable failed'),
+        ),
+      );
 
       final container = ProviderContainer(
         overrides: [
@@ -127,7 +140,7 @@ void main() {
         container
             .read(conditionsAiSummaryProvider('cathedral_park'))
             .errorMessage,
-        'Could not load AI summary. Try again.',
+        'callable failed',
       );
     });
   });

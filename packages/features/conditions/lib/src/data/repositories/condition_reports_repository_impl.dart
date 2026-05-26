@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/data/app_failure_mapper.dart';
 import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
@@ -11,10 +12,14 @@ class ConditionReportsRepositoryImpl implements ConditionReportsRepository {
 
   @override
   FutureResult<List<ConditionReportListItem>, AppFailure> listReports(
-    String launchId,
-  ) async {
+    String launchId, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final list = await callListConditionReports(launchId: launchId);
+      final list = await callListConditionReports(
+        launchId: launchId,
+        cancelToken: cancelToken,
+      );
       return Result.success(list);
     } on Object catch (e, st) {
       return Result.failure(mapToAppFailure(e, st));
@@ -25,11 +30,13 @@ class ConditionReportsRepositoryImpl implements ConditionReportsRepository {
   FutureResult<LaunchReportsDigestResult, AppFailure> summarizeLaunchReports({
     required String launchId,
     bool forceRefresh = false,
+    CancelToken? cancelToken,
   }) async {
     try {
       final result = await callSummarizeLaunchReports(
         launchId: launchId,
         forceRefresh: forceRefresh,
+        cancelToken: cancelToken,
       );
       return Result.success(result);
     } on Object catch (e, st) {
