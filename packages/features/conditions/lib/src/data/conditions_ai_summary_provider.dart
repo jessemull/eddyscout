@@ -35,12 +35,16 @@ class ConditionsAiSummaryState {
 }
 
 /// Notifier for the conditions AI summary card.
-class ConditionsAiSummaryNotifier
-    extends FamilyNotifier<ConditionsAiSummaryState, String> {
+class ConditionsAiSummaryNotifier extends Notifier<ConditionsAiSummaryState> {
+  /// Creates a launch-scoped notifier.
+  ConditionsAiSummaryNotifier(this.launchId);
+
+  /// Family launch id used to scope updates.
+  final String launchId;
   CancelToken? _activeCancelToken;
 
   @override
-  ConditionsAiSummaryState build(String launchId) {
+  ConditionsAiSummaryState build() {
     ref.onDispose(() {
       _activeCancelToken?.cancel('conditionsAiSummaryProvider disposed');
     });
@@ -81,11 +85,8 @@ class ConditionsAiSummaryNotifier
 }
 
 /// Family notifier provider keyed by launch id.
-final NotifierProviderFamily<
-  ConditionsAiSummaryNotifier,
-  ConditionsAiSummaryState,
-  String
->
+final NotifierProvider<ConditionsAiSummaryNotifier, ConditionsAiSummaryState>
+Function(String)
 conditionsAiSummaryProvider =
     NotifierProvider.family<
       ConditionsAiSummaryNotifier,

@@ -13,6 +13,7 @@ final goNoGoProfileRepositoryProvider = Provider<GoNoGoProfileRepository>((
 final goNoGoProfileProvider =
     AsyncNotifierProvider<GoNoGoProfileNotifier, GoNoGoProfile>(
       GoNoGoProfileNotifier.new,
+      retry: (_, _) => null,
     );
 
 class GoNoGoProfileNotifier extends AsyncNotifier<GoNoGoProfile> {

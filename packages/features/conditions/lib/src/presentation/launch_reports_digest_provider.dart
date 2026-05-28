@@ -26,12 +26,16 @@ class LaunchReportsDigestState {
 }
 
 /// Notifier for the launch reports digest card.
-class LaunchReportsDigestNotifier
-    extends FamilyNotifier<LaunchReportsDigestState, String> {
+class LaunchReportsDigestNotifier extends Notifier<LaunchReportsDigestState> {
+  /// Creates a launch-scoped digest notifier.
+  LaunchReportsDigestNotifier(this.launchId);
+
+  /// Family launch id used for digest requests.
+  final String launchId;
   CancelToken? _activeCancelToken;
 
   @override
-  LaunchReportsDigestState build(String launchId) {
+  LaunchReportsDigestState build() {
     ref.onDispose(() {
       _activeCancelToken?.cancel('launchReportsDigestProvider disposed');
     });
@@ -48,7 +52,7 @@ class LaunchReportsDigestNotifier
     final result = await ref
         .read(conditionReportsRepositoryProvider)
         .summarizeLaunchReports(
-          launchId: arg,
+          launchId: launchId,
           forceRefresh: forceRefresh,
           cancelToken: cancelToken,
         );
@@ -64,11 +68,8 @@ class LaunchReportsDigestNotifier
 }
 
 /// Family notifier provider keyed by launch id.
-final NotifierProviderFamily<
-  LaunchReportsDigestNotifier,
-  LaunchReportsDigestState,
-  String
->
+final NotifierProvider<LaunchReportsDigestNotifier, LaunchReportsDigestState>
+Function(String)
 launchReportsDigestProvider =
     NotifierProvider.family<
       LaunchReportsDigestNotifier,

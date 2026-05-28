@@ -19,23 +19,25 @@ conditionReportSubmitRepositoryProvider =
     );
 
 /// Submits a paddler condition report via Firebase Callable.
-final AutoDisposeAsyncNotifierProviderFamily<
-  ConditionReportSubmitNotifier,
-  void,
-  ConditionReportSubmitArgs
->
+final AsyncNotifierProvider<ConditionReportSubmitNotifier, void> Function(
+  ConditionReportSubmitArgs,
+)
 conditionReportSubmitProvider = AsyncNotifierProvider.autoDispose
     .family<ConditionReportSubmitNotifier, void, ConditionReportSubmitArgs>(
       ConditionReportSubmitNotifier.new,
     );
 
 /// Firebase report submission; UI calls [submit] only.
-class ConditionReportSubmitNotifier
-    extends AutoDisposeFamilyAsyncNotifier<void, ConditionReportSubmitArgs> {
+class ConditionReportSubmitNotifier extends AsyncNotifier<void> {
+  /// Creates notifier for a launch submission context.
+  ConditionReportSubmitNotifier(this.args);
+
+  /// Family argument carrying launch id and snapshot timestamp.
+  final ConditionReportSubmitArgs args;
   CancelToken? _submitToken;
 
   @override
-  Future<void> build(ConditionReportSubmitArgs args) async {
+  Future<void> build() async {
     ref.onDispose(() {
       _submitToken?.cancel('conditionReportSubmitProvider disposed');
     });
@@ -56,9 +58,9 @@ class ConditionReportSubmitNotifier
     final result = await ref
         .read(conditionReportSubmitRepositoryProvider)
         .submit(
-          launchId: arg.launchId,
+          launchId: args.launchId,
           message: trimmed,
-          clientConditionsFetchedAt: arg.clientConditionsFetchedAt,
+          clientConditionsFetchedAt: args.clientConditionsFetchedAt,
           cancelToken: cancelToken,
         );
 

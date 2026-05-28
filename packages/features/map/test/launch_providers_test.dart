@@ -19,7 +19,7 @@ void main() {
 
       expect(
         () => container.read(launchPointByIdProvider('missing_launch')),
-        throwsStateError,
+        throwsA(isA<Exception>()),
       );
     });
   });

@@ -20,20 +20,23 @@ final Provider<ConditionsRepository> conditionsRepositoryProvider =
     });
 
 /// Loads environmental conditions for a launch.
-final AutoDisposeFutureProviderFamily<ConditionsSnapshot, LaunchPoint>
+final FutureProvider<ConditionsSnapshot> Function(LaunchPoint)
 conditionsSnapshotProvider = FutureProvider.autoDispose
-    .family<ConditionsSnapshot, LaunchPoint>((ref, launch) async {
-      final cancelToken = CancelToken();
-      ref.onDispose(() {
-        if (!cancelToken.isCancelled) {
-          cancelToken.cancel('conditionsSnapshotProvider disposed');
-        }
-      });
-      final result = await ref
-          .watch(conditionsRepositoryProvider)
-          .load(launch, cancelToken: cancelToken);
-      return result.when(
-        success: (value) => value,
-        failure: (error) => throw ConditionsLoadException(error),
-      );
-    });
+    .family<ConditionsSnapshot, LaunchPoint>(
+      (ref, launch) async {
+        final cancelToken = CancelToken();
+        ref.onDispose(() {
+          if (!cancelToken.isCancelled) {
+            cancelToken.cancel('conditionsSnapshotProvider disposed');
+          }
+        });
+        final result = await ref
+            .watch(conditionsRepositoryProvider)
+            .load(launch, cancelToken: cancelToken);
+        return result.when(
+          success: (value) => value,
+          failure: (error) => throw ConditionsLoadException(error),
+        );
+      },
+      retry: (_, _) => null,
+    );

@@ -11,7 +11,7 @@ typedef LaunchGoNoGoParams = ({
 });
 
 /// Go/no-go evaluation for a launch and conditions snapshot.
-final AutoDisposeProviderFamily<GoNoGoResult, LaunchGoNoGoParams>
+final Provider<GoNoGoResult> Function(LaunchGoNoGoParams)
 launchGoNoGoResultProvider = Provider.autoDispose
     .family<GoNoGoResult, LaunchGoNoGoParams>(
       (ref, params) => GoNoGoEvaluator.evaluate(
