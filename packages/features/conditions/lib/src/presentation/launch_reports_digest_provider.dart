@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:eddyscout_conditions/src/data/condition_reports_repository_provider.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
+import 'package:eddyscout_conditions/src/domain/condition_reports_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// UI state for the on-demand community digest card.

@@ -7,6 +7,7 @@ import 'package:eddyscout_conditions/src/data/conditions_ai_summary_provider.dar
 import 'package:eddyscout_conditions/src/data/conditions_provider.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/condition_reports_refresh_token_provider.dart';
+import 'package:eddyscout_conditions/src/domain/condition_reports_repository_provider.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_load_exception.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';

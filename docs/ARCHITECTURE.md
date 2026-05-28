@@ -91,9 +91,9 @@ Each feature is a standalone Dart package with `presentation/domain/data` layeri
 
 | Layer | Key files |
 |-------|-----------|
-| Domain | `conditions_models.dart`, `go_no_go.dart`, `go_no_go_thresholds.dart` |
+| Domain | `conditions_models.dart`, `go_no_go.dart`, `go_no_go_thresholds.dart`, `condition_reports_repository_provider.dart`, `condition_reports_refresh_token_provider.dart` |
 | Data | `conditions_service.dart`, `conditions_provider.dart`, `parsing/*.dart`, `firebase/*.dart`, `repositories/go_no_go_profile_repository.dart` |
-| Presentation | `condition_reports_refresh_token_provider.dart` |
+| Presentation | `launch_reports_digest_provider.dart` |
 
 ### `map` — launch catalog and map-related types
 

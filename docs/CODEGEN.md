@@ -136,4 +136,9 @@ The first `@riverpod` migration target is the conditions refresh token. A refere
 
 `docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`
 
-Production code uses a manual `AutoDisposeNotifier` in `packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart` because `riverpod_generator` 2.x conflicts with the workspace `source_gen: 4.2.0` override (see `docs/ARCHITECTURE.md`). When upstream deps align, copy the pilot into the feature package, add `riverpod_annotation` / `riverpod_generator` to `pubspec.yaml`, register the file in `build.yaml`, remove the manual notifier, and run `make gen`.
+Production code uses a manual `AutoDisposeNotifier` in `packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart` because:
+
+1. `riverpod_generator` 2.x conflicts with the workspace `source_gen: 4.2.0` override (see `docs/ARCHITECTURE.md`).
+2. `riverpod_generator` 3.x + `riverpod_annotation` 3.x require `flutter_riverpod` 3.x workspace-wide (Riverpod 2 and 3 cannot be mixed in one melos workspace).
+
+**Migration path (when ready):** bump `flutter_riverpod` to `^3.2.0` in every package that depends on it, add `riverpod_annotation` / `riverpod_generator` to `eddyscout_conditions`, copy the pilot into `condition_reports_refresh_token_provider.dart`, register the file in `build.yaml`, run `make gen`, and fix Riverpod 3 API migrations (`FamilyNotifier` → codegen families, etc.).

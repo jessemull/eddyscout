@@ -35,6 +35,9 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       overrides: [
+        conditionReportsRepositoryProvider.overrideWithValue(
+          const ConditionReportsRepositoryImpl(),
+        ),
         hydroGeoJsonLoaderProvider.overrideWithValue(
           () =>
               rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),

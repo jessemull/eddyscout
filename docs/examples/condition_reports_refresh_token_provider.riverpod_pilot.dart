@@ -1,7 +1,7 @@
-// Reference @riverpod pilot (not part of any package — copy into conditions when
-// riverpod_generator aligns with the workspace source_gen 4.2 override).
+// Reference @riverpod pilot (not part of any package).
 //
-// See docs/CODEGEN.md § Riverpod codegen pilot.
+// Copy into `packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart`
+// after a workspace-wide `flutter_riverpod` 3.x upgrade. See `docs/CODEGEN.md`.
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

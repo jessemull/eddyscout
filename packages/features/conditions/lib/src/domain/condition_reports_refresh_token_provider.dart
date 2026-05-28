@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Incremented after a paddler submits a condition report to refresh the list.
 ///
 /// Lives in domain so data providers can watch without presentation imports.
-/// Codegen pilot source: docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart
+/// `@riverpod` codegen pilot: `docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`
+/// (requires workspace `flutter_riverpod` 3.x — see `docs/CODEGEN.md`).
 class ConditionReportsRefreshTokenNotifier extends AutoDisposeNotifier<int> {
   @override
   int build() => 0;

@@ -1,12 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:eddyscout_conditions/src/data/condition_reports_repository_provider.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/condition_reports_refresh_token_provider.dart';
+import 'package:eddyscout_conditions/src/domain/condition_reports_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-export 'condition_reports_repository_provider.dart'
-    show conditionReportsRepositoryProvider;
-export 'launch_reports_digest_provider.dart'
+export '../presentation/launch_reports_digest_provider.dart'
     show
         LaunchReportsDigestNotifier,
         LaunchReportsDigestState,
