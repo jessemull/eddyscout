@@ -18,7 +18,7 @@ workspace:
   - packages/features/hydro_routing
 
 dev_dependencies:
-  melos: ^7.3.0
+  melos: ^7.8.0
 
 dependency_overrides:
   source_gen: 4.2.0
