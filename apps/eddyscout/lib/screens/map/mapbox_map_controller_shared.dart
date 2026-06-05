@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 /// Shared map session state for map controller mixins.
-abstract class MapboxMapControllerBase extends AutoDisposeNotifier<void> {
+abstract class MapboxMapControllerBase extends Notifier<void> {
   // Initialized with empty strings; the MapScreen binds localized values.
   MapUiCallbacks _ui = const MapUiCallbacks(
     pickDifferentTakeOutMessage: '',

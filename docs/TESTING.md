@@ -54,6 +54,8 @@ Required for:
 
 > **Current repo:** golden tests exist (e.g. `packages/design_system/test/goldens/app_theme_golden_test.dart`).
 
+Golden PNGs are generated on macOS and validated in the **Golden Tests** CI job (`macos-latest`). Ubuntu test jobs run `flutter test --exclude-tags golden` because font rasterization differs across platforms.
+
 Required for:
 - All design system widgets
 - Complex layout components

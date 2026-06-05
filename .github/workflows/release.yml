@@ -24,7 +24,7 @@ jobs:
       - run: dart pub get
       - run: dart pub global activate melos
       - run: melos bootstrap
-      - run: melos exec --fail-fast --dir-exists=test -- "flutter test"
+      - run: melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --exclude-tags golden"
       - uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true

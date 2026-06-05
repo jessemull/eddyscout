@@ -13,11 +13,11 @@ void main() {
 
   Future<void> pumpMap(
     WidgetTester tester, {
-    required List<Override> overrides,
+    required List<Object?> overrides,
   }) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: overrides,
+        overrides: overrides.cast(),
         child: testLocalizedApp(
           child: const MapScreen(
             mapSlot: SizedBox(key: Key('map_test_stub')),

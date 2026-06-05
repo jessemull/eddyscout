@@ -70,7 +70,22 @@ jobs:
       - run: dart pub get
       - run: dart pub global activate melos
       - run: melos bootstrap
-      - run: melos exec --fail-fast --dir-exists=test -- "flutter test"
+      - run: melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --exclude-tags golden"
+
+  golden:
+    name: Golden Tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .tool-versions
+          channel: stable
+          cache: true
+      - run: dart pub get
+      - run: dart pub global activate melos
+      - run: melos bootstrap
+      - run: melos exec --scope=eddyscout_design_system -- "flutter test test/goldens"
 
   coverage:
     name: Coverage Thresholds
@@ -85,7 +100,7 @@ jobs:
       - run: dart pub get
       - run: dart pub global activate melos
       - run: melos bootstrap
-      - run: melos exec --fail-fast --dir-exists=test -- "flutter test --coverage"
+      - run: melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --coverage --exclude-tags golden"
       - run: ./scripts/check_coverage.sh
 
   import-boundaries:

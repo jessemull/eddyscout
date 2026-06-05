@@ -74,10 +74,17 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      await expectLater(
-        container.read(goNoGoProfileProvider.future),
-        throwsA(isA<Exception>()),
+      final subscription = container.listen(
+        goNoGoProfileProvider,
+        (_, _) {},
       );
+      addTearDown(subscription.close);
+
+      await container
+          .read(goNoGoProfileProvider.future)
+          .onError((_, _) => GoNoGoProfile.intermediate);
+
+      expect(container.read(goNoGoProfileProvider).hasError, isTrue);
     });
 
     test('setProfile write failure sets AsyncError', () async {

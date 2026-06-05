@@ -95,7 +95,7 @@ final class MapboxMapController extends MapboxMapControllerBase
     final planning = ref.read(routePlanningProvider);
     final put = planning.putIn;
     final take = planning.takeOut;
-    final planner = ref.read(riverRoutePlannerProvider).valueOrNull;
+    final planner = ref.read(riverRoutePlannerProvider).asData?.value;
     if (put == null || take == null) {
       return;
     }
@@ -146,7 +146,7 @@ final class MapboxMapController extends MapboxMapControllerBase
   }
 }
 
-final mapboxMapControllerProvider =
-    AutoDisposeNotifierProvider<MapboxMapController, void>(
+final NotifierProvider<MapboxMapController, void> mapboxMapControllerProvider =
+    NotifierProvider.autoDispose<MapboxMapController, void>(
       MapboxMapController.new,
     );

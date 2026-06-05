@@ -13,21 +13,24 @@ export '../presentation/launch_reports_digest_provider.dart'
 /// Recent paddler reports for a launch.
 ///
 /// Refetches when [conditionReportsRefreshTokenProvider] changes.
-final AutoDisposeFutureProviderFamily<List<ConditionReportListItem>, String>
+final FutureProvider<List<ConditionReportListItem>> Function(String)
 conditionReportsListProvider = FutureProvider.autoDispose
-    .family<List<ConditionReportListItem>, String>((ref, launchId) async {
-      ref.watch(conditionReportsRefreshTokenProvider);
-      final cancelToken = CancelToken();
-      ref.onDispose(() {
-        if (!cancelToken.isCancelled) {
-          cancelToken.cancel('conditionReportsListProvider disposed');
-        }
-      });
-      final result = await ref
-          .read(conditionReportsRepositoryProvider)
-          .listReports(launchId, cancelToken: cancelToken);
-      return result.when(
-        success: (value) => value,
-        failure: (error) => throw Exception(error.message),
-      );
-    });
+    .family<List<ConditionReportListItem>, String>(
+      (ref, launchId) async {
+        ref.watch(conditionReportsRefreshTokenProvider);
+        final cancelToken = CancelToken();
+        ref.onDispose(() {
+          if (!cancelToken.isCancelled) {
+            cancelToken.cancel('conditionReportsListProvider disposed');
+          }
+        });
+        final result = await ref
+            .read(conditionReportsRepositoryProvider)
+            .listReports(launchId, cancelToken: cancelToken);
+        return result.when(
+          success: (value) => value,
+          failure: (error) => throw Exception(error.message),
+        );
+      },
+      retry: (_, _) => null,
+    );
