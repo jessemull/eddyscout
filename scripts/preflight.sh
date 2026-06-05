@@ -54,7 +54,7 @@ if ! $STAGED_ONLY; then
 
   echo ""
   echo "--- Coverage Thresholds ---"
-  melos exec --fail-fast --dir-exists=test -- "flutter test --coverage"
+  melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --coverage"
   "$SCRIPT_DIR/check_coverage.sh"
 fi
 

@@ -45,13 +45,13 @@ melos:
       description: Apply formatting fixes across all packages.
 
     test:
-      run: melos exec -- "flutter test"
+      run: melos exec --concurrency=1 -- "flutter test"
       packageFilters:
         dirExists: test
       description: Run tests in all packages that have a test directory.
 
     coverage:
-      run: melos exec -- "flutter test --coverage"
+      run: melos exec --concurrency=1 -- "flutter test --coverage"
       packageFilters:
         dirExists: test
       description: Run tests with coverage in all packages.

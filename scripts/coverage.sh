@@ -9,7 +9,7 @@ cd "$REPO_ROOT"
 
 echo "=== Coverage Report ==="
 
-melos exec --fail-fast --dir-exists=test -- "flutter test --coverage"
+melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --coverage"
 
 echo ""
 echo "Coverage reports generated in each package's coverage/ directory."
