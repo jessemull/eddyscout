@@ -1,3 +1,4 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,19 +10,21 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final launch = container.read(launchPointByIdProvider('cathedral_park'));
+      final result = container.read(launchPointByIdProvider('cathedral_park'));
 
-      expect(launch.name, 'Cathedral Park Boat Ramp');
+      expect(result.isSuccess, isTrue);
+      expect(result.valueOrNull?.name, 'Cathedral Park Boat Ramp');
     });
 
-    test('throws for unknown id', () {
+    test('returns NotFoundFailure for unknown id', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      expect(
-        () => container.read(launchPointByIdProvider('missing_launch')),
-        throwsA(isA<Exception>()),
-      );
+      final result = container.read(launchPointByIdProvider('missing_launch'));
+
+      expect(result.isFailure, isTrue);
+      expect(result.errorOrNull, isA<NotFoundFailure>());
+      expect(result.errorOrNull?.message, contains('missing_launch'));
     });
 
     test('delegates to findLaunchPointById for known ids', () {
@@ -29,9 +32,9 @@ void main() {
       addTearDown(container.dispose);
 
       final id = kLaunchPoints.first.id;
-      final launch = container.read(launchPointByIdProvider(id));
+      final result = container.read(launchPointByIdProvider(id));
 
-      expect(launch, findLaunchPointById(id));
+      expect(result.valueOrNull, findLaunchPointById(id));
     });
   });
 

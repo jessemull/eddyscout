@@ -70,7 +70,7 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 - [ ] **Conditions callables:** `conditions_callables.dart` returns `Result` (or throws only inside repo impl after mapping); no raw `FirebaseAuthException` / `StateError` across boundaries
 - [ ] **Conditions service:** remove or isolate `loadUnwrapped` rethrow paths used by providers
 - [ ] **Hydro:** `hydroGeoJsonLoader` + `riverRoutePlannerProvider` surface load/parse failures as `AppFailure` via `AsyncError`
-- [ ] **Map:** `launchPointByIdProvider` uses `Result` or `NotFoundFailure` — no `StateError` throw; unknown-id path tested
+- [x] **Map:** `launchPointByIdProvider` uses `Result` or `NotFoundFailure` — no `StateError` throw; unknown-id path tested
 - [ ] Update `docs/ARCHITECTURE.md` § Current implementation status — mark Result row **Done** when all above are `[x]`
 
 #### A3 — Router package

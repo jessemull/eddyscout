@@ -34,6 +34,12 @@ final class StorageFailure extends AppFailure {
   const StorageFailure({required super.message, super.stackTrace});
 }
 
+/// A requested resource was not found (e.g. unknown launch id).
+final class NotFoundFailure extends AppFailure {
+  /// Creates a [NotFoundFailure].
+  const NotFoundFailure({required super.message, super.stackTrace});
+}
+
 /// An unexpected failure that does not fit known categories.
 final class UnexpectedFailure extends AppFailure {
   /// Creates an [UnexpectedFailure].
