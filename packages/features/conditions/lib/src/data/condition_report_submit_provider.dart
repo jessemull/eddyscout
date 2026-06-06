@@ -3,7 +3,9 @@ import 'package:eddyscout_conditions/src/data/repositories/condition_report_subm
 import 'package:eddyscout_conditions/src/domain/condition_reports_refresh_token_provider.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/condition_report_submit_repository.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'condition_report_submit_provider.g.dart';
 
 /// Arguments for [conditionReportSubmitProvider].
 typedef ConditionReportSubmitArgs = ({
@@ -12,32 +14,18 @@ typedef ConditionReportSubmitArgs = ({
 });
 
 /// Injectable submit repository for tests and overrides.
-final Provider<ConditionReportSubmitRepository>
-conditionReportSubmitRepositoryProvider =
-    Provider<ConditionReportSubmitRepository>(
-      (ref) => const ConditionReportSubmitRepositoryImpl(),
-    );
+@riverpod
+ConditionReportSubmitRepository conditionReportSubmitRepository(Ref ref) {
+  return const ConditionReportSubmitRepositoryImpl();
+}
 
 /// Submits a paddler condition report via Firebase Callable.
-final AsyncNotifierProvider<ConditionReportSubmitNotifier, void> Function(
-  ConditionReportSubmitArgs,
-)
-conditionReportSubmitProvider = AsyncNotifierProvider.autoDispose
-    .family<ConditionReportSubmitNotifier, void, ConditionReportSubmitArgs>(
-      ConditionReportSubmitNotifier.new,
-    );
-
-/// Firebase report submission; UI calls [submit] only.
-class ConditionReportSubmitNotifier extends AsyncNotifier<void> {
-  /// Creates notifier for a launch submission context.
-  ConditionReportSubmitNotifier(this.args);
-
-  /// Family argument carrying launch id and snapshot timestamp.
-  final ConditionReportSubmitArgs args;
+@riverpod
+class ConditionReportSubmit extends _$ConditionReportSubmit {
   CancelToken? _submitToken;
 
   @override
-  Future<void> build() async {
+  FutureOr<void> build(ConditionReportSubmitArgs args) async {
     ref.onDispose(() {
       _submitToken?.cancel('conditionReportSubmitProvider disposed');
     });
