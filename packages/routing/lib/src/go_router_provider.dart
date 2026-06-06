@@ -12,12 +12,29 @@ final routesProvider = Provider<List<RouteBase>>(
   ),
 );
 
+/// Launch id validation supplied by the composition root via [ProviderScope]
+/// override.
+final isKnownLaunchIdProvider = Provider<bool Function(String launchId)>(
+  (ref) => throw UnimplementedError(
+    'Override isKnownLaunchIdProvider in ProviderScope',
+  ),
+);
+
 /// Application [GoRouter] with typed routes and platform/token redirects.
 final goRouterProvider = Provider<GoRouter>(
-  (ref) => createRouter(
-    routes: ref.watch(routesProvider),
-    initialLocation: initialAppLocation(),
-    debugLogDiagnostics: kDebugMode,
-    redirect: appRedirect,
-  ),
+  (ref) {
+    final isKnownLaunchId = ref.watch(isKnownLaunchIdProvider);
+    return createRouter(
+      routes: ref.watch(routesProvider),
+      initialLocation: initialAppLocation(),
+      debugLogDiagnostics: kDebugMode,
+      redirect: (context, state) => resolveAppRedirect(
+        location: state.matchedLocation,
+        isWeb: kIsWeb,
+        hasMapboxToken: mapboxAccessToken.isNotEmpty,
+        isKnownLaunchId: isKnownLaunchId,
+        launchId: state.pathParameters['launchId'],
+      ),
+    );
+  },
 );

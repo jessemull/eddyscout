@@ -27,6 +27,7 @@ ProviderContainer _routerContainer() {
   final container = ProviderContainer(
     overrides: [
       routesProvider.overrideWithValue(_testRoutes()),
+      isKnownLaunchIdProvider.overrideWithValue((_) => true),
     ],
   );
   addTearDown(container.dispose);
@@ -44,8 +45,31 @@ void main() {
     );
   });
 
+  test('goRouterProvider throws without isKnownLaunchIdProvider override', () {
+    final container = ProviderContainer(
+      overrides: [
+        routesProvider.overrideWithValue(_testRoutes()),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    expect(
+      () => container.read(goRouterProvider),
+      throwsA(
+        predicate(
+          (error) =>
+              error.toString().contains('Override isKnownLaunchIdProvider'),
+        ),
+      ),
+    );
+  });
+
   test('goRouterProvider throws without routesProvider override', () {
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [
+        isKnownLaunchIdProvider.overrideWithValue((_) => true),
+      ],
+    );
     addTearDown(container.dispose);
 
     expect(
@@ -55,6 +79,27 @@ void main() {
           (error) => error.toString().contains('Override routesProvider'),
         ),
       ),
+    );
+  });
+
+  testWidgets('goRouterProvider redirect runs on navigation', (tester) async {
+    final container = _routerContainer();
+    addTearDown(container.dispose);
+    final router = container.read(goRouterProvider);
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Router.withConfig(config: router),
+      ),
+    );
+
+    router.go(RoutePaths.map);
+    await tester.pumpAndSettle();
+
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      RoutePaths.missingToken,
     );
   });
 }

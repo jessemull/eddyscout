@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import '../test/routing/test_router_overrides.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -13,6 +15,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ...appRouterTestOverrides,
           hydroGeoJsonLoaderProvider.overrideWithValue(
             () => rootBundle.loadString(
               'assets/hydro/willamette_waterway.geojson',

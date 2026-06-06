@@ -79,7 +79,6 @@ while IFS= read -r line; do
         if (sf ~ /(^|\/)lib\/debug\//) return 1
         if (sf ~ /(^|\/)lib\/main\.dart$/) return 1
         if (sf ~ /(^|\/)lib\/routing\/app_routes\.dart$/) return 1
-        if (sf ~ /(^|\/)lib\/routing\/app_router_provider\.dart$/) return 1
         return 0
       }
       /^SF:/ {

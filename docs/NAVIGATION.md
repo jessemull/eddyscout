@@ -156,8 +156,8 @@ Router assembly lives in `packages/routing/`. Typed route classes that bind to a
 ```
 packages/routing/
 ├── lib/src/route_paths.dart         # RoutePaths — canonical path strings
-├── lib/src/app_redirect.dart        # initialAppLocation, appRedirect
-├── lib/src/go_router_provider.dart  # routesProvider, goRouterProvider
+├── lib/src/app_redirect.dart        # initialAppLocation, resolveAppRedirect
+├── lib/src/go_router_provider.dart  # routesProvider, isKnownLaunchIdProvider, goRouterProvider
 └── lib/src/router_provider.dart     # createRouter factory
 
 apps/eddyscout/lib/routing/
@@ -171,7 +171,7 @@ apps/eddyscout/lib/main.dart         # ProviderScope override for routesProvider
 
 1. **Path constants** — add or change paths in `RoutePaths` first; reference them from `@TypedGoRoute` annotations in the app.
 2. **Typed routes** — `GoRouteData` subclasses in `apps/eddyscout/lib/routing/app_routes.dart` bind paths to app screens.
-3. **Router assembly** — `goRouterProvider` in `packages/routing/` composes `GoRouter` with redirects; the app supplies `$appRoutes` via `routesProvider` override in `ProviderScope`.
+3. **Router assembly** — `goRouterProvider` in `packages/routing/` composes `GoRouter` with redirects; the app supplies `$appRoutes` via `routesProvider` and launch validation via `isKnownLaunchIdProvider` overrides in `ProviderScope`.
 4. **Cross-feature navigation** — a feature must not import another feature's route classes; use path strings or shared types in `packages/core/` when needed.
 
 ### Target (incremental)
@@ -186,12 +186,16 @@ The composition root wires typed routes into the shared router:
 
 ```dart
 import 'package:eddyscout/routing/app_routes.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
 
 runApp(
   ProviderScope(
     overrides: [
       routesProvider.overrideWithValue($appRoutes),
+      isKnownLaunchIdProvider.overrideWithValue(
+        (launchId) => launchPointById(launchId) != null,
+      ),
       // ... other app overrides
     ],
     child: const EddyScoutApp(),
@@ -207,7 +211,7 @@ class EddyScoutApp extends ConsumerWidget {
 }
 ```
 
-`routesProvider` **must** be overridden before `goRouterProvider` is read; otherwise an `UnimplementedError` is thrown at runtime.
+`routesProvider` and `isKnownLaunchIdProvider` **must** be overridden before `goRouterProvider` is read; otherwise an `UnimplementedError` is thrown at runtime.
 
 `mapboxAccessToken` is exported from `eddyscout_routing` for Mapbox SDK initialization in `main.dart`.
 
@@ -228,7 +232,7 @@ class EddyScoutApp extends ConsumerWidget {
 
 | Location | Scope |
 |----------|-------|
-| `packages/routing/test/go_router_provider_test.dart` | `goRouterProvider`, `appRedirect`, `initialAppLocation` |
+| `packages/routing/test/go_router_provider_test.dart` | `goRouterProvider`, `initialAppLocation` |
 | `packages/routing/test/router_provider_test.dart` | `createRouter` factory |
 | `apps/eddyscout/test/routing/app_routes_test.dart` | Typed route `.location` encoding |
 | `apps/eddyscout/integration_test/` | End-to-end navigation smoke |

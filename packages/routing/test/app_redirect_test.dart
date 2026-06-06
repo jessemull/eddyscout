@@ -1,4 +1,5 @@
 import 'package:eddyscout_routing/eddyscout_routing.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -30,6 +31,17 @@ Future<void> _pumpRouter(WidgetTester tester, GoRouter router) async {
     ),
   );
 }
+
+String? _redirectWithoutMapboxToken(
+  BuildContext context,
+  GoRouterState state,
+) => resolveAppRedirect(
+  location: state.matchedLocation,
+  isWeb: kIsWeb,
+  hasMapboxToken: mapboxAccessToken.isNotEmpty,
+  isKnownLaunchId: (_) => true,
+  launchId: state.pathParameters['launchId'],
+);
 
 void main() {
   group('initialAppLocation', () {
@@ -92,12 +104,12 @@ void main() {
     });
   });
 
-  group('appRedirect without Mapbox token', () {
+  group('resolveAppRedirect without Mapbox token', () {
     testWidgets('redirects map to missing-token', (tester) async {
       final router = createRouter(
         routes: _testRoutes(),
         initialLocation: RoutePaths.missingToken,
-        redirect: appRedirect,
+        redirect: _redirectWithoutMapboxToken,
       );
       await _pumpRouter(tester, router);
 
@@ -114,7 +126,7 @@ void main() {
       final router = createRouter(
         routes: _testRoutes(),
         initialLocation: RoutePaths.missingToken,
-        redirect: appRedirect,
+        redirect: _redirectWithoutMapboxToken,
       );
       await _pumpRouter(tester, router);
 
@@ -129,7 +141,7 @@ void main() {
     ) async {
       final router = createRouter(
         routes: _testRoutes(),
-        redirect: appRedirect,
+        redirect: _redirectWithoutMapboxToken,
       );
       await _pumpRouter(tester, router);
 

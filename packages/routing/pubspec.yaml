@@ -9,10 +9,6 @@ environment:
   sdk: ^3.11.4
 
 dependencies:
-  eddyscout_core:
-    path: ../core
-  eddyscout_map:
-    path: ../features/map
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.3.1

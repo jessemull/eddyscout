@@ -3,6 +3,7 @@ import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -37,6 +38,9 @@ Future<void> main() async {
     ProviderScope(
       overrides: [
         routesProvider.overrideWithValue($appRoutes),
+        isKnownLaunchIdProvider.overrideWithValue(
+          (launchId) => launchPointById(launchId) != null,
+        ),
         conditionReportsRepositoryProvider.overrideWithValue(
           const ConditionReportsRepositoryImpl(),
         ),
