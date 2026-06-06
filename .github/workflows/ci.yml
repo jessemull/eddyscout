@@ -129,7 +129,13 @@ jobs:
           flutter-version-file: .tool-versions
           channel: stable
           cache: true
-      - run: sudo apt-get update && sudo apt-get install -y xvfb libglu1-mesa
+      - name: Linux desktop build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang cmake ninja-build pkg-config \
+            libgtk-3-dev liblzma-dev libstdc++-12-dev \
+            xvfb libglu1-mesa
       - run: dart pub get
       - run: dart pub global activate melos
       - run: melos bootstrap
