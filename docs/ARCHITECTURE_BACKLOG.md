@@ -21,7 +21,7 @@ Tick `- [ ]` → `- [x]` here when work ships. Link PRs inline when helpful.
 | `@riverpod` codegen migration | **Nearly done** | Conditions (#20), app shell (#21), map + hydro (#23); **`goRouterProvider` still manual** |
 | Full feature layering (`presentation` / `domain` / `data` in packages) | **Partial** | Conditions has domain + data + one presentation provider; most UI in `apps/eddyscout/lib/screens/` |
 | `packages/routing/` as live router | **Scaffold only** | Live router in `apps/eddyscout/lib/routing/` — Agent #4 / A3 not merged |
-| `Result<T, AppFailure>` everywhere | **Partial** | Conditions repository boundaries only; `map` / `hydro_routing` not migrated |
+| `Result<T, AppFailure>` everywhere | **Partial** | Conditions repository boundaries; hydro load/parse via `AppFailure` in `riverRoutePlannerProvider`; `map` not migrated |
 | Integration tests (E2E) | **Done** | Token gate + map → launch detail journey; CI `integration-test` job (PR #22) |
 | CancelToken on HTTP / callables | **Done** (conditions) | Extend when adding new I/O in other features |
 
@@ -78,7 +78,7 @@ Complete **Bucket A** before returning to product features. **Bucket B** is opti
 
 - [ ] Conditions: stop re-throwing in providers; surface `AppFailure` via `AsyncError` consistently
 - [ ] Map: adopt `Result` at repository / I/O boundaries when I/O is added or refactored
-- [ ] Hydro routing: adopt `Result` at planner / geometry load boundaries
+- [x] Hydro routing: adopt `Result` at planner / geometry load boundaries (`refactor/result-hydro-complete`)
 - [ ] Firebase callables: wrap throws in `Result` at repository impl layer (conditions)
 - [ ] Update `docs/ARCHITECTURE.md` § Current implementation status when done
 
