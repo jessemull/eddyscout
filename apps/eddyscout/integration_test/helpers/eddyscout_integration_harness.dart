@@ -91,6 +91,9 @@ Future<ProviderContainer> createIntegrationContainer() async {
       () => rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
     ),
     keyValueStoreProvider.overrideWith((ref) async => store),
+    goNoGoProfileRepositoryProvider.overrideWith(
+      (ref) => GoNoGoProfileRepositoryImpl(store),
+    ),
   ];
 
   if (_mapboxAccessToken.isNotEmpty) {

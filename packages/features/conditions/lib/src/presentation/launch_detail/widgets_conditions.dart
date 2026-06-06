@@ -1,4 +1,4 @@
-part of '../launch_detail_screen.dart';
+part of 'launch_detail_screen.dart';
 
 String _localizedConditionsError(AppLocalizations l10n, String code) =>
     switch (code) {

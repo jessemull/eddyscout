@@ -1,3 +1,4 @@
+import 'package:eddyscout/preferences/key_value_store_provider.dart';
 import 'package:eddyscout/routing/app_routes.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
@@ -44,6 +45,10 @@ Future<void> main() async {
         conditionReportsRepositoryProvider.overrideWithValue(
           const ConditionReportsRepositoryImpl(),
         ),
+        goNoGoProfileRepositoryProvider.overrideWith((ref) {
+          final store = ref.watch(keyValueStoreProvider).requireValue;
+          return GoNoGoProfileRepositoryImpl(store);
+        }),
         hydroGeoJsonLoaderProvider.overrideWithValue(
           () =>
               rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
