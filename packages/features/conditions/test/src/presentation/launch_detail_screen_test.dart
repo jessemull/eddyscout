@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,13 +9,14 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../helpers/test_launches.dart';
 import '../../helpers/test_localized_app.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final launch = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
-  final kelleyPoint = kLaunchPoints.firstWhere((l) => l.id == 'kelley_point');
+  final launch = testCathedralParkLaunch;
+  final kelleyPoint = testKelleyPointLaunch;
 
   ConditionsSnapshot calmSnapshot({WeatherConditions? weather}) {
     return ConditionsSnapshot(
