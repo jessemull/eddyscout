@@ -1,13 +1,13 @@
 ---
 name: pr-review
 description: >-
-  Review pull requests for EddyScout: diff-first, code-only, actionable task lists.
+  Review pull requests for EddyScout: diff-first, code-only, fixed-section task lists.
   Use when reviewing a PR/branch, triaging review feedback, or deciding merge blockers.
 ---
 
 # PR Review
 
-**Severity definitions:** `docs/REVIEW.md` (when MUST vs SHOULD is ambiguous).
+**Severity definitions:** `docs/REVIEW.md` (when MUST vs SHOULD vs NICE is ambiguous).
 
 **This skill controls:** review scope, output shape, and what counts as merge-blocking.
 
@@ -29,7 +29,8 @@ description: >-
 2. **Risk-scoped depth** — lite for tiny PRs; deep for auth, navigation, deps, large refactors.
 3. **One bullet = one task** — imperative, fixable; no separate Issue/Fix blocks.
 4. **Checklists are internal** — work through `docs/REVIEW.md` by domain; **never paste** checklist tables into the review output.
-5. **Nothing hedged in actionable tiers** — no "consider", "probably fine", "optional".
+5. **Fixed sections** — always render all output sections; use `(no items)` when a tier has no findings.
+6. **No hedging in actionable tiers** — no "consider", "probably fine", "optional" in MUST/SHOULD/NICE bullets.
 
 ---
 
@@ -44,6 +45,8 @@ git diff origin/main...HEAD
 ```
 
 Note: packages touched, risk tags, approximate size. Use PR body/commits for **intent only** — do not review prose as findings.
+
+Build the **files changed** table from `git diff --stat` (one row per changed file, brief purpose of change).
 
 ---
 
@@ -98,38 +101,39 @@ Findings from checklists become output bullets in Step 4 — not copied checklis
 
 ## Step 4 — Classify each finding
 
-Before writing output, assign every finding to exactly one bucket:
+Assign every finding to exactly one bucket:
 
-| Bucket | Meaning |
-|--------|---------|
-| **[MUST]** | Merge blocker. Fix **in this branch**. Introduced or worsened by this PR, or required to ship the change safely. |
-| **[SHOULD]** | Fix **in this branch** before merge (same actionability as MUST; lower bar: polish, edge tests, consistency in touched files). |
-| **[OUT OF SCOPE]** | Real issue, but **pre-existing** or belongs to another feature/backlog slice — **not** this PR. Record so nothing is lost; **does not** block merge. |
-| **[VERIFY]** | Might be a problem; static review insufficient. One **concrete** check (command, test, scenario) — not a fix yet. |
+| Bucket | Blocks merge? | Meaning |
+|--------|---------------|---------|
+| **[MUST]** | **Yes** | Merge blocker. Fix **in this branch**. Introduced or worsened by this PR, or required to ship safely. |
+| **[SHOULD]** | **Yes** | Fix **in this branch** before merge. Important quality, tests, consistency, or UX in touched files — same actionability as MUST, not optional. |
+| **[NICE TO HAVE]** | **No** | Actionable improvement **in this branch** in touched files: naming, small refactors, extra polish. Worth doing; does not block Approve. |
+| **[OUT OF SCOPE]** | **No** | Real issue, but pre-existing or belongs to another feature/backlog slice — not this PR. Record so nothing is lost. |
+| **[VERIFY]** | **No** | Might be a problem; one **concrete** check (command, test, scenario) — not a fix yet. |
 
 ### Scope rules
 
-**In scope for [MUST] / [SHOULD]:**
+**In scope for [MUST] / [SHOULD] / [NICE TO HAVE]:**
 
 - Files in the diff
 - Tests/docs required to land the change
-- Regressions **this PR introduces** (even in messy adjacent code)
+- Regressions **this PR introduces**
 
-**→ [OUT OF SCOPE], not [MUST]/[SHOULD]:**
+**→ [OUT OF SCOPE], not the three actionable tiers:**
 
 - Pre-existing debt in untouched files
-- Backlog items (`docs/ARCHITECTURE_BACKLOG.md`) unless **this PR newly violates** them
-- Refactors larger than the PR's stated goal
+- Backlog items unless **this PR newly violates** them
+- Work larger than this PR's stated goal
 
-**→ [VERIFY], not [MUST]/[SHOULD]:**
-
-- Uncertainty without evidence — state what to run/check; no "probably okay"
+**→ [VERIFY]:** uncertainty without evidence — one concrete check; no "probably okay"
 
 ### Severity hints (this repo)
 
-Often **[MUST]:** cross-feature import; hand-edited `*.g.dart`/`*.freezed.dart`; secrets/PII in logs; `throw` across package boundary; missing error UI for new async paths; `context` after `await` without `mounted`; new behavior without tests.
-
-Often **[SHOULD]:** missing `const` in touched widgets; weak error copy in touched UI; edge case test in touched module; l10n for new user-facing string.
+| Tier | Examples |
+|------|----------|
+| **MUST** | Cross-feature import; hand-edited `*.g.dart`/`*.freezed.dart`; secrets/PII in logs; `throw` across package boundary; missing error UI for new async paths; `context` after `await` without `mounted`; new behavior without tests |
+| **SHOULD** | Edge-case test in touched module; l10n for new user-facing string; weak error copy in touched UI; missing `AsyncValue` error handling in changed widget |
+| **NICE TO HAVE** | Missing `const` in touched subtree; rename for clarity in touched file; extract small sub-widget in file already edited; minor readability in changed lines only |
 
 ---
 
@@ -146,30 +150,49 @@ Do not list "run preflight" as a review finding unless a specific test/analyze f
 
 ## Output format
 
-Use **only** these sections. **Omit empty sections** (no "None").
+**Always include every section below**, in this order. If a section has no findings, write `(no items)` on its own line under the heading — **never omit a section**.
 
 ```markdown
-## Summary
+## PR summary
 
-<2 sentences: what changed, verdict>
+<2–3 sentences: what changed, risk level, verdict>
+
+## Files changed
+
+| File | Change |
+|------|--------|
+| `path/to/file.dart` | <brief: what this file does in the PR> |
+| `path/to/other_test.dart` | <brief> |
 
 ## [MUST]
 
 - `path/to/file.dart:42` — <single imperative task>
-- `path/to/other_test.dart` — <single imperative task>
+
+(or `(no items)`)
 
 ## [SHOULD]
 
 - `path/to/file.dart:10` — <single imperative task>
 
+(or `(no items)`)
+
+## [NICE TO HAVE]
+
+- `path/to/file.dart:88` — <single imperative task>
+
+(or `(no items)`)
+
 ## [OUT OF SCOPE]
 
-- `path/to/existing.dart:88` — <clear problem>; pre-existing; address in <feature/backlog area>
-- `other/package.dart:1` — <clear problem>; outside this PR's goal
+- `path/to/existing.dart:12` — <clear problem>; pre-existing; address in <area>
+
+(or `(no items)`)
 
 ## [VERIFY]
 
-- `path/to/file.dart:55` — Run `<command>` or add `<test>` to confirm whether <specific behavior> fails
+- `path/to/file.dart:55` — Run `<command>` or add `<test>` to confirm <specific behavior>
+
+(or `(no items)`)
 
 ## Verdict
 
@@ -179,15 +202,16 @@ Use **only** these sections. **Omit empty sections** (no "None").
 ### Bullet rules
 
 - Format: `` `file:line` — Task `` (line optional if file-level)
-- Task is **imperative**: "Add test …", "Map failure to AppFailure …", "Use l10n key …"
-- **No** subheadings per finding, **no** Issue/Fix/Suggested fix split
+- Task is **imperative**: "Add test …", "Map failure to AppFailure …", "Rename …"
+- **No** subheadings per finding, **no** Issue/Fix split
 - **No** duplicate bullets for the same task across sections
+- **No** hedged bullets ("consider", "might", "probably okay")
 
 ### Verdict rules
 
-- **Request changes** — any [MUST] or [SHOULD] item exists
-- **Approve** — no [MUST] or [SHOULD]; [OUT OF SCOPE] and [VERIFY] may be present
-- When user says "fix the review" — implement **only** [MUST] and [SHOULD]
+- **Request changes** — any **[MUST]** or **[SHOULD]** item (not `(no items)`)
+- **Approve** — **[MUST]** and **[SHOULD]** are `(no items)`; **[NICE TO HAVE]**, **[OUT OF SCOPE]**, **[VERIFY]** may have items
+- When user says "fix the review" — implement **[MUST]** and **[SHOULD]**; **[NICE TO HAVE]** if user asks to do all review items
 
 ---
 
@@ -195,11 +219,10 @@ Use **only** these sections. **Omit empty sections** (no "None").
 
 - "Follow-up PR", "separate PR", "track in issue", "defer to later"
 - "Update PR description", "add test plan to PR", Conventional Commits reminders
-- "Consider …", "might want to …", "probably acceptable", "optional improvement"
+- "Consider …", "might want to …", "probably acceptable"
 - "Run make preflight" / "ensure CI passes" without a specific observed failure
-- Findings in files not in the diff (except [OUT OF SCOPE] with explicit path)
-- **NICE TO HAVE** section — use [SHOULD] if fix in-branch, [OUT OF SCOPE] if not
-- Hedged items with no action ("could be a problem but leave as-is")
+- Omitting a required section (MUST / SHOULD / NICE / OUT OF SCOPE / VERIFY)
+- Hedged items with no action ("could be a problem but leave as-is") — use **[VERIFY]** or omit
 
 ---
 
@@ -208,7 +231,7 @@ Use **only** these sections. **Omit empty sections** (no "None").
 - Reading every governance doc for a one-line fix
 - Copying `docs/REVIEW.md` PR hygiene checklist into findings
 - Generic "add tests" without naming file and scenario
-- Inflating style nits to [MUST] unless CI/analyzer fails
+- Inflating style nits to **[MUST]** unless CI/analyzer fails — use **[NICE TO HAVE]**
 - Assuming `gh` exists
 
 ---
