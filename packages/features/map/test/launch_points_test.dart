@@ -9,15 +9,15 @@ void main() {
       expect(ids.toSet().length, ids.length);
     });
 
-    test('launchPointById returns launch when present', () {
+    test('findLaunchPointById returns launch when present', () {
       final first = kLaunchPoints.first;
-      final found = launchPointById(first.id);
+      final found = findLaunchPointById(first.id);
       expect(found, isNotNull);
       expect(found?.id, first.id);
     });
 
-    test('launchPointById returns null when missing', () {
-      expect(launchPointById('not-a-launch'), isNull);
+    test('findLaunchPointById returns null when missing', () {
+      expect(findLaunchPointById('not-a-launch'), isNull);
     });
 
     test('kPortlandLaunchPoints is an alias of kLaunchPoints', () {

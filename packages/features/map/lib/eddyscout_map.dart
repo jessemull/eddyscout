@@ -15,4 +15,4 @@ export 'package:eddyscout_core/eddyscout_core.dart'
         kFlowBandsUsgs14211010ClackamasNearOc,
         kFlowBandsUsgs14211720WillamettePortland;
 export 'src/data/launch_points.dart';
-export 'src/data/launch_providers.dart' show launchPointByIdProvider;
+export 'src/data/launch_providers.dart';

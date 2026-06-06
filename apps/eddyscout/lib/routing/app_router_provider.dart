@@ -1,7 +1,6 @@
 import 'package:eddyscout/routing/app_routes.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,7 +12,7 @@ final goRouterProvider = Provider<GoRouter>(
   (ref) => GoRouter(
     initialLocation: _initialLocation(),
     debugLogDiagnostics: kDebugMode,
-    redirect: _redirect,
+    redirect: (context, state) => _redirect(ref, state),
     routes: $appRoutes,
   ),
 );
@@ -28,7 +27,7 @@ String _initialLocation() {
   return const MapRoute().location;
 }
 
-String? _redirect(BuildContext context, GoRouterState state) {
+String? _redirect(Ref ref, GoRouterState state) {
   final location = state.matchedLocation;
 
   if (kIsWeb) {
@@ -51,7 +50,7 @@ String? _redirect(BuildContext context, GoRouterState state) {
   }
 
   final launchId = state.pathParameters['launchId'];
-  if (launchId != null && launchPointById(launchId) == null) {
+  if (launchId != null && ref.readLaunchPointIfExists(launchId) == null) {
     return const MapRoute().location;
   }
 

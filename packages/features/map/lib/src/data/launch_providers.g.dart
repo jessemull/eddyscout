@@ -25,7 +25,7 @@ final class LaunchPointByIdProvider
   }) : super(
          retry: null,
          name: r'launchPointByIdProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -70,7 +70,7 @@ final class LaunchPointByIdProvider
   }
 }
 
-String _$launchPointByIdHash() => r'2045837c7d10dc4b11eb5580e6cdbadf270d36cd';
+String _$launchPointByIdHash() => r'4bd4b6304d0949ed05482e50b95604e98237560b';
 
 /// Resolves a curated launch by id.
 
@@ -82,7 +82,7 @@ final class LaunchPointByIdFamily extends $Family
         name: r'launchPointByIdProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   /// Resolves a curated launch by id.
