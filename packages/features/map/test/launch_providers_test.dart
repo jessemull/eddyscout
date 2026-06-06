@@ -6,35 +6,49 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('launchPointByIdProvider', () {
-    test('returns curated launch for known id', () {
+    test('returns curated launch for known id', () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final result = container.read(launchPointByIdProvider('cathedral_park'));
+      final launch = await container.read(
+        launchPointByIdProvider('cathedral_park').future,
+      );
 
-      expect(result.isSuccess, isTrue);
-      expect(result.valueOrNull?.name, 'Cathedral Park Boat Ramp');
+      expect(launch.name, 'Cathedral Park Boat Ramp');
     });
 
-    test('returns NotFoundFailure for unknown id', () {
+    test('surfaces NotFoundFailure for unknown id', () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final result = container.read(launchPointByIdProvider('missing_launch'));
+      final subscription = container.listen(
+        launchPointByIdProvider('missing_launch'),
+        (_, _) {},
+      );
+      addTearDown(subscription.close);
 
-      expect(result.isFailure, isTrue);
-      expect(result.errorOrNull, isA<NotFoundFailure>());
-      expect(result.errorOrNull?.message, contains('missing_launch'));
+      await Future<void>.delayed(Duration.zero);
+
+      final asyncValue = container.read(
+        launchPointByIdProvider('missing_launch'),
+      );
+
+      expect(asyncValue.hasError, isTrue);
+      expect(asyncValue.error, isA<NotFoundFailure>());
+      expect(
+        (asyncValue.error! as NotFoundFailure).message,
+        contains('missing_launch'),
+      );
     });
 
-    test('delegates to findLaunchPointById for known ids', () {
+    test('delegates to findLaunchPointById for known ids', () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
       final id = kLaunchPoints.first.id;
-      final result = container.read(launchPointByIdProvider(id));
+      final launch = await container.read(launchPointByIdProvider(id).future);
 
-      expect(result.valueOrNull, findLaunchPointById(id));
+      expect(launch, findLaunchPointById(id));
     });
   });
 

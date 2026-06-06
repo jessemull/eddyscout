@@ -8,6 +8,10 @@ void main() {
       expect(failure.toString(), 'no network');
     });
 
+    test('failures implement Exception', () {
+      expect(const NetworkFailure(message: 'x'), isA<Exception>());
+    });
+
     test('subtypes hold optional fields', () {
       final trace = StackTrace.current;
       final failure = NetworkFailure(

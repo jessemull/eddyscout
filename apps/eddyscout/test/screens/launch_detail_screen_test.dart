@@ -8,6 +8,7 @@ import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,6 +35,7 @@ void main() {
 
   Future<ProviderContainer> scopedContainer({
     required Future<ConditionsSnapshot> Function() loadConditions,
+    List<Override> extraOverrides = const [],
   }) async {
     SharedPreferences.setMockInitialValues({});
     final store = await SharedPreferencesKeyValueStore.open();
@@ -43,6 +45,7 @@ void main() {
         conditionsSnapshotProvider(launch).overrideWith(
           (ref) => loadConditions(),
         ),
+        ...extraOverrides,
       ],
     );
   }
@@ -100,5 +103,35 @@ void main() {
     expect(find.text('Weather'), findsOneWidget);
     expect(find.text('Conditions'), findsOneWidget);
     expect(find.text(launch.shortNote), findsOneWidget);
+  });
+
+  testWidgets('shows unauthenticated hint when recent reports fail', (
+    tester,
+  ) async {
+    FirebaseFlagsTestHooks.firebaseCallablesAvailableOverride = true;
+    addTearDown(FirebaseFlagsTestHooks.reset);
+    expect(firebaseCallablesAvailable, isTrue);
+
+    const unauthMessage =
+        'Authentication required (unauthenticated). Restart the app.';
+
+    final container = await scopedContainer(
+      loadConditions: () => Future.value(calmSnapshot()),
+      extraOverrides: [
+        conditionReportsListProvider(launch.id).overrideWith(
+          (ref) async {
+            throw const NetworkFailure(message: unauthMessage);
+          },
+        ),
+      ],
+    );
+    await pumpLaunchDetail(tester, container: container);
+    await tester.pumpAndSettle();
+
+    final reportsError = find.textContaining('Could not load reports');
+    await tester.scrollUntilVisible(reportsError, 200);
+
+    expect(find.textContaining('unauthenticated'), findsOneWidget);
+    expect(find.textContaining('fully stop the app'), findsOneWidget);
   });
 }

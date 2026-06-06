@@ -46,12 +46,30 @@ void main() {
       final f = mapToAppFailure(Exception('boom'));
       expect(f, isA<UnexpectedFailure>());
     });
+
+    test('maps FormatException to UnexpectedFailure', () {
+      final f = mapToAppFailure(const FormatException('bad'));
+      expect(f, isA<UnexpectedFailure>());
+      expect(f.message, contains('could not read'));
+    });
+
+    test('maps StateError to UnexpectedFailure', () {
+      final f = mapToAppFailure(StateError('missing field'));
+      expect(f, isA<UnexpectedFailure>());
+      expect(f.message, contains('unexpected response'));
+    });
   });
 
   group('firebase flags/bootstrap', () {
     test('firebaseCallablesAvailable is false by default', () {
       expect(kUseFirebase, isFalse);
       expect(firebaseCallablesAvailable, isFalse);
+    });
+
+    test('FirebaseFlagsTestHooks can force callables available', () {
+      FirebaseFlagsTestHooks.firebaseCallablesAvailableOverride = true;
+      addTearDown(FirebaseFlagsTestHooks.reset);
+      expect(firebaseCallablesAvailable, isTrue);
     });
 
     test('FirebaseBootstrap hintForLastError returns null when unset', () {

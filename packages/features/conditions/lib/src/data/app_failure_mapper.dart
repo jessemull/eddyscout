@@ -17,6 +17,18 @@ AppFailure mapToAppFailure(Object error, [StackTrace? stackTrace]) {
       stackTrace: stackTrace,
     );
   }
+  if (error is FormatException) {
+    return UnexpectedFailure(
+      message: 'The service returned data we could not read. Try again later.',
+      stackTrace: stackTrace,
+    );
+  }
+  if (error is StateError) {
+    return UnexpectedFailure(
+      message: 'The service returned an unexpected response. Try again later.',
+      stackTrace: stackTrace,
+    );
+  }
   if (error is DioException) {
     if (error.type == DioExceptionType.cancel) {
       return NetworkFailure(
