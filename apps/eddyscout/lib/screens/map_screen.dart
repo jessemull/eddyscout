@@ -7,6 +7,7 @@ import 'package:eddyscout/screens/map/map_ui_callbacks.dart';
 import 'package:eddyscout/screens/map/mapbox_map_controller.dart';
 import 'package:eddyscout/screens/map_planning_provider.dart';
 import 'package:eddyscout/screens/map_session_provider.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
@@ -45,6 +46,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           MapUiCallbacks(
             pickDifferentTakeOutMessage: l10n.mapPickDifferentTakeOut,
             riverDataLoadingMessage: l10n.mapRiverDataLoading,
+            riverDataLoadFailedMessage: l10n.mapRiverDataUnavailable,
             showSnackBar: (message) {
               if (!context.mounted) {
                 return;
@@ -56,6 +58,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     code: code,
                     riverSystemName: riverSystemName,
                   ),
+                ParseFailure() => l10n.mapRiverDataReadFailed,
+                AssetLoadFailure() => l10n.mapRiverDataUnavailable,
                 String() => message,
                 _ => l10n.launchDetailUnavailable,
               };

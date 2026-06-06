@@ -39,6 +39,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapRiverDataLoading => 'Still loading river data… try again.';
 
   @override
+  String get mapRiverDataReadFailed => 'River route data could not be read.';
+
+  @override
+  String get mapRiverDataUnavailable => 'River route data is unavailable.';
+
+  @override
   String get mapRouteFailureSameLaunch => 'Choose two different launches.';
 
   @override

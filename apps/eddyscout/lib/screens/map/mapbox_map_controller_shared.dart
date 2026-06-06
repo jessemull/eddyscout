@@ -13,6 +13,7 @@ mixin MapboxMapControllerBase {
   MapUiCallbacks _ui = const MapUiCallbacks(
     pickDifferentTakeOutMessage: '',
     riverDataLoadingMessage: '',
+    riverDataLoadFailedMessage: '',
   );
 
   /// Snackbar and navigation hooks from the map screen (set after first frame).

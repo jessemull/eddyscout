@@ -1,3 +1,6 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_hydro_routing/src/data/hydro_app_failure_exception.dart';
+import 'package:eddyscout_hydro_routing/src/data/hydro_app_failure_mapper.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_route_planner.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -15,8 +18,13 @@ HydroGeoJsonLoader hydroGeoJsonLoader(Ref ref) {
 }
 
 /// Bundled hydro graphs for river routing between launches.
-@Riverpod(keepAlive: true)
+@Riverpod(keepAlive: true, retry: disableProviderRetry)
 Future<RiverRoutePlanner> riverRoutePlanner(Ref ref) async {
   final load = ref.read(hydroGeoJsonLoaderProvider);
-  return RiverRoutePlanner.fromGeoJson(await load());
+  try {
+    final raw = await load();
+    return RiverRoutePlanner.fromGeoJson(raw);
+  } on Object catch (e, st) {
+    throw HydroAppFailureException(mapHydroToAppFailure(e, st));
+  }
 }

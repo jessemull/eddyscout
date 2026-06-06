@@ -13,6 +13,8 @@
   "mapZoomControlsSemantics": "Map zoom controls",
   "mapPickDifferentTakeOut": "Pick a different launch for take-out.",
   "mapRiverDataLoading": "Still loading river data… try again.",
+  "mapRiverDataReadFailed": "River route data could not be read.",
+  "mapRiverDataUnavailable": "River route data is unavailable.",
   "mapRouteFailureSameLaunch": "Choose two different launches.",
   "mapRouteFailureDifferentSystem": "Pick two launches on the same river system for river routing.",
   "mapRouteFailureNoBundledLine": "No bundled river line for \"{river}\" yet — routing is only available where hydro GeoJSON exists.",
