@@ -1,60 +1,79 @@
 ---
 name: repo-review
 description: >-
-  Review the entire EddyScout repository against governance, architecture
-  rules, and Flutter/Dart best practices. Use when auditing the full
-  codebase for compliance, preparing for a release, or performing a
-  comprehensive quality assessment.
+  Review the entire EddyScout repository: fixed-section task lists, same
+  severity tiers as pr-review. Use for full audits, release readiness,
+  or post-migration validation.
 ---
 
 # Repository Review
 
-> Read `CONTEXT.md` and `AGENTS.md` before performing any review.
->
-> Reviews must follow repository governance, architecture rules, and Flutter/Dart best practices.
->
-> Canonical checklist and severity policy also live in `docs/REVIEW.md`. When this skill and `docs/REVIEW.md` disagree on severity, follow `docs/REVIEW.md` and flag the conflict.
+**Severity definitions:** `docs/REVIEW.md` (when MUST vs SHOULD vs NICE is ambiguous).
 
-## Scope
+**Output shape:** same rules as `.cursor/skills/pr-review/SKILL.md` — flat `` `file:line` — task `` bullets, fixed sections, `(no items)` when empty. **Scope differs:** this skill reviews the **entire repo**, not a single PR diff.
 
-This skill reviews the **entire repository**, not a single PR. Every file in the codebase must be evaluated against the criteria below. Do NOT skip files, packages, or directories. If a section does not apply to a specific file, mark it N/A for that file but still acknowledge it was checked.
+**Governance:** read `CONTEXT.md` + `AGENTS.md` + all mandatory `docs/` (full audit — not diff-scoped).
 
-## Review priorities
+---
 
-Apply scrutiny in this order:
+## What repo review is (and is not)
 
-1. Correctness
-2. Architecture integrity
-3. Performance
-4. Lifecycle safety
-5. Maintainability
-6. Accessibility
-7. Security
-8. Long-term repository health
+**Review:** every package, source file, and test against governance and architecture — findings are repo-wide compliance gaps.
+
+**Not review:** PR description quality, commit message format, merge process, or re-litigating **planned** backlog work already tracked in `docs/ARCHITECTURE_BACKLOG.md` / `docs/ROADMAP.md` (use **[OUT OF SCOPE]** for those).
+
+**vs `pr-review`:** use `pr-review` for branch/PR review; use this skill for full-repo audits. Same bullet format and tiers; repo review adds **Coverage** and uses **Ready / Needs work** verdict.
+
+---
+
+## Principles
+
+1. **Repo-wide** — enumerate every package and Dart file; do not skip directories.
+2. **Risk-prioritized** — deep scrutiny on high-risk packages first; still cover all files.
+3. **One bullet = one task** — imperative, fixable; no Issue/Reasoning/Suggested-fix blocks.
+4. **Checklists are internal** — work through `docs/REVIEW.md` + **§1–§18** below; **never paste** checklist tables into output.
+5. **Fixed sections** — always render all output sections; use `(no items)` when empty.
+6. **No hedging in actionable tiers** — no "consider", "probably fine", "optional" in MUST/SHOULD/NICE bullets.
+
+**Review priorities (internal ordering):** correctness → architecture → performance → lifecycle → maintainability → accessibility → security → long-term health.
+
+---
 
 ## When to use
 
 - Full codebase audit
 - Release readiness assessment
-- Architecture compliance sweep
-- Periodic quality gate review
-- Onboarding new team members (verify baseline quality)
+- Architecture compliance sweep (e.g. after wave 2/3 merges)
 - Post-migration or post-refactor validation
+- Periodic quality gate review
 
-## Review workflow
+---
 
-Execute in order. Do not skip steps. Do not skip files.
+## Step 1 — Enumerate scope
 
-### 1. Enumerate all packages and files
+```bash
+# Packages
+ls apps/ packages/features/ 2>/dev/null
+find apps packages -path '*/lib/*.dart' -o -path '*/test/*.dart' | sort
 
-- List every package in `apps/` and `packages/` (including nested feature packages under `packages/features/`).
-- For each package, enumerate all Dart source files under `lib/` and all test files under `test/`.
-- Track coverage: every file must appear in at least one checklist section's findings.
-- **DO NOT SKIP ANY FILES.** If a file has no issues, note it as reviewed with no findings.
+# Optional baseline
+git log -20 --oneline
+make analyze   # or note "not run" in Verification
+```
 
-### 2. Load required context
+Collect for output:
 
-Read ALL mandatory docs before reviewing — this is a full repo review, so all docs are relevant:
+- Package count, source file count, test file count
+- High-risk packages (deps, state complexity, low coverage, recent churn, large files)
+- **Reviewed areas:** domains from Step 4 that were applied; N/A domains in parentheses
+
+**Do not skip files.** Files with no issues still count as reviewed — report counts in **Coverage**.
+
+---
+
+## Step 2 — Load context
+
+Read ALL mandatory docs — full repo review, all domains apply:
 
 | Always read | Always read |
 |-------------|-------------|
@@ -62,91 +81,74 @@ Read ALL mandatory docs before reviewing — this is a full repo review, so all 
 | `AGENTS.md` | `docs/LOCALIZATION.md` |
 | `docs/GOVERNANCE.md` | `docs/DEPENDENCIES.md` |
 | `docs/ARCHITECTURE.md` | `docs/ERROR_HANDLING.md` |
-| `docs/STATE_MANAGEMENT.md` | `docs/ANALYTICS.md` |
-| `docs/PERFORMANCE.md` | `docs/CI_CD.md` |
+| `docs/ARCHITECTURE_BACKLOG.md` | `docs/ANALYTICS.md` |
+| `docs/STATE_MANAGEMENT.md` | `docs/CI_CD.md` |
 | `docs/TESTING.md` | `docs/RESPONSIVENESS.md` |
 | `docs/SECURITY.md` | `docs/THEMING.md` |
 | `docs/UI.md` | `docs/ACCESSIBILITY.md` |
 | `docs/NAVIGATION.md` | `docs/NETWORKING.md` |
 | `docs/CODEGEN.md` | `docs/COMMENTS.md` |
 
-Use companion skills for deeper passes in specific domains: `riverpod-usage`, `state-management`, `navigation-change`, `accessibility-review`, `security-review`, `testing`, `golden-testing`, `performance-profiling`, `form-creation`, `platform-specific`, `responsive-ui-validation`.
+Companion skills for deep passes: `riverpod-usage`, `security-review`, `accessibility-review`, `testing`, `golden-testing`, `navigation-change`, `performance-profiling`.
 
-### 3. Classify repository risk areas
-
-Before file-by-file review, identify high-risk areas in the repo:
-
-- Packages with the most external dependencies
-- Features with the most complex state management
-- Areas with the lowest test coverage
-- Recently changed files (higher risk of regressions)
-- Files with the most lines of code (higher complexity risk)
-
-### 4. Review every file against checklist
-
-Work through **§1–§18** below. For each section, review **every applicable file** in the repository. Do not mark a section complete until all files have been checked.
-
-### 5. Produce structured output
-
-Use **Review Output Format** at the end. Every finding needs: description, severity, affected file(s), reasoning, suggested fix.
-
-### 6. Coverage verification
-
-Before finalizing, verify that every Dart source file in the repository has been reviewed. List any files that were not covered and explain why.
+**Skip for reviewers:** `docs/REVIEW.md` § PR hygiene — not a repo audit finding.
 
 ---
 
-## Review severity levels
+## Step 3 — Classify repository risk (internal)
 
-### MUST
+For each package, note risk tags: UI, state, navigation, networking, persistence, security, platform, codegen, architecture, dependencies.
 
-Blocking issues that would cause:
-
-- Crashes
-- Memory leaks
-- Security vulnerabilities
-- Architecture violations
-- Broken UX
-- Data corruption
-- Accessibility failures
-- Severe performance regressions
-- CI/build failures
-- Unsafe async behavior
-- Lifecycle bugs
-- Broken navigation
-- Repository rule violations
-
-These must be fixed.
-
-### SHOULD
-
-Important improvements that affect:
-
-- Maintainability
-- Readability
-- Consistency
-- Moderate performance risks
-- Technical debt
-- Test quality
-- Code duplication
-- Scalability
-- Architectural clarity
-
-Should generally be fixed. Document deferral and link a follow-up issue when deferring.
-
-### NICE TO HAVE
-
-Non-blocking suggestions such as:
-
-- Stylistic consistency
-- Readability improvements
-- Small optimizations
-- Minor refactors
-- Developer experience improvements
-
-These are optional.
+Assign package risk: Low | Medium | High | Critical. Fold summary into output **Scope** — do not dump per-package tables unless the user asks.
 
 ---
+
+## Step 4 — Review against checklists (internal)
+
+Work through **§1–§18** below and `docs/REVIEW.md` by domain. Every applicable file must be checked before the section is complete.
+
+Findings become output bullets in Step 5 — not copied checklist rows.
+
+---
+
+## Step 5 — Classify each finding
+
+Assign every finding to exactly one bucket:
+
+| Bucket | Blocks "Ready"? | Meaning |
+|--------|-----------------|---------|
+| **[MUST]** | **Yes** | Repo-wide blocker: crash, security, architecture violation, CI failure, unsafe async, broken UX in shipped paths. |
+| **[SHOULD]** | **Yes** | Important fix before calling the repo healthy — tests, consistency, error handling, maintainability. Same actionability as MUST. |
+| **[NICE TO HAVE]** | **No** | Actionable polish in existing files: naming, `const`, small refactors. Does not block Ready. |
+| **[OUT OF SCOPE]** | **No** | Known gap **already scheduled** in `ARCHITECTURE_BACKLOG.md` / `ROADMAP.md` (e.g. wave 2 Result migration, wave 3 screen move) — not a new violation. Record so audit does not re-file planned work. |
+| **[VERIFY]** | **No** | Uncertainty; one **concrete** command or scenario — not a fix yet. |
+
+### Severity hints (this repo)
+
+| Tier | Examples |
+|------|----------|
+| **MUST** | Cross-feature import; hand-edited `*.g.dart`; secrets in source; `throw` across package boundary; missing error UI on user-facing async paths; `context` after `await` without `mounted` |
+| **SHOULD** | Missing test for critical path; l10n gap on user-facing string; `AsyncValue` error not handled; stale doc contradicting code |
+| **NICE TO HAVE** | Missing `const` in widget subtree; readability rename; minor duplication in same file |
+| **OUT OF SCOPE** | UI in `apps/eddyscout/lib/screens/` while wave 3 is open; partial `Result` adoption while wave 2 A2 is open; `goRouterProvider` still manual while wave 2 A1 is open |
+
+---
+
+## Step 6 — Spot-check (when useful)
+
+```bash
+make preflight          # release readiness
+make coverage           # threshold check
+melos exec --scope=<package> -- "flutter test"
+```
+
+Record what you **actually ran** in **Verification**. Do not list "run preflight" as a finding unless it failed with a specific error.
+
+---
+
+## Internal checklists (§1–§18)
+
+> **Do not paste these sections into review output.** Use them as the audit rubric; emit flat task bullets only.
 
 ## 1. Change risk assessment
 
@@ -192,7 +194,7 @@ Review **every file** for architecture compliance.
 
 ### Layering
 
-- [ ] Every feature follows `presentation → domain ← data` separation
+- [ ] Every feature follows `presentation → domain ← data` separation (partial today — UI in app shell; wave 3 migration → **[OUT OF SCOPE]** if tracked in backlog, not **[MUST]**)
 - [ ] No cross-feature imports exist anywhere in the codebase
 - [ ] `domain/` has no dependencies on `data/` or `presentation/` in any package
 - [ ] Shared code lives in approved shared locations (`core`, `design_system`, etc.)
@@ -357,14 +359,14 @@ Review **every async operation** in the codebase.
 
 Review **every route and navigation call** in the codebase.
 
-- [ ] All routes typed correctly
-- [ ] Route ownership respected everywhere (typed routes; global graph in `apps/eddyscout/lib/routing/` today, target `packages/routing/`)
-- [ ] Auth guards applied correctly on all protected routes
+- [ ] All routes typed correctly (`go_router_builder` in `apps/eddyscout/lib/routing/app_routes.dart`)
+- [ ] Router assembly in `packages/routing/` (`goRouterProvider`); app supplies `$appRoutes` and launch validation overrides
+- [ ] Redirects correct: Mapbox token gate, web map placeholder, invalid launch id → map (session auth guards deferred until auth feature)
 - [ ] All deeplinks validated
 - [ ] Navigation side effects isolated everywhere
 - [ ] Nested navigation handled correctly everywhere
 - [ ] Navigation state not duplicated anywhere
-- [ ] go_router only — no ad-hoc `Navigator.push` anywhere outside router config
+- [ ] go_router only — no ad-hoc `Navigator.push` outside router config
 
 ---
 
@@ -380,7 +382,7 @@ Review **every error path** in the codebase.
 - [ ] Destructive actions confirmed everywhere
 - [ ] Errors logged appropriately everywhere (no PII/tokens)
 - [ ] All failures degrade gracefully
-- [ ] `Result<T, AppFailure>` used at all package boundaries — no uncaught exceptions across packages
+- [ ] `Result<T, AppFailure>` at package I/O boundaries where adopted; no **new** raw `throw` across boundaries (full migration tracked in `ARCHITECTURE_BACKLOG.md` A2)
 
 ---
 
@@ -622,71 +624,143 @@ Also ask (from `docs/REVIEW.md`):
 
 ---
 
-## Review output format
+## Output format
 
-Structure review findings exactly as:
+**Always include every section below**, in this order. If a section has no content, write `(no items)` on its own line — **never omit a section**.
+
+Same bullet rules as `pr-review`: `` `file:line` — <imperative task> ``.
 
 ```markdown
-## Summary
+## Repo summary
 
-<1–3 sentences: overall repository health, risk areas, verdict>
+<2–3 sentences: overall health, top risk areas, verdict>
 
-## Repository risk profile
+## Scope
 
-- Total packages reviewed: …
-- Total files reviewed: …
-- High-risk packages: …
-- Risk level: Low | Medium | High | Critical
+- Packages: `N` · Source files: `M` · Test files: `T`
+- High-risk packages: `<name>`, …
+- **Risk:** Low | Medium | High | Critical — <one line>
+- **Architecture:** OK | Concern — <one line vs target in ARCHITECTURE.md>
 
-## MUST
+## Reviewed areas
 
-Blocking issues that must be fixed.
+Architecture · Riverpod · Testing · … (N/A: analytics, platform, …)
 
-### <short title>
+## Strengths
 
-- **Files:** `path/to/file.dart`, …
-- **Reasoning:** …
-- **Suggested fix:** …
+- <concrete positive pattern in the codebase>
 
-## SHOULD
+(or `(no items)`)
 
-Important improvements strongly recommended.
+## Breaking changes
 
-### <short title>
+- `<symbol>` — <contract that would break external consumers>
 
-- **Files:** …
-- **Reasoning:** …
-- **Suggested fix:** …
+(or `(no items)` — rare in full-repo audit; use for public API drift)
 
-## NICE TO HAVE
+## Coverage
 
-Optional improvements and suggestions.
+- Packages reviewed: `<list>` (`N`/`N`)
+- Source files reviewed: `M` (`M`/`M` total)
+- Test files reviewed: `T` (`T`/`T` total)
+- Not reviewed: `(none)` or list with reason
 
-### <short title>
+## [MUST]
 
-- **Files:** …
-- **Reasoning:** …
-- **Suggested fix:** …
+- `path/to/file.dart:42` — <single imperative task>
 
-## Coverage verification
+(or `(no items)`)
 
-- Files reviewed: <count>
-- Files not reviewed: <count and list if any>
-- Packages reviewed: <list>
+## [SHOULD]
 
-## Checklist notes
+- `path/to/file.dart:10` — <single imperative task>
 
-Brief note on sections marked N/A and any gaps.
+(or `(no items)`)
+
+## [NICE TO HAVE]
+
+- `path/to/file.dart:88` — <single imperative task>
+
+(or `(no items)`)
+
+## [OUT OF SCOPE]
+
+- `path/to/file.dart:1` — <known gap>; scheduled in `ARCHITECTURE_BACKLOG.md` wave N / `ROADMAP.md` Phase X
+
+(or `(no items)`)
+
+## [VERIFY]
+
+- `path/to/file.dart:55` — Run `<command>` to confirm <specific behavior>
+
+(or `(no items)`)
+
+## Verification
+
+- [x] Enumerated all packages and Dart files
+- [x] Read mandatory governance docs
+- [x] Ran `make preflight` — passed
+- [ ] Coverage thresholds not checked locally
+
+## Test plan
+
+- `make preflight` — full quality gate before release
+- `make coverage` — per-package thresholds in `tooling/coverage.yaml`
+- `<package-specific test command>` — <what it validates>
+
+## Counts
+
+MUST `n` · SHOULD `n` · NICE `n` · OUT OF SCOPE `n` · VERIFY `n`
 
 ## Verdict
 
-- Repository health: Healthy | Needs attention | Critical issues
-- Production readiness: Ready | Conditional | Not ready
-- Recommended follow-ups: …
+**Ready** | **Needs work**
 ```
 
-Each finding must include: issue description, severity, affected file(s), reasoning, suggested fix.
+### Verdict rules
 
-Do not omit MUST items when they exist. Do not inflate severity — style-only items belong in NICE TO HAVE unless linters/governance already classify them higher.
+- **Needs work** — any **[MUST]** or **[SHOULD]** item (not `(no items)`)
+- **Ready** — **[MUST]** and **[SHOULD]** are `(no items)`; other sections may have items
+- **[OUT OF SCOPE]** backlog items do **not** block Ready if they are already tracked in `ARCHITECTURE_BACKLOG.md`
 
-**CRITICAL: Do not skip any files. Every Dart source file in the repository must be reviewed. Track and report coverage in the output.**
+### Bullet rules
+
+- Format: `` `file:line` — Task `` (line optional if file-level)
+- Task is **imperative**: "Migrate …", "Add test …", "Map failure to AppFailure …"
+- **No** subheadings per finding, **no** Files/Reasoning/Suggested-fix split
+- **No** duplicate bullets across sections
+- **No** hedged bullets ("consider", "might", "probably okay")
+
+---
+
+## Banned output (never write)
+
+- "Follow-up PR", "separate PR", "track in issue", "defer to later" (use **[OUT OF SCOPE]** with backlog reference instead)
+- "Update PR description", Conventional Commits reminders
+- "Consider …", "might want to …", "probably acceptable"
+- "Run make preflight" / "ensure CI passes" without a specific observed failure
+- Omitting a required section
+- Pasting §1–§18 checklist tables into the review
+
+---
+
+## Anti-patterns (review process)
+
+- Skipping packages or files without listing them in **Coverage → Not reviewed**
+- Inflating planned backlog gaps to **[MUST]** — use **[OUT OF SCOPE]** when `ARCHITECTURE_BACKLOG.md` already tracks the work
+- Generic "add tests" without naming file and scenario
+- Style nits as **[MUST]** unless analyzer/CI fails — use **[NICE TO HAVE]**
+- Producing a different output shape than `pr-review` (this skill should feel like pr-review at repo scale)
+
+---
+
+## Quick reference
+
+| Topic | Doc |
+|-------|-----|
+| PR review (same output rules) | `.cursor/skills/pr-review/SKILL.md` |
+| Severity policy | `docs/REVIEW.md` |
+| Platform waves | `docs/ARCHITECTURE_BACKLOG.md` |
+| Product phases | `docs/ROADMAP.md` |
+| Target vs today | `docs/ARCHITECTURE.md` § Current implementation status |
+| Tests | `docs/TESTING.md` |
