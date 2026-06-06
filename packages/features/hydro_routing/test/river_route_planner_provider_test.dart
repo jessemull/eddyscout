@@ -45,7 +45,7 @@ void main() {
 
       final async = container.read(riverRoutePlannerProvider);
       expect(async.hasError, isTrue);
-      expect(hydroAppFailureFrom(async.error), isA<AppFailure>());
+      expect(hydroAppFailureFrom(async.error), isA<AssetLoadFailure>());
     });
 
     test('surfaces malformed GeoJSON as AppFailure', () async {
@@ -65,7 +65,27 @@ void main() {
 
       final async = container.read(riverRoutePlannerProvider);
       expect(async.hasError, isTrue);
-      expect(hydroAppFailureFrom(async.error), isA<AppFailure>());
+      expect(hydroAppFailureFrom(async.error), isA<ParseFailure>());
+    });
+
+    test('surfaces invalid JSON as AppFailure', () async {
+      final container = ProviderContainer(
+        overrides: [
+          hydroGeoJsonLoaderProvider.overrideWithValue(
+            () async => 'not json',
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await expectLater(
+        container.read(riverRoutePlannerProvider.future),
+        throwsA(isA<HydroAppFailureException>()),
+      );
+
+      final async = container.read(riverRoutePlannerProvider);
+      expect(async.hasError, isTrue);
+      expect(hydroAppFailureFrom(async.error), isA<ParseFailure>());
     });
   });
 }

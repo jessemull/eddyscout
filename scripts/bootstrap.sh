@@ -36,5 +36,9 @@ echo "Running melos bootstrap..."
 melos bootstrap
 
 echo ""
+echo "--- Git hooks (husky) ---"
+"$SCRIPT_DIR/ensure_husky.sh"
+
+echo ""
 echo "=== Bootstrap complete ==="
-echo "Run 'make preflight' to verify everything works."
+echo "git push runs push validation; use 'make preflight' only for local coverage checks."

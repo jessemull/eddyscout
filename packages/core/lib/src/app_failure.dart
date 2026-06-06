@@ -34,6 +34,19 @@ final class StorageFailure extends AppFailure {
   const StorageFailure({required super.message, super.stackTrace});
 }
 
+/// Structured local or bundled data could not be parsed.
+final class ParseFailure extends AppFailure {
+  /// Creates a [ParseFailure].
+  const ParseFailure({super.stackTrace}) : super(message: 'parse_failure');
+}
+
+/// A bundled or local asset failed to load.
+final class AssetLoadFailure extends AppFailure {
+  /// Creates an [AssetLoadFailure].
+  const AssetLoadFailure({super.stackTrace})
+    : super(message: 'asset_load_failure');
+}
+
 /// A requested resource was not found (e.g. unknown launch id).
 final class NotFoundFailure extends AppFailure {
   /// Creates a [NotFoundFailure].

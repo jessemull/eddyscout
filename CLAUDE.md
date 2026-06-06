@@ -11,7 +11,8 @@ Do NOT duplicate governance from AGENTS.md or docs/ here. This file exists only 
 ## Quick Reference
 
 - Bootstrap: `./scripts/bootstrap.sh`
-- Preflight: `make preflight`
+- Hooks: `make ensure-husky` (once per worktree)
+- Preflight: `make preflight` (optional; `git push` runs push validation)
 - Test: `make test`
 - Analyze: `make analyze`
 - Format: `make format-fix`

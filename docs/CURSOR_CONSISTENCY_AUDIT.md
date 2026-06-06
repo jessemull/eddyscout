@@ -2,7 +2,7 @@
 
 > **Purpose:** Record findings from the full consistency audit (rules, skills, governance docs, codebase).
 > **Precedence:** Does not override `CONTEXT.md`, `AGENTS.md`, or `docs/GOVERNANCE.md`.
-> **Last updated:** 2026-05-25
+> **Last updated:** 2026-06-06
 
 ---
 
@@ -63,9 +63,9 @@
 
 | Policy | Current repo | Guidance |
 |--------|--------------|----------|
-| `@riverpod` codegen | Manual providers dominate | New providers SHOULD use `@riverpod`; migrate incrementally |
-| `Result<T, AppFailure>` at boundaries | Defined in `core`; features use raw async | New I/O at package boundaries SHOULD use `Result` |
-| Golden tests (design system) | `golden_toolkit` in app dev_deps; 0 golden tests | Required for new design-system widgets |
+| `@riverpod` codegen | **Done** — conditions, map, hydro, app shell, routing | New providers MUST use `@riverpod` |
+| `Result<T, AppFailure>` at boundaries | **Done** — conditions repos/providers/callables; hydro/map `AsyncError` with typed failures | New I/O at package boundaries MUST use `Result` or typed `AppFailure` via `AsyncError` |
+| Golden tests (design system) | `app_theme_golden_test.dart` in design_system | Required for new design-system widgets |
 | `integration_test/` | Map → launch detail journey + token gate | Expand when adding new critical E2E flows |
 | `StatefulShellRoute` | Not used | Required when adding tab shell navigation |
 | Session auth router guards | Token/web redirects only | Required when adding protected routes |
@@ -78,10 +78,11 @@
 
 ## Code backlog (optional follow-up PRs)
 
-1. Add golden tests under `packages/design_system/test/goldens/`.
-2. Pilot `@riverpod` on one new or refactored provider.
-3. Adopt `Result` in one feature repository boundary.
+1. ~~Add golden tests under `packages/design_system/test/goldens/`.~~ Done.
+2. ~~Pilot `@riverpod` on one new or refactored provider.~~ Done (wave 2 A1).
+3. ~~Adopt `Result` in one feature repository boundary.~~ Done (wave 2 A2).
 4. ~~Move router assembly into `packages/routing` when route count grows.~~ Done.
+5. Migrate app-shell screens into feature `presentation/` packages (wave 3).
 
 ---
 

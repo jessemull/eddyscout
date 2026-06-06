@@ -5,6 +5,7 @@ class MapUiCallbacks {
   const MapUiCallbacks({
     required this.pickDifferentTakeOutMessage,
     required this.riverDataLoadingMessage,
+    required this.riverDataLoadFailedMessage,
     this.showSnackBar,
     this.openLaunchDetail,
   });
@@ -20,4 +21,7 @@ class MapUiCallbacks {
 
   /// Localized snack bar when hydro data is not ready.
   final String riverDataLoadingMessage;
+
+  /// Localized snack bar when hydro data failed to load or parse.
+  final String riverDataLoadFailedMessage;
 }

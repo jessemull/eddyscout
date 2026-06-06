@@ -263,11 +263,13 @@ Never commit stale generated files.
 
 # 4. Quality Gates
 
+**Worktree (once):** `make ensure-husky` — `.husky/_/` is gitignored; new worktrees need this before hooks run (`CONTEXT.md`).
+
 **On commit:** husky runs `scripts/pre_commit.sh` (format + analyze on staged `.dart` files).
 
-**On push:** husky runs `scripts/push_validate.sh` (full analyze, tests, codegen, import/architecture).
+**On push:** husky runs `scripts/push_validate.sh` (full analyze, tests, codegen, import/architecture). **Prefer `git push` over `make preflight`** for the full gate — do not run both back-to-back.
 
-Run `make preflight` before opening a PR when you need coverage thresholds locally.
+Run `make preflight` only when you need **local coverage thresholds** before opening a PR.
 
 Commit hook must validate (staged files):
 

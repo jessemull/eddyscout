@@ -9,17 +9,16 @@ void main() {
       expect(mapHydroToAppFailure(failure), same(failure));
     });
 
-    test('maps FormatException to StorageFailure', () {
+    test('maps FormatException to ParseFailure', () {
       final failure = mapHydroToAppFailure(
         const FormatException('Expected FeatureCollection'),
       );
-      expect(failure, isA<StorageFailure>());
-      expect(failure.message, 'River route data could not be read.');
+      expect(failure, isA<ParseFailure>());
     });
 
-    test('maps generic Exception to UnexpectedFailure', () {
+    test('maps generic Exception to AssetLoadFailure', () {
       final failure = mapHydroToAppFailure(Exception('asset missing'));
-      expect(failure, isA<UnexpectedFailure>());
+      expect(failure, isA<AssetLoadFailure>());
     });
   });
 }

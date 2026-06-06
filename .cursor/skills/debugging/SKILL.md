@@ -485,10 +485,12 @@ Use appropriate test type:
 
 # 16. Final Validation
 
-Run:
+Run (see `CONTEXT.md` § Mandatory Quality Gates):
 
 ```bash
-make preflight
+make analyze
+melos exec --scope=<package> -- "flutter test test/<relevant>_test.dart"
+git push    # full gate via hook; make preflight only if checking coverage
 ```
 
 Verify:

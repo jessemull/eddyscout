@@ -348,9 +348,9 @@ dart run build_runner watch
 ## Required Validation
 
 - [ ] `make gen-check`
-- [ ] `make preflight`
 - [ ] `dart analyze`
-- [ ] `flutter test`
+- [ ] scoped `flutter test`
+- [ ] push validation via `git push` (see `CONTEXT.md`; use `make preflight` only for local coverage)
 
 ## CI Gates
 

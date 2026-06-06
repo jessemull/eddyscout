@@ -1,6 +1,7 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 
-/// Exception wrapper so [AppFailure] can be thrown from async providers.
+/// Wraps [AppFailure] for Riverpod async throw semantics and
+/// `only_throw_errors`.
 final class HydroAppFailureException implements Exception {
   /// Creates an exception carrying [failure].
   const HydroAppFailureException(this.failure);

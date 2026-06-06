@@ -116,9 +116,9 @@ final class MapboxMapController extends _$MapboxMapController
       return;
     }
     if (plannerAsync.hasError) {
-      final failure = hydroAppFailureFrom(plannerAsync.error);
-      if (alive && failure != null) {
-        ui.showSnackBar?.call(failure);
+      if (alive) {
+        final failure = hydroAppFailureFrom(plannerAsync.error);
+        ui.showSnackBar?.call(failure ?? ui.riverDataLoadFailedMessage);
       }
       return;
     }

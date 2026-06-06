@@ -48,4 +48,18 @@ void main() {
     expect(failure, isA<UnexpectedFailure>());
     expect(failure.message, 'Not signed in');
   });
+
+  test('mapToAppFailure maps FormatException to UnexpectedFailure', () {
+    final failure = mapToAppFailure(const FormatException('bad json'));
+    expect(failure, isA<UnexpectedFailure>());
+    expect(failure.message, contains('could not read'));
+  });
+
+  test('mapToAppFailure maps StateError to UnexpectedFailure', () {
+    final failure = mapToAppFailure(
+      StateError('listConditionReports: missing reports'),
+    );
+    expect(failure, isA<UnexpectedFailure>());
+    expect(failure.message, contains('unexpected response'));
+  });
 }

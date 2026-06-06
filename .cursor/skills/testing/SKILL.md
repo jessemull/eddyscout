@@ -296,12 +296,14 @@ Before committing:
 - [ ] edge cases covered
 - [ ] provider overrides used correctly
 - [ ] coverage thresholds met
-- [ ] preflight passes
+- [ ] push validation passes (`git push` hook; see `CONTEXT.md`)
 
-Run:
+Run while iterating:
 
 ```bash
-make preflight
+make analyze
+melos exec --scope=<package> -- "flutter test test/<file>_test.dart"
+make preflight   # optional — local coverage only before PR
 ```
 
 ---

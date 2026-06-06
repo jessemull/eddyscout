@@ -20,18 +20,17 @@ String launchDetailFirebaseUnavailableMessage(AppLocalizations l10n) {
   return l10n.launchDetailFirebaseUnavailableBody;
 }
 
+String _launchDetailFailureMessage(Object error) =>
+    error is AppFailure ? error.message : error.toString();
+
 String launchDetailConditionsErrorMessage(
   AppLocalizations l10n,
   Object error,
 ) {
   if (error is AppFailure) {
-    return switch (error) {
-      NetworkFailure() => l10n.launchDetailConditionsErrorNetwork,
-      StorageFailure() => l10n.launchDetailConditionsErrorGeneric,
-      _ => l10n.launchDetailConditionsErrorGeneric,
-    };
+    return _launchDetailFailureMessage(error);
   }
-  final msg = error.toString().toLowerCase();
+  final msg = _launchDetailFailureMessage(error).toLowerCase();
   if (msg.contains('socket') || msg.contains('network')) {
     return l10n.launchDetailConditionsErrorNetwork;
   }
@@ -75,7 +74,7 @@ Future<void> openLaunchDetailConditionReportSheet(
 }
 
 String _recentReportsErrorMessage(AppLocalizations l10n, Object error) {
-  final msg = error is AppFailure ? error.message : error.toString();
+  final msg = _launchDetailFailureMessage(error);
   final buf = StringBuffer(l10n.launchDetailReportsLoadError(msg));
   if (msg.toLowerCase().contains('unauthenticated')) {
     buf

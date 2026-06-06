@@ -1,6 +1,6 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_app_failure_exception.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_app_failure_mapper.dart';
-import 'package:eddyscout_hydro_routing/src/data/provider_retry.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_route_planner.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

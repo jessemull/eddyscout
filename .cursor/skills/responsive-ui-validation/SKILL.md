@@ -303,12 +303,13 @@ Before committing:
 - [ ] text scaling verified
 - [ ] touch targets validated
 - [ ] tests pass
-- [ ] preflight passes
+- [ ] push validation passes (`git push` hook; see `CONTEXT.md`)
 
-Run:
+Run while iterating:
 
 ```bash id="responsive1"
-make preflight
+make analyze
+melos exec --scope=<package> -- "flutter test"
 ```
 
 ---
