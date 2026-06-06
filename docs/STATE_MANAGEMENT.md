@@ -10,7 +10,7 @@
 
 Riverpod is the **only** state management solution. No exceptions.
 
-> **Current codebase:** Most providers are hand-written (`FutureProvider`, `NotifierProvider`, `AsyncNotifier`). **New** providers SHOULD use `@riverpod` codegen per below. See `docs/ARCHITECTURE.md` § Current implementation status.
+> **Current codebase:** All providers in `eddyscout_conditions` use `@riverpod` codegen (see `docs/CODEGEN.md`). App-shell providers (`apps/eddyscout/lib/preferences/`, map session/planning, router) remain hand-written (`FutureProvider`, `NotifierProvider`, `AsyncNotifier`). **New** providers SHOULD use `@riverpod` codegen per below. See `docs/ARCHITECTURE.md` § Current implementation status.
 
 ### Banned alternatives
 
@@ -47,25 +47,56 @@ Riverpod is the **only** state management solution. No exceptions.
 
 ### Code-generated providers (`@riverpod`)
 
-Prefer code-generated providers using `riverpod_annotation` and `riverpod_generator`:
+Prefer code-generated providers using `riverpod_annotation` and `riverpod_generator`. Production reference: `packages/features/conditions/` (all providers migrated). Setup and `build.yaml` scope: `docs/CODEGEN.md`.
+
+Functional family provider (async fetch):
 
 ```dart
-@riverpod
-Future<ConditionsSnapshot> conditions(Ref ref, LaunchPoint launch) async {
-  final service = ref.watch(conditionsServiceProvider);
-  return service.fetch(launch);
+@Riverpod(retry: disableProviderRetry)
+Future<ConditionsSnapshot> conditionsSnapshot(Ref ref, LaunchPoint launch) async {
+  final cancelToken = CancelToken();
+  ref.onDispose(() => cancelToken.cancel('conditionsSnapshotProvider disposed'));
+  final result = await ref.watch(conditionsRepositoryProvider).load(
+    launch,
+    cancelToken: cancelToken,
+  );
+  return result.when(
+    success: (value) => value,
+    failure: (error) => throw ConditionsLoadException(error),
+  );
 }
 ```
 
-For notifiers:
+`disableProviderRetry` lives in `packages/features/conditions/lib/src/data/provider_retry.dart`. Do not pass inline lambdas to `@Riverpod(retry: …)` — the annotation constructor is `const`.
+
+Sync notifier (refresh token):
 
 ```dart
 @riverpod
-class SkillProfile extends _$SkillProfile {
+class ConditionReportsRefreshToken extends _$ConditionReportsRefreshToken {
   @override
-  SkillLevel build() => SkillLevel.intermediate;
+  int build() => 0;
 
-  void update(SkillLevel level) => state = level;
+  void increment() => state++;
+}
+```
+
+Family notifier with session-persistent card state (use when pre-codegen used non-auto-dispose families):
+
+```dart
+@Riverpod(keepAlive: true)
+class LaunchReportsDigest extends _$LaunchReportsDigest {
+  @override
+  LaunchReportsDigestState build(String launchId) { … }
+}
+```
+
+DI token bound at the app composition root:
+
+```dart
+@Riverpod(keepAlive: true)
+ConditionReportsRepository conditionReportsRepository(Ref ref) {
+  throw UnimplementedError('Override in ProviderScope (see apps/eddyscout/lib/main.dart).');
 }
 ```
 
@@ -89,7 +120,14 @@ Most providers should auto-dispose when all listeners are removed. This is the d
 
 ### Keep-alive
 
-Use `ref.keepAlive()` sparingly — only when the cost of re-fetching exceeds the cost of keeping state in memory:
+Use `@Riverpod(keepAlive: true)` or `ref.keepAlive()` sparingly — only when the cost of re-fetching or resetting UI state exceeds the cost of keeping state in memory:
+
+```dart
+@Riverpod(keepAlive: true)
+class LaunchReportsDigest extends _$LaunchReportsDigest { … }
+```
+
+Or inside a functional provider:
 
 ```dart
 @riverpod
@@ -126,7 +164,7 @@ GoNoGoState build() {
 Every widget consuming an `AsyncValue` must handle loading, data, and error:
 
 ```dart
-final conditionsAsync = ref.watch(conditionsProvider(launch));
+final conditionsAsync = ref.watch(conditionsSnapshotProvider(launch));
 return conditionsAsync.when(
   loading: () => const ConditionsLoadingSkeleton(),
   error: (error, stack) => ConditionsErrorCard(message: _friendlyError(error)),

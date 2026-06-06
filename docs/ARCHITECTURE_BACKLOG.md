@@ -52,7 +52,7 @@ Complete **Bucket A** before returning to product features. **Bucket B** is opti
 - [ ] Migrate app-shell providers (`go_no_go_profile`, `map_planning`, `map_session`, router, etc.)
 - [x] Run `make gen`; update tests for generated provider names
 - [x] Update `docs/CODEGEN.md` for conditions `@riverpod` codegen
-- [ ] Update `docs/STATE_MANAGEMENT.md`
+- [x] Update `docs/STATE_MANAGEMENT.md`
 
 #### A2 — `Result<T, AppFailure>` completion
 
