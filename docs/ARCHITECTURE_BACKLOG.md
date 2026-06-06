@@ -5,7 +5,7 @@
 > **Target architecture:** `docs/ARCHITECTURE.md`
 > **Last updated:** 2026-06-06
 
-Tick `- [ ]` → `- [x]` here when work ships. Link PRs inline when helpful.
+Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partially done” rows left behind. Link PRs inline.
 
 ---
 
@@ -13,115 +13,140 @@ Tick `- [ ]` → `- [x]` here when work ships. Link PRs inline when helpful.
 
 | Area | Status | Notes |
 |------|--------|-------|
-| Monorepo / melos / preflight / husky | **Done** | Fast pre-commit; full gate on pre-push + CI |
+| Monorepo / melos / preflight / husky | **Done** | Fast pre-commit; full gate on pre-push + CI (#24) |
 | 85% coverage gates | **Done** | `tooling/coverage.yaml`; CI enforces thresholds |
 | Design system goldens + CI strategy | **Done** | Goldens on `macos-latest`; Ubuntu excludes `golden` tag |
-| Riverpod 3 (manual providers) | **Done** | Merged PR #19 |
-| Result-based repos + DI layering (conditions) | **Partial** | Domain repo contracts + data impls + app binding; providers still bridge via exceptions |
-| `@riverpod` codegen migration | **Nearly done** | Conditions (#20), app shell (#21), map + hydro (#23); **`goRouterProvider` still manual** |
-| Full feature layering (`presentation` / `domain` / `data` in packages) | **Partial** | Conditions has domain + data + one presentation provider; most UI in `apps/eddyscout/lib/screens/` |
-| `packages/routing/` as live router | **Scaffold only** | Live router in `apps/eddyscout/lib/routing/` — Agent #4 / A3 not merged |
-| `Result<T, AppFailure>` everywhere | **Partial** | Conditions repository boundaries; hydro load/parse via `AppFailure` in `riverRoutePlannerProvider`; `map` not migrated |
-| Integration tests (E2E) | **Done** | Token gate + map → launch detail journey; CI `integration-test` job (PR #22) |
+| Riverpod 3 (manual providers) | **Done** | PR #19 |
+| `@riverpod` codegen migration | **Wave 2** | Conditions, app shell, map, hydro done (#20–#21, #23); **`goRouterProvider` still manual** |
+| `packages/routing/` as live router | **Done** | `goRouterProvider` + redirects in routing package (#26) |
+| Result-based repos (conditions data layer) | **Done** | Repository impls return `Result<T, AppFailure>` |
+| Result-based providers & boundaries | **Wave 2** | Conditions providers/callables open; hydro load/parse **done** (`refactor/result-hydro-complete`); map catalog lookup **done** |
+| Full feature layering (`presentation` / `domain` / `data`) | **Wave 3** | Most UI still in `apps/eddyscout/lib/screens/` — planned migration |
+| Integration tests (E2E) | **Done** | Token gate + map → launch detail; CI Linux deps (#22, #25, #27) |
 | CancelToken on HTTP / callables | **Done** (conditions) | Extend when adding new I/O in other features |
 
-### Deferred until a product feature needs them
+### Implement alongside product features (not platform backlog)
 
-| Area | Status | Trigger |
-|------|--------|---------|
-| `flutter_secure_storage` | Not started | Real auth / credential storage |
-| `StatefulShellRoute` / tab shell | Not started | Multi-tab navigation |
-| `CachedNetworkImage` | Not started | Remote image UI |
-| Session auth router guards | Not started | Protected routes beyond Mapbox token |
+These are **not** wave 2/3 blockers — add when the feature that needs them ships:
+
+| Area | Trigger |
+|------|---------|
+| `flutter_secure_storage` | Real auth / credential storage |
+| `StatefulShellRoute` / tab shell | Multi-tab navigation |
+| `CachedNetworkImage` | Remote image UI |
+| Session auth router guards | Protected routes beyond Mapbox token |
 
 ---
 
-## Merged PR audit (wave 1 — last four merges)
+## Shipped (wave 1 — do not re-open)
 
-Verification against `main` @ PR #23 merge (`08a004a`).
-
-| PR | Branch | Verdict | Evidence on `main` |
-|----|--------|---------|-------------------|
-| **#20** | `chore/riverpod-codegen-conditions` | **Solid** | `packages/features/conditions/build.yaml`; all conditions providers have `.g.dart`; refresh token pilot in production; `docs/CODEGEN.md` + `docs/STATE_MANAGEMENT.md` updated |
-| **#21** | `chore/riverpod-codegen-app` | **Solid** | `go_no_go_profile`, `key_value_store`, `map_planning`, `map_session`, `mapbox_map_controller` use `@Riverpod`; tests updated. **`goRouterProvider` intentionally still `Provider<GoRouter>`** |
-| **#22** | `test/integration-map-launch-detail` | **Solid** | `integration_test/map_launch_detail_journey_test.dart` + harness; CI `integration-test` job with xvfb; `docs/TESTING.md`, `docs/CI_CD.md`, `docs/CURSOR_CONSISTENCY_AUDIT.md` updated; dependency-review workflow documented |
-| **#23** | `chore/riverpod-codegen-map-hydro` | **Solid** | `launch_providers.g.dart`, `river_route_planner_provider.g.dart`; `riverpod_annotation` in map + hydro `pubspec.yaml`; provider tests added/updated |
-
-**Wave 1 gaps (expected, not regressions):**
-
-- A1: `goRouterProvider` not codegen'd (defer to router package move or follow-up)
-- A3: Router package move — **not merged** (branch `refactor/routing-package` may still be open)
-- A2: Result completion — **not started** (wave 2)
-- `docs/ARCHITECTURE_BACKLOG.md` itself landed via PR #20/#21 trail (restored from `a225e25` note)
+| PR | Scope |
+|----|-------|
+| #19 | Riverpod 3 foundation |
+| #20 | A1 conditions `@riverpod` |
+| #21 | A1 app-shell `@riverpod` |
+| #22 | A4 integration tests + docs |
+| #23 | A1 map + hydro `@riverpod` |
+| #24 | Fast git hooks |
+| #25 | CI Linux integration deps |
+| #26 | A3 router → `packages/routing/` |
+| #27 | Integration l10n fix |
 
 ---
 
 ## Remaining work (checklist)
 
-Complete **Bucket A** before returning to product features. **Bucket B** is optional / feature-gated.
+### Bucket A — wave 2 (finish completely)
 
-### Bucket A — architecture completion
+#### A1 — `@riverpod` codegen (**one item left**)
 
-#### A1 — `@riverpod` codegen
-
-- [x] Add `riverpod_annotation` / `riverpod_generator` + `build.yaml` to `eddyscout_conditions` (PR #20)
-- [x] Migrate `condition_reports_refresh_token_provider` (pilot → production) (PR #20)
-- [x] Migrate remaining conditions providers to `@riverpod` (PR #20)
-- [x] Migrate map providers to `@riverpod` (PR #23)
-- [x] Migrate hydro_routing providers to `@riverpod` (PR #23)
-- [x] Migrate app-shell providers: `go_no_go_profile`, `map_planning`, `map_session`, `key_value_store`, `mapbox_map_controller` (PR #21)
-- [ ] Migrate `goRouterProvider` to `@riverpod` (or as part of A3 router package move)
-- [x] Run `make gen`; update tests for generated provider names
-- [x] Update `docs/CODEGEN.md` and `docs/STATE_MANAGEMENT.md`
+- [x] Conditions, map, hydro, app shell providers
+- [ ] **`goRouterProvider` (+ related routing providers) → `@riverpod`** — then mark **entire A1 section done**
+- [x] `make gen`, `docs/CODEGEN.md`, `docs/STATE_MANAGEMENT.md`
 
 #### A2 — `Result<T, AppFailure>` completion
 
-- [ ] Conditions: stop re-throwing in providers; surface `AppFailure` via `AsyncError` consistently
-- [ ] Map: adopt `Result` at repository / I/O boundaries when I/O is added or refactored
-- [x] Hydro routing: adopt `Result` at planner / geometry load boundaries (`refactor/result-hydro-complete`)
-- [ ] Firebase callables: wrap throws in `Result` at repository impl layer (conditions)
-- [ ] Update `docs/ARCHITECTURE.md` § Current implementation status when done
+- [ ] **Conditions providers:** no `throw ConditionsLoadException` / `throw Exception` in providers; `AsyncError` carries `AppFailure`; UI reads `AppFailure` from `AsyncValue.error`
+- [ ] **Conditions callables:** `conditions_callables.dart` returns `Result` (or throws only inside repo impl after mapping); no raw `FirebaseAuthException` / `StateError` across boundaries
+- [ ] **Conditions service:** remove or isolate `loadUnwrapped` rethrow paths used by providers
+- [x] **Hydro:** `hydroGeoJsonLoader` + `riverRoutePlannerProvider` surface load/parse failures as `AppFailure` via `AsyncError` (`refactor/result-hydro-complete`)
+- [x] **Map:** `launchPointByIdProvider` uses `Result` or `NotFoundFailure` — no `StateError` throw; unknown-id path tested
+- [ ] Update `docs/ARCHITECTURE.md` § Current implementation status — mark Result row **Done** when all above are `[x]`
 
 #### A3 — Router package
 
-- [ ] Move live `GoRouter` assembly from `apps/eddyscout/lib/routing/` to `packages/routing/`
-- [ ] App shell consumes `goRouterProvider` from routing package
-- [ ] Update `docs/NAVIGATION.md` examples
+- [x] Move `GoRouter` assembly to `packages/routing/` (#26)
+- [x] App consumes `goRouterProvider` from routing package (#26)
+- [x] Update `docs/NAVIGATION.md` (#26)
 
 #### A4 — Tests & docs hygiene
 
-- [x] Expand `integration_test/` (map → launch detail journey) (PR #22)
-- [x] Sync `docs/CURSOR_CONSISTENCY_AUDIT.md` (PR #22)
-- [x] Dependency review workflow documented + dependency graph enabled (PR #22 / repo settings)
+- [x] Integration tests + CI (#22, #25, #27)
+- [x] `docs/CURSOR_CONSISTENCY_AUDIT.md` integration row (#22)
+- [ ] **Final doc sweep** after wave 2 merges: `ARCHITECTURE.md`, `CURSOR_CONSISTENCY_AUDIT.md` aspirational rows, this file
 
-### Bucket B — full target layout (defer)
+### Bucket B — wave 3 (follow wave 2, before heavy Phase C)
 
-- [ ] Move `apps/eddyscout/lib/screens/*` into feature `presentation/` packages
-- [ ] Align `map` package with full `presentation` / `domain` / `data` split
+Screen migration is **planned platform work**, not indefinite defer. Run after wave 2 merges to avoid conflicting with Result/router refactors.
 
-> **Do not block product work on Bucket B.** Revisit when a feature forces a screen move.
+- [ ] **Conditions presentation:** `launch_detail_screen` + `launch_detail/*` → `packages/features/conditions/lib/src/presentation/`
+- [ ] **Map presentation:** `map_screen`, planning overlay, `map_planning` / `map_session` providers → `packages/features/map/lib/src/presentation/`
+- [ ] **Mapbox layer:** controller + mixins → map package (or documented app-shell exception with thin facade)
+- [ ] **App shell screens:** `missing_mapbox_token`, `web_map_placeholder` — stay in app or move to routing; `app_routes.dart` imports from packages
+- [ ] **Tests:** move/update `apps/eddyscout/test/screens/` to match package layout
+- [ ] **Docs:** `ARCHITECTURE.md` feature layering row → **Done**; Bucket B all `[x]`
 
 ---
 
-## Suggested PR sequence
+## Wave 2 — parallel agents (Bucket A code)
 
-| PR | Scope | Bucket | Status |
-|----|-------|--------|--------|
-| #20 | `@riverpod` codegen — conditions | A1 | Merged |
-| #21 | `@riverpod` codegen — app shell (excl. router) | A1 | Merged |
-| #23 | `@riverpod` codegen — map + hydro | A1 | Merged |
-| #22 | Integration tests + A4 docs hygiene | A4 | Merged |
-| Next | Router → `packages/routing/` (+ `goRouterProvider`) | A3 | Open |
-| Next | `Result` completion — conditions + map/hydro | A2 | Open |
+Use **Cursor New Worktree** → branch from `main` → `/start <branch>` → **plan-first** (§4 in `~/.cursor/commands/start.md`).
 
-After A2–A3 (and `goRouterProvider` codegen), treat platform architecture as **done for now** and use `docs/ROADMAP.md` for product work.
+**Rule:** Each agent owns **one PR** that **fully closes** its checklist items.
+
+| Agent | Branch | Closes |
+|-------|--------|--------|
+| 1 | `chore/riverpod-codegen-router` | A1 entirely |
+| 2 | `refactor/result-conditions-complete` | A2 conditions (all bullets) |
+| 3 | `refactor/result-hydro-complete` | A2 hydro bullet |
+| 4 | `refactor/result-map-complete` | A2 map bullet |
+| 5 | `docs/architecture-wave2-closeout` | A4 final sweep + wave 2 backlog accuracy |
+
+**Merge order:** 1–4 in any order (minimal overlap); **5 last**.
+
+---
+
+## Wave 3 — parallel agents (Bucket B — after wave 2)
+
+**Do not start until wave 2 is merged to `main`.** Phase C product work should target feature `presentation/` packages — wave 3 clears existing app-shell debt first.
+
+| Agent | Branch | Closes |
+|-------|--------|--------|
+| 1 | `refactor/presentation-conditions` | Conditions presentation slice + tests |
+| 2 | `refactor/presentation-map-ui` | Map screen, overlay, planning/session providers |
+| 3 | `refactor/presentation-mapbox` | Mapbox controller + mixins |
+| 4 | `refactor/presentation-app-shell` | Token/web screens + `app_routes` import cleanup |
+| 5 | `docs/architecture-wave3-closeout` | Bucket B all `[x]`, `ARCHITECTURE.md` layering row |
+
+**Merge order:** 1–3 can parallel; **4** after 1–2 (routes import new paths); **5** last.
+
+---
+
+## After wave 3
+
+When Bucket A + Bucket B are fully `[x]`:
+
+- **Platform architecture is complete** for the current target.
+- **Product work:** `docs/ROADMAP.md` Phase C (GPX, trip log, saved routes, moderation, etc.).
+- **New features:** build in `packages/features/<name>/presentation/` from day one.
+- **Infra deferrals:** implement `flutter_secure_storage`, tab shell, `CachedNetworkImage`, auth guards **with** the feature that needs them (see table above).
 
 ---
 
 ## References
 
-- Pilot: `docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`
-- Conditions repos: `packages/features/conditions/lib/src/domain/repositories/`
-- Live router: `apps/eddyscout/lib/routing/app_router_provider.dart`
+- Router: `packages/routing/lib/src/go_router_provider.dart`
+- App routes: `apps/eddyscout/lib/routing/app_routes.dart`
+- Conditions Result pattern: `launch_reports_digest_provider.dart`
+- App screens (wave 3 source): `apps/eddyscout/lib/screens/`
 - Integration tests: `apps/eddyscout/integration_test/`
-- Cursor audit: `docs/CURSOR_CONSISTENCY_AUDIT.md`
