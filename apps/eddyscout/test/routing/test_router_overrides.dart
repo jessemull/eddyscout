@@ -7,6 +7,6 @@ import 'package:flutter_riverpod/misc.dart';
 final List<Override> appRouterTestOverrides = [
   routesProvider.overrideWithValue($appRoutes),
   isKnownLaunchIdProvider.overrideWithValue(
-    (launchId) => launchPointById(launchId) != null,
+    (launchId) => findLaunchPointById(launchId) != null,
   ),
 ];

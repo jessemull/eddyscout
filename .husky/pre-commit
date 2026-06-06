@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-./scripts/preflight.sh --staged
+./scripts/pre_commit.sh

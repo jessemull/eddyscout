@@ -130,15 +130,38 @@ The part file name must exactly match the source file name with the appropriate 
 - Run `dart pub get` before `build_runner` to ensure dependency alignment.
 - Verify you committed from a clean generation state, not a partial one.
 
-## Riverpod codegen pilot
+## Riverpod codegen
 
-The first `@riverpod` migration target is the conditions refresh token. A reference implementation lives at:
+The workspace runs `flutter_riverpod` 3.x with `riverpod_annotation` / `riverpod_generator` 4.x. Register each annotated file in the package `build.yaml` under `riverpod_generator|riverpod_generator` `generate_for`, then run `make gen`.
 
-`docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`
+**Prerequisites (resolved):** workspace-wide `flutter_riverpod` 3.x (merged PR #19); `riverpod_generator` 4.x works with the workspace `source_gen: 4.2.0` override.
 
-Production code uses a manual `AutoDisposeNotifier` in `packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart` because:
+### `eddyscout_conditions`
 
-1. `riverpod_generator` 2.x conflicts with the workspace `source_gen: 4.2.0` override (see `docs/ARCHITECTURE.md`).
-2. `riverpod_generator` 3.x + `riverpod_annotation` 3.x require `flutter_riverpod` 3.x workspace-wide (Riverpod 2 and 3 cannot be mixed in one melos workspace).
+The conditions feature package was the first production consumer of `@riverpod` codegen.
 
-**Migration path (when ready):** bump `flutter_riverpod` to `^3.2.0` in every package that depends on it, add `riverpod_annotation` / `riverpod_generator` to `eddyscout_conditions`, copy the pilot into `condition_reports_refresh_token_provider.dart`, register the file in `build.yaml`, run `make gen`, and fix Riverpod 3 API migrations (`FamilyNotifier` → codegen families, etc.).
+1. **`riverpod_annotation`** in `dependencies`; **`riverpod_generator`** in `dev_dependencies` ([`packages/features/conditions/pubspec.yaml`](../packages/features/conditions/pubspec.yaml)).
+2. Register provider source files under `riverpod_generator.generate_for.include` in [`packages/features/conditions/build.yaml`](../packages/features/conditions/build.yaml) (alongside existing `freezed` / `json_serializable` scopes).
+3. Annotate providers with `@riverpod` or `@Riverpod(...)`; add `part '<file>.g.dart';` to each source file.
+
+**Retry on future providers:** `@Riverpod` is a `const` constructor — do **not** pass inline lambdas to `retry:`. Use a top-level function tear-off:
+
+```dart
+// packages/features/conditions/lib/src/data/provider_retry.dart
+Duration? disableProviderRetry(int retryCount, Object error) => null;
+
+@Riverpod(retry: disableProviderRetry)
+Future<ConditionsSnapshot> conditionsSnapshot(Ref ref, LaunchPoint launch) async { … }
+```
+
+**Pilot reference:** [`docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`](examples/condition_reports_refresh_token_provider.riverpod_pilot.dart) is implemented at [`packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart`](../packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart).
+
+### App shell (`apps/eddyscout`)
+
+**Live:** `apps/eddyscout/lib/preferences/` and selected `screens/` providers use `@riverpod` — see [`apps/eddyscout/build.yaml`](../apps/eddyscout/build.yaml).
+
+**Keep-alive:** Use `@Riverpod(keepAlive: true)` when a provider previously used non–auto-dispose `Provider` / `NotifierProvider` / `AsyncNotifierProvider` and should survive listener disposal (e.g. app-wide preferences, route planning session state).
+
+### Next packages
+
+App routing providers (`apps/eddyscout/lib/routing/`) and remaining feature packages remain manual until follow-up migration PRs.

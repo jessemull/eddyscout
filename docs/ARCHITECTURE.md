@@ -158,13 +158,13 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 | Area | Target | Today |
 |------|--------|-------|
 | Feature layering | `presentation` / `domain` / `data` per feature package | Partial: UI primarily in `apps/eddyscout/lib/screens/`; `map` is mostly data; `conditions` has domain + data + one presentation provider |
-| Riverpod codegen | `@riverpod` for new providers | Manual `FutureProvider`, `StateProvider`, `NotifierProvider`, `AsyncNotifier` throughout |
+| Riverpod codegen | `@riverpod` for new providers | **Partial:** `eddyscout_conditions` and app shell (`preferences/`, map planning/session, mapbox controller) use `@riverpod`; app routing and other feature providers remain manual |
 | `Result<T, AppFailure>` | Package I/O boundaries | Type in `packages/core/`; feature I/O mostly raw `Future` / exceptions |
 | Router assembly | `packages/routing/` | `goRouterProvider` in package; app supplies `$appRoutes` and launch validation via `ProviderScope` overrides |
 | Auth redirects | Session/login guards when needed | Mapbox token + web platform redirects only |
 | Tab / shell nav | `StatefulShellRoute` when multi-tab | Single-stack typed routes |
 | Golden tests | Design system + stable layouts | Design system golden tests exist (e.g. `packages/design_system/test/goldens/app_theme_golden_test.dart`) |
-| Integration tests | Critical journeys in `integration_test/` | Starter integration test exists at `apps/eddyscout/integration_test/app_navigation_test.dart` |
+| Integration tests | Critical journeys in `integration_test/` | Token gate + map → launch detail journey; CI `integration-test` job |
 | Secure storage | `flutter_secure_storage` for secrets | Not in pubspecs; `persistence` uses SharedPreferences for non-sensitive prefs |
 | Remote images | Sized + cached network images | No `CachedNetworkImage` usage yet |
 

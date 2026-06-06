@@ -20,18 +20,25 @@ final isKnownLaunchIdProvider = Provider<bool Function(String launchId)>(
   ),
 );
 
+/// Mapbox token for routing gates; override in tests via [ProviderContainer].
+final mapboxAccessTokenProvider = Provider<String>((ref) => mapboxAccessToken);
+
 /// Application [GoRouter] with typed routes and platform/token redirects.
 final goRouterProvider = Provider<GoRouter>(
   (ref) {
+    final token = ref.watch(mapboxAccessTokenProvider);
     final isKnownLaunchId = ref.watch(isKnownLaunchIdProvider);
     return createRouter(
       routes: ref.watch(routesProvider),
-      initialLocation: initialAppLocation(),
+      initialLocation: initialAppLocationFor(
+        isWeb: kIsWeb,
+        hasMapboxToken: token.isNotEmpty,
+      ),
       debugLogDiagnostics: kDebugMode,
       redirect: (context, state) => resolveAppRedirect(
         location: state.matchedLocation,
         isWeb: kIsWeb,
-        hasMapboxToken: mapboxAccessToken.isNotEmpty,
+        hasMapboxToken: token.isNotEmpty,
         isKnownLaunchId: isKnownLaunchId,
         launchId: state.pathParameters['launchId'],
       ),

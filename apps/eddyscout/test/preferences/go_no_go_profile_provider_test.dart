@@ -117,5 +117,28 @@ void main() {
 
       expect(container.read(goNoGoProfileProvider).hasError, isTrue);
     });
+
+    test('keeps profile after listeners are removed', () async {
+      SharedPreferences.setMockInitialValues({});
+      final store = await SharedPreferencesKeyValueStore.open();
+      final container = ProviderContainer(
+        overrides: [keyValueStoreProvider.overrideWith((ref) async => store)],
+      );
+      addTearDown(container.dispose);
+
+      final sub = container.listen(goNoGoProfileProvider, (_, _) {});
+
+      await container.read(goNoGoProfileProvider.future);
+      await container
+          .read(goNoGoProfileProvider.notifier)
+          .setProfile(GoNoGoProfile.advanced);
+
+      sub.close();
+
+      expect(
+        container.read(goNoGoProfileProvider).value,
+        GoNoGoProfile.advanced,
+      );
+    });
   });
 }

@@ -94,24 +94,17 @@ These constraints apply to **every change** in this repository. No exceptions wi
 
 ## Mandatory Quality Gates
 
-**Before ANY commit**, the following checks MUST pass. Run `make preflight` to execute all gates in sequence.
+| When | Gate | Failure policy |
+|------|------|----------------|
+| **Commit** | `scripts/pre_commit.sh` — format + analyze on **staged** `.dart` files | Block commit |
+| **Push** | `scripts/push_validate.sh` — format, analyze, tests, codegen, import/architecture | Block push |
+| **PR / CI** | Full CI pipeline + coverage thresholds + goldens | Block merge |
 
-| Gate | Command | Failure Policy |
-|------|---------|----------------|
-| Formatting | `dart format --set-exit-if-changed .` | Block commit |
-| Static analysis | `dart analyze --fatal-infos` | Block commit |
-| Tests | `flutter test` | Block commit |
-| Codegen freshness | `scripts/codegen_verify.sh` | Block commit |
-
-### Running Quality Gates
+Run `make preflight` before opening a PR when you want the full local gate including coverage (mirrors CI most closely).
 
 ```bash
-# Run all gates at once
-make preflight
-
-# Run individually
-make format       # check formatting
-make analyze      # static analysis
+make preflight    # full gate including coverage
+make analyze      # static analysis only
 make test         # all tests
 make gen-check    # verify codegen is fresh
 ```

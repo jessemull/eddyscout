@@ -39,7 +39,7 @@ Future<void> main() async {
       overrides: [
         routesProvider.overrideWithValue($appRoutes),
         isKnownLaunchIdProvider.overrideWithValue(
-          (launchId) => launchPointById(launchId) != null,
+          (launchId) => findLaunchPointById(launchId) != null,
         ),
         conditionReportsRepositoryProvider.overrideWithValue(
           const ConditionReportsRepositoryImpl(),

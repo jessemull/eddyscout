@@ -61,7 +61,7 @@ All commands are available via `make` targets. They delegate to melos and shell 
 | `make coverage` | Run tests with coverage collection |
 | `make gen` | Run code generation (`build_runner`, `freezed`, `json_serializable`, `drift`) |
 | `make gen-check` | Verify codegen output is fresh (fails if stale) |
-| `make preflight` | Full preflight validation: format → analyze → test → gen-check |
+| `make preflight` | Full preflight validation: format → analyze → test → gen-check → coverage |
 | `make ci` | CI-grade checks (same as preflight with stricter options) |
 | `make clean` | Clean all packages (delete build dirs, `.dart_tool`, generated files) |
 
@@ -509,7 +509,7 @@ The following patterns are **explicitly banned**. AI agents and human contributo
 ### Mandatory
 
 - **READ** `CONTEXT.md` before starting any work.
-- **RUN** `make preflight` before presenting changes as complete.
+- **RUN** `make preflight` before presenting changes as complete (push hook runs analyze + test + gen-check; coverage is CI + full preflight).
 - **EXPLAIN** architectural decisions in the PR description.
 - **TEST** every new file — no untested code may be submitted.
 - **FORMAT** all changes with `dart format` before committing.

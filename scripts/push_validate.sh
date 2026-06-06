@@ -7,16 +7,10 @@ cd "$REPO_ROOT"
 
 echo "=== Push Validation ==="
 
-# Run full preflight
-"$SCRIPT_DIR/preflight.sh"
+# Full preflight without coverage (coverage enforced in CI).
+"$SCRIPT_DIR/preflight.sh" --no-coverage
 
-# Verify codegen
-"$SCRIPT_DIR/codegen_verify.sh"
-
-# Check import boundaries
 "$SCRIPT_DIR/check_imports.sh"
-
-# Check architecture
 "$SCRIPT_DIR/check_architecture.sh"
 
 echo ""

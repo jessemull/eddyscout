@@ -150,7 +150,7 @@ Widget tests MUST cover:
 
 # 7. Integration Testing Rules
 
-> **Current repo:** no `integration_test/` directory yet. Add when implementing critical E2E journeys (see `docs/ARCHITECTURE.md` § Current implementation status).
+> **Current repo:** integration tests at `apps/eddyscout/integration_test/` (token gate + map → launch detail). See `docs/TESTING.md` and `make integration-test`.
 
 ## Required for:
 

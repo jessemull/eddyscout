@@ -40,7 +40,7 @@ void main() {
     await pumpMap(
       tester,
       overrides: [
-        mapInteractiveProvider.overrideWith((ref) => true),
+        mapInteractiveProvider.overrideWithValue(true),
       ],
     );
 
@@ -53,7 +53,7 @@ void main() {
     await pumpMap(
       tester,
       overrides: [
-        mapInteractiveProvider.overrideWith((ref) => false),
+        mapInteractiveProvider.overrideWithValue(false),
       ],
     );
 
@@ -66,7 +66,7 @@ void main() {
     await pumpMap(
       tester,
       overrides: [
-        mapInteractiveProvider.overrideWith((ref) => true),
+        mapInteractiveProvider.overrideWithValue(true),
         routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
       ],
     );
@@ -84,7 +84,7 @@ void main() {
   });
 }
 
-class _FixedRoutePlanning extends RoutePlanningNotifier {
+class _FixedRoutePlanning extends RoutePlanning {
   @override
   RoutePlanningState build() {
     final putIn = kLaunchPoints.first;

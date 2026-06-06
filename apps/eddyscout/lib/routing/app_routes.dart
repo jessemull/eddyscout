@@ -6,16 +6,26 @@ import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 part 'app_routes.g.dart';
+
+const _integrationMapStub = bool.fromEnvironment('INTEGRATION_MAP_STUB');
 
 @TypedGoRoute<MapRoute>(path: RoutePaths.map)
 class MapRoute extends GoRouteData with $MapRoute {
   const MapRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) => const MapScreen();
+  Widget build(BuildContext context, GoRouterState state) {
+    if (_integrationMapStub) {
+      return const MapScreen(
+        mapSlot: SizedBox(key: Key('integration_map_stub')),
+      );
+    }
+    return const MapScreen();
+  }
 }
 
 @TypedGoRoute<LaunchDetailRoute>(path: RoutePaths.launchDetail)
@@ -25,8 +35,18 @@ class LaunchDetailRoute extends GoRouteData with $LaunchDetailRoute {
   final String launchId;
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    final launch = launchPointById(launchId);
+  Widget build(BuildContext context, GoRouterState state) =>
+      _LaunchDetailRouteBody(launchId: launchId);
+}
+
+class _LaunchDetailRouteBody extends ConsumerWidget {
+  const _LaunchDetailRouteBody({required this.launchId});
+
+  final String launchId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final launch = ref.readLaunchPointIfExists(launchId);
     if (launch == null) {
       return const _LaunchNotFoundBody();
     }

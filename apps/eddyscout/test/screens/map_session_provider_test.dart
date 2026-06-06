@@ -14,7 +14,7 @@ void main() {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
-    container.read(mapInteractiveProvider.notifier).state = true;
+    container.read(mapInteractiveProvider.notifier).markInteractive();
 
     expect(container.read(mapInteractiveProvider), isTrue);
   });

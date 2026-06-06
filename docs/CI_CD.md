@@ -21,6 +21,7 @@ Every pull request must pass the following checks before merge:
 | **Custom lint** | `dart run custom_lint` | Yes | Project-specific lint rules |
 | **Codegen drift** | `build_runner build` + `git diff --exit-code` | Yes | Ensure generated files are up to date |
 | **Test** | `flutter test` (all packages) | Yes | Unit and widget tests pass |
+| **Integration Test** | `flutter test integration_test/` on Linux desktop (`xvfb-run`, `-d linux`) | Yes | App token gate + map → launch detail journey |
 | **Coverage** | Coverage threshold check | No | Track coverage trends; do not gate on arbitrary % |
 
 ### Blocking vs. Non-Blocking
@@ -64,6 +65,20 @@ Organize workflows by concern:
 
 - Use reusable workflows or composite actions for shared steps (Flutter setup, caching).
 - Cache `pub` dependencies and Flutter SDK between runs.
+
+### Integration Test job (`ci.yml`)
+
+The **Integration Test** job runs on `ubuntu-latest` with a virtual framebuffer:
+
+1. Install `xvfb` and OpenGL deps (`libglu1-mesa`).
+2. **Token gate** — `flutter test integration_test/app_navigation_test.dart -d linux` (no extra dart-defines).
+3. **Map → launch detail** — same device target with:
+   - `--dart-define=MAPBOX_ACCESS_TOKEN=pk.integration_test`
+   - `--dart-define=INTEGRATION_MAP_STUB=true`
+
+Add **Integration Test** to GitHub branch protection required checks alongside Format, Analyze, Test, etc.
+
+Local equivalent: `make integration-test` (uses `macos` on Darwin, `linux` on Linux).
 
 ## Secrets Management
 
