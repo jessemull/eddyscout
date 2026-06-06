@@ -147,7 +147,7 @@ The conditions feature package was the first production consumer of `@riverpod` 
 **Retry on future providers:** `@Riverpod` is a `const` constructor — do **not** pass inline lambdas to `retry:`. Use a top-level function tear-off:
 
 ```dart
-// packages/features/conditions/lib/src/data/provider_retry.dart
+// packages/core/lib/src/provider_retry.dart
 Duration? disableProviderRetry(int retryCount, Object error) => null;
 
 @Riverpod(retry: disableProviderRetry)
@@ -160,8 +160,13 @@ Future<ConditionsSnapshot> conditionsSnapshot(Ref ref, LaunchPoint launch) async
 
 **Live:** `apps/eddyscout/lib/preferences/` and selected `screens/` providers use `@riverpod` — see [`apps/eddyscout/build.yaml`](../apps/eddyscout/build.yaml).
 
-**Keep-alive:** Use `@Riverpod(keepAlive: true)` when a provider previously used non–auto-dispose `Provider` / `NotifierProvider` / `AsyncNotifierProvider` and should survive listener disposal (e.g. app-wide preferences, route planning session state).
+**Keep-alive:** Use `@Riverpod(keepAlive: true)` when a provider previously used non–auto-dispose `Provider` / `NotifierProvider` / `AsyncNotifierProvider` and should survive listener disposal (e.g. app-wide preferences, route planning session state, `goRouterProvider`).
 
-### Next packages
+### `eddyscout_routing`
 
-App routing providers (`apps/eddyscout/lib/routing/`) and remaining feature packages remain manual until follow-up migration PRs.
+Router DI and assembly providers live in [`packages/routing/lib/src/go_router_provider.dart`](../packages/routing/lib/src/go_router_provider.dart).
+
+1. **`riverpod_annotation`** in `dependencies`; **`riverpod_generator`** in `dev_dependencies` ([`packages/routing/pubspec.yaml`](../packages/routing/pubspec.yaml)).
+2. Register `go_router_provider.dart` under `riverpod_generator|riverpod_generator` in [`packages/routing/build.yaml`](../packages/routing/build.yaml).
+3. Use `@Riverpod(keepAlive: true)` for app-lifetime providers (`routesProvider`, `isKnownLaunchIdProvider`, `mapboxAccessTokenProvider`, `goRouterProvider`).
+4. Hide codegen function names from the barrel export in [`packages/routing/lib/eddyscout_routing.dart`](../packages/routing/lib/eddyscout_routing.dart) to avoid clashing with `mapboxAccessToken` from `app_redirect.dart`.

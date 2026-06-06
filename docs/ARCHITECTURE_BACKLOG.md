@@ -17,10 +17,10 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 | 85% coverage gates | **Done** | `tooling/coverage.yaml`; CI enforces thresholds |
 | Design system goldens + CI strategy | **Done** | Goldens on `macos-latest`; Ubuntu excludes `golden` tag |
 | Riverpod 3 (manual providers) | **Done** | PR #19 |
-| `@riverpod` codegen migration | **Wave 2** | Conditions, app shell, map, hydro done (#20–#21, #23); **`goRouterProvider` still manual** |
+| `@riverpod` codegen migration | **Done** | Conditions, app shell, map, hydro (#20–#21, #23); routing providers in `packages/routing/` |
 | `packages/routing/` as live router | **Done** | `goRouterProvider` + redirects in routing package (#26) |
 | Result-based repos (conditions data layer) | **Done** | Repository impls return `Result<T, AppFailure>` |
-| Result-based providers & boundaries | **Wave 2** | Conditions providers/callables **Done**; map catalog lookup **Done**; hydro load/parse remaining |
+| Result-based providers & boundaries | **Wave 2** | Conditions, hydro, map A2 **Done**; `ARCHITECTURE.md` Result row open |
 | Full feature layering (`presentation` / `domain` / `data`) | **Wave 3** | Most UI still in `apps/eddyscout/lib/screens/` — planned migration |
 | Integration tests (E2E) | **Done** | Token gate + map → launch detail; CI Linux deps (#22, #25, #27) |
 | CancelToken on HTTP / callables | **Done** (conditions) | Extend when adding new I/O in other features |
@@ -58,10 +58,10 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 
 ### Bucket A — wave 2 (finish completely)
 
-#### A1 — `@riverpod` codegen (**one item left**)
+#### A1 — `@riverpod` codegen
 
 - [x] Conditions, map, hydro, app shell providers
-- [ ] **`goRouterProvider` (+ related routing providers) → `@riverpod`** — then mark **entire A1 section done**
+- [x] **`goRouterProvider` (+ related routing providers) → `@riverpod`**
 - [x] `make gen`, `docs/CODEGEN.md`, `docs/STATE_MANAGEMENT.md`
 
 #### A2 — `Result<T, AppFailure>` completion
@@ -69,7 +69,7 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 - [x] **Conditions providers:** no `throw ConditionsLoadException` / `throw Exception` in providers; `AsyncError` carries `AppFailure`; UI reads `AppFailure` from `AsyncValue.error`
 - [x] **Conditions callables:** `conditions_callables.dart` returns `Result` (or throws only inside repo impl after mapping); no raw `FirebaseAuthException` / `StateError` across boundaries
 - [x] **Conditions service:** remove or isolate `loadUnwrapped` rethrow paths used by providers
-- [ ] **Hydro:** `hydroGeoJsonLoader` + `riverRoutePlannerProvider` surface load/parse failures as `AppFailure` via `AsyncError`
+- [x] **Hydro:** `hydroGeoJsonLoader` + `riverRoutePlannerProvider` surface load/parse failures as `AppFailure` via `AsyncError` (#32)
 - [x] **Map:** `launchPointByIdProvider` uses `Result` or `NotFoundFailure` — no `StateError` throw; unknown-id path tested
 - [ ] Update `docs/ARCHITECTURE.md` § Current implementation status — mark Result row **Done** when all above are `[x]`
 
