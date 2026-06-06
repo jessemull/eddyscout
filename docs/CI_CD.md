@@ -70,7 +70,7 @@ Organize workflows by concern:
 
 The **Integration Test** job runs on `ubuntu-latest` with a virtual framebuffer:
 
-1. Install `xvfb` and OpenGL deps (`libglu1-mesa`).
+1. Install Linux **desktop** build deps (`libgtk-3-dev`, `clang`, `cmake`, `ninja-build`, `pkg-config`, etc.) plus `xvfb` and `libglu1-mesa`. `-d linux` compiles the Flutter Linux embedder; unit-test `melos exec flutter test` in preflight does not.
 2. **Token gate** — `flutter test integration_test/app_navigation_test.dart -d linux` (no extra dart-defines).
 3. **Map → launch detail** — same device target with:
    - `--dart-define=MAPBOX_ACCESS_TOKEN=pk.integration_test`
