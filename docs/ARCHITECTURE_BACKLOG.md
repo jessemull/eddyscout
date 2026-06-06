@@ -97,7 +97,7 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 
 Screen migration is **active platform work**. Wave 2 is merged — migrate `apps/eddyscout/lib/screens/` into feature `presentation/` before starting heavy Phase C product slices.
 
-- [ ] **Conditions presentation:** `launch_detail_screen` + `launch_detail/*` → `packages/features/conditions/lib/src/presentation/`
+- [x] **Conditions presentation:** `launch_detail_screen` + `launch_detail/*` → `packages/features/conditions/lib/src/presentation/`
 - [ ] **Map presentation:** `map_screen`, planning overlay, `map_planning` / `map_session` providers → `packages/features/map/lib/src/presentation/`
 - [ ] **Mapbox layer:** controller + mixins → map package (or documented app-shell exception with thin facade)
 - [ ] **App shell screens:** `missing_mapbox_token`, `web_map_placeholder` — stay in app or move to routing; `app_routes.dart` imports from packages

@@ -1,6 +1,6 @@
-part of '../launch_detail_screen.dart';
+part of 'launch_detail_screen.dart';
 
-String launchDetailFirebaseUnavailableMessage(AppLocalizations l10n) {
+String _launchDetailFirebaseUnavailableMessage(AppLocalizations l10n) {
   if (FirebaseBootstrap.lastError != null) {
     final hint = FirebaseBootstrap.hintForLastError();
     final buf = StringBuffer()
@@ -23,7 +23,7 @@ String launchDetailFirebaseUnavailableMessage(AppLocalizations l10n) {
 String _launchDetailFailureMessage(Object error) =>
     error is AppFailure ? error.message : error.toString();
 
-String launchDetailConditionsErrorMessage(
+String _launchDetailConditionsErrorMessage(
   AppLocalizations l10n,
   Object error,
 ) {
@@ -37,7 +37,7 @@ String launchDetailConditionsErrorMessage(
   return l10n.launchDetailConditionsErrorGeneric;
 }
 
-String launchDetailRiverLabel(AppLocalizations l10n, RiverSystem r) =>
+String _launchDetailRiverLabel(AppLocalizations l10n, RiverSystem r) =>
     switch (r) {
       RiverSystem.willamette => l10n.launchDetailRiverWillamette,
       RiverSystem.columbia => l10n.launchDetailRiverColumbia,
@@ -45,7 +45,7 @@ String launchDetailRiverLabel(AppLocalizations l10n, RiverSystem r) =>
       RiverSystem.slough => l10n.launchDetailRiverSlough,
     };
 
-Future<void> openLaunchDetailConditionReportSheet(
+Future<void> _openLaunchDetailConditionReportSheet(
   WidgetRef ref,
   BuildContext context,
   LaunchPoint launch,
@@ -110,7 +110,7 @@ String _formatConditionReportTime(
   return loc.formatShortDate(at.toLocal());
 }
 
-String launchDetailAttributionLines(
+String _launchDetailAttributionLines(
   AppLocalizations l10n,
   ConditionsSnapshot s,
 ) {

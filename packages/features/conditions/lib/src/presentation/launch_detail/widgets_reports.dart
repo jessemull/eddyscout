@@ -1,4 +1,4 @@
-part of '../launch_detail_screen.dart';
+part of 'launch_detail_screen.dart';
 
 class _LaunchReportsDigestCard extends ConsumerWidget {
   const _LaunchReportsDigestCard({required this.launchId});

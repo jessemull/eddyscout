@@ -1,5 +1,3 @@
-import 'package:eddyscout/preferences/go_no_go_profile_provider.dart';
-import 'package:eddyscout/preferences/key_value_store_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
@@ -25,7 +23,11 @@ void main() {
       });
       final store = await SharedPreferencesKeyValueStore.open();
       final container = ProviderContainer(
-        overrides: [keyValueStoreProvider.overrideWith((ref) async => store)],
+        overrides: [
+          goNoGoProfileRepositoryProvider.overrideWithValue(
+            GoNoGoProfileRepositoryImpl(store),
+          ),
+        ],
       );
       addTearDown(container.dispose);
 
@@ -37,7 +39,11 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final store = await SharedPreferencesKeyValueStore.open();
       final container = ProviderContainer(
-        overrides: [keyValueStoreProvider.overrideWith((ref) async => store)],
+        overrides: [
+          goNoGoProfileRepositoryProvider.overrideWithValue(
+            GoNoGoProfileRepositoryImpl(store),
+          ),
+        ],
       );
       addTearDown(container.dispose);
 
@@ -64,11 +70,8 @@ void main() {
         ),
       );
 
-      SharedPreferences.setMockInitialValues({});
-      final store = await SharedPreferencesKeyValueStore.open();
       final container = ProviderContainer(
         overrides: [
-          keyValueStoreProvider.overrideWith((ref) async => store),
           goNoGoProfileRepositoryProvider.overrideWithValue(repo),
         ],
       );
@@ -100,11 +103,8 @@ void main() {
         ),
       );
 
-      SharedPreferences.setMockInitialValues({});
-      final store = await SharedPreferencesKeyValueStore.open();
       final container = ProviderContainer(
         overrides: [
-          keyValueStoreProvider.overrideWith((ref) async => store),
           goNoGoProfileRepositoryProvider.overrideWithValue(repo),
         ],
       );
@@ -122,7 +122,11 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final store = await SharedPreferencesKeyValueStore.open();
       final container = ProviderContainer(
-        overrides: [keyValueStoreProvider.overrideWith((ref) async => store)],
+        overrides: [
+          goNoGoProfileRepositoryProvider.overrideWithValue(
+            GoNoGoProfileRepositoryImpl(store),
+          ),
+        ],
       );
       addTearDown(container.dispose);
 
