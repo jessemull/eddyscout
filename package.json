@@ -1,4 +1,5 @@
 {
+  "name": "eddyscout",
   "private": true,
   "devDependencies": {
     "husky": "^9.1.7",
