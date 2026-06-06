@@ -24,7 +24,10 @@ void main() {
 
       expect(result.isFailure, isTrue);
       expect(result.errorOrNull, isA<NotFoundFailure>());
-      expect(result.errorOrNull?.message, contains('missing_launch'));
+      expect(
+        result.errorOrNull?.message,
+        'No launch with id: missing_launch',
+      );
     });
 
     test('delegates to findLaunchPointById for known ids', () {

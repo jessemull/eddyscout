@@ -3,7 +3,6 @@ import 'package:eddyscout_conditions/src/data/app_failure_mapper.dart';
 import 'package:eddyscout_conditions/src/data/conditions_http_provider.dart';
 import 'package:eddyscout_conditions/src/data/firebase/firebase_bootstrap.dart';
 import 'package:eddyscout_conditions/src/data/firebase/firebase_flags.dart';
-import 'package:eddyscout_conditions/src/domain/conditions_load_exception.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,12 +91,6 @@ void main() {
       );
       expect(snapshot.weather?.source, WeatherDataSource.nws);
       expect(snapshot.tides?.events.first.type, 'H');
-    });
-
-    test('ConditionsLoadException preserves failure', () {
-      const failure = NetworkFailure(message: 'x');
-      final ex = ConditionsLoadException(failure);
-      expect(ex.failure, failure);
     });
   });
 }

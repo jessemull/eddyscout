@@ -77,7 +77,7 @@ final class ConditionReportsListProvider
 }
 
 String _$conditionReportsListHash() =>
-    r'38767b1bfc656af9d94c349175f791d8660e9738';
+    r'd0b9bda53dd38863ed79471b2364e7bb5c69e01c';
 
 /// Recent paddler reports for a launch.
 ///

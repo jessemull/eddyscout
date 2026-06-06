@@ -16,7 +16,6 @@ export 'src/data/repositories/go_no_go_profile_repository_impl.dart';
 export 'src/domain/condition_report_models.dart';
 export 'src/domain/condition_reports_refresh_token_provider.dart';
 export 'src/domain/condition_reports_repository_provider.dart';
-export 'src/domain/conditions_load_exception.dart';
 export 'src/domain/conditions_models.dart';
 export 'src/domain/go_no_go.dart';
 export 'src/domain/go_no_go_thresholds.dart';

@@ -194,7 +194,7 @@ runApp(
     overrides: [
       routesProvider.overrideWithValue($appRoutes),
       isKnownLaunchIdProvider.overrideWithValue(
-        (launchId) => launchPointById(launchId) != null,
+        (launchId) => findLaunchPointById(launchId) != null,
       ),
       // ... other app overrides
     ],
