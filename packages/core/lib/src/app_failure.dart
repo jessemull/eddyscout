@@ -1,7 +1,7 @@
 /// Base class for domain-level failures.
 ///
 /// Prefer sealed subtypes per feature over catch-all error strings.
-sealed class AppFailure {
+sealed class AppFailure implements Exception {
   /// Creates an [AppFailure] with a human-readable [message].
   const AppFailure({required this.message, this.stackTrace});
 

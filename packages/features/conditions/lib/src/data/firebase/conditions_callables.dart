@@ -1,9 +1,11 @@
 import 'dart:convert';
 
-import 'package:cloud_functions/cloud_functions.dart';
+import 'package:cloud_functions/cloud_functions.dart' hide Result;
 import 'package:dio/dio.dart';
+import 'package:eddyscout_conditions/src/data/app_failure_mapper.dart';
 import 'package:eddyscout_conditions/src/data/firebase/callable_cancel.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
@@ -88,13 +90,25 @@ Future<T> _callWithAuthRetry<T>(
   }
 }
 
-/// Calls `summarizeConditions` with a JSON-safe map from
-/// `conditionsSummaryPayload`.
-Future<String> callSummarizeConditions(
-  Map<String, Object?> payload, {
+FutureResult<T, AppFailure> _runCallable<T>(
+  Future<T> Function() invoke, {
   CancelToken? cancelToken,
 }) async {
-  return _callWithAuthRetry(() async {
+  try {
+    final value = await _callWithAuthRetry(invoke, cancelToken: cancelToken);
+    return Result.success(value);
+  } on Object catch (e, st) {
+    return Result.failure(mapToAppFailure(e, st));
+  }
+}
+
+/// Calls `summarizeConditions` with a JSON-safe map from
+/// `conditionsSummaryPayload`.
+FutureResult<String, AppFailure> callSummarizeConditions(
+  Map<String, Object?> payload, {
+  CancelToken? cancelToken,
+}) {
+  return _runCallable(() async {
     final callable = _functions.httpsCallable('summarizeConditions');
     final result = await callable.call<Map<String, dynamic>>(
       _jsonSafePayload(payload),
@@ -109,13 +123,13 @@ Future<String> callSummarizeConditions(
 }
 
 /// Calls `submitConditionReport`.
-Future<void> callSubmitConditionReport({
+FutureResult<void, AppFailure> callSubmitConditionReport({
   required String launchId,
   required String message,
   String? clientConditionsFetchedAt,
   CancelToken? cancelToken,
-}) async {
-  await _callWithAuthRetry(() async {
+}) {
+  return _runCallable(() async {
     final callable = _functions.httpsCallable('submitConditionReport');
     await callable.call<Map<String, dynamic>>(
       _jsonSafePayload(<String, Object?>{
@@ -128,12 +142,13 @@ Future<void> callSubmitConditionReport({
 }
 
 /// Calls `listConditionReports`.
-Future<List<ConditionReportListItem>> callListConditionReports({
+FutureResult<List<ConditionReportListItem>, AppFailure>
+callListConditionReports({
   required String launchId,
   int limit = 20,
   CancelToken? cancelToken,
-}) async {
-  return _callWithAuthRetry(() async {
+}) {
+  return _runCallable(() async {
     final callable = _functions.httpsCallable('listConditionReports');
     final result = await callable.call<Map<String, dynamic>>(
       _jsonSafePayload(<String, Object?>{'launchId': launchId, 'limit': limit}),
@@ -154,13 +169,13 @@ Future<List<ConditionReportListItem>> callListConditionReports({
 }
 
 /// Calls `summarizeLaunchReports`.
-Future<LaunchReportsDigestResult> callSummarizeLaunchReports({
+FutureResult<LaunchReportsDigestResult, AppFailure> callSummarizeLaunchReports({
   required String launchId,
   bool forceRefresh = false,
   int reportLimit = 20,
   CancelToken? cancelToken,
-}) async {
-  return _callWithAuthRetry(() async {
+}) {
+  return _runCallable(() async {
     final callable = _functions.httpsCallable('summarizeLaunchReports');
     final result = await callable.call<Map<String, dynamic>>(
       _jsonSafePayload(<String, Object?>{

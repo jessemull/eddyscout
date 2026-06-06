@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:eddyscout_conditions/src/data/app_failure_mapper.dart';
 import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
 import 'package:eddyscout_conditions/src/data/firebase/conditions_summary_payload.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
@@ -20,21 +19,13 @@ class ConditionsAiSummaryRepositoryImpl
     required GoNoGoResult goNoGo,
     required GoNoGoProfile skillProfile,
     CancelToken? cancelToken,
-  }) async {
-    try {
-      final payload = conditionsSummaryPayload(
-        launch: launch,
-        snapshot: snapshot,
-        goNoGo: goNoGo,
-        skillProfile: skillProfile,
-      );
-      final text = await callSummarizeConditions(
-        payload,
-        cancelToken: cancelToken,
-      );
-      return Result.success(text);
-    } on Object catch (e, st) {
-      return Result.failure(mapToAppFailure(e, st));
-    }
+  }) {
+    final payload = conditionsSummaryPayload(
+      launch: launch,
+      snapshot: snapshot,
+      goNoGo: goNoGo,
+      skillProfile: skillProfile,
+    );
+    return callSummarizeConditions(payload, cancelToken: cancelToken);
   }
 }

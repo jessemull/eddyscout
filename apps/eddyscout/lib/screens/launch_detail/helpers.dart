@@ -24,9 +24,6 @@ String launchDetailConditionsErrorMessage(
   AppLocalizations l10n,
   Object error,
 ) {
-  if (error is ConditionsLoadException) {
-    return error.failure.message;
-  }
   if (error is AppFailure) {
     return error.message;
   }
@@ -74,7 +71,7 @@ Future<void> openLaunchDetailConditionReportSheet(
 }
 
 String _recentReportsErrorMessage(AppLocalizations l10n, Object error) {
-  final msg = error.toString();
+  final msg = error is AppFailure ? error.message : error.toString();
   final buf = StringBuffer(l10n.launchDetailReportsLoadError(msg));
   if (msg.toLowerCase().contains('unauthenticated')) {
     buf

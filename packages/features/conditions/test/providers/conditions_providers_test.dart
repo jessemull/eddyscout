@@ -8,7 +8,6 @@ import 'package:eddyscout_conditions/src/data/conditions_provider.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/condition_reports_refresh_token_provider.dart';
 import 'package:eddyscout_conditions/src/domain/condition_reports_repository_provider.dart';
-import 'package:eddyscout_conditions/src/domain/conditions_load_exception.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/condition_report_submit_repository.dart';
@@ -92,7 +91,7 @@ void main() {
       expect(value.weather?.source, WeatherDataSource.nws);
     });
 
-    test('throws ConditionsLoadException on failure', () async {
+    test('throws AppFailure on failure', () async {
       final repo = _MockConditionsRepository();
       final launch = const LaunchPoint(
         id: 'id',
@@ -119,7 +118,7 @@ void main() {
 
       await expectLater(
         container.read(conditionsSnapshotProvider(launch).future),
-        throwsA(isA<ConditionsLoadException>()),
+        throwsA(isA<NetworkFailure>()),
       );
     });
 
@@ -373,7 +372,7 @@ void main() {
       expect(list, isEmpty);
     });
 
-    test('throws on failure', () async {
+    test('throws AppFailure on failure', () async {
       final repo = _MockConditionReportsRepository();
       when(
         () => repo.listReports(
@@ -393,7 +392,7 @@ void main() {
 
       await expectLater(
         container.read(conditionReportsListProvider('l').future),
-        throwsA(isA<Exception>()),
+        throwsA(isA<NetworkFailure>()),
       );
     });
   });

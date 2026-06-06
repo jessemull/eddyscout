@@ -116,7 +116,7 @@ void main() {
       expect(res.valueOrNull?.digestText, 'ok');
     });
 
-    test('repo maps callable exceptions to failure', () async {
+    test('repo maps callable failures to failure', () async {
       when(
         () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
       ).thenThrow(

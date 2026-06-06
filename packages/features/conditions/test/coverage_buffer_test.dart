@@ -3,7 +3,6 @@ import 'package:eddyscout_conditions/src/data/conditions_provider.dart';
 import 'package:eddyscout_conditions/src/data/conditions_service.dart';
 import 'package:eddyscout_conditions/src/data/firebase/conditions_summary_payload.dart';
 import 'package:eddyscout_conditions/src/data/parsing/noaa_tides_json.dart';
-import 'package:eddyscout_conditions/src/domain/conditions_load_exception.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go_thresholds.dart';
@@ -51,7 +50,7 @@ void main() {
       expect(result.isFailure, isTrue);
     });
 
-    test('loadSnapshot returns snapshot on success', () async {
+    test('load returns snapshot on success via Result', () async {
       when(
         () => http.getJson(any(), cancelToken: any(named: 'cancelToken')),
       ).thenAnswer(
@@ -76,11 +75,12 @@ void main() {
         tideRelevance: TideRelevance.none,
       );
 
-      final snapshot = await service.loadSnapshot(launch);
-      expect(snapshot.weather, isNotNull);
+      final result = await service.load(launch);
+      expect(result.isSuccess, isTrue);
+      expect(result.valueOrNull?.weather, isNotNull);
     });
 
-    test('loadSnapshot throws ConditionsLoadException on failure', () async {
+    test('load returns failure on unexpected error', () async {
       when(
         () => http.getNwsJson(any(), cancelToken: any(named: 'cancelToken')),
       ).thenThrow(StateError('boom'));
@@ -96,10 +96,9 @@ void main() {
         tideRelevance: TideRelevance.none,
       );
 
-      await expectLater(
-        service.loadSnapshot(launch),
-        throwsA(isA<ConditionsLoadException>()),
-      );
+      final result = await service.load(launch);
+      expect(result.isFailure, isTrue);
+      expect(result.errorOrNull, isA<AppFailure>());
     });
 
     test('NWS hourly URL missing falls back to Open-Meteo', () async {
@@ -340,11 +339,6 @@ void main() {
         'skillProfile': 'intermediate',
       });
       expect(summary.id, 'id');
-    });
-
-    test('ConditionsLoadException toString returns message', () {
-      const ex = ConditionsLoadException(NetworkFailure(message: 'offline'));
-      expect(ex.toString(), 'offline');
     });
   });
 }
