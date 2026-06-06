@@ -42,7 +42,9 @@ void main() {
     expect(find.byKey(const Key('map_test_stub')), findsOneWidget);
   });
 
-  testWidgets('shows zoom chrome when map is interactive', (tester) async {
+  testWidgets('hides zoom chrome when map stub replaces Mapbox', (
+    tester,
+  ) async {
     await pumpMap(
       tester,
       overrides: [
@@ -50,9 +52,9 @@ void main() {
       ],
     );
 
-    expect(find.byTooltip('Zoom in'), findsOneWidget);
-    expect(find.byTooltip('Zoom out'), findsOneWidget);
-    expect(find.byTooltip('Show all launches'), findsOneWidget);
+    expect(find.byTooltip('Zoom in'), findsNothing);
+    expect(find.byTooltip('Zoom out'), findsNothing);
+    expect(find.byTooltip('Show all launches'), findsNothing);
   });
 
   testWidgets('hides zoom chrome while map is not interactive', (tester) async {

@@ -24,6 +24,8 @@ for feature_dir in packages/features/*/; do
   for other_dir in packages/features/*/; do
     other_name=$(basename "$other_dir")
     if [ "$other_name" = "$feature_name" ] || [ "$other_name" = "_TEMPLATE" ]; then continue; fi
+    # Map route-planning presentation delegates to hydro_routing (wave 3).
+    if [ "$feature_name" = "map" ] && [ "$other_name" = "hydro_routing" ]; then continue; fi
     if grep -r "import 'package:eddyscout_$other_name/" "$feature_dir" --include="*.dart" 2>/dev/null; then
       echo "ERROR: Feature '$feature_name' imports from feature '$other_name'"
       ERRORS=$((ERRORS + 1))
