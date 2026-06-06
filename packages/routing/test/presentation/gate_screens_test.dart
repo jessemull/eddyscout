@@ -1,5 +1,5 @@
+import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../test_localized_app.dart';
@@ -25,7 +25,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(WebMapPlaceholderScreen), findsOneWidget);
-      expect(find.byType(Scaffold), findsOneWidget);
+      final context = tester.element(find.byType(WebMapPlaceholderScreen));
+      expect(find.text(context.l10n.webMapPlaceholderBody), findsOneWidget);
     });
   });
 }
