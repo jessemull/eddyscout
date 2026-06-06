@@ -2,7 +2,7 @@
 
 High-level feature map for a PNW-focused kayak companion: **decision-first**, **local nuance**, **conditions fusion**, **honest safety framing**, and **Flutter + Mapbox** on the client. This document is a living plan; tick or adjust as you ship.
 
-> **Platform work first:** finish **wave 2** and **wave 3** in `docs/ARCHITECTURE_BACKLOG.md` before starting heavy **Phase C** slices below. New product UI should land in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
+> **Platform work:** **wave 2 is done** on `main`. Finish **wave 3** in `docs/ARCHITECTURE_BACKLOG.md` before heavy **Phase C** slices below. New product UI should land in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
 >
 > **Last updated:** 2026-06-06
 
@@ -92,12 +92,12 @@ flowchart TB
 
 ## Execution order
 
-Product phases (A–F below) assume the **platform architecture** in `docs/ARCHITECTURE_BACKLOG.md` is complete. Until then, prioritize platform waves — they unblock clean Phase C implementation.
+Product phases (A–F below) assume **wave 3** in `docs/ARCHITECTURE_BACKLOG.md` is complete (wave 2 is done). Finish Bucket B screen migration before heavy Phase C slices — it prevents new UI debt in `apps/eddyscout/lib/screens/`.
 
 | Step | Work | Doc | Status |
 |------|------|-----|--------|
-| 1 | **Wave 2** — finish Bucket A (`@riverpod` router, Result boundaries, doc sweep) | `ARCHITECTURE_BACKLOG.md` § Wave 2 | In flight |
-| 2 | **Wave 3** — Bucket B screen migration to feature `presentation/` | `ARCHITECTURE_BACKLOG.md` § Wave 3 | Planned after wave 2 |
+| 1 | **Wave 2** — Bucket A (`@riverpod` router, Result boundaries, doc sweep) | `ARCHITECTURE_BACKLOG.md` § Bucket A | **Done** (#28–#33, #31) |
+| 2 | **Wave 3** — Bucket B screen migration to feature `presentation/` | `ARCHITECTURE_BACKLOG.md` § Bucket B | **Now** |
 | 3 | **Phase C+** — product slices in this file (GPX, saved routes, moderation, …) | This file § Master checklist | After wave 3 |
 
 **Infra deferrals** (`flutter_secure_storage`, tab shell, `CachedNetworkImage`, session auth guards) ship **with** the product feature that needs them — not as wave 2/3 blockers.
@@ -108,9 +108,9 @@ Product phases (A–F below) assume the **platform architecture** in `docs/ARCHI
 
 ### Recommended next implementation
 
-**Now (platform):** Complete **wave 2** (five parallel agents in `ARCHITECTURE_BACKLOG.md`) — especially A1 `goRouterProvider` codegen and A2 Result completion for conditions/hydro. Merge wave 2 closeout last.
+**Now (platform):** **Wave 3** — five parallel agents in `ARCHITECTURE_BACKLOG.md` § Wave 3. Migrate `apps/eddyscout/lib/screens/` into feature `presentation/` packages (conditions, map, mapbox layer, app-shell routes).
 
-**Next (platform):** **Wave 3** — migrate `apps/eddyscout/lib/screens/` into feature `presentation/` packages so Phase C UI does not add more app-shell debt.
+**Done (platform):** Wave 2 — `@riverpod` routing (#30), Result boundaries (#28, #32, #33), doc closeout (#31).
 
 **Then (product — Phase C):** Prioritize **GPX export / trip log**, **saved routes (v1)**, and **route planner follow-ups** (more rivers, segment snap). **Moderation** for condition reports is an alternative early Phase C slice if community trust is the bottleneck.
 

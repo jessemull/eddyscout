@@ -120,7 +120,7 @@ Assign every finding to exactly one bucket:
 | **[MUST]** | **Yes** | Repo-wide blocker: crash, security, architecture violation, CI failure, unsafe async, broken UX in shipped paths. |
 | **[SHOULD]** | **Yes** | Important fix before calling the repo healthy — tests, consistency, error handling, maintainability. Same actionability as MUST. |
 | **[NICE TO HAVE]** | **No** | Actionable polish in existing files: naming, `const`, small refactors. Does not block Ready. |
-| **[OUT OF SCOPE]** | **No** | Known gap **already scheduled** in `ARCHITECTURE_BACKLOG.md` / `ROADMAP.md` (e.g. wave 2 Result migration, wave 3 screen move) — not a new violation. Record so audit does not re-file planned work. |
+| **[OUT OF SCOPE]** | **No** | Known gap **already scheduled** in `ARCHITECTURE_BACKLOG.md` / `ROADMAP.md` (e.g. wave 3 screen migration to feature `presentation/`) — not a new violation. Record so audit does not re-file planned work. |
 | **[VERIFY]** | **No** | Uncertainty; one **concrete** command or scenario — not a fix yet. |
 
 ### Severity hints (this repo)
@@ -130,7 +130,7 @@ Assign every finding to exactly one bucket:
 | **MUST** | Cross-feature import; hand-edited `*.g.dart`; secrets in source; `throw` across package boundary; missing error UI on user-facing async paths; `context` after `await` without `mounted` |
 | **SHOULD** | Missing test for critical path; l10n gap on user-facing string; `AsyncValue` error not handled; stale doc contradicting code |
 | **NICE TO HAVE** | Missing `const` in widget subtree; readability rename; minor duplication in same file |
-| **OUT OF SCOPE** | UI in `apps/eddyscout/lib/screens/` while wave 3 is open; partial `Result` adoption while wave 2 A2 is open; `goRouterProvider` still manual while wave 2 A1 is open |
+| **OUT OF SCOPE** | UI still in `apps/eddyscout/lib/screens/` while wave 3 (Bucket B) is open — scheduled migration, not a new layering violation |
 
 ---
 

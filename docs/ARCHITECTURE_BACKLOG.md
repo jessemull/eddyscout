@@ -3,7 +3,7 @@
 > **Purpose:** Single checklist for repo/platform architecture work (not product features).
 > **Product roadmap:** `docs/ROADMAP.md`
 > **Target architecture:** `docs/ARCHITECTURE.md`
-> **Last updated:** 2026-06-06 · **Product phases:** `docs/ROADMAP.md` § Execution order
+> **Last updated:** 2026-06-06 · **Next platform work:** wave 3 (Bucket B) · **Product:** `docs/ROADMAP.md` § Execution order
 
 Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partially done” rows left behind. Link PRs inline.
 
@@ -17,13 +17,15 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 | 85% coverage gates | **Done** | `tooling/coverage.yaml`; CI enforces thresholds |
 | Design system goldens + CI strategy | **Done** | Goldens on `macos-latest`; Ubuntu excludes `golden` tag |
 | Riverpod 3 (manual providers) | **Done** | PR #19 |
-| `@riverpod` codegen migration | **Done** | Conditions, app shell, map, hydro (#20–#21, #23); routing providers in `packages/routing/` |
+| `@riverpod` codegen migration | **Done** | Conditions, app shell, map, hydro (#20–#21, #23); routing (#30) in `packages/routing/` |
 | `packages/routing/` as live router | **Done** | `goRouterProvider` + redirects in routing package (#26) |
 | Result-based repos (conditions data layer) | **Done** | Repository impls return `Result<T, AppFailure>` |
 | Result-based providers & boundaries | **Done** | Conditions (#33), hydro (#32), map (#28); `ARCHITECTURE.md` Result row **Done** |
 | Full feature layering (`presentation` / `domain` / `data`) | **Wave 3** | Most UI still in `apps/eddyscout/lib/screens/` — planned migration |
 | Integration tests (E2E) | **Done** | Token gate + map → launch detail; CI Linux deps (#22, #25, #27) |
 | CancelToken on HTTP / callables | **Done** (conditions) | Extend when adding new I/O in other features |
+
+**Wave 2 (Bucket A) is complete** on `main` — merged #30 (`@riverpod` routing), #32 (hydro Result), #33 (conditions Result), #31 (doc closeout). **Start wave 3** (Bucket B below).
 
 ### Implement alongside product features (not platform backlog)
 
@@ -56,12 +58,13 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 | #30 | A1 routing `@riverpod` codegen |
 | #32 | A2 hydro Result / `AppFailure` surfacing |
 | #33 | A2 conditions Result completion |
+| #31 | A4 wave 2 doc closeout, husky/preflight guidance, repo-review align, `ROADMAP.md` execution order |
 
 ---
 
 ## Remaining work (checklist)
 
-### Bucket A — wave 2 (finish completely)
+### Bucket A — wave 2 (complete — reference only)
 
 #### A1 — `@riverpod` codegen
 
@@ -90,9 +93,9 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 - [x] `docs/CURSOR_CONSISTENCY_AUDIT.md` integration row (#22)
 - [x] **Final doc sweep** after wave 2 merges: `ARCHITECTURE.md`, `CURSOR_CONSISTENCY_AUDIT.md` aspirational rows, this file
 
-### Bucket B — wave 3 (follow wave 2, before heavy Phase C)
+### Bucket B — wave 3 (**next** — before heavy Phase C)
 
-Screen migration is **planned platform work**, not indefinite defer. Run after wave 2 merges to avoid conflicting with Result/router refactors.
+Screen migration is **active platform work**. Wave 2 is merged — migrate `apps/eddyscout/lib/screens/` into feature `presentation/` before starting heavy Phase C product slices.
 
 - [ ] **Conditions presentation:** `launch_detail_screen` + `launch_detail/*` → `packages/features/conditions/lib/src/presentation/`
 - [ ] **Map presentation:** `map_screen`, planning overlay, `map_planning` / `map_session` providers → `packages/features/map/lib/src/presentation/`
@@ -103,27 +106,21 @@ Screen migration is **planned platform work**, not indefinite defer. Run after w
 
 ---
 
-## Wave 2 — parallel agents (Bucket A code)
+## Wave 2 — parallel agents (complete)
 
-Use **Cursor New Worktree** → branch from `main` → `/start <branch>` → **plan-first** (§4 in `~/.cursor/commands/start.md`).
-
-**Rule:** Each agent owns **one PR** that **fully closes** its checklist items.
-
-| Agent | Branch | Closes |
-|-------|--------|--------|
-| 1 | `chore/riverpod-codegen-router` | A1 entirely |
-| 2 | `refactor/result-conditions-complete` | A2 conditions (all bullets) — **done** |
-| 3 | `refactor/result-hydro-complete` | A2 hydro bullet — **done** |
-| 4 | `refactor/result-map-complete` | A2 map bullet — **done** via #28 (`4c799f0`) |
-| 5 | `docs/roadmap-phase-cleanup` | A4 final sweep + wave 2 backlog accuracy + sync `ROADMAP.md` execution order — **in progress** |
-
-**Merge order:** 1–4 in any order (minimal overlap); **5 last**.
+| Agent | Branch | PR | Status |
+|-------|--------|-----|--------|
+| 1 | `chore/riverpod-codegen-router` | #30 | Done |
+| 2 | `refactor/result-conditions-complete` | #33 | Done |
+| 3 | `refactor/result-hydro-complete` | #32 | Done |
+| 4 | `refactor/result-map-complete` | #28 (`4c799f0`) | Done |
+| 5 | `docs/roadmap-phase-cleanup` | #31 | Done |
 
 ---
 
-## Wave 3 — parallel agents (Bucket B — after wave 2)
+## Wave 3 — parallel agents (Bucket B — **start now**)
 
-**Do not start until wave 2 is merged to `main`.** Phase C product work should target feature `presentation/` packages — wave 3 clears existing app-shell debt first.
+Phase C product work should target feature `presentation/` packages — wave 3 clears existing app-shell debt first.
 
 | Agent | Branch | Closes |
 |-------|--------|--------|

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/eddyscout_integration_harness.dart';
 import 'helpers/integration_localizations.dart';
+import 'helpers/integration_pump.dart';
 
 void main() {
   ensureIntegrationTestInitialized();
@@ -10,7 +11,7 @@ void main() {
     tester,
   ) async {
     await pumpEddyScoutApp(tester);
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await integrationPumpSettle(tester);
 
     final l10n = integrationL10n(tester);
     expect(find.text(l10n.missingMapboxTokenTitle), findsOneWidget);
