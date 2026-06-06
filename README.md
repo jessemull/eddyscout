@@ -47,7 +47,8 @@ Read `CONTEXT.md` before making any changes. It provides mandatory loading order
 
 | Command | Description |
 |---------|-------------|
-| `make bootstrap` | Initial setup |
+| `make bootstrap` | Initial setup (includes husky hooks) |
+| `make ensure-husky` | Install git hooks in a new worktree |
 | `make analyze` | Static analysis |
 | `make format` | Check formatting |
 | `make format-fix` | Fix formatting |
@@ -55,7 +56,7 @@ Read `CONTEXT.md` before making any changes. It provides mandatory loading order
 | `make coverage` | Test with coverage |
 | `make gen` | Run code generation |
 | `make gen-check` | Verify codegen is fresh |
-| `make preflight` | Full preflight checks |
+| `make preflight` | Full checks + coverage (optional; `git push` runs most gates) |
 | `make ci` | CI-grade validation |
 | `make clean` | Clean all packages |
 | `make run` | Run app on device/emulator (needs `apps/eddyscout/.local.env`) |

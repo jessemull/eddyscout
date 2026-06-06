@@ -328,12 +328,13 @@ Before committing:
 - [ ] side effects isolated
 - [ ] lifecycle correct (`autoDispose` where appropriate)
 - [ ] tests pass
-- [ ] preflight passes
+- [ ] push validation passes (`git push` hook; see `CONTEXT.md`)
 
-Run:
+Run while iterating:
 
 ```bash id="riverpod1"
-make preflight
+make analyze
+melos exec --scope=<package> -- "flutter test"
 ```
 
 ---

@@ -3,7 +3,7 @@
 > **Purpose:** Single checklist for repo/platform architecture work (not product features).
 > **Product roadmap:** `docs/ROADMAP.md`
 > **Target architecture:** `docs/ARCHITECTURE.md`
-> **Last updated:** 2026-06-06
+> **Last updated:** 2026-06-06 · **Product phases:** `docs/ROADMAP.md` § Execution order
 
 Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partially done” rows left behind. Link PRs inline.
 
@@ -20,7 +20,7 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 | `@riverpod` codegen migration | **Done** | Conditions, app shell, map, hydro (#20–#21, #23); routing providers in `packages/routing/` |
 | `packages/routing/` as live router | **Done** | `goRouterProvider` + redirects in routing package (#26) |
 | Result-based repos (conditions data layer) | **Done** | Repository impls return `Result<T, AppFailure>` |
-| Result-based providers & boundaries | **Wave 2** | Conditions, hydro, map A2 **Done**; `ARCHITECTURE.md` Result row open |
+| Result-based providers & boundaries | **Done** | Conditions (#33), hydro (#32), map (#28); `ARCHITECTURE.md` Result row **Done** |
 | Full feature layering (`presentation` / `domain` / `data`) | **Wave 3** | Most UI still in `apps/eddyscout/lib/screens/` — planned migration |
 | Integration tests (E2E) | **Done** | Token gate + map → launch detail; CI Linux deps (#22, #25, #27) |
 | CancelToken on HTTP / callables | **Done** (conditions) | Extend when adding new I/O in other features |
@@ -51,6 +51,11 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 | #25 | CI Linux integration deps |
 | #26 | A3 router → `packages/routing/` |
 | #27 | Integration l10n fix |
+| #28 | Wave 3 planning + map `launchPointByIdProvider` Result (#28 also shipped `4c799f0`) |
+| #29 | PR review skill output sections |
+| #30 | A1 routing `@riverpod` codegen |
+| #32 | A2 hydro Result / `AppFailure` surfacing |
+| #33 | A2 conditions Result completion |
 
 ---
 
@@ -70,8 +75,8 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 - [x] **Conditions callables:** `conditions_callables.dart` returns `Result` (or throws only inside repo impl after mapping); no raw `FirebaseAuthException` / `StateError` across boundaries
 - [x] **Conditions service:** remove or isolate `loadUnwrapped` rethrow paths used by providers
 - [x] **Hydro:** `hydroGeoJsonLoader` + `riverRoutePlannerProvider` surface load/parse failures as `AppFailure` via `AsyncError` (#32)
-- [x] **Map:** `launchPointByIdProvider` uses `Result` or `NotFoundFailure` — no `StateError` throw; unknown-id path tested
-- [ ] Update `docs/ARCHITECTURE.md` § Current implementation status — mark Result row **Done** when all above are `[x]`
+- [x] **Map:** `launchPointByIdProvider` throws `NotFoundFailure` for unknown ids — no `StateError`; unknown-id path tested (#28)
+- [x] Update `docs/ARCHITECTURE.md` § Current implementation status — mark Result row **Done** when all above are `[x]`
 
 #### A3 — Router package
 
@@ -83,7 +88,7 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 
 - [x] Integration tests + CI (#22, #25, #27)
 - [x] `docs/CURSOR_CONSISTENCY_AUDIT.md` integration row (#22)
-- [ ] **Final doc sweep** after wave 2 merges: `ARCHITECTURE.md`, `CURSOR_CONSISTENCY_AUDIT.md` aspirational rows, this file
+- [x] **Final doc sweep** after wave 2 merges: `ARCHITECTURE.md`, `CURSOR_CONSISTENCY_AUDIT.md` aspirational rows, this file
 
 ### Bucket B — wave 3 (follow wave 2, before heavy Phase C)
 
@@ -107,10 +112,10 @@ Use **Cursor New Worktree** → branch from `main` → `/start <branch>` → **p
 | Agent | Branch | Closes |
 |-------|--------|--------|
 | 1 | `chore/riverpod-codegen-router` | A1 entirely |
-| 2 | `refactor/result-conditions-complete` | A2 conditions (all bullets) |
-| 3 | `refactor/result-hydro-complete` | A2 hydro bullet |
-| 4 | `refactor/result-map-complete` | A2 map bullet |
-| 5 | `docs/architecture-wave2-closeout` | A4 final sweep + wave 2 backlog accuracy |
+| 2 | `refactor/result-conditions-complete` | A2 conditions (all bullets) — **done** |
+| 3 | `refactor/result-hydro-complete` | A2 hydro bullet — **done** |
+| 4 | `refactor/result-map-complete` | A2 map bullet — **done** via #28 (`4c799f0`) |
+| 5 | `docs/roadmap-phase-cleanup` | A4 final sweep + wave 2 backlog accuracy + sync `ROADMAP.md` execution order — **in progress** |
 
 **Merge order:** 1–4 in any order (minimal overlap); **5 last**.
 
@@ -137,9 +142,10 @@ Use **Cursor New Worktree** → branch from `main` → `/start <branch>` → **p
 When Bucket A + Bucket B are fully `[x]`:
 
 - **Platform architecture is complete** for the current target.
-- **Product work:** `docs/ROADMAP.md` Phase C (GPX, trip log, saved routes, moderation, etc.).
-- **New features:** build in `packages/features/<name>/presentation/` from day one.
+- **Product work:** `docs/ROADMAP.md` — **Execution order** step 3 (Phase C: GPX, trip log, saved routes, moderation, etc.).
+- **New features:** build in `packages/features/<name>/presentation/` from day one; do not add screens under `apps/eddyscout/lib/screens/`.
 - **Infra deferrals:** implement `flutter_secure_storage`, tab shell, `CachedNetworkImage`, auth guards **with** the feature that needs them (see table above).
+- **Roadmap hygiene:** keep `ROADMAP.md` § Recommended next implementation aligned when Phase C priorities shift.
 
 ---
 

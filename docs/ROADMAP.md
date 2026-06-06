@@ -2,6 +2,10 @@
 
 High-level feature map for a PNW-focused kayak companion: **decision-first**, **local nuance**, **conditions fusion**, **honest safety framing**, and **Flutter + Mapbox** on the client. This document is a living plan; tick or adjust as you ship.
 
+> **Platform work first:** finish **wave 2** and **wave 3** in `docs/ARCHITECTURE_BACKLOG.md` before starting heavy **Phase C** slices below. New product UI should land in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
+>
+> **Last updated:** 2026-06-06
+
 ## Vision
 
 EddyScout helps paddlers **discover where to go**, **understand river and weather context in one place**, and **decide if today makes sense** for their skill level—starting in the Portland / greater PNW area. It is not a replacement for judgment, training, or on-scout assessment.
@@ -86,11 +90,31 @@ flowchart TB
 
 ---
 
+## Execution order
+
+Product phases (A–F below) assume the **platform architecture** in `docs/ARCHITECTURE_BACKLOG.md` is complete. Until then, prioritize platform waves — they unblock clean Phase C implementation.
+
+| Step | Work | Doc | Status |
+|------|------|-----|--------|
+| 1 | **Wave 2** — finish Bucket A (`@riverpod` router, Result boundaries, doc sweep) | `ARCHITECTURE_BACKLOG.md` § Wave 2 | In flight |
+| 2 | **Wave 3** — Bucket B screen migration to feature `presentation/` | `ARCHITECTURE_BACKLOG.md` § Wave 3 | Planned after wave 2 |
+| 3 | **Phase C+** — product slices in this file (GPX, saved routes, moderation, …) | This file § Master checklist | After wave 3 |
+
+**Infra deferrals** (`flutter_secure_storage`, tab shell, `CachedNetworkImage`, session auth guards) ship **with** the product feature that needs them — not as wave 2/3 blockers.
+
+---
+
 ## Phasing
 
 ### Recommended next implementation
 
-**Phase C — next slices:** **GPX export / trip log** and richer geometry (more rivers, segment snap). **Route preview (v1)** is in the app: planning mode on the map, two launches, polyline along bundled hydro GeoJSON (`assets/hydro/`). Alternatively prioritize **moderation** for reports.
+**Now (platform):** Complete **wave 2** (five parallel agents in `ARCHITECTURE_BACKLOG.md`) — especially A1 `goRouterProvider` codegen and A2 Result completion for conditions/hydro. Merge wave 2 closeout last.
+
+**Next (platform):** **Wave 3** — migrate `apps/eddyscout/lib/screens/` into feature `presentation/` packages so Phase C UI does not add more app-shell debt.
+
+**Then (product — Phase C):** Prioritize **GPX export / trip log**, **saved routes (v1)**, and **route planner follow-ups** (more rivers, segment snap). **Moderation** for condition reports is an alternative early Phase C slice if community trust is the bottleneck.
+
+**Already shipped (context):** Route preview (v1) — planning mode on the map, put-in / take-out from launches, polyline along bundled hydro GeoJSON (`assets/hydro/`; Willamette Portland reach first).
 
 ---
 
@@ -125,6 +149,8 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [x] **(Infra)** Result-based providers + cancellation (CancelToken / callable cancel guards) for conditions, reports, and AI summary
 
 ### Not yet
+
+> **Gate:** treat Phase C items below as **ready to implement** only after wave 3 in `docs/ARCHITECTURE_BACKLOG.md` is merged. Until then, use waves 2–3 branches for platform work.
 
 - [ ] **(Reports / mod)** Moderation — admin queue, TTL, keyword hold (optional report-abuse UX)
 - [x] **(Phase C)** Route preview on map — planning mode, put-in / take-out from existing launches, path along bundled open hydro LineStrings (`assets/hydro/`; Willamette Portland reach first); not navigation-grade
@@ -244,6 +270,8 @@ Attribute and comply with each provider’s terms in the app.
 
 ## How to use this file
 
-- Update the **Master implementation checklist** (`- [ ]` → `- [x]`) when you ship; keep **Recommended next implementation** in sync when priorities change.
-- Add **dates** or **issue links** inline next to items if you track work elsewhere.
+- **Platform vs product:** architecture waves and merge order live in `docs/ARCHITECTURE_BACKLOG.md`; product phases and feature checklist live here.
+- Update the **Master implementation checklist** (`- [ ]` → `- [x]`) when you ship; keep **Recommended next implementation** and **Execution order** in sync when priorities change.
+- Before opening a Phase C PR, confirm wave 3 is done (or the slice is explicitly exempt — e.g. backend-only Firebase work).
+- Add **dates** or **PR links** inline next to items when helpful.
 - Trim the feature table above if you descope; keep **pillars** stable for narrative.

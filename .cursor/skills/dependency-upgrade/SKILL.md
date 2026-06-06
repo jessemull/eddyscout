@@ -439,9 +439,10 @@ Verify:
 Run:
 
 ```bash
-make test
+make ensure-husky
 make analyze
-make preflight
+make test
+git push    # push validation; add make preflight only for local coverage before PR
 ```
 
 Verify:

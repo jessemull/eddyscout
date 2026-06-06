@@ -544,20 +544,25 @@ make gen-check
 
 # 17. Validation & Quality Gates
 
-Run:
+See `CONTEXT.md` § Mandatory Quality Gates. **Do not** run `make preflight` before `git push` — the hook runs the full suite.
+
+During development:
 
 ```bash
-make preflight
+make ensure-husky          # once per worktree
+make analyze
+make gen-check             # if annotated sources changed
+melos exec --scope=<pkg> -- "flutter test"
 ```
+
+Before sharing: `git push` (husky push validation). Use `make preflight` only for local coverage before PR.
 
 Verify:
 
 - [ ] analyzer passes
-- [ ] formatting passes
-- [ ] tests pass
+- [ ] scoped tests pass
 - [ ] codegen clean
-- [ ] dependency validation passes
-- [ ] CI-compatible
+- [ ] push validation passes (via `git push` hook)
 
 ---
 

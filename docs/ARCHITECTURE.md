@@ -159,7 +159,7 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 |------|--------|-------|
 | Feature layering | `presentation` / `domain` / `data` per feature package | Partial: UI primarily in `apps/eddyscout/lib/screens/`; `map` is mostly data; `conditions` has domain + data + one presentation provider |
 | Riverpod codegen | `@riverpod` for new providers | **Done:** conditions, app shell, map, hydro, and `packages/routing/` (`goRouterProvider` + DI tokens) use `@riverpod` codegen |
-| `Result<T, AppFailure>` | Package I/O boundaries | **Partial:** conditions repos return `Result`; hydro `riverRoutePlannerProvider` surfaces typed `AppFailure` via `AsyncError`; map `launchPointByIdProvider` uses `NotFoundFailure`; conditions providers/callables still migrating |
+| `Result<T, AppFailure>` | Package I/O boundaries | **Done:** conditions repos, providers, and callables; hydro `riverRoutePlannerProvider` surfaces `ParseFailure` / `AssetLoadFailure` via `AsyncError`; map `launchPointByIdProvider` throws `NotFoundFailure` for unknown ids |
 | Router assembly | `packages/routing/` | `goRouterProvider` in package; app supplies `$appRoutes` and launch validation via `ProviderScope` overrides |
 | Auth redirects | Session/login guards when needed | Mapbox token + web platform redirects only |
 | Tab / shell nav | `StatefulShellRoute` when multi-tab | Single-stack typed routes |

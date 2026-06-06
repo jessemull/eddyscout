@@ -120,9 +120,12 @@ The GitHub Actions CI workflow runs `scripts/preflight.sh --ci`, which executes 
 
 | When | What runs |
 |------|-----------|
+| **New worktree (once)** | `make ensure-husky` — generates `.husky/_/` (gitignored; hooks silent without it) |
 | **git commit** | `scripts/pre_commit.sh` — fast format + analyze on staged `.dart` files |
 | **git push** | `scripts/push_validate.sh` — analyze, tests, codegen verify, import/architecture (coverage in CI only) |
 | **Before PR / optional** | `make preflight` — full gate including coverage thresholds |
+
+Do **not** run `make preflight` immediately before `git push` — the push hook repeats the same test/analyze/gen suite. See `CONTEXT.md` § When to run what.
 
 Skipping hooks is not acceptable for shared branches — CI will catch violations regardless.
 

@@ -61,7 +61,8 @@ All commands are available via `make` targets. They delegate to melos and shell 
 | `make coverage` | Run tests with coverage collection |
 | `make gen` | Run code generation (`build_runner`, `freezed`, `json_serializable`, `drift`) |
 | `make gen-check` | Verify codegen output is fresh (fails if stale) |
-| `make preflight` | Full preflight validation: format → analyze → test → gen-check → coverage |
+| `make ensure-husky` | Verify/install husky hooks (required once per git worktree) |
+| `make preflight` | Full preflight: format → analyze → test → gen-check → coverage (optional; push hook covers most) |
 | `make ci` | CI-grade checks (same as preflight with stricter options) |
 | `make clean` | Clean all packages (delete build dirs, `.dart_tool`, generated files) |
 
@@ -509,7 +510,8 @@ The following patterns are **explicitly banned**. AI agents and human contributo
 ### Mandatory
 
 - **READ** `CONTEXT.md` before starting any work.
-- **RUN** `make preflight` before presenting changes as complete (push hook runs analyze + test + gen-check; coverage is CI + full preflight).
+- **ENSURE** husky hooks in worktrees: `make ensure-husky` once per worktree (see `CONTEXT.md` § Husky in worktrees).
+- **PUSH** to validate — `git push` runs the full gate via husky; do **not** run `make preflight` before push unless you need local coverage. Use scoped tests + `make analyze` while iterating.
 - **EXPLAIN** architectural decisions in the PR description.
 - **TEST** every new file — no untested code may be submitted.
 - **FORMAT** all changes with `dart format` before committing.
@@ -531,7 +533,7 @@ The following patterns are **explicitly banned**. AI agents and human contributo
 
 Every pull request must:
 
-1. Pass `make preflight` (format + analyze + test + gen-check).
+1. Pass push validation (husky on `git push`) and CI (coverage + goldens). Run `make preflight` locally only when verifying coverage before PR.
 2. Include a description explaining *what* changed and *why*.
 3. Reference the related issue or task.
 4. Include tests for all new or changed logic.

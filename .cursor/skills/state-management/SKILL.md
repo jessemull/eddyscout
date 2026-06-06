@@ -317,12 +317,13 @@ Before committing:
 - [ ] side effects isolated
 - [ ] lifecycle rules respected
 - [ ] tests pass
-- [ ] preflight passes
+- [ ] push validation passes (`git push` hook; see `CONTEXT.md`)
 
-Run:
+Run while iterating:
 
 ```bash
-make preflight
+make analyze
+melos exec --scope=<package> -- "flutter test"
 ```
 
 ---

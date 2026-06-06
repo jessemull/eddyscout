@@ -91,15 +91,29 @@ Tests must be:
 
 # 1. Push validation
 
-**`git push`** runs `scripts/push_validate.sh` via husky (analyze, tests, codegen, import/architecture — no coverage).
-
-For coverage thresholds before a PR, also run:
+## Worktree setup (once)
 
 ```bash
-make preflight
+make ensure-husky
 ```
 
-## Must pass before push:
+Without `.husky/_/`, `git push` does **not** run validation. See `CONTEXT.md` § Husky in worktrees.
+
+## Primary gate: push, not preflight
+
+**`git push`** runs `scripts/push_validate.sh` via husky — same as `preflight.sh --no-coverage` plus import/architecture checks.
+
+**Do not** run `make preflight` immediately before `git push` — that duplicates the full test suite. While coding:
+
+```bash
+make analyze
+make gen-check              # if annotated sources changed
+melos exec --scope=<pkg> -- "flutter test test/<file>_test.dart"
+```
+
+Run `make preflight` **only** for **local coverage thresholds** before opening a PR.
+
+## Must pass on push (via hook):
 
 - [ ] `dart format` passes
 - [ ] `dart analyze` passes (no errors or fatal infos)

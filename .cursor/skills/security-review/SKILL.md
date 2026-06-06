@@ -282,12 +282,13 @@ Before committing:
 - [ ] network layer secure
 - [ ] platform boundaries validated
 - [ ] tests pass
-- [ ] preflight passes
+- [ ] push validation passes (`git push` hook; see `CONTEXT.md`)
 
-Run:
+Run while iterating:
 
 ```bash
-make preflight
+make analyze
+melos exec --scope=<package> -- "flutter test"
 ```
 
 ---

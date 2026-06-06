@@ -323,12 +323,13 @@ Before committing:
 - [ ] optimization applied with rationale
 - [ ] before/after comparison documented
 - [ ] tests pass
-- [ ] preflight passes
+- [ ] push validation passes (`git push` hook; see `CONTEXT.md`)
 
-Run:
+Run while iterating:
 
 ```bash id="perf2"
-make preflight
+make analyze
+melos exec --scope=<package> -- "flutter test"
 ```
 
 ---

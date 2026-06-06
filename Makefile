@@ -1,7 +1,10 @@
-.PHONY: bootstrap analyze format test coverage coverage-check gen gen-check clean preflight ci setup run integration-test
+.PHONY: bootstrap ensure-husky analyze format test coverage coverage-check gen gen-check clean preflight ci setup run integration-test
 
 bootstrap:
 	./scripts/bootstrap.sh
+
+ensure-husky:
+	./scripts/ensure_husky.sh
 
 analyze:
 	dart run melos run analyze
