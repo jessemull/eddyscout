@@ -7,6 +7,8 @@
 
 Tick `- [ ]` → `- [x]` here when work ships. Link PRs inline when helpful.
 
+> **Note (PR `chore/riverpod-codegen-conditions`):** This file was restored from commit `a225e25` (it was absent on `main` at branch time). Conditions-package A1 checkboxes shipped in PR #20; app-shell codegen (except router) in PR #21.
+
 ---
 
 ## Platform status (summary)
@@ -18,7 +20,7 @@ Tick `- [ ]` → `- [x]` here when work ships. Link PRs inline when helpful.
 | Design system goldens + CI strategy | **Done** | Goldens on `macos-latest`; Ubuntu excludes `golden` tag |
 | Riverpod 3 (manual providers) | **Done** | Merged PR #19 (`chore/riverpod3-codegen-foundation`) |
 | Result-based repos + DI layering (conditions) | **Partial** | Domain repo contracts + data impls + app binding; providers still bridge via exceptions |
-| `@riverpod` codegen migration | **Not started** | Pilot: `docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart` |
+| `@riverpod` codegen migration | **Partial** | Conditions + app shell (`preferences/`, map planning/session, mapbox controller); app routing still manual |
 | Full feature layering (`presentation` / `domain` / `data` in packages) | **Partial** | Conditions has domain + data + one presentation provider; most UI in `apps/eddyscout/lib/screens/` |
 | `packages/routing/` as live router | **Scaffold only** | Live router in `apps/eddyscout/lib/routing/` |
 | `Result<T, AppFailure>` everywhere | **Partial** | Conditions repository boundaries only; `map` / `hydro_routing` not migrated |
@@ -44,12 +46,13 @@ Complete **Bucket A** before returning to product features. **Bucket B** is opti
 
 #### A1 — `@riverpod` codegen
 
-- [ ] Add `riverpod_annotation` / `riverpod_generator` + `build.yaml` to packages that own providers (start with `eddyscout_conditions`)
-- [ ] Migrate `condition_reports_refresh_token_provider` (pilot → production)
-- [ ] Migrate remaining conditions providers to `@riverpod`
-- [ ] Migrate app-shell providers (`go_no_go_profile`, `map_planning`, `map_session`, router, etc.)
-- [ ] Run `make gen`; update tests for generated provider names
-- [ ] Update `docs/CODEGEN.md` and `docs/STATE_MANAGEMENT.md`
+- [x] Add `riverpod_annotation` / `riverpod_generator` + `build.yaml` to packages that own providers (start with `eddyscout_conditions`)
+- [x] Migrate `condition_reports_refresh_token_provider` (pilot → production)
+- [x] Migrate remaining conditions providers to `@riverpod`
+- [ ] Migrate app-shell providers (`go_no_go_profile`, `map_planning`, `map_session`, router, etc.) — partial: PR #21; `goRouterProvider` still manual
+- [x] Run `make gen`; update tests for generated provider names
+- [x] Update `docs/CODEGEN.md` for conditions `@riverpod` codegen
+- [x] Update `docs/STATE_MANAGEMENT.md`
 
 #### A2 — `Result<T, AppFailure>` completion
 
@@ -84,12 +87,13 @@ Complete **Bucket A** before returning to product features. **Bucket B** is opti
 
 | PR | Scope | Bucket | Notes |
 |----|-------|--------|-------|
-| 1 | `@riverpod` codegen — conditions package (refresh token + remaining providers) | A1 | |
-| 2 | `Result` completion — conditions provider bridge + map/hydro boundaries | A2 | |
-| 3 | Router → `packages/routing` | A3 | |
+| 1 | `@riverpod` codegen — conditions package | A1 | Merged #20 |
+| 2 | `@riverpod` codegen — app shell (excl. router) | A1 | Merged #21 |
+| 3 | `Result` completion — conditions provider bridge + map/hydro boundaries | A2 | |
+| 4 | Router → `packages/routing` | A3 | |
 | — | Integration tests + A4 docs hygiene | A4 | Shipped on `test/integration-map-launch-detail` |
 
-After A1–A3, treat platform architecture as **done for now** and use `docs/ROADMAP.md` for product work. New code follows target patterns per `AGENTS.md`; no further migration sprints unless Bucket B is explicitly scheduled.
+After A2–A3 (and any remaining A1 router codegen), treat platform architecture as **done for now** and use `docs/ROADMAP.md` for product work. New code follows target patterns per `AGENTS.md`; no further migration sprints unless Bucket B is explicitly scheduled.
 
 ---
 

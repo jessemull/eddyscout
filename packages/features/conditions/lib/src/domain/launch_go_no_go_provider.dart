@@ -1,7 +1,9 @@
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'launch_go_no_go_provider.g.dart';
 
 /// Inputs for [launchGoNoGoResultProvider].
 typedef LaunchGoNoGoParams = ({
@@ -11,12 +13,11 @@ typedef LaunchGoNoGoParams = ({
 });
 
 /// Go/no-go evaluation for a launch and conditions snapshot.
-final Provider<GoNoGoResult> Function(LaunchGoNoGoParams)
-launchGoNoGoResultProvider = Provider.autoDispose
-    .family<GoNoGoResult, LaunchGoNoGoParams>(
-      (ref, params) => GoNoGoEvaluator.evaluate(
-        params.launch,
-        params.snapshot,
-        profile: params.profile,
-      ),
-    );
+@riverpod
+GoNoGoResult launchGoNoGoResult(Ref ref, LaunchGoNoGoParams params) {
+  return GoNoGoEvaluator.evaluate(
+    params.launch,
+    params.snapshot,
+    profile: params.profile,
+  );
+}

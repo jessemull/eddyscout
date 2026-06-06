@@ -1,5 +1,7 @@
 import 'package:eddyscout_map/eddyscout_map.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'map_planning_provider.g.dart';
 
 /// Outcome of tapping a launch pin while route planning is active.
 enum RoutePlanningTapResult { putInSelected, takeOutSelected, sameAsPutIn }
@@ -19,7 +21,8 @@ class RoutePlanningState {
   final double? routeLengthKm;
 }
 
-class RoutePlanningNotifier extends Notifier<RoutePlanningState> {
+@Riverpod(keepAlive: true)
+class RoutePlanning extends _$RoutePlanning {
   @override
   RoutePlanningState build() => const RoutePlanningState();
 
@@ -63,8 +66,3 @@ class RoutePlanningNotifier extends Notifier<RoutePlanningState> {
     return RoutePlanningTapResult.takeOutSelected;
   }
 }
-
-final routePlanningProvider =
-    NotifierProvider<RoutePlanningNotifier, RoutePlanningState>(
-      RoutePlanningNotifier.new,
-    );

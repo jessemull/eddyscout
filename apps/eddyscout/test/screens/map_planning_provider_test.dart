@@ -87,5 +87,16 @@ void main() {
       expect(state.takeOut, isNull);
       expect(state.routeLengthKm, isNull);
     });
+
+    test('keeps state after listeners are removed', () {
+      final sub = container.listen(routePlanningProvider, (_, _) {});
+
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      expect(container.read(routePlanningProvider).planningMode, isTrue);
+
+      sub.close();
+
+      expect(container.read(routePlanningProvider).planningMode, isTrue);
+    });
   });
 }
