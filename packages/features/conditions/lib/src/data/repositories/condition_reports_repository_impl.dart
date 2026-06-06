@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:eddyscout_conditions/src/data/app_failure_mapper.dart';
 import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/condition_reports_repository.dart';
@@ -14,16 +13,11 @@ class ConditionReportsRepositoryImpl implements ConditionReportsRepository {
   FutureResult<List<ConditionReportListItem>, AppFailure> listReports(
     String launchId, {
     CancelToken? cancelToken,
-  }) async {
-    try {
-      final list = await callListConditionReports(
-        launchId: launchId,
-        cancelToken: cancelToken,
-      );
-      return Result.success(list);
-    } on Object catch (e, st) {
-      return Result.failure(mapToAppFailure(e, st));
-    }
+  }) {
+    return callListConditionReports(
+      launchId: launchId,
+      cancelToken: cancelToken,
+    );
   }
 
   @override
@@ -31,16 +25,11 @@ class ConditionReportsRepositoryImpl implements ConditionReportsRepository {
     required String launchId,
     bool forceRefresh = false,
     CancelToken? cancelToken,
-  }) async {
-    try {
-      final result = await callSummarizeLaunchReports(
-        launchId: launchId,
-        forceRefresh: forceRefresh,
-        cancelToken: cancelToken,
-      );
-      return Result.success(result);
-    } on Object catch (e, st) {
-      return Result.failure(mapToAppFailure(e, st));
-    }
+  }) {
+    return callSummarizeLaunchReports(
+      launchId: launchId,
+      forceRefresh: forceRefresh,
+      cancelToken: cancelToken,
+    );
   }
 }

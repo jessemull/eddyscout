@@ -20,7 +20,7 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 | `@riverpod` codegen migration | **Done** | Conditions, app shell, map, hydro (#20–#21, #23); routing providers in `packages/routing/` |
 | `packages/routing/` as live router | **Done** | `goRouterProvider` + redirects in routing package (#26) |
 | Result-based repos (conditions data layer) | **Done** | Repository impls return `Result<T, AppFailure>` |
-| Result-based providers & boundaries | **Wave 2** | Conditions providers/callables open; hydro load/parse **done** (`refactor/result-hydro-complete`); map catalog lookup **done** |
+| Result-based providers & boundaries | **Wave 2** | Conditions, hydro, map A2 **Done**; `ARCHITECTURE.md` Result row open |
 | Full feature layering (`presentation` / `domain` / `data`) | **Wave 3** | Most UI still in `apps/eddyscout/lib/screens/` — planned migration |
 | Integration tests (E2E) | **Done** | Token gate + map → launch detail; CI Linux deps (#22, #25, #27) |
 | CancelToken on HTTP / callables | **Done** (conditions) | Extend when adding new I/O in other features |
@@ -66,10 +66,10 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 
 #### A2 — `Result<T, AppFailure>` completion
 
-- [ ] **Conditions providers:** no `throw ConditionsLoadException` / `throw Exception` in providers; `AsyncError` carries `AppFailure`; UI reads `AppFailure` from `AsyncValue.error`
-- [ ] **Conditions callables:** `conditions_callables.dart` returns `Result` (or throws only inside repo impl after mapping); no raw `FirebaseAuthException` / `StateError` across boundaries
-- [ ] **Conditions service:** remove or isolate `loadUnwrapped` rethrow paths used by providers
-- [x] **Hydro:** `hydroGeoJsonLoader` + `riverRoutePlannerProvider` surface load/parse failures as `AppFailure` via `AsyncError` (`refactor/result-hydro-complete`)
+- [x] **Conditions providers:** no `throw ConditionsLoadException` / `throw Exception` in providers; `AsyncError` carries `AppFailure`; UI reads `AppFailure` from `AsyncValue.error`
+- [x] **Conditions callables:** `conditions_callables.dart` returns `Result` (or throws only inside repo impl after mapping); no raw `FirebaseAuthException` / `StateError` across boundaries
+- [x] **Conditions service:** remove or isolate `loadUnwrapped` rethrow paths used by providers
+- [x] **Hydro:** `hydroGeoJsonLoader` + `riverRoutePlannerProvider` surface load/parse failures as `AppFailure` via `AsyncError` (#32)
 - [x] **Map:** `launchPointByIdProvider` uses `Result` or `NotFoundFailure` — no `StateError` throw; unknown-id path tested
 - [ ] Update `docs/ARCHITECTURE.md` § Current implementation status — mark Result row **Done** when all above are `[x]`
 

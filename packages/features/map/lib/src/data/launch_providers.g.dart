@@ -9,21 +9,27 @@ part of 'launch_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Resolves a curated launch by id.
+///
+/// Throws [NotFoundFailure] when [id] is not in the catalog.
 
 @ProviderFor(launchPointById)
 final launchPointByIdProvider = LaunchPointByIdFamily._();
 
 /// Resolves a curated launch by id.
+///
+/// Throws [NotFoundFailure] when [id] is not in the catalog.
 
 final class LaunchPointByIdProvider
     extends
         $FunctionalProvider<
-          Result<LaunchPoint, AppFailure>,
-          Result<LaunchPoint, AppFailure>,
-          Result<LaunchPoint, AppFailure>
+          AsyncValue<LaunchPoint>,
+          LaunchPoint,
+          FutureOr<LaunchPoint>
         >
-    with $Provider<Result<LaunchPoint, AppFailure>> {
+    with $FutureModifier<LaunchPoint>, $FutureProvider<LaunchPoint> {
   /// Resolves a curated launch by id.
+  ///
+  /// Throws [NotFoundFailure] when [id] is not in the catalog.
   LaunchPointByIdProvider._({
     required LaunchPointByIdFamily super.from,
     required String super.argument,
@@ -47,24 +53,14 @@ final class LaunchPointByIdProvider
 
   @$internal
   @override
-  $ProviderElement<Result<LaunchPoint, AppFailure>> $createElement(
+  $FutureProviderElement<LaunchPoint> $createElement(
     $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
+  ) => $FutureProviderElement(pointer);
 
   @override
-  Result<LaunchPoint, AppFailure> create(Ref ref) {
+  FutureOr<LaunchPoint> create(Ref ref) {
     final argument = this.argument as String;
     return launchPointById(ref, argument);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Result<LaunchPoint, AppFailure> value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<Result<LaunchPoint, AppFailure>>(
-        value,
-      ),
-    );
   }
 
   @override
@@ -78,12 +74,14 @@ final class LaunchPointByIdProvider
   }
 }
 
-String _$launchPointByIdHash() => r'd32419bc264c8076c1377fbcff7e45571dde027f';
+String _$launchPointByIdHash() => r'2d8fb755172796694b54a3ace37e8d7701be45d9';
 
 /// Resolves a curated launch by id.
+///
+/// Throws [NotFoundFailure] when [id] is not in the catalog.
 
 final class LaunchPointByIdFamily extends $Family
-    with $FunctionalFamilyOverride<Result<LaunchPoint, AppFailure>, String> {
+    with $FunctionalFamilyOverride<FutureOr<LaunchPoint>, String> {
   LaunchPointByIdFamily._()
     : super(
         retry: null,
@@ -94,6 +92,8 @@ final class LaunchPointByIdFamily extends $Family
       );
 
   /// Resolves a curated launch by id.
+  ///
+  /// Throws [NotFoundFailure] when [id] is not in the catalog.
 
   LaunchPointByIdProvider call(String id) =>
       LaunchPointByIdProvider._(argument: id, from: this);

@@ -2,6 +2,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/data/firebase/conditions_callables.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -98,9 +99,9 @@ void main() {
         () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
       ).thenAnswer((_) async => result);
 
-      final text = await callSummarizeConditions({'launchId': 'test'});
+      final res = await callSummarizeConditions({'launchId': 'test'});
 
-      expect(text, 'Light wind.');
+      expect(res.valueOrNull, 'Light wind.');
       verify(() => functions.httpsCallable('summarizeConditions')).called(1);
     });
 
@@ -110,25 +111,29 @@ void main() {
         () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
       ).thenAnswer((_) async => result);
 
-      final text = await callSummarizeConditions({'launchId': 'test'});
+      final res = await callSummarizeConditions({'launchId': 'test'});
 
-      expect(text, 'Fallback ok.');
-    });
-
-    test('callSummarizeConditions throws when summary missing', () async {
-      when(() => result.data).thenReturn(<String, dynamic>{});
-      when(
-        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
-      ).thenAnswer((_) async => result);
-
-      expect(
-        () => callSummarizeConditions({'launchId': 'test'}),
-        throwsA(isA<StateError>()),
-      );
+      expect(res.valueOrNull, 'Fallback ok.');
     });
 
     test(
-      'callables rethrow non-unauthenticated FirebaseFunctionsException',
+      'callSummarizeConditions returns failure when summary missing',
+      () async {
+        when(() => result.data).thenReturn(<String, dynamic>{});
+        when(
+          () =>
+              callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+        ).thenAnswer((_) async => result);
+
+        final res = await callSummarizeConditions({'launchId': 'test'});
+
+        expect(res.isFailure, isTrue);
+        expect(res.errorOrNull, isA<AppFailure>());
+      },
+    );
+
+    test(
+      'callables map non-unauthenticated FirebaseFunctionsException to failure',
       () async {
         when(
           () =>
@@ -137,10 +142,11 @@ void main() {
           FirebaseFunctionsException(code: 'internal', message: 'nope'),
         );
 
-        await expectLater(
-          () => callSummarizeConditions({'launchId': 'test'}),
-          throwsA(isA<FirebaseFunctionsException>()),
-        );
+        final res = await callSummarizeConditions({'launchId': 'test'});
+
+        expect(res.isFailure, isTrue);
+        expect(res.errorOrNull, isA<UnexpectedFailure>());
+        expect(res.errorOrNull?.message, 'nope');
       },
     );
 
@@ -158,10 +164,10 @@ void main() {
         () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
       ).thenAnswer((_) async => result);
 
-      final list = await callListConditionReports(launchId: 'cathedral_park');
+      final res = await callListConditionReports(launchId: 'cathedral_park');
 
-      expect(list, hasLength(1));
-      expect(list.first.message, 'Choppy');
+      expect(res.valueOrNull, hasLength(1));
+      expect(res.valueOrNull!.first.message, 'Choppy');
       verify(() => functions.httpsCallable('listConditionReports')).called(1);
     });
 
@@ -175,9 +181,9 @@ void main() {
         () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
       ).thenAnswer((_) async => result);
 
-      final digest = await callSummarizeLaunchReports(launchId: 'sellwood');
+      final res = await callSummarizeLaunchReports(launchId: 'sellwood');
 
-      expect(digest.digestText, 'Quiet day.');
+      expect(res.valueOrNull?.digestText, 'Quiet day.');
       verify(() => functions.httpsCallable('summarizeLaunchReports')).called(1);
     });
 
@@ -199,19 +205,25 @@ void main() {
         return result;
       });
 
-      final text = await callSummarizeConditions({'launchId': 'test'});
+      final res = await callSummarizeConditions({'launchId': 'test'});
 
-      expect(text, 'Retry ok.');
+      expect(res.valueOrNull, 'Retry ok.');
       expect(calls, 2);
     });
 
-    test('callSummarizeConditions throws when cancel token is cancelled', () {
-      final token = CancelToken()..cancel('test');
+    test(
+      'callSummarizeConditions returns failure when cancel token cancelled',
+      () async {
+        final token = CancelToken()..cancel('test');
 
-      expect(
-        () => callSummarizeConditions({'launchId': 'test'}, cancelToken: token),
-        throwsA(isA<DioException>()),
-      );
-    });
+        final res = await callSummarizeConditions(
+          {'launchId': 'test'},
+          cancelToken: token,
+        );
+
+        expect(res.isFailure, isTrue);
+        expect(res.errorOrNull, isA<NetworkFailure>());
+      },
+    );
   });
 }

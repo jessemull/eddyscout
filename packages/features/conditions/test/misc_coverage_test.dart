@@ -3,7 +3,6 @@ import 'package:eddyscout_conditions/src/data/app_failure_mapper.dart';
 import 'package:eddyscout_conditions/src/data/conditions_http_provider.dart';
 import 'package:eddyscout_conditions/src/data/firebase/firebase_bootstrap.dart';
 import 'package:eddyscout_conditions/src/data/firebase/firebase_flags.dart';
-import 'package:eddyscout_conditions/src/domain/conditions_load_exception.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,12 +46,30 @@ void main() {
       final f = mapToAppFailure(Exception('boom'));
       expect(f, isA<UnexpectedFailure>());
     });
+
+    test('maps FormatException to UnexpectedFailure', () {
+      final f = mapToAppFailure(const FormatException('bad'));
+      expect(f, isA<UnexpectedFailure>());
+      expect(f.message, contains('could not read'));
+    });
+
+    test('maps StateError to UnexpectedFailure', () {
+      final f = mapToAppFailure(StateError('missing field'));
+      expect(f, isA<UnexpectedFailure>());
+      expect(f.message, contains('unexpected response'));
+    });
   });
 
   group('firebase flags/bootstrap', () {
     test('firebaseCallablesAvailable is false by default', () {
       expect(kUseFirebase, isFalse);
       expect(firebaseCallablesAvailable, isFalse);
+    });
+
+    test('FirebaseFlagsTestHooks can force callables available', () {
+      FirebaseFlagsTestHooks.firebaseCallablesAvailableOverride = true;
+      addTearDown(FirebaseFlagsTestHooks.reset);
+      expect(firebaseCallablesAvailable, isTrue);
     });
 
     test('FirebaseBootstrap hintForLastError returns null when unset', () {
@@ -92,12 +109,6 @@ void main() {
       );
       expect(snapshot.weather?.source, WeatherDataSource.nws);
       expect(snapshot.tides?.events.first.type, 'H');
-    });
-
-    test('ConditionsLoadException preserves failure', () {
-      const failure = NetworkFailure(message: 'x');
-      final ex = ConditionsLoadException(failure);
-      expect(ex.failure, failure);
     });
   });
 }

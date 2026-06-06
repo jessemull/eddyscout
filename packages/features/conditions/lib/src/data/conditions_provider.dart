@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/data/conditions_http_provider.dart';
 import 'package:eddyscout_conditions/src/data/conditions_service.dart';
-import 'package:eddyscout_conditions/src/domain/conditions_load_exception.dart';
+import 'package:eddyscout_conditions/src/data/provider_result.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/conditions_repository.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -36,8 +36,5 @@ Future<ConditionsSnapshot> conditionsSnapshot(
   final result = await ref
       .watch(conditionsRepositoryProvider)
       .load(launch, cancelToken: cancelToken);
-  return result.when(
-    success: (value) => value,
-    failure: (error) => throw ConditionsLoadException(error),
-  );
+  return unwrapResultForAsyncProvider(result);
 }

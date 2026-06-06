@@ -18,13 +18,13 @@ extension LaunchPointLookupOnWidgetRef on WidgetRef {
 }
 
 /// Resolves a curated launch by id.
+///
+/// Throws [NotFoundFailure] when [id] is not in the catalog.
 @Riverpod(keepAlive: true)
-Result<LaunchPoint, AppFailure> launchPointById(Ref ref, String id) {
+Future<LaunchPoint> launchPointById(Ref ref, String id) async {
   final launch = findLaunchPointById(id);
   if (launch == null) {
-    return Result.failure(
-      NotFoundFailure(message: 'No launch with id: $id'),
-    );
+    throw NotFoundFailure(message: 'No launch with id: $id');
   }
-  return Result.success(launch);
+  return launch;
 }

@@ -8,7 +8,6 @@ import 'package:eddyscout_conditions/src/data/parsing/nws_marine_cwf.dart';
 import 'package:eddyscout_conditions/src/data/parsing/nws_marine_json.dart';
 import 'package:eddyscout_conditions/src/data/parsing/open_meteo_json.dart';
 import 'package:eddyscout_conditions/src/data/parsing/usgs_iv_json.dart';
-import 'package:eddyscout_conditions/src/domain/conditions_load_exception.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/conditions_repository.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -53,21 +52,6 @@ class ConditionsService implements ConditionsRepository {
     } on Object catch (e, st) {
       return Result.failure(mapToAppFailure(e, st));
     }
-  }
-
-  /// Loads weather, tides, marine, and river flow for one [launch].
-  ///
-  /// Prefer [load] for package boundaries; this unwraps success or rethrows
-  /// [AppFailure] for legacy call sites.
-  Future<ConditionsSnapshot> loadSnapshot(
-    LaunchPoint launch, {
-    CancelToken? cancelToken,
-  }) async {
-    final result = await load(launch, cancelToken: cancelToken);
-    return result.when(
-      success: (value) => value,
-      failure: (error) => throw ConditionsLoadException(error),
-    );
   }
 
   Future<ConditionsSnapshot> _loadSnapshot(
