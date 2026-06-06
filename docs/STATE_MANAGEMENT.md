@@ -67,7 +67,7 @@ Future<ConditionsSnapshot> conditionsSnapshot(Ref ref, LaunchPoint launch) async
 }
 ```
 
-`disableProviderRetry` lives in `packages/features/conditions/lib/src/data/provider_retry.dart`. Do not pass inline lambdas to `@Riverpod(retry: …)` — the annotation constructor is `const`.
+`disableProviderRetry` lives in `packages/core/lib/src/provider_retry.dart`. Do not pass inline lambdas to `@Riverpod(retry: …)` — the annotation constructor is `const`.
 
 Sync notifier (refresh token):
 

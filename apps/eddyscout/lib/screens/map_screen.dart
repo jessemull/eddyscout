@@ -46,6 +46,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           MapUiCallbacks(
             pickDifferentTakeOutMessage: l10n.mapPickDifferentTakeOut,
             riverDataLoadingMessage: l10n.mapRiverDataLoading,
+            riverDataLoadFailedMessage: l10n.mapRiverDataUnavailable,
             showSnackBar: (message) {
               if (!context.mounted) {
                 return;
@@ -57,7 +58,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     code: code,
                     riverSystemName: riverSystemName,
                   ),
-                AppFailure(:final message) => message,
+                ParseFailure() => l10n.mapRiverDataReadFailed,
+                AssetLoadFailure() => l10n.mapRiverDataUnavailable,
                 String() => message,
                 _ => l10n.launchDetailUnavailable,
               };

@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/data/conditions_http_provider.dart';
 import 'package:eddyscout_conditions/src/data/conditions_service.dart';
-import 'package:eddyscout_conditions/src/data/provider_retry.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_load_exception.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/conditions_repository.dart';

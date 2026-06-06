@@ -154,6 +154,18 @@ abstract class AppLocalizations {
   /// **'Still loading river data… try again.'**
   String get mapRiverDataLoading;
 
+  /// No description provided for @mapRiverDataReadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'River route data could not be read.'**
+  String get mapRiverDataReadFailed;
+
+  /// No description provided for @mapRiverDataUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'River route data is unavailable.'**
+  String get mapRiverDataUnavailable;
+
   /// No description provided for @mapRouteFailureSameLaunch.
   ///
   /// In en, this message translates to:

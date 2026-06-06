@@ -6,13 +6,7 @@ AppFailure mapHydroToAppFailure(Object error, [StackTrace? stackTrace]) {
     return error;
   }
   if (error is FormatException) {
-    return StorageFailure(
-      message: 'River route data could not be read.',
-      stackTrace: stackTrace,
-    );
+    return ParseFailure(stackTrace: stackTrace);
   }
-  return StorageFailure(
-    message: 'River route data is unavailable.',
-    stackTrace: stackTrace,
-  );
+  return AssetLoadFailure(stackTrace: stackTrace);
 }
