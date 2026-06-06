@@ -18,16 +18,16 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 | Design system goldens + CI strategy | **Done** | Goldens on `macos-latest`; Ubuntu excludes `golden` tag |
 | Riverpod 3 (manual providers) | **Done** | PR #19 |
 | `@riverpod` codegen migration | **Done** | Conditions, app shell, map, hydro (#20–#21, #23); routing providers in `packages/routing/` |
-| `packages/routing/` as live router | **Done** | `goRouterProvider` + redirects in routing package; app overrides routes + launch validation (#26) |
+| `packages/routing/` as live router | **Done** | `goRouterProvider` + redirects in routing package (#26) |
 | Result-based repos (conditions data layer) | **Done** | Repository impls return `Result<T, AppFailure>` |
-| Result-based providers (conditions UI layer) | **Open** | Providers still `throw` on failure → wrong error types in `AsyncError` |
-| Result-based boundaries (map / hydro) | **Open** | Map throws `StateError`; hydro propagates raw parse/load exceptions |
-| Firebase callables (conditions) | **Open** | `conditions_callables.dart` still throws; repos catch — finish callable → Result at data boundary |
-| Full feature layering (`presentation` / `domain` / `data`) | **Deferred (B)** | Most UI in `apps/eddyscout/lib/screens/` |
-| Integration tests (E2E) | **Done** | Token gate + map → launch detail; CI Linux desktop deps (#22, #25, #27) |
+| Result-based providers & boundaries | **Wave 2** | Conditions providers/callables, hydro load/parse, map catalog lookup |
+| Full feature layering (`presentation` / `domain` / `data`) | **Wave 3** | Most UI still in `apps/eddyscout/lib/screens/` — planned migration |
+| Integration tests (E2E) | **Done** | Token gate + map → launch detail; CI Linux deps (#22, #25, #27) |
 | CancelToken on HTTP / callables | **Done** (conditions) | Extend when adding new I/O in other features |
 
-### Deferred until a product feature needs them
+### Implement alongside product features (not platform backlog)
+
+These are **not** wave 2/3 blockers — add when the feature that needs them ships:
 
 | Area | Trigger |
 |------|---------|
@@ -35,7 +35,6 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 | `StatefulShellRoute` / tab shell | Multi-tab navigation |
 | `CachedNetworkImage` | Remote image UI |
 | Session auth router guards | Protected routes beyond Mapbox token |
-| Bucket B screen migration | Feature forces `presentation/` package move |
 
 ---
 
@@ -48,7 +47,7 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 | #21 | A1 app-shell `@riverpod` |
 | #22 | A4 integration tests + docs |
 | #23 | A1 map + hydro `@riverpod` |
-| #24 | Fast git hooks + backlog doc |
+| #24 | Fast git hooks |
 | #25 | CI Linux integration deps |
 | #26 | A3 router → `packages/routing/` |
 | #27 | Integration l10n fix |
@@ -57,7 +56,7 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 
 ## Remaining work (checklist)
 
-### Bucket A — finish completely (wave 2)
+### Bucket A — wave 2 (finish completely)
 
 #### A1 — `@riverpod` codegen
 
@@ -71,7 +70,7 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 - [ ] **Conditions callables:** `conditions_callables.dart` returns `Result` (or throws only inside repo impl after mapping); no raw `FirebaseAuthException` / `StateError` across boundaries
 - [ ] **Conditions service:** remove or isolate `loadUnwrapped` rethrow paths used by providers
 - [ ] **Hydro:** `hydroGeoJsonLoader` + `riverRoutePlannerProvider` surface load/parse failures as `AppFailure` via `AsyncError`
-- [ ] **Map:** `launchPointByIdProvider` uses `Result` or `NotFoundFailure` — no `StateError` throw; unknown-id path tested
+- [x] **Map:** `launchPointByIdProvider` uses `Result` or `NotFoundFailure` — no `StateError` throw; unknown-id path tested
 - [ ] Update `docs/ARCHITECTURE.md` § Current implementation status — mark Result row **Done** when all above are `[x]`
 
 #### A3 — Router package
@@ -84,20 +83,26 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 
 - [x] Integration tests + CI (#22, #25, #27)
 - [x] `docs/CURSOR_CONSISTENCY_AUDIT.md` integration row (#22)
-- [ ] **Final doc sweep** after wave 2 merges: `ARCHITECTURE.md`, `CURSOR_CONSISTENCY_AUDIT.md` aspirational rows, this file — no stale “partial” language
+- [ ] **Final doc sweep** after wave 2 merges: `ARCHITECTURE.md`, `CURSOR_CONSISTENCY_AUDIT.md` aspirational rows, this file
 
-### Bucket B — defer
+### Bucket B — wave 3 (follow wave 2, before heavy Phase C)
 
-- [ ] Move `apps/eddyscout/lib/screens/*` into feature `presentation/` packages
-- [ ] Align `map` with full `presentation` / `domain` / `data` split
+Screen migration is **planned platform work**, not indefinite defer. Run after wave 2 merges to avoid conflicting with Result/router refactors.
+
+- [ ] **Conditions presentation:** `launch_detail_screen` + `launch_detail/*` → `packages/features/conditions/lib/src/presentation/`
+- [ ] **Map presentation:** `map_screen`, planning overlay, `map_planning` / `map_session` providers → `packages/features/map/lib/src/presentation/`
+- [ ] **Mapbox layer:** controller + mixins → map package (or documented app-shell exception with thin facade)
+- [ ] **App shell screens:** `missing_mapbox_token`, `web_map_placeholder` — stay in app or move to routing; `app_routes.dart` imports from packages
+- [ ] **Tests:** move/update `apps/eddyscout/test/screens/` to match package layout
+- [ ] **Docs:** `ARCHITECTURE.md` feature layering row → **Done**; Bucket B all `[x]`
 
 ---
 
-## Wave 2 — five parallel agents (complete slices)
+## Wave 2 — parallel agents (Bucket A code)
 
 Use **Cursor New Worktree** → branch from `main` → `/start <branch>` → **plan-first** (§4 in `~/.cursor/commands/start.md`).
 
-**Rule:** Each agent owns **one PR** that **fully closes** its checklist items. Do not merge with “partially done” notes.
+**Rule:** Each agent owns **one PR** that **fully closes** its checklist items.
 
 | Agent | Branch | Closes |
 |-------|--------|--------|
@@ -105,19 +110,36 @@ Use **Cursor New Worktree** → branch from `main` → `/start <branch>` → **p
 | 2 | `refactor/result-conditions-complete` | A2 conditions (all bullets) |
 | 3 | `refactor/result-hydro-complete` | A2 hydro bullet |
 | 4 | `refactor/result-map-complete` | A2 map bullet |
-| 5 | `docs/architecture-wave2-closeout` | A4 final sweep + this backlog accuracy |
+| 5 | `docs/architecture-wave2-closeout` | A4 final sweep + wave 2 backlog accuracy |
 
-**Merge order:** 1–4 in any order (minimal overlap); **5 last** (or rebase after 1–4 merge).
+**Merge order:** 1–4 in any order (minimal overlap); **5 last**.
 
 ---
 
-## After wave 2
+## Wave 3 — parallel agents (Bucket B — after wave 2)
 
-When all A1–A4 boxes are `[x]`:
+**Do not start until wave 2 is merged to `main`.** Phase C product work should target feature `presentation/` packages — wave 3 clears existing app-shell debt first.
 
-- **Architecture platform work is done** for now.
-- **Next work:** `docs/ROADMAP.md` Phase C (GPX, trip log, saved routes, moderation, etc.).
-- **Bucket B** only when a product feature forces screen migration.
+| Agent | Branch | Closes |
+|-------|--------|--------|
+| 1 | `refactor/presentation-conditions` | Conditions presentation slice + tests |
+| 2 | `refactor/presentation-map-ui` | Map screen, overlay, planning/session providers |
+| 3 | `refactor/presentation-mapbox` | Mapbox controller + mixins |
+| 4 | `refactor/presentation-app-shell` | Token/web screens + `app_routes` import cleanup |
+| 5 | `docs/architecture-wave3-closeout` | Bucket B all `[x]`, `ARCHITECTURE.md` layering row |
+
+**Merge order:** 1–3 can parallel; **4** after 1–2 (routes import new paths); **5** last.
+
+---
+
+## After wave 3
+
+When Bucket A + Bucket B are fully `[x]`:
+
+- **Platform architecture is complete** for the current target.
+- **Product work:** `docs/ROADMAP.md` Phase C (GPX, trip log, saved routes, moderation, etc.).
+- **New features:** build in `packages/features/<name>/presentation/` from day one.
+- **Infra deferrals:** implement `flutter_secure_storage`, tab shell, `CachedNetworkImage`, auth guards **with** the feature that needs them (see table above).
 
 ---
 
@@ -126,4 +148,5 @@ When all A1–A4 boxes are `[x]`:
 - Router: `packages/routing/lib/src/go_router_provider.dart`
 - App routes: `apps/eddyscout/lib/routing/app_routes.dart`
 - Conditions Result pattern: `launch_reports_digest_provider.dart`
+- App screens (wave 3 source): `apps/eddyscout/lib/screens/`
 - Integration tests: `apps/eddyscout/integration_test/`
