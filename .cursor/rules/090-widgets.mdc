@@ -8,7 +8,7 @@ alwaysApply: false
 
 These rules enforce **predictable UI structure, accessibility compliance, performance stability, and clean separation of concerns**.
 
-Primary screen widgets today live in `apps/eddyscout/lib/screens/` (app shell). Feature `presentation/` layers are the target for new UI owned by a feature package.
+Primary screen widgets live in feature `packages/features/*/presentation/` (or routing gate screens in `packages/routing/`). The app shell composes packages — it does not host feature screens.
 
 All widgets must remain:
 - composable

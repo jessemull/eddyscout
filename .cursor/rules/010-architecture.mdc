@@ -48,8 +48,8 @@ eddyscout/
 
 - [ ] every feature lives in its own package under `packages/features/`
 - [ ] shared concerns live in dedicated shared packages
-- [ ] app shell in `apps/eddyscout/` composes features (bootstrap, routing, screens) — see `docs/ARCHITECTURE.md`
-- [ ] screen-level UI may live in `apps/eddyscout/lib/screens/` until migrated into feature `presentation/` layers
+- [ ] app shell in `apps/eddyscout/` composes features (bootstrap, routing, provider overrides) — see `docs/ARCHITECTURE.md`
+- [ ] new UI lives in feature `presentation/` packages (or routing gate screens); do not add `apps/eddyscout/lib/screens/`
 
 ---
 
@@ -299,7 +299,7 @@ Allowed via:
 # 10. Related Cursor Skills
 
 - `feature-development`, `riverpod-usage` — `.cursor/skills/`
-- `docs/ARCHITECTURE.md`, `docs/CURSOR_CONSISTENCY_AUDIT.md`
+- `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` § Engineering standards
 
 ---
 

@@ -117,8 +117,8 @@ Example:
 packages/features/conditions/lib/src/data/conditions_provider.dart
 packages/features/conditions/test/...   # mirrors lib/ under test/
 
-apps/eddyscout/lib/screens/map_planning_provider.dart
-apps/eddyscout/test/screens/map_planning_provider_test.dart
+packages/features/map/lib/src/presentation/map_planning_provider.dart
+packages/features/map/test/src/presentation/map_planning_provider_test.dart
 ```
 
 ---

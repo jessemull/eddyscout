@@ -106,7 +106,7 @@ Rules:
 - `domain` depends on neither `presentation` nor `data`
 - `presentation` must never directly depend on data sources
 
-**App shell:** Screen widgets may live in `apps/eddyscout/lib/screens/` while feature packages mature. New UI SHOULD move toward feature `presentation/` when the feature owns the screen. See `docs/ARCHITECTURE.md` § Current implementation status.
+**App shell:** The app composes feature packages — bootstrap, routing, provider overrides. New UI belongs in feature `presentation/` (see `docs/ARCHITECTURE.md` § Current implementation status).
 
 **Routing:** Add path constants in `packages/routing/` (`RoutePaths`), typed routes in `apps/eddyscout/lib/routing/app_routes.dart`, and wire overrides in `main.dart` (`navigation-change` skill).
 

@@ -154,8 +154,9 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 | Integration tests | Critical journeys in `integration_test/` | Token gate + map → launch detail journey; CI `integration-test` job |
 | Secure storage | `flutter_secure_storage` for secrets | Not in pubspecs; `persistence` uses SharedPreferences for non-sensitive prefs |
 | Remote images | Sized + cached network images | No `CachedNetworkImage` usage yet |
+| CancelToken on HTTP / callables | All new I/O in features | **Done** in conditions; extend per `docs/NETWORKING.md` when adding I/O elsewhere |
 
-**New code** SHOULD move toward the target column. **Existing code** MAY migrate incrementally. Full audit trail: `docs/CURSOR_CONSISTENCY_AUDIT.md`.
+**New code** belongs in feature `presentation/` packages and must follow the engineering standards in `docs/ROADMAP.md` § Engineering standards.
 
 ---
 
