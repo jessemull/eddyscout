@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:eddyscout/screens/launch_detail_screen.dart';
 import 'package:eddyscout/screens/missing_mapbox_token_screen.dart';
 import 'package:eddyscout/screens/web_map_placeholder_screen.dart';
@@ -18,17 +20,17 @@ class MapRoute extends GoRouteData with $MapRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
+    void onOpenLaunchDetail(LaunchPoint launch) {
+      unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(context));
+    }
+
     if (_integrationMapStub) {
       return MapScreen(
         mapSlot: const SizedBox(key: Key('integration_map_stub')),
-        onOpenLaunchDetail: (launch) =>
-            LaunchDetailRoute(launchId: launch.id).push<void>(context),
+        onOpenLaunchDetail: onOpenLaunchDetail,
       );
     }
-    return MapScreen(
-      onOpenLaunchDetail: (launch) =>
-          LaunchDetailRoute(launchId: launch.id).push<void>(context),
-    );
+    return MapScreen(onOpenLaunchDetail: onOpenLaunchDetail);
   }
 }
 
