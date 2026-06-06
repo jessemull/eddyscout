@@ -1,4 +1,4 @@
-.PHONY: bootstrap analyze format test coverage coverage-check gen gen-check clean preflight ci setup run
+.PHONY: bootstrap analyze format test coverage coverage-check gen gen-check clean preflight ci setup run integration-test
 
 bootstrap:
 	./scripts/bootstrap.sh
@@ -41,3 +41,9 @@ setup:
 
 run:
 	$(MAKE) -C apps/eddyscout run ARGS="$(ARGS)"
+
+integration-test:
+	cd apps/eddyscout && flutter test integration_test/app_navigation_test.dart -d linux
+	cd apps/eddyscout && flutter test integration_test/map_launch_detail_journey_test.dart -d linux \
+		--dart-define=MAPBOX_ACCESS_TOKEN=pk.integration_test \
+		--dart-define=INTEGRATION_MAP_STUB=true

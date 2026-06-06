@@ -165,7 +165,7 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 | Auth redirects | Session/login guards when needed | Mapbox token + web platform redirects only |
 | Tab / shell nav | `StatefulShellRoute` when multi-tab | Single-stack typed routes |
 | Golden tests | Design system + stable layouts | Design system golden tests exist (e.g. `packages/design_system/test/goldens/app_theme_golden_test.dart`) |
-| Integration tests | Critical journeys in `integration_test/` | Starter integration test exists at `apps/eddyscout/integration_test/app_navigation_test.dart` |
+| Integration tests | Critical journeys in `integration_test/` | Token gate + map → launch detail journey; CI `integration-test` job |
 | Secure storage | `flutter_secure_storage` for secrets | Not in pubspecs; `persistence` uses SharedPreferences for non-sensitive prefs |
 | Remote images | Sized + cached network images | No `CachedNetworkImage` usage yet |
 

@@ -66,7 +66,7 @@
 | `@riverpod` codegen | Manual providers dominate | New providers SHOULD use `@riverpod`; migrate incrementally |
 | `Result<T, AppFailure>` at boundaries | Defined in `core`; features use raw async | New I/O at package boundaries SHOULD use `Result` |
 | Golden tests (design system) | `golden_toolkit` in app dev_deps; 0 golden tests | Required for new design-system widgets |
-| `integration_test/` | Not present | Add when implementing critical E2E journeys |
+| `integration_test/` | Map → launch detail journey + token gate | Expand when adding new critical E2E flows |
 | `StatefulShellRoute` | Not used | Required when adding tab shell navigation |
 | Session auth router guards | Token/web redirects only | Required when adding protected routes |
 | `flutter_secure_storage` | Not in pubspecs | Required when storing tokens/credentials |
@@ -78,11 +78,10 @@
 
 ## Code backlog (optional follow-up PRs)
 
-1. Add `integration_test/` for startup + map → launch detail journey.
-2. Add golden tests under `packages/design_system/test/goldens/`.
-3. Pilot `@riverpod` on one new or refactored provider.
-4. Adopt `Result` in one feature repository boundary.
-5. Move router assembly into `packages/routing` when route count grows.
+1. Add golden tests under `packages/design_system/test/goldens/`.
+2. Pilot `@riverpod` on one new or refactored provider.
+3. Adopt `Result` in one feature repository boundary.
+4. Move router assembly into `packages/routing` when route count grows.
 
 ---
 
