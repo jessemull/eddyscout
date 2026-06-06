@@ -1,4 +1,5 @@
 import 'package:eddyscout/routing/app_routes.dart';
+import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -12,7 +13,7 @@ void main() {
 
   group('MapRoute', () {
     test('location is root path', () {
-      expect(const MapRoute().location, '/');
+      expect(const MapRoute().location, RoutePaths.map);
     });
   });
 }

@@ -33,7 +33,7 @@ All navigation uses go_router. No exceptions.
 Define routes as annotated classes that generate type-safe extensions:
 
 ```dart
-@TypedGoRoute<LaunchDetailRoute>(path: '/launch/:launchId')
+@TypedGoRoute<LaunchDetailRoute>(path: RoutePaths.launchDetail)
 class LaunchDetailRoute extends GoRouteData {
   const LaunchDetailRoute({required this.launchId});
   final String launchId;
@@ -44,6 +44,8 @@ class LaunchDetailRoute extends GoRouteData {
   }
 }
 ```
+
+Path strings live in `packages/routing/lib/src/route_paths.dart` as `RoutePaths` constants so redirect logic in the routing package stays aligned with typed routes in the app shell.
 
 ### Benefits
 
@@ -89,16 +91,18 @@ Deep link parameters are untrusted input. Validate and sanitize before use. See 
 
 ## Auth guard patterns
 
-When authentication is added, route guards control access:
+When authentication is added, route guards belong in `packages/routing/lib/src/app_redirect.dart` (or a successor module), composed by `goRouterProvider`. Auth state should be read via `ref` inside `goRouterProvider` when the redirect callback needs reactive auth checks.
+
+Example redirect shape (future auth):
 
 ```dart
 GoRouter(
   redirect: (context, state) {
     final isLoggedIn = ref.read(authProvider).isLoggedIn;
-    final isLoginRoute = state.matchedLocation == '/login';
+    final isLoginRoute = state.matchedLocation == RoutePaths.login;
 
-    if (!isLoggedIn && !isLoginRoute) return '/login';
-    if (isLoggedIn && isLoginRoute) return '/';
+    if (!isLoggedIn && !isLoginRoute) return RoutePaths.login;
+    if (isLoggedIn && isLoginRoute) return RoutePaths.map;
     return null; // no redirect
   },
   routes: [ ... ],
@@ -145,34 +149,67 @@ StatefulShellRoute.indexedStack(
 
 ## Route ownership boundaries
 
-Each feature owns its routes. Routes are defined alongside the feature code, not in a monolithic router file.
+Router assembly lives in `packages/routing/`. Typed route classes that bind to app screens stay in the app shell until feature packages own their routes.
 
-### Structure
+### Structure (current)
 
 ```
-lib/
-├── features/
-│   ├── map/
-│   │   ├── routes/
-│   │   │   └── map_routes.dart    # MapRoute, LaunchDetailRoute
-│   │   └── screens/
-│   ├── profile/
-│   │   ├── routes/
-│   │   │   └── profile_routes.dart
-│   │   └── screens/
-│   └── conditions/
-│       ├── routes/
-│       │   └── conditions_routes.dart
-│       └── screens/
-└── app/
-    └── router.dart                # Composes feature routes into GoRouter
+packages/routing/
+├── lib/src/route_paths.dart         # RoutePaths — canonical path strings
+├── lib/src/app_redirect.dart        # initialAppLocation, appRedirect
+├── lib/src/go_router_provider.dart  # routesProvider, goRouterProvider
+└── lib/src/router_provider.dart     # createRouter factory
+
+apps/eddyscout/lib/routing/
+├── app_routes.dart                  # @TypedGoRoute GoRouteData + screen binding
+└── app_routes.g.dart                # generated $appRoutes
+
+apps/eddyscout/lib/main.dart         # ProviderScope override for routesProvider
 ```
 
 ### Rules
 
-1. Feature route files define `GoRouteData` subclasses for that feature's screens.
-2. The app-level `router.dart` composes feature routes into the final `GoRouter` instance.
-3. A feature must not reference another feature's route classes directly — use path strings for cross-feature navigation if needed.
+1. **Path constants** — add or change paths in `RoutePaths` first; reference them from `@TypedGoRoute` annotations in the app.
+2. **Typed routes** — `GoRouteData` subclasses in `apps/eddyscout/lib/routing/app_routes.dart` bind paths to app screens.
+3. **Router assembly** — `goRouterProvider` in `packages/routing/` composes `GoRouter` with redirects; the app supplies `$appRoutes` via `routesProvider` override in `ProviderScope`.
+4. **Cross-feature navigation** — a feature must not import another feature's route classes; use path strings or shared types in `packages/core/` when needed.
+
+### Target (incremental)
+
+Feature packages will eventually declare their own `GoRouteData` classes under `packages/features/<name>/`. The routing package will compose feature route lists; the app override pattern remains until all routes migrate.
+
+---
+
+## App integration
+
+The composition root wires typed routes into the shared router:
+
+```dart
+import 'package:eddyscout/routing/app_routes.dart';
+import 'package:eddyscout_routing/eddyscout_routing.dart';
+
+runApp(
+  ProviderScope(
+    overrides: [
+      routesProvider.overrideWithValue($appRoutes),
+      // ... other app overrides
+    ],
+    child: const EddyScoutApp(),
+  ),
+);
+
+class EddyScoutApp extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(goRouterProvider);
+    return MaterialApp.router(routerConfig: router, ...);
+  }
+}
+```
+
+`routesProvider` **must** be overridden before `goRouterProvider` is read; otherwise an `UnimplementedError` is thrown at runtime.
+
+`mapboxAccessToken` is exported from `eddyscout_routing` for Mapbox SDK initialization in `main.dart`.
 
 ---
 
@@ -180,12 +217,21 @@ lib/
 
 ### What to test
 
-1. **Route resolution:** given a path, the correct screen renders.
-2. **Typed route generation:** route `.location` produces the expected path string.
-3. **Redirects:** auth guards redirect correctly for logged-in / logged-out states.
+1. **Route resolution:** given a path, the correct screen renders (app widget/integration tests).
+2. **Typed route generation:** route `.location` produces the expected path string (`apps/eddyscout/test/routing/`).
+3. **Redirects:** platform, token, and invalid-parameter redirects (`packages/routing/test/`).
 4. **Deep links:** cold-start navigation to a deep link renders the correct screen.
 5. **Parameterized routes:** route parameters are correctly parsed and passed to screens.
 6. **Unknown routes:** unrecognized paths redirect to the fallback route.
+
+### Package vs app tests
+
+| Location | Scope |
+|----------|-------|
+| `packages/routing/test/go_router_provider_test.dart` | `goRouterProvider`, `appRedirect`, `initialAppLocation` |
+| `packages/routing/test/router_provider_test.dart` | `createRouter` factory |
+| `apps/eddyscout/test/routing/app_routes_test.dart` | Typed route `.location` encoding |
+| `apps/eddyscout/integration_test/` | End-to-end navigation smoke |
 
 ### Testing approach
 

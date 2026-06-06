@@ -6,6 +6,8 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # shellcheck source=_env.sh
 source "$SCRIPT_DIR/_env.sh"
 cd "$REPO_ROOT"
+# Git worktrees inject GIT_DIR into hooks; melos/dart then resolve Flutter SDK incorrectly.
+unset GIT_DIR GIT_WORK_TREE
 
 STAGED_ONLY=false
 CI_MODE=false

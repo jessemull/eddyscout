@@ -1,0 +1,60 @@
+import 'package:eddyscout_routing/eddyscout_routing.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+
+List<RouteBase> _testRoutes() => [
+  GoRoute(
+    path: RoutePaths.map,
+    builder: (_, state) => const SizedBox(),
+  ),
+  GoRoute(
+    path: RoutePaths.launchDetail,
+    builder: (_, state) => const SizedBox(),
+  ),
+  GoRoute(
+    path: RoutePaths.missingToken,
+    builder: (_, state) => const SizedBox(),
+  ),
+  GoRoute(
+    path: RoutePaths.web,
+    builder: (_, state) => const SizedBox(),
+  ),
+];
+
+ProviderContainer _routerContainer() {
+  final container = ProviderContainer(
+    overrides: [
+      routesProvider.overrideWithValue(_testRoutes()),
+    ],
+  );
+  addTearDown(container.dispose);
+  return container;
+}
+
+void main() {
+  test('goRouterProvider initial location without Mapbox token', () {
+    final container = _routerContainer();
+
+    final router = container.read(goRouterProvider);
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      RoutePaths.missingToken,
+    );
+  });
+
+  test('goRouterProvider throws without routesProvider override', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    expect(
+      () => container.read(goRouterProvider),
+      throwsA(
+        predicate(
+          (error) => error.toString().contains('Override routesProvider'),
+        ),
+      ),
+    );
+  });
+}

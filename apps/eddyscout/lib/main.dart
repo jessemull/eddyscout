@@ -1,8 +1,9 @@
-import 'package:eddyscout/routing/app_router_provider.dart';
+import 'package:eddyscout/routing/app_routes.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -35,6 +36,7 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       overrides: [
+        routesProvider.overrideWithValue($appRoutes),
         conditionReportsRepositoryProvider.overrideWithValue(
           const ConditionReportsRepositoryImpl(),
         ),

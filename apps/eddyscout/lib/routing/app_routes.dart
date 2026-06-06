@@ -4,12 +4,13 @@ import 'package:eddyscout/screens/missing_mapbox_token_screen.dart';
 import 'package:eddyscout/screens/web_map_placeholder_screen.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 part 'app_routes.g.dart';
 
-@TypedGoRoute<MapRoute>(path: '/')
+@TypedGoRoute<MapRoute>(path: RoutePaths.map)
 class MapRoute extends GoRouteData with $MapRoute {
   const MapRoute();
 
@@ -17,7 +18,7 @@ class MapRoute extends GoRouteData with $MapRoute {
   Widget build(BuildContext context, GoRouterState state) => const MapScreen();
 }
 
-@TypedGoRoute<LaunchDetailRoute>(path: '/launch/:launchId')
+@TypedGoRoute<LaunchDetailRoute>(path: RoutePaths.launchDetail)
 class LaunchDetailRoute extends GoRouteData with $LaunchDetailRoute {
   const LaunchDetailRoute({required this.launchId});
 
@@ -33,7 +34,7 @@ class LaunchDetailRoute extends GoRouteData with $LaunchDetailRoute {
   }
 }
 
-@TypedGoRoute<MissingMapboxTokenRoute>(path: '/missing-token')
+@TypedGoRoute<MissingMapboxTokenRoute>(path: RoutePaths.missingToken)
 class MissingMapboxTokenRoute extends GoRouteData
     with $MissingMapboxTokenRoute {
   const MissingMapboxTokenRoute();
@@ -43,7 +44,7 @@ class MissingMapboxTokenRoute extends GoRouteData
       const MissingMapboxTokenScreen();
 }
 
-@TypedGoRoute<WebMapPlaceholderRoute>(path: '/web')
+@TypedGoRoute<WebMapPlaceholderRoute>(path: RoutePaths.web)
 class WebMapPlaceholderRoute extends GoRouteData with $WebMapPlaceholderRoute {
   const WebMapPlaceholderRoute();
 
