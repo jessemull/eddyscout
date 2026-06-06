@@ -62,7 +62,9 @@ mixin MapboxMapMarkersMixin
       mapDebugLog('_installLaunchMarkersIfNeeded failed: $e\n$st');
     } finally {
       if (alive) {
-        ref.read(mapInteractiveProvider.notifier).state = true;
+        mapControllerRef
+            .read(mapInteractiveProvider.notifier)
+            .markInteractive();
       }
     }
   }

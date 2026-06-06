@@ -73,7 +73,7 @@ mixin MapboxMapCameraMixin on MapboxMapControllerBase, MapboxMapStyleMixin {
   /// Adjusts zoom when map chrome buttons are used.
   Future<void> nudgeZoomBy(double delta) async {
     final map = mapboxMap;
-    if (map == null || !ref.read(mapInteractiveProvider)) {
+    if (map == null || !mapControllerRef.read(mapInteractiveProvider)) {
       return;
     }
     try {
@@ -100,7 +100,7 @@ mixin MapboxMapCameraMixin on MapboxMapControllerBase, MapboxMapStyleMixin {
   /// Fits the viewport to all launch markers (map chrome action).
   Future<void> fitRegionFromChrome() async {
     final map = mapboxMap;
-    if (map == null || !ref.read(mapInteractiveProvider)) {
+    if (map == null || !mapControllerRef.read(mapInteractiveProvider)) {
       return;
     }
     await fitViewportToAllLaunches(map);

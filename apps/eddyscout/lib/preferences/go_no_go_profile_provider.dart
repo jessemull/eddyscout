@@ -1,22 +1,20 @@
 import 'package:eddyscout/preferences/key_value_store_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final goNoGoProfileRepositoryProvider = Provider<GoNoGoProfileRepository>((
-  ref,
-) {
+part 'go_no_go_profile_provider.g.dart';
+
+@riverpod
+GoNoGoProfileRepository goNoGoProfileRepository(Ref ref) {
   final store = ref.watch(keyValueStoreProvider).requireValue;
   return GoNoGoProfileRepositoryImpl(store);
-});
+}
+
+Duration? _goNoGoProfileRetry(int retryCount, Object error) => null;
 
 /// User skill profile for go/no-go wind thresholds.
-final goNoGoProfileProvider =
-    AsyncNotifierProvider<GoNoGoProfileNotifier, GoNoGoProfile>(
-      GoNoGoProfileNotifier.new,
-      retry: (_, _) => null,
-    );
-
-class GoNoGoProfileNotifier extends AsyncNotifier<GoNoGoProfile> {
+@Riverpod(name: 'goNoGoProfileProvider', retry: _goNoGoProfileRetry)
+class GoNoGoProfileNotifier extends _$GoNoGoProfileNotifier {
   @override
   Future<GoNoGoProfile> build() async {
     await ref.watch(keyValueStoreProvider.future);

@@ -43,6 +43,7 @@ dependencies:
   go_router: ^17.2.3
   json_annotation: ^4.9.0
   mapbox_maps_flutter: ^2.21.1
+  riverpod_annotation: ^4.0.2
   shared_preferences: ^2.3.3
 
 dev_dependencies:
@@ -56,6 +57,7 @@ dev_dependencies:
     sdk: flutter
   json_serializable: ^6.9.0
   mocktail: ^1.0.4
+  riverpod_generator: ^4.0.3
   very_good_analysis: ^10.2.0
 
 flutter:

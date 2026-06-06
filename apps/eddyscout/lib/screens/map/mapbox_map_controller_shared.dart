@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 /// Shared map session state for map controller mixins.
-abstract class MapboxMapControllerBase extends Notifier<void> {
+mixin MapboxMapControllerBase {
+  /// Implemented by the map controller notifier.
+  Ref get mapControllerRef;
   // Initialized with empty strings; the MapScreen binds localized values.
   MapUiCallbacks _ui = const MapUiCallbacks(
     pickDifferentTakeOutMessage: '',
@@ -72,13 +74,4 @@ abstract class MapboxMapControllerBase extends Notifier<void> {
   @protected
   set debugLastCameraChangeLogMs(int value) =>
       _debugLastCameraChangeLogMs = value;
-
-  @override
-  void build() {
-    alive = true;
-    ref.onDispose(() {
-      alive = false;
-      tapCancelable?.cancel();
-    });
-  }
 }
