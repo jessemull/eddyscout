@@ -3,7 +3,7 @@
 > **Purpose:** Single checklist for repo/platform architecture work (not product features).
 > **Product roadmap:** `docs/ROADMAP.md`
 > **Target architecture:** `docs/ARCHITECTURE.md`
-> **Last updated:** 2026-06-06
+> **Last updated:** 2026-06-06 · **Product phases:** `docs/ROADMAP.md` § Execution order
 
 Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partially done” rows left behind. Link PRs inline.
 
@@ -51,6 +51,8 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 | #25 | CI Linux integration deps |
 | #26 | A3 router → `packages/routing/` |
 | #27 | Integration l10n fix |
+| #28 | Wave 3 planning + map `launchPointByIdProvider` Result (#28 also shipped `4c799f0`) |
+| #29 | PR review skill output sections |
 
 ---
 
@@ -109,10 +111,10 @@ Use **Cursor New Worktree** → branch from `main` → `/start <branch>` → **p
 | 1 | `chore/riverpod-codegen-router` | A1 entirely |
 | 2 | `refactor/result-conditions-complete` | A2 conditions (all bullets) |
 | 3 | `refactor/result-hydro-complete` | A2 hydro bullet |
-| 4 | `refactor/result-map-complete` | A2 map bullet |
-| 5 | `docs/architecture-wave2-closeout` | A4 final sweep + wave 2 backlog accuracy |
+| 4 | `refactor/result-map-complete` | A2 map bullet — **mostly done** via #28 (`4c799f0`); branch should verify callers + close checklist only |
+| 5 | `docs/architecture-wave2-closeout` | A4 final sweep + wave 2 backlog accuracy + sync `ROADMAP.md` execution order |
 
-**Merge order:** 1–4 in any order (minimal overlap); **5 last**.
+**Merge order:** 1–4 in any order (minimal overlap); **5 last**. Skip or shorten agent 4 if map Result is already `[x]` on `main`.
 
 ---
 
@@ -137,9 +139,10 @@ Use **Cursor New Worktree** → branch from `main` → `/start <branch>` → **p
 When Bucket A + Bucket B are fully `[x]`:
 
 - **Platform architecture is complete** for the current target.
-- **Product work:** `docs/ROADMAP.md` Phase C (GPX, trip log, saved routes, moderation, etc.).
-- **New features:** build in `packages/features/<name>/presentation/` from day one.
+- **Product work:** `docs/ROADMAP.md` — **Execution order** step 3 (Phase C: GPX, trip log, saved routes, moderation, etc.).
+- **New features:** build in `packages/features/<name>/presentation/` from day one; do not add screens under `apps/eddyscout/lib/screens/`.
 - **Infra deferrals:** implement `flutter_secure_storage`, tab shell, `CachedNetworkImage`, auth guards **with** the feature that needs them (see table above).
+- **Roadmap hygiene:** keep `ROADMAP.md` § Recommended next implementation aligned when Phase C priorities shift.
 
 ---
 
