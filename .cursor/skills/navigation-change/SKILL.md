@@ -93,8 +93,11 @@ No string-based navigation is allowed for application routes.
 
 ## Router location (current repo)
 
-- **Today:** `GoRouter` and typed routes live in `apps/eddyscout/lib/routing/` (`app_routes.dart`, `app_router_provider.dart`). `packages/routing/` is a scaffold.
-- **Target:** compose feature route subtrees in `packages/routing/` per `docs/ARCHITECTURE.md`.
+- **Router assembly:** `packages/routing/` — `goRouterProvider`, `RoutePaths`, `resolveAppRedirect`
+- **Typed routes:** `apps/eddyscout/lib/routing/app_routes.dart` — `@TypedGoRoute` classes bound to app screens
+- **App wiring:** `main.dart` overrides `routesProvider` and `isKnownLaunchIdProvider` in `ProviderScope`
+
+See `docs/NAVIGATION.md` for the full split and override pattern.
 
 ---
 
@@ -154,9 +157,10 @@ Verify:
 
 ## GoRouter Setup
 
-- [ ] register route in app `GoRouter` config (`apps/eddyscout/lib/routing/app_router_provider.dart` today)
-- [ ] maintain correct nesting structure
-- [ ] ensure route hierarchy reflects feature hierarchy
+- [ ] add or update path in `packages/routing/lib/src/route_paths.dart` (`RoutePaths`)
+- [ ] define typed route in `apps/eddyscout/lib/routing/app_routes.dart` and run `make gen`
+- [ ] ensure `$appRoutes` includes the new route (generated from `app_routes.dart`)
+- [ ] wire app-specific validation in `main.dart` if the route needs injectable guards (e.g. `isKnownLaunchIdProvider`)
 
 ## Nesting Rules
 
@@ -201,7 +205,7 @@ Use when:
 
 # 5. Auth Guards & Route Protection
 
-> Apply this section when adding login, session, or role-protected routes. The current app uses Mapbox token and web platform redirects in `app_router_provider.dart`, not session auth.
+> Apply this section when adding login, session, or role-protected routes. The current app uses Mapbox token and web platform redirects in `packages/routing/lib/src/app_redirect.dart`, not session auth.
 
 ## Redirect Logic
 

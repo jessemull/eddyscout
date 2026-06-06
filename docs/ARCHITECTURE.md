@@ -15,7 +15,7 @@ eddyscout/
 │       ├── lib/
 │       │   ├── main.dart
 │       │   ├── screens/        # Screen-level widgets + Mapbox controller
-│       │   ├── routing/        # go_router typed routes + provider
+│       │   ├── routing/        # Typed go_router_builder routes (screen binding)
 │       │   ├── preferences/    # App-level Riverpod wiring for persistence
 │       │   └── debug/          # Debug-only utilities
 │       ├── test/               # App-level tests
@@ -27,7 +27,7 @@ eddyscout/
 │   ├── networking/             # Dio factory, interceptors, HTTP client
 │   ├── persistence/            # Key-value and structured storage abstractions
 │   ├── analytics/              # Analytics client interface
-│   ├── routing/                # go_router provider and route assembly (scaffold)
+│   ├── routing/                # GoRouter provider, RoutePaths, redirect logic
 │   ├── localization/           # ARB-based l10n
 │   └── features/
 │       ├── conditions/         # Conditions fetching, go/no-go, Firebase
@@ -50,7 +50,7 @@ eddyscout/
 | `packages/networking/` | Dio instance, interceptors, base HTTP client, response types | Feature data layers |
 | `packages/persistence/` | Secure storage wrapper, shared prefs abstraction | Feature data layers |
 | `packages/analytics/` | Analytics event abstraction, provider adapters | App and feature code |
-| `packages/routing/` | go_router configuration, typed routes, auth guards (scaffold) | App composition root |
+| `packages/routing/` | GoRouter assembly, `RoutePaths`, platform/token redirects | App composition root |
 | `packages/localization/` | ARB strings, generated `AppLocalizations` | Any package or app |
 | `packages/features/*` | Feature packages with `presentation/domain/data` layers | App imports barrels |
 | `tooling/` | Custom lint rules, build helpers, codegen scripts | Dev-time only |
@@ -64,9 +64,8 @@ The app shell is a **composition layer**: it wires feature packages together int
 
 | Path | Role |
 |------|------|
-| `main.dart` | `ProviderScope`, Firebase init, `MaterialApp.router` |
-| `routing/app_routes.dart` | Typed `go_router_builder` routes |
-| `routing/app_router_provider.dart` | `goRouterProvider`, token/web redirects |
+| `main.dart` | `ProviderScope` overrides (`routesProvider`, `isKnownLaunchIdProvider`), Firebase init, `MaterialApp.router` |
+| `routing/app_routes.dart` | Typed `go_router_builder` routes bound to app screens |
 | `screens/map_screen.dart` | Map composition; Mapbox widget host |
 | `screens/map/mapbox_map_controller.dart` | Mapbox lifecycle (`mapboxMapControllerProvider`) |
 | `screens/map/map_constants.dart` | Map style / camera constants |
@@ -161,7 +160,7 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 | Feature layering | `presentation` / `domain` / `data` per feature package | Partial: UI primarily in `apps/eddyscout/lib/screens/`; `map` is mostly data; `conditions` has domain + data + one presentation provider |
 | Riverpod codegen | `@riverpod` for new providers | Manual `FutureProvider`, `StateProvider`, `NotifierProvider`, `AsyncNotifier` throughout |
 | `Result<T, AppFailure>` | Package I/O boundaries | Type in `packages/core/`; feature I/O mostly raw `Future` / exceptions |
-| Router assembly | `packages/routing/` | Scaffold only; live router in `apps/eddyscout/lib/routing/` |
+| Router assembly | `packages/routing/` | `goRouterProvider` in package; app supplies `$appRoutes` and launch validation via `ProviderScope` overrides |
 | Auth redirects | Session/login guards when needed | Mapbox token + web platform redirects only |
 | Tab / shell nav | `StatefulShellRoute` when multi-tab | Single-stack typed routes |
 | Golden tests | Design system + stable layouts | Design system golden tests exist (e.g. `packages/design_system/test/goldens/app_theme_golden_test.dart`) |
@@ -195,7 +194,7 @@ apps/eddyscout
   ├── packages/networking          → core
   ├── packages/persistence         → core
   ├── packages/analytics           → core
-  ├── packages/routing             → core
+  ├── packages/routing             → flutter, flutter_riverpod, go_router
   ├── packages/localization        (standalone)
   ├── packages/features/conditions → core, networking, persistence
   ├── packages/features/map        → core
@@ -250,7 +249,7 @@ HTTP clients live in `packages/networking/`. Feature-specific HTTP wiring (provi
 
 ### Navigation
 
-App routes are defined in `apps/eddyscout/lib/routing/` (`app_routes.dart`, `app_router_provider.dart`). Shared router assembly may move to `packages/routing/` over time.
+Router assembly lives in `packages/routing/` (`goRouterProvider`, `RoutePaths`, `resolveAppRedirect`). Typed routes that bind paths to app screens live in `apps/eddyscout/lib/routing/app_routes.dart`. The app wires them together in `main.dart` via `routesProvider` and `isKnownLaunchIdProvider` overrides. See `docs/NAVIGATION.md`.
 
 ### Tests
 
@@ -274,6 +273,10 @@ packages/features/map/test/
 
 packages/core/test/
 ├── *.dart               # Result type tests
+
+packages/routing/test/
+├── app_redirect_test.dart
+├── go_router_provider_test.dart
 ```
 
 See `TESTING.md` for naming conventions and coverage requirements.

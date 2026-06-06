@@ -255,9 +255,10 @@ Allowed via:
 
 ## routing/
 
-- target: go_router provider and route assembly in `packages/routing/`
-- **today:** `packages/routing/` is a scaffold; live router is `apps/eddyscout/lib/routing/` (`app_routes.dart`, `app_router_provider.dart`)
-- composes typed routes into `GoRouter`; platform/token redirects live in app router
+- `RoutePaths`, `resolveAppRedirect`, and `goRouterProvider` in `packages/routing/`
+- typed routes and screen binding in `apps/eddyscout/lib/routing/app_routes.dart`
+- app overrides `routesProvider` and `isKnownLaunchIdProvider` in `main.dart`
+- platform/token redirects stay feature-agnostic via injectable launch-id validation
 
 ---
 
