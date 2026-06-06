@@ -214,7 +214,7 @@ Examples:
 
 # 7. Integration Testing Rules
 
-> **Current repo:** no `integration_test/` directory yet. Add under `apps/eddyscout/integration_test/` when implementing critical E2E flows.
+> **Current repo:** `apps/eddyscout/integration_test/` — token gate (`app_navigation_test.dart`) and map → launch detail journey (`map_launch_detail_journey_test.dart`). CI runs via the **Integration Test** job in `.github/workflows/ci.yml` (`xvfb-run`, `-d linux`, journey dart-defines). Local: `make integration-test` (macOS on Darwin, Linux elsewhere).
 
 ## When Required
 
@@ -225,9 +225,10 @@ Examples:
 
 ## Rules
 
-- [ ] run on real device/emulator
-- [ ] avoid mocking core app layers
-- [ ] isolate external services where possible
+- [ ] run on a desktop device target (`-d linux` in CI, `-d macos` or `-d linux` locally)
+- [ ] stub external services (Firebase reports, network) in harness overrides
+- [ ] use compile-time dart-defines for Mapbox token and map stub where needed
+- [ ] prefer localized strings via `integrationL10n(tester)` for assertions
 
 ---
 

@@ -67,8 +67,8 @@ Complete **Bucket A** before returning to product features. **Bucket B** is opti
 
 #### A4 — Tests & docs hygiene
 
-- [x] Expand `integration_test/` (map → launch detail journey)
-- [x] Sync `docs/CURSOR_CONSISTENCY_AUDIT.md` (remove stale backlog items)
+- [x] Expand `integration_test/` (map → launch detail journey) — [compare branch](https://github.com/jessemull/eddyscout/compare/main...test/integration-map-launch-detail)
+- [x] Sync `docs/CURSOR_CONSISTENCY_AUDIT.md` (remove stale backlog items) — same PR
 - [x] Enable GitHub Dependency graph (or adjust `dependency-review` workflow) — dependency graph enabled in repo settings
 
 ### Bucket B — full target layout (defer)
@@ -82,13 +82,14 @@ Complete **Bucket A** before returning to product features. **Bucket B** is opti
 
 ## Suggested PR sequence
 
-| PR | Scope | Bucket |
-|----|-------|--------|
-| 1 | `@riverpod` codegen — conditions package (refresh token + remaining providers) | A1 |
-| 2 | `Result` completion — conditions provider bridge + map/hydro boundaries | A2 |
-| 3 | Router → `packages/routing` + integration test expansion + doc sync | A3, A4 |
+| PR | Scope | Bucket | Notes |
+|----|-------|--------|-------|
+| 1 | `@riverpod` codegen — conditions package (refresh token + remaining providers) | A1 | |
+| 2 | `Result` completion — conditions provider bridge + map/hydro boundaries | A2 | |
+| 3 | Router → `packages/routing` | A3 | |
+| — | Integration tests + A4 docs hygiene | A4 | Shipped on `test/integration-map-launch-detail` |
 
-After PR 3, treat platform architecture as **done for now** and use `docs/ROADMAP.md` for product work. New code follows target patterns per `AGENTS.md`; no further migration sprints unless Bucket B is explicitly scheduled.
+After A1–A3, treat platform architecture as **done for now** and use `docs/ROADMAP.md` for product work. New code follows target patterns per `AGENTS.md`; no further migration sprints unless Bucket B is explicitly scheduled.
 
 ---
 

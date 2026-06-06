@@ -44,19 +44,19 @@ Every page/screen must have widget tests covering:
 >
 > CI runs both via the **Integration Test** job in `.github/workflows/ci.yml`.
 
-**Run locally** (requires a desktop device target, e.g. `-d linux` or `-d macos`):
+**Run locally** (requires a desktop device target):
 
 ```bash
 # Token gate (default compile — no Mapbox token)
 cd apps/eddyscout
-flutter test integration_test/app_navigation_test.dart -d linux
+flutter test integration_test/app_navigation_test.dart -d macos   # or -d linux
 
 # Map → launch detail journey
-flutter test integration_test/map_launch_detail_journey_test.dart -d linux \
+flutter test integration_test/map_launch_detail_journey_test.dart -d macos \
   --dart-define=MAPBOX_ACCESS_TOKEN=pk.integration_test \
   --dart-define=INTEGRATION_MAP_STUB=true
 
-# Or from repo root (Linux desktop):
+# Or from repo root (auto-selects macos on Darwin, linux on Linux):
 make integration-test
 ```
 

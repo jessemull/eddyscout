@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/eddyscout_integration_harness.dart';
+import 'helpers/integration_localizations.dart';
 
 const _mapboxAccessToken = String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
 const _usesIntegrationMapStub = bool.fromEnvironment('INTEGRATION_MAP_STUB');
@@ -27,20 +28,21 @@ void main() {
       await pumpEddyScoutApp(tester);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('EddyScout'), findsOneWidget);
+      final l10n = integrationL10n(tester);
+      expect(find.text(l10n.mapScreenTitle), findsOneWidget);
       expect(find.byKey(const Key('integration_map_stub')), findsOneWidget);
 
-      final mapContext = tester.element(find.text('EddyScout'));
+      final mapContext = tester.element(find.text(l10n.mapScreenTitle));
       await LaunchDetailRoute(launchId: launch.id).push<void>(mapContext);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.text(launch.name), findsOneWidget);
-      expect(find.text('Go / No-go (informational)'), findsOneWidget);
+      expect(find.text(l10n.launchDetailGoNoGoTitle), findsOneWidget);
 
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('EddyScout'), findsOneWidget);
+      expect(find.text(l10n.mapScreenTitle), findsOneWidget);
       expect(find.byKey(const Key('integration_map_stub')), findsOneWidget);
     },
     skip: _skipJourneyTest,

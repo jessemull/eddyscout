@@ -1,14 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:eddyscout/main.dart';
 import 'package:eddyscout/preferences/key_value_store_provider.dart';
-import 'package:eddyscout/routing/app_router_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,6 +31,31 @@ ConditionsSnapshot integrationCalmConditionsSnapshot({
       ),
 );
 
+/// Deterministic reports repository — no Firebase callables in E2E.
+class IntegrationConditionReportsRepository
+    implements ConditionReportsRepository {
+  const IntegrationConditionReportsRepository();
+
+  @override
+  FutureResult<List<ConditionReportListItem>, AppFailure> listReports(
+    String launchId, {
+    CancelToken? cancelToken,
+  }) async => const Result.success(<ConditionReportListItem>[]);
+
+  @override
+  FutureResult<LaunchReportsDigestResult, AppFailure> summarizeLaunchReports({
+    required String launchId,
+    bool forceRefresh = false,
+    CancelToken? cancelToken,
+  }) async => const Result.success(
+    LaunchReportsDigestResult(
+      digestText: '',
+      cached: false,
+      noReports: true,
+    ),
+  );
+}
+
 /// Shared overrides mirroring [main] plus deterministic conditions for E2E.
 Future<ProviderContainer> createIntegrationContainer({
   LaunchPoint? conditionsLaunch,
@@ -44,7 +69,7 @@ Future<ProviderContainer> createIntegrationContainer({
   return ProviderContainer(
     overrides: [
       conditionReportsRepositoryProvider.overrideWithValue(
-        const ConditionReportsRepositoryImpl(),
+        const IntegrationConditionReportsRepository(),
       ),
       hydroGeoJsonLoaderProvider.overrideWithValue(
         () => rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
@@ -72,6 +97,3 @@ Future<ProviderContainer> pumpEddyScoutApp(
   );
   return scope;
 }
-
-GoRouter readIntegrationRouter(ProviderContainer container) =>
-    container.read(goRouterProvider);
