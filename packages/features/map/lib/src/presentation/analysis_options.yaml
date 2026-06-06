@@ -1,0 +1,6 @@
+include: ../../../../../../tooling/analysis_options.feature.yaml
+
+# Migrated from app shell UI; not a published library API surface.
+linter:
+  rules:
+    public_member_api_docs: false

@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:eddyscout/main.dart';
 import 'package:eddyscout/preferences/key_value_store_provider.dart';
-import 'package:eddyscout/screens/map_session_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:flutter/services.dart';
@@ -91,6 +91,9 @@ Future<ProviderContainer> createIntegrationContainer() async {
       () => rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
     ),
     keyValueStoreProvider.overrideWith((ref) async => store),
+    goNoGoProfileRepositoryProvider.overrideWith(
+      (ref) => GoNoGoProfileRepositoryImpl(store),
+    ),
   ];
 
   if (_mapboxAccessToken.isNotEmpty) {
