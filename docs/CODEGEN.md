@@ -146,9 +146,10 @@ The conditions feature package is the first production consumer of `@riverpod` c
 `@Riverpod` is a `const` constructor — do **not** pass inline lambdas to `retry:`. Use a top-level function tear-off:
 
 ```dart
-Duration? _disableProviderRetry(int retryCount, Object error) => null;
+// packages/features/conditions/lib/src/data/provider_retry.dart
+Duration? disableProviderRetry(int retryCount, Object error) => null;
 
-@Riverpod(retry: _disableProviderRetry)
+@Riverpod(retry: disableProviderRetry)
 Future<ConditionsSnapshot> conditionsSnapshot(Ref ref, LaunchPoint launch) async { … }
 ```
 

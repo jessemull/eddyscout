@@ -135,7 +135,7 @@ final class ConditionsSnapshotProvider
     required ConditionsSnapshotFamily super.from,
     required LaunchPoint super.argument,
   }) : super(
-         retry: _disableProviderRetry,
+         retry: disableProviderRetry,
          name: r'conditionsSnapshotProvider',
          isAutoDispose: true,
          dependencies: null,
@@ -176,7 +176,7 @@ final class ConditionsSnapshotProvider
 }
 
 String _$conditionsSnapshotHash() =>
-    r'b40f4f8863ef1a9edd1cdbd6280aeccec123fc9c';
+    r'07e820ef687602b4c4e6b7d7a3ca1acfd895af71';
 
 /// Loads environmental conditions for a launch.
 
@@ -184,7 +184,7 @@ final class ConditionsSnapshotFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<ConditionsSnapshot>, LaunchPoint> {
   ConditionsSnapshotFamily._()
     : super(
-        retry: _disableProviderRetry,
+        retry: disableProviderRetry,
         name: r'conditionsSnapshotProvider',
         dependencies: null,
         $allTransitiveDependencies: null,

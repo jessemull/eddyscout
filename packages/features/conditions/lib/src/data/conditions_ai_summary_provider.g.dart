@@ -65,21 +65,30 @@ String _$conditionsAiSummaryRepositoryHash() =>
     r'4bed46a87a6a99ec7d11be53b6c8d6f4bd35233d';
 
 /// Notifier for the conditions AI summary card.
+///
+/// Keep-alive preserves card state when navigating away from launch detail
+/// and back within the same app session (matches pre-codegen behavior).
 
 @ProviderFor(ConditionsAiSummary)
 final conditionsAiSummaryProvider = ConditionsAiSummaryFamily._();
 
 /// Notifier for the conditions AI summary card.
+///
+/// Keep-alive preserves card state when navigating away from launch detail
+/// and back within the same app session (matches pre-codegen behavior).
 final class ConditionsAiSummaryProvider
     extends $NotifierProvider<ConditionsAiSummary, ConditionsAiSummaryState> {
   /// Notifier for the conditions AI summary card.
+  ///
+  /// Keep-alive preserves card state when navigating away from launch detail
+  /// and back within the same app session (matches pre-codegen behavior).
   ConditionsAiSummaryProvider._({
     required ConditionsAiSummaryFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
          name: r'conditionsAiSummaryProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -118,9 +127,12 @@ final class ConditionsAiSummaryProvider
 }
 
 String _$conditionsAiSummaryHash() =>
-    r'1a48b82b7fe5a651513424eb149b2d714610ae75';
+    r'dea0bf40b7132201527dde7ed83714985d3fa4f6';
 
 /// Notifier for the conditions AI summary card.
+///
+/// Keep-alive preserves card state when navigating away from launch detail
+/// and back within the same app session (matches pre-codegen behavior).
 
 final class ConditionsAiSummaryFamily extends $Family
     with
@@ -137,10 +149,13 @@ final class ConditionsAiSummaryFamily extends $Family
         name: r'conditionsAiSummaryProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   /// Notifier for the conditions AI summary card.
+  ///
+  /// Keep-alive preserves card state when navigating away from launch detail
+  /// and back within the same app session (matches pre-codegen behavior).
 
   ConditionsAiSummaryProvider call(String launchId) =>
       ConditionsAiSummaryProvider._(argument: launchId, from: this);
@@ -150,6 +165,9 @@ final class ConditionsAiSummaryFamily extends $Family
 }
 
 /// Notifier for the conditions AI summary card.
+///
+/// Keep-alive preserves card state when navigating away from launch detail
+/// and back within the same app session (matches pre-codegen behavior).
 
 abstract class _$ConditionsAiSummary
     extends $Notifier<ConditionsAiSummaryState> {

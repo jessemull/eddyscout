@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:eddyscout_conditions/src/data/provider_retry.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/condition_reports_refresh_token_provider.dart';
 import 'package:eddyscout_conditions/src/domain/condition_reports_repository_provider.dart';
@@ -7,17 +8,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 export '../presentation/launch_reports_digest_provider.dart'
     show
         LaunchReportsDigest,
+        LaunchReportsDigestNotifier,
         LaunchReportsDigestState,
         launchReportsDigestProvider;
 
 part 'condition_reports_provider.g.dart';
 
-Duration? _disableProviderRetry(int retryCount, Object error) => null;
-
 /// Recent paddler reports for a launch.
 ///
 /// Refetches when [conditionReportsRefreshTokenProvider] changes.
-@Riverpod(retry: _disableProviderRetry)
+@Riverpod(retry: disableProviderRetry)
 Future<List<ConditionReportListItem>> conditionReportsList(
   Ref ref,
   String launchId,

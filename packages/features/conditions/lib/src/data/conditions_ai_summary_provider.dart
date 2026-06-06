@@ -37,7 +37,10 @@ class ConditionsAiSummaryState {
 }
 
 /// Notifier for the conditions AI summary card.
-@riverpod
+///
+/// Keep-alive preserves card state when navigating away from launch detail
+/// and back within the same app session (matches pre-codegen behavior).
+@Riverpod(keepAlive: true)
 class ConditionsAiSummary extends _$ConditionsAiSummary {
   CancelToken? _activeCancelToken;
 

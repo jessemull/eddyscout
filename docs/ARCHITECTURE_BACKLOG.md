@@ -7,6 +7,8 @@
 
 Tick `- [ ]` → `- [x]` here when work ships. Link PRs inline when helpful.
 
+> **Note (PR `chore/riverpod-codegen-conditions`):** This file was restored from commit `a225e25` (it was absent on `main` at branch time). A1 checkboxes in that PR reflect conditions-package codegen only; app-shell provider migration remains open.
+
 ---
 
 ## Platform status (summary)

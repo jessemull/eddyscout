@@ -36,7 +36,7 @@ final class ConditionReportsListProvider
     required ConditionReportsListFamily super.from,
     required String super.argument,
   }) : super(
-         retry: _disableProviderRetry,
+         retry: disableProviderRetry,
          name: r'conditionReportsListProvider',
          isAutoDispose: true,
          dependencies: null,
@@ -77,7 +77,7 @@ final class ConditionReportsListProvider
 }
 
 String _$conditionReportsListHash() =>
-    r'78744affcca81116d9430aed45253109ec7e463a';
+    r'38767b1bfc656af9d94c349175f791d8660e9738';
 
 /// Recent paddler reports for a launch.
 ///
@@ -91,7 +91,7 @@ final class ConditionReportsListFamily extends $Family
         > {
   ConditionReportsListFamily._()
     : super(
-        retry: _disableProviderRetry,
+        retry: disableProviderRetry,
         name: r'conditionReportsListProvider',
         dependencies: null,
         $allTransitiveDependencies: null,

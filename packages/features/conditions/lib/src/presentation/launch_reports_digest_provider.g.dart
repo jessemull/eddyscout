@@ -9,21 +9,30 @@ part of 'launch_reports_digest_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Notifier for the launch reports digest card.
+///
+/// Keep-alive preserves card state when navigating away from launch detail
+/// and back within the same app session (matches pre-codegen behavior).
 
 @ProviderFor(LaunchReportsDigest)
 final launchReportsDigestProvider = LaunchReportsDigestFamily._();
 
 /// Notifier for the launch reports digest card.
+///
+/// Keep-alive preserves card state when navigating away from launch detail
+/// and back within the same app session (matches pre-codegen behavior).
 final class LaunchReportsDigestProvider
     extends $NotifierProvider<LaunchReportsDigest, LaunchReportsDigestState> {
   /// Notifier for the launch reports digest card.
+  ///
+  /// Keep-alive preserves card state when navigating away from launch detail
+  /// and back within the same app session (matches pre-codegen behavior).
   LaunchReportsDigestProvider._({
     required LaunchReportsDigestFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
          name: r'launchReportsDigestProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -62,9 +71,12 @@ final class LaunchReportsDigestProvider
 }
 
 String _$launchReportsDigestHash() =>
-    r'78a6bbe427663617a1d904a4a8bb5c290c930550';
+    r'b44fbe47ad1e87d0b2d51429a7e0bf9ae21ac014';
 
 /// Notifier for the launch reports digest card.
+///
+/// Keep-alive preserves card state when navigating away from launch detail
+/// and back within the same app session (matches pre-codegen behavior).
 
 final class LaunchReportsDigestFamily extends $Family
     with
@@ -81,10 +93,13 @@ final class LaunchReportsDigestFamily extends $Family
         name: r'launchReportsDigestProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   /// Notifier for the launch reports digest card.
+  ///
+  /// Keep-alive preserves card state when navigating away from launch detail
+  /// and back within the same app session (matches pre-codegen behavior).
 
   LaunchReportsDigestProvider call(String launchId) =>
       LaunchReportsDigestProvider._(argument: launchId, from: this);
@@ -94,6 +109,9 @@ final class LaunchReportsDigestFamily extends $Family
 }
 
 /// Notifier for the launch reports digest card.
+///
+/// Keep-alive preserves card state when navigating away from launch detail
+/// and back within the same app session (matches pre-codegen behavior).
 
 abstract class _$LaunchReportsDigest
     extends $Notifier<LaunchReportsDigestState> {
