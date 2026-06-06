@@ -10,7 +10,7 @@
 
 Riverpod is the **only** state management solution. No exceptions.
 
-> **Current codebase:** All providers in `eddyscout_conditions` use `@riverpod` codegen (see `docs/CODEGEN.md`). App-shell providers (`apps/eddyscout/lib/preferences/`, map session/planning, router) remain hand-written (`FutureProvider`, `NotifierProvider`, `AsyncNotifier`). **New** providers SHOULD use `@riverpod` codegen per below. See `docs/ARCHITECTURE.md` § Current implementation status.
+> **Current codebase:** Conditions, map, hydro, app-shell providers (`apps/eddyscout/lib/preferences/`, map session/planning, mapbox controller), and `packages/routing/` (`goRouterProvider` + DI tokens) use `@riverpod` codegen (see `docs/CODEGEN.md`). **New** providers SHOULD use `@riverpod` codegen per below. See `docs/ARCHITECTURE.md` § Current implementation status.
 
 ### Banned alternatives
 
