@@ -156,7 +156,7 @@ Read these docs when the task touches their domain:
 | `docs/UI.md` | widgets / UI states |
 | `docs/REVIEW.md` | PR review severity |
 | `docs/RELEASES.md` | release / versioning |
-| `docs/CURSOR_CONSISTENCY_AUDIT.md` | rules/skills vs. codebase gaps |
+| `docs/ROADMAP.md` | product roadmap + engineering standards when building features |
 
 ---
 

@@ -2,7 +2,7 @@
 
 High-level feature map for a PNW-focused kayak companion: **decision-first**, **local nuance**, **conditions fusion**, **honest safety framing**, and **Flutter + Mapbox** on the client. This document is a living plan; tick or adjust as you ship.
 
-> **Platform work:** **wave 2 is done** on `main`. Finish **wave 3** in `docs/ARCHITECTURE_BACKLOG.md` before heavy **Phase C** slices below. New product UI should land in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
+> **Platform:** target architecture is **complete** (waves 1–3 merged; see § Platform architecture). **Product work** is Phase C+ below. New UI belongs in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
 >
 > **Last updated:** 2026-06-06
 
@@ -92,15 +92,55 @@ flowchart TB
 
 ## Execution order
 
-Product phases (A–F below) assume **wave 3** in `docs/ARCHITECTURE_BACKLOG.md` is complete (wave 2 is done). Finish Bucket B screen migration before heavy Phase C slices — it prevents new UI debt in `apps/eddyscout/lib/screens/`.
+| Step | Work | Status |
+|------|------|--------|
+| 1 | **Platform waves 1–3** — monorepo, `@riverpod`, Result boundaries, router package, feature `presentation/` layering, app-shell closeout | **Done** (#19–#36, closeout) |
+| 2 | **Phase C+** — product slices in this file (GPX, saved routes, moderation, auth, …) | **Now** |
 
-| Step | Work | Doc | Status |
-|------|------|-----|--------|
-| 1 | **Wave 2** — Bucket A (`@riverpod` router, Result boundaries, doc sweep) | `ARCHITECTURE_BACKLOG.md` § Bucket A | **Done** (#28–#33, #31) |
-| 2 | **Wave 3** — Bucket B screen migration to feature `presentation/` | `ARCHITECTURE_BACKLOG.md` § Bucket B | **Now** |
-| 3 | **Phase C+** — product slices in this file (GPX, saved routes, moderation, …) | This file § Master checklist | After wave 3 |
+---
 
-**Infra deferrals** (`flutter_secure_storage`, tab shell, `CachedNetworkImage`, session auth guards) ship **with** the product feature that needs them — not as wave 2/3 blockers.
+## Platform architecture (complete)
+
+Target repo/platform architecture is **done** for the current design. Shipped highlights (do not re-open as platform waves):
+
+| Area | Notes |
+|------|-------|
+| Monorepo / melos / preflight / husky | Fast pre-commit; full gate on pre-push + CI (#24) |
+| Coverage gates | 85% thresholds in `tooling/coverage.yaml`; CI enforces |
+| Design system goldens + CI | Goldens on `macos-latest`; Ubuntu excludes `golden` tag |
+| `@riverpod` codegen | Conditions, map, hydro, app shell, `packages/routing/` (#20–#23, #30) |
+| Router package | `goRouterProvider`, redirects, gate screens in `packages/routing/` (#26, closeout) |
+| `Result<T, AppFailure>` | Conditions, hydro, map boundaries (#28, #32, #33) |
+| Feature layering | Conditions + map `presentation/`; token/web gates in routing (#35, #36, closeout) |
+| Integration tests (E2E) | Token gate + map → launch detail; CI Linux deps (#22, #25, #27) |
+
+**Canonical design reference:** `docs/ARCHITECTURE.md` (package graph, layering, current implementation status).
+
+---
+
+## Engineering standards (when building)
+
+Apply these **with** the product slice that needs them — not as standalone platform waves:
+
+| When you add… | Also do… |
+|---------------|----------|
+| **New Riverpod provider** | Use `@riverpod` codegen (`docs/CODEGEN.md`, `docs/STATE_MANAGEMENT.md`) |
+| **New package I/O** (HTTP, callables, file load) | Return `Result<T, AppFailure>` or surface typed `AppFailure` via `AsyncError`; wire `CancelToken` per `docs/NETWORKING.md` (conditions is the reference) |
+| **New user-facing screen** | Build in `packages/features/<name>/presentation/`; bind routes from `apps/eddyscout/lib/routing/app_routes.dart` |
+| **New design-system widget** | Add golden test (`docs/TESTING.md`; `packages/design_system/test/goldens/`) |
+| **New critical user journey** | Add or extend `apps/eddyscout/integration_test/` |
+| **Authentication / saved identity** | Add `flutter_secure_storage` for tokens/credentials; add session auth router guards beyond Mapbox token/web redirects (`docs/NAVIGATION.md`, `docs/SECURITY.md`) — see **(Phase C) Auth** below |
+| **Multi-tab navigation** | Use `StatefulShellRoute` (`docs/NAVIGATION.md`) |
+| **Remote image UI** | Use `CachedNetworkImage` sized to display dimensions (`docs/PERFORMANCE.md`) |
+
+### Infra bundled with product features
+
+| Product trigger | Engineering work |
+|-----------------|------------------|
+| **(Phase C) Auth** / saved routes needing identity | `flutter_secure_storage`, session router guards, auth feature package |
+| **Tab shell** (e.g. map + trips + profile) | `StatefulShellRoute`, shell routes in `packages/routing/` |
+| **(Phase D) Media** / trip cards with photos | `CachedNetworkImage`, image sizing, optional upload pipeline |
+| **New HTTP-heavy feature** | Extend `CancelToken` + `Result` pattern from conditions to that feature's repos |
 
 ---
 
@@ -108,11 +148,9 @@ Product phases (A–F below) assume **wave 3** in `docs/ARCHITECTURE_BACKLOG.md`
 
 ### Recommended next implementation
 
-**Now (platform):** **Wave 3** — five parallel agents in `ARCHITECTURE_BACKLOG.md` § Wave 3. Migrate `apps/eddyscout/lib/screens/` into feature `presentation/` packages (conditions, map, mapbox layer, app-shell routes).
+**Now (product — Phase C):** Prioritize **GPX export / trip log**, **saved routes (v1)**, and **route planner follow-ups** (more rivers, segment snap). **Moderation** for condition reports is an alternative early Phase C slice if community trust is the bottleneck.
 
-**Done (platform):** Wave 2 — `@riverpod` routing (#30), Result boundaries (#28, #32, #33), doc closeout (#31).
-
-**Then (product — Phase C):** Prioritize **GPX export / trip log**, **saved routes (v1)**, and **route planner follow-ups** (more rivers, segment snap). **Moderation** for condition reports is an alternative early Phase C slice if community trust is the bottleneck.
+**Done (platform):** Waves 1–3 — monorepo, `@riverpod`, Result boundaries, router package, feature presentation layering, app-shell closeout (#19–#36).
 
 **Already shipped (context):** Route preview (v1) — planning mode on the map, put-in / take-out from launches, polyline along bundled hydro GeoJSON (`assets/hydro/`; Willamette Portland reach first).
 
@@ -150,7 +188,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 
 ### Not yet
 
-> **Gate:** treat Phase C items below as **ready to implement** only after wave 3 in `docs/ARCHITECTURE_BACKLOG.md` is merged. Until then, use waves 2–3 branches for platform work.
+> **Gate:** Phase C items below are ready to implement — platform architecture is complete (§ Platform architecture).
 
 - [ ] **(Reports / mod)** Moderation — admin queue, TTL, keyword hold (optional report-abuse UX)
 - [x] **(Phase C)** Route preview on map — planning mode, put-in / take-out from existing launches, path along bundled open hydro LineStrings (`assets/hydro/`; Willamette Portland reach first); not navigation-grade
@@ -160,7 +198,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase C)** Saved routes (v1) — name/description, categories, favorites, notes, private by default
 - [ ] **(Phase C)** Saved routes metadata (v1) — difficulty, distance, time estimate, exposure, tide dependency, skill level
 - [ ] **(Phase C)** Route editing (v1) — add waypoint(s), drag points, multi-stop, loop routes
-- [ ] **(Phase C)** **Auth** when identity is required for saves
+- [ ] **(Phase C)** **Auth** when identity is required for saves — accounts, `flutter_secure_storage` for credentials, session router guards (see § Engineering standards)
 - [ ] **(Phase D)** Planned trips / trip intent
 - [ ] **(Phase D)** Moderation posture (policy + product, beyond technical queue above)
 - [ ] **(Phase D)** **Live pins** only with explicit privacy/product decision
@@ -194,7 +232,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 
 These themes in **Feature list (your themes + gaps)** are still largely **future** relative to what the checklist tracks explicitly:
 
-- **Map / discover:** skill & access **filters** on the map; **alerts** (flow/wind thresholds)
+- **Map / discover:** skill & access **filters** on the map; **alerts** (flow/wind thresholds); **tab shell** (`StatefulShellRoute`) when adding secondary top-level destinations
 - **Decide:** richer **time windows**; **cold water / safety UX** beyond the launch disclaimer
 - **On-water:** **User location + bearing** to waypoint; **offline** maps / cached conditions
 - **Data / trust:** **Access / permits / tribal** metadata + UI tags
@@ -205,7 +243,7 @@ Additional feature themes explicitly on the product roadmap but not fully itemiz
 - **Trip recording (GPS)** — record/pause/resume/background + distance/duration/speed; later wind/current/tide-adjusted metrics
 - **Live navigation** — on-route guidance, off-route detection, audible/vibration alerts, offline nav
 - **Offline support** — offline maps, offline routes, offline navigation, offline recording, background sync on reconnect
-- **Media** — photos/videos, trip cards, auto-generated summaries
+- **Media** — photos/videos, trip cards, auto-generated summaries (`CachedNetworkImage` when showing remote images; see § Engineering standards)
 - **Search & filtering** — route + launch search with facets (distance/difficulty/water type/wind protection/tide suitability/scenic)
 - **Gamification** — achievements, challenges, streaks
 
@@ -270,8 +308,7 @@ Attribute and comply with each provider’s terms in the app.
 
 ## How to use this file
 
-- **Platform vs product:** architecture waves and merge order live in `docs/ARCHITECTURE_BACKLOG.md`; product phases and feature checklist live here.
+- **Platform vs product:** shipped platform architecture is summarized in § Platform architecture; ongoing engineering rules in § Engineering standards; product phases and checklist live in the sections below.
 - Update the **Master implementation checklist** (`- [ ]` → `- [x]`) when you ship; keep **Recommended next implementation** and **Execution order** in sync when priorities change.
-- Before opening a Phase C PR, confirm wave 3 is done (or the slice is explicitly exempt — e.g. backend-only Firebase work).
 - Add **dates** or **PR links** inline next to items when helpful.
 - Trim the feature table above if you descope; keep **pillars** stable for narrative.

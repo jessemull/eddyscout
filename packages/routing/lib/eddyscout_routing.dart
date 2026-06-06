@@ -6,5 +6,7 @@ export 'src/app_redirect.dart';
 // twice (const in app_redirect.dart; @riverpod fn in go_router_provider.dart).
 export 'src/go_router_provider.dart'
     hide goRouter, isKnownLaunchId, mapboxAccessToken, routes;
+export 'src/presentation/missing_mapbox_token_screen.dart';
+export 'src/presentation/web_map_placeholder_screen.dart';
 export 'src/route_paths.dart';
 export 'src/router_provider.dart';

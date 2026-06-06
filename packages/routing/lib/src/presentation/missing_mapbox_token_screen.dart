@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 /// Shown when `MAPBOX_ACCESS_TOKEN` is missing at compile time.
 class MissingMapboxTokenScreen extends StatelessWidget {
+  /// Creates a missing Mapbox token gate screen.
   const MissingMapboxTokenScreen({super.key});
 
   @override

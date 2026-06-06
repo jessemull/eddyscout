@@ -302,7 +302,7 @@ MUST `n` · SHOULD `n` · NICE `n` · OUT OF SCOPE `n` · VERIFY `n`
 | Topic | Doc |
 |-------|-----|
 | Severity policy | `docs/REVIEW.md` |
-| Architecture | `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_BACKLOG.md` |
+| Architecture | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` § Engineering standards |
 | Riverpod | `docs/STATE_MANAGEMENT.md` |
 | Routes | `docs/NAVIGATION.md` |
 | Tests | `docs/TESTING.md` |

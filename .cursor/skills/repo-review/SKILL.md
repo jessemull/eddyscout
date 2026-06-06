@@ -20,7 +20,7 @@ description: >-
 
 **Review:** every package, source file, and test against governance and architecture — findings are repo-wide compliance gaps.
 
-**Not review:** PR description quality, commit message format, merge process, or re-litigating **planned** backlog work already tracked in `docs/ARCHITECTURE_BACKLOG.md` / `docs/ROADMAP.md` (use **[OUT OF SCOPE]** for those).
+**Not review:** PR description quality, commit message format, merge process, or re-litigating **planned** work already tracked in `docs/ROADMAP.md` (use **[OUT OF SCOPE]** for those).
 
 **vs `pr-review`:** use `pr-review` for branch/PR review; use this skill for full-repo audits. Same bullet format and tiers; repo review adds **Coverage** and uses **Ready / Needs work** verdict.
 
@@ -81,7 +81,7 @@ Read ALL mandatory docs — full repo review, all domains apply:
 | `AGENTS.md` | `docs/LOCALIZATION.md` |
 | `docs/GOVERNANCE.md` | `docs/DEPENDENCIES.md` |
 | `docs/ARCHITECTURE.md` | `docs/ERROR_HANDLING.md` |
-| `docs/ARCHITECTURE_BACKLOG.md` | `docs/ANALYTICS.md` |
+| `docs/ROADMAP.md` | `docs/ANALYTICS.md` |
 | `docs/STATE_MANAGEMENT.md` | `docs/CI_CD.md` |
 | `docs/TESTING.md` | `docs/RESPONSIVENESS.md` |
 | `docs/SECURITY.md` | `docs/THEMING.md` |
@@ -120,7 +120,7 @@ Assign every finding to exactly one bucket:
 | **[MUST]** | **Yes** | Repo-wide blocker: crash, security, architecture violation, CI failure, unsafe async, broken UX in shipped paths. |
 | **[SHOULD]** | **Yes** | Important fix before calling the repo healthy — tests, consistency, error handling, maintainability. Same actionability as MUST. |
 | **[NICE TO HAVE]** | **No** | Actionable polish in existing files: naming, `const`, small refactors. Does not block Ready. |
-| **[OUT OF SCOPE]** | **No** | Known gap **already scheduled** in `ARCHITECTURE_BACKLOG.md` / `ROADMAP.md` (e.g. wave 3 screen migration to feature `presentation/`) — not a new violation. Record so audit does not re-file planned work. |
+| **[OUT OF SCOPE]** | **No** | Known gap **already scheduled** in `ROADMAP.md` (Master checklist or § Engineering standards) — not a new violation. Record so review does not re-file planned work. |
 | **[VERIFY]** | **No** | Uncertainty; one **concrete** command or scenario — not a fix yet. |
 
 ### Severity hints (this repo)
@@ -130,7 +130,7 @@ Assign every finding to exactly one bucket:
 | **MUST** | Cross-feature import; hand-edited `*.g.dart`; secrets in source; `throw` across package boundary; missing error UI on user-facing async paths; `context` after `await` without `mounted` |
 | **SHOULD** | Missing test for critical path; l10n gap on user-facing string; `AsyncValue` error not handled; stale doc contradicting code |
 | **NICE TO HAVE** | Missing `const` in widget subtree; readability rename; minor duplication in same file |
-| **OUT OF SCOPE** | UI still in `apps/eddyscout/lib/screens/` while wave 3 (Bucket B) is open — scheduled migration, not a new layering violation |
+| **OUT OF SCOPE** | `flutter_secure_storage` / session auth guards not yet added — scheduled with **(Phase C) Auth** in `ROADMAP.md`, not a new gap |
 
 ---
 
@@ -382,7 +382,7 @@ Review **every error path** in the codebase.
 - [ ] Destructive actions confirmed everywhere
 - [ ] Errors logged appropriately everywhere (no PII/tokens)
 - [ ] All failures degrade gracefully
-- [ ] `Result<T, AppFailure>` at package I/O boundaries where adopted; no **new** raw `throw` across boundaries (full migration tracked in `ARCHITECTURE_BACKLOG.md` A2)
+- [ ] `Result<T, AppFailure>` at package I/O boundaries where adopted; no **new** raw `throw` across boundaries (platform migration complete — see `docs/ROADMAP.md` § Engineering standards)
 
 ---
 
@@ -685,7 +685,7 @@ Architecture · Riverpod · Testing · … (N/A: analytics, platform, …)
 
 ## [OUT OF SCOPE]
 
-- `path/to/file.dart:1` — <known gap>; scheduled in `ARCHITECTURE_BACKLOG.md` wave N / `ROADMAP.md` Phase X
+- `path/to/file.dart:1` — <known gap>; scheduled in `ROADMAP.md` Phase X or § Engineering standards
 
 (or `(no items)`)
 
@@ -721,7 +721,7 @@ MUST `n` · SHOULD `n` · NICE `n` · OUT OF SCOPE `n` · VERIFY `n`
 
 - **Needs work** — any **[MUST]** or **[SHOULD]** item (not `(no items)`)
 - **Ready** — **[MUST]** and **[SHOULD]** are `(no items)`; other sections may have items
-- **[OUT OF SCOPE]** backlog items do **not** block Ready if they are already tracked in `ARCHITECTURE_BACKLOG.md`
+- **[OUT OF SCOPE]** backlog items do **not** block Ready if they are already tracked in `ROADMAP.md`
 
 ### Bullet rules
 
@@ -747,7 +747,7 @@ MUST `n` · SHOULD `n` · NICE `n` · OUT OF SCOPE `n` · VERIFY `n`
 ## Anti-patterns (review process)
 
 - Skipping packages or files without listing them in **Coverage → Not reviewed**
-- Inflating planned backlog gaps to **[MUST]** — use **[OUT OF SCOPE]** when `ARCHITECTURE_BACKLOG.md` already tracks the work
+- Inflating planned backlog gaps to **[MUST]** — use **[OUT OF SCOPE]** when `ROADMAP.md` already tracks the work
 - Generic "add tests" without naming file and scenario
 - Style nits as **[MUST]** unless analyzer/CI fails — use **[NICE TO HAVE]**
 - Producing a different output shape than `pr-review` (this skill should feel like pr-review at repo scale)
@@ -760,7 +760,7 @@ MUST `n` · SHOULD `n` · NICE `n` · OUT OF SCOPE `n` · VERIFY `n`
 |-------|-----|
 | PR review (same output rules) | `.cursor/skills/pr-review/SKILL.md` |
 | Severity policy | `docs/REVIEW.md` |
-| Platform waves | `docs/ARCHITECTURE_BACKLOG.md` |
+| Platform architecture + engineering standards | `docs/ROADMAP.md` § Platform architecture, § Engineering standards |
 | Product phases | `docs/ROADMAP.md` |
 | Target vs today | `docs/ARCHITECTURE.md` § Current implementation status |
 | Tests | `docs/TESTING.md` |

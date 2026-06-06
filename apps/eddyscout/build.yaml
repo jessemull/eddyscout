@@ -7,7 +7,3 @@ targets:
       riverpod_generator|riverpod_generator:
         generate_for:
           - lib/preferences/key_value_store_provider.dart
-          - lib/preferences/go_no_go_profile_provider.dart
-          - lib/screens/map_session_provider.dart
-          - lib/screens/map_planning_provider.dart
-          - lib/screens/map/mapbox_map_controller.dart
