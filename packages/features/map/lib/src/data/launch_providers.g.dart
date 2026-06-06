@@ -16,8 +16,13 @@ final launchPointByIdProvider = LaunchPointByIdFamily._();
 /// Resolves a curated launch by id.
 
 final class LaunchPointByIdProvider
-    extends $FunctionalProvider<LaunchPoint, LaunchPoint, LaunchPoint>
-    with $Provider<LaunchPoint> {
+    extends
+        $FunctionalProvider<
+          Result<LaunchPoint, AppFailure>,
+          Result<LaunchPoint, AppFailure>,
+          Result<LaunchPoint, AppFailure>
+        >
+    with $Provider<Result<LaunchPoint, AppFailure>> {
   /// Resolves a curated launch by id.
   LaunchPointByIdProvider._({
     required LaunchPointByIdFamily super.from,
@@ -42,20 +47,23 @@ final class LaunchPointByIdProvider
 
   @$internal
   @override
-  $ProviderElement<LaunchPoint> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $ProviderElement<Result<LaunchPoint, AppFailure>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
-  LaunchPoint create(Ref ref) {
+  Result<LaunchPoint, AppFailure> create(Ref ref) {
     final argument = this.argument as String;
     return launchPointById(ref, argument);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(LaunchPoint value) {
+  Override overrideWithValue(Result<LaunchPoint, AppFailure> value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<LaunchPoint>(value),
+      providerOverride: $SyncValueProvider<Result<LaunchPoint, AppFailure>>(
+        value,
+      ),
     );
   }
 
@@ -70,12 +78,12 @@ final class LaunchPointByIdProvider
   }
 }
 
-String _$launchPointByIdHash() => r'4bd4b6304d0949ed05482e50b95604e98237560b';
+String _$launchPointByIdHash() => r'd32419bc264c8076c1377fbcff7e45571dde027f';
 
 /// Resolves a curated launch by id.
 
 final class LaunchPointByIdFamily extends $Family
-    with $FunctionalFamilyOverride<LaunchPoint, String> {
+    with $FunctionalFamilyOverride<Result<LaunchPoint, AppFailure>, String> {
   LaunchPointByIdFamily._()
     : super(
         retry: null,

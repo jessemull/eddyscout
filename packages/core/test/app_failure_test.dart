@@ -27,5 +27,11 @@ void main() {
       expect(storage.message, 'disk');
       expect(unexpected.message, 'boom');
     });
+
+    test('not found failure constructs and toString returns message', () {
+      const failure = NotFoundFailure(message: 'No launch with id: missing');
+      expect(failure.message, 'No launch with id: missing');
+      expect(failure.toString(), 'No launch with id: missing');
+    });
   });
 }

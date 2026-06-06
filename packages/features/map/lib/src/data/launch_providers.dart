@@ -19,10 +19,12 @@ extension LaunchPointLookupOnWidgetRef on WidgetRef {
 
 /// Resolves a curated launch by id.
 @Riverpod(keepAlive: true)
-LaunchPoint launchPointById(Ref ref, String id) {
+Result<LaunchPoint, AppFailure> launchPointById(Ref ref, String id) {
   final launch = findLaunchPointById(id);
   if (launch == null) {
-    throw StateError('No launch with id: $id');
+    return Result.failure(
+      NotFoundFailure(message: 'No launch with id: $id'),
+    );
   }
-  return launch;
+  return Result.success(launch);
 }
