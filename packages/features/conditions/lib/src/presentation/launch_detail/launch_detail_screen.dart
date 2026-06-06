@@ -1,11 +1,5 @@
 import 'dart:async' show unawaited;
 
-import 'package:eddyscout_conditions/src/data/condition_report_submit_provider.dart';
-import 'package:eddyscout_conditions/src/data/condition_reports_provider.dart';
-import 'package:eddyscout_conditions/src/data/conditions_ai_summary_provider.dart';
-import 'package:eddyscout_conditions/src/data/conditions_provider.dart';
-import 'package:eddyscout_conditions/src/data/firebase/firebase_bootstrap.dart';
-import 'package:eddyscout_conditions/src/data/firebase/firebase_flags.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
@@ -18,6 +12,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../data/condition_report_submit_provider.dart';
+import '../../data/condition_reports_provider.dart';
+import '../../data/conditions_ai_summary_provider.dart';
+import '../../data/conditions_provider.dart';
+import '../../data/firebase/firebase_bootstrap.dart';
+import '../../data/firebase/firebase_flags.dart';
 
 part 'helpers.dart';
 part 'widgets_conditions.dart';

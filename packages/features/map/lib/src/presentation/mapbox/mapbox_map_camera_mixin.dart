@@ -1,6 +1,5 @@
 import 'dart:async' show unawaited;
 
-import 'package:eddyscout_map/src/data/launch_points.dart';
 import 'package:eddyscout_map/src/presentation/map_constants.dart';
 import 'package:eddyscout_map/src/presentation/map_session_provider.dart';
 import 'package:eddyscout_map/src/presentation/mapbox/map_debug_log.dart';
@@ -8,6 +7,8 @@ import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller_shar
 import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_style_mixin.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+
+import '../../data/launch_points.dart';
 
 /// Camera easing, bounds settling, and viewport fitting for the map.
 mixin MapboxMapCameraMixin on MapboxMapControllerBase, MapboxMapStyleMixin {

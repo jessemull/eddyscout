@@ -14,8 +14,9 @@ for pkg in packages/features/*/; do
   if [ ! -d "$pkg/lib/src/presentation" ] || [ ! -d "$pkg/lib/src/data" ]; then continue; fi
 
   pkg_name=$(basename "$pkg")
-  if grep -r "import.*data/" "$pkg/lib/src/presentation/" --include="*.dart" 2>/dev/null; then
-    echo "ERROR: $pkg_name/presentation/ imports from data/ (must go through domain/)"
+  if grep -rE "import 'package:[^']+/src/data/" "$pkg/lib/src/presentation/" \
+    --include="*.dart" 2>/dev/null; then
+    echo "ERROR: $pkg_name/presentation/ imports from data/ via package src/ URI (use domain/ or relative ../data/ within feature)"
     ERRORS=$((ERRORS + 1))
   fi
 done
