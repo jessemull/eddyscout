@@ -38,7 +38,29 @@ Every page/screen must have widget tests covering:
 - **Location**: `integration_test/` (typically under `apps/eddyscout/`)
 - **Runner**: `integration_test` package
 
-> **Current repo:** has a starter integration test at `apps/eddyscout/integration_test/app_navigation_test.dart`. Expand coverage as critical E2E journeys are implemented (see `docs/ARCHITECTURE.md` § Current implementation status).
+> **Current repo:** integration tests at `apps/eddyscout/integration_test/`:
+> - `app_navigation_test.dart` — missing Mapbox token gate (no dart-defines)
+> - `map_launch_detail_journey_test.dart` — map → launch detail → back (requires dart-defines below)
+>
+> CI runs both via the **Integration Test** job in `.github/workflows/ci.yml`.
+
+**Run locally** (requires a desktop device target):
+
+```bash
+# Token gate (default compile — no Mapbox token)
+cd apps/eddyscout
+flutter test integration_test/app_navigation_test.dart -d macos   # or -d linux
+
+# Map → launch detail journey
+flutter test integration_test/map_launch_detail_journey_test.dart -d macos \
+  --dart-define=MAPBOX_ACCESS_TOKEN=pk.integration_test \
+  --dart-define=INTEGRATION_MAP_STUB=true
+
+# Or from repo root (auto-selects macos on Darwin, linux on Linux):
+make integration-test
+```
+
+CI uses `xvfb-run` with `-d linux` on Ubuntu. The journey test uses `INTEGRATION_MAP_STUB` so Mapbox platform views are replaced with a widget stub on headless CI. Navigation to launch detail mirrors production (`LaunchDetailRoute.push`) because map markers are native Mapbox annotations and are not tappable via Flutter finders.
 
 Required for:
 - App startup flow

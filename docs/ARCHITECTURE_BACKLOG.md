@@ -7,7 +7,7 @@
 
 Tick `- [ ]` → `- [x]` here when work ships. Link PRs inline when helpful.
 
-> **Note (PR `chore/riverpod-codegen-conditions`):** This file was restored from commit `a225e25` (it was absent on `main` at branch time). A1 checkboxes in that PR reflect conditions-package codegen only; app-shell provider migration remains open.
+> **Note (PR `chore/riverpod-codegen-conditions`):** This file was restored from commit `a225e25` (it was absent on `main` at branch time). Conditions-package A1 checkboxes shipped in PR #20; app-shell codegen (except router) in PR #21.
 
 ---
 
@@ -20,11 +20,11 @@ Tick `- [ ]` → `- [x]` here when work ships. Link PRs inline when helpful.
 | Design system goldens + CI strategy | **Done** | Goldens on `macos-latest`; Ubuntu excludes `golden` tag |
 | Riverpod 3 (manual providers) | **Done** | Merged PR #19 (`chore/riverpod3-codegen-foundation`) |
 | Result-based repos + DI layering (conditions) | **Partial** | Domain repo contracts + data impls + app binding; providers still bridge via exceptions |
-| `@riverpod` codegen migration | **Partial (conditions)** | All providers in `eddyscout_conditions`; app-shell providers still manual |
+| `@riverpod` codegen migration | **Partial** | Conditions + app shell (`preferences/`, map planning/session, mapbox controller); app routing still manual |
 | Full feature layering (`presentation` / `domain` / `data` in packages) | **Partial** | Conditions has domain + data + one presentation provider; most UI in `apps/eddyscout/lib/screens/` |
 | `packages/routing/` as live router | **Scaffold only** | Live router in `apps/eddyscout/lib/routing/` |
 | `Result<T, AppFailure>` everywhere | **Partial** | Conditions repository boundaries only; `map` / `hydro_routing` not migrated |
-| Integration tests (E2E) | **Partial** | Starter at `apps/eddyscout/integration_test/app_navigation_test.dart` |
+| Integration tests (E2E) | **Done** | Token gate + map → launch detail journey in `apps/eddyscout/integration_test/`; CI `integration-test` job |
 | CancelToken on HTTP / callables | **Done** (conditions) | Extend when adding new I/O in other features |
 
 ### Deferred until a product feature needs them
@@ -49,7 +49,7 @@ Complete **Bucket A** before returning to product features. **Bucket B** is opti
 - [x] Add `riverpod_annotation` / `riverpod_generator` + `build.yaml` to packages that own providers (start with `eddyscout_conditions`)
 - [x] Migrate `condition_reports_refresh_token_provider` (pilot → production)
 - [x] Migrate remaining conditions providers to `@riverpod`
-- [ ] Migrate app-shell providers (`go_no_go_profile`, `map_planning`, `map_session`, router, etc.)
+- [ ] Migrate app-shell providers (`go_no_go_profile`, `map_planning`, `map_session`, router, etc.) — partial: PR #21; `goRouterProvider` still manual
 - [x] Run `make gen`; update tests for generated provider names
 - [x] Update `docs/CODEGEN.md` for conditions `@riverpod` codegen
 - [x] Update `docs/STATE_MANAGEMENT.md`
@@ -70,9 +70,9 @@ Complete **Bucket A** before returning to product features. **Bucket B** is opti
 
 #### A4 — Tests & docs hygiene
 
-- [ ] Expand `integration_test/` (map → launch detail journey)
-- [x] Sync `docs/CURSOR_CONSISTENCY_AUDIT.md` (remove stale backlog items)
-- [ ] Enable GitHub Dependency graph (or adjust `dependency-review` workflow) — ops, not code
+- [x] Expand `integration_test/` (map → launch detail journey) — [compare branch](https://github.com/jessemull/eddyscout/compare/main...test/integration-map-launch-detail)
+- [x] Sync `docs/CURSOR_CONSISTENCY_AUDIT.md` (remove stale backlog items) — same PR
+- [x] Enable GitHub Dependency graph (or adjust `dependency-review` workflow) — dependency graph enabled in repo settings
 
 ### Bucket B — full target layout (defer)
 
@@ -85,13 +85,15 @@ Complete **Bucket A** before returning to product features. **Bucket B** is opti
 
 ## Suggested PR sequence
 
-| PR | Scope | Bucket |
-|----|-------|--------|
-| 1 | `@riverpod` codegen — conditions package (refresh token + remaining providers) | A1 |
-| 2 | `Result` completion — conditions provider bridge + map/hydro boundaries | A2 |
-| 3 | Router → `packages/routing` + integration test expansion + doc sync | A3, A4 |
+| PR | Scope | Bucket | Notes |
+|----|-------|--------|-------|
+| 1 | `@riverpod` codegen — conditions package | A1 | Merged #20 |
+| 2 | `@riverpod` codegen — app shell (excl. router) | A1 | Merged #21 |
+| 3 | `Result` completion — conditions provider bridge + map/hydro boundaries | A2 | |
+| 4 | Router → `packages/routing` | A3 | |
+| — | Integration tests + A4 docs hygiene | A4 | Shipped on `test/integration-map-launch-detail` |
 
-After PR 3, treat platform architecture as **done for now** and use `docs/ROADMAP.md` for product work. New code follows target patterns per `AGENTS.md`; no further migration sprints unless Bucket B is explicitly scheduled.
+After A2–A3 (and any remaining A1 router codegen), treat platform architecture as **done for now** and use `docs/ROADMAP.md` for product work. New code follows target patterns per `AGENTS.md`; no further migration sprints unless Bucket B is explicitly scheduled.
 
 ---
 
@@ -100,4 +102,5 @@ After PR 3, treat platform architecture as **done for now** and use `docs/ROADMA
 - Pilot: `docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`
 - Conditions repos: `packages/features/conditions/lib/src/domain/repositories/`
 - Live router: `apps/eddyscout/lib/routing/app_router_provider.dart`
+- Integration tests: `apps/eddyscout/integration_test/`
 - Cursor audit (rules alignment): `docs/CURSOR_CONSISTENCY_AUDIT.md`
