@@ -130,15 +130,37 @@ The part file name must exactly match the source file name with the appropriate 
 - Run `dart pub get` before `build_runner` to ensure dependency alignment.
 - Verify you committed from a clean generation state, not a partial one.
 
-## Riverpod codegen pilot
+## Riverpod codegen in `eddyscout_conditions`
 
-The first `@riverpod` migration target is the conditions refresh token. A reference implementation lives at:
+The conditions feature package is the first production consumer of `@riverpod` codegen.
 
-`docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`
+### Setup
 
-Production code uses a manual `AutoDisposeNotifier` in `packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart` because:
+1. **`riverpod_annotation`** in `dependencies`; **`riverpod_generator`** in `dev_dependencies` ([`packages/features/conditions/pubspec.yaml`](../packages/features/conditions/pubspec.yaml)).
+2. Register provider source files under `riverpod_generator.generate_for.include` in [`packages/features/conditions/build.yaml`](../packages/features/conditions/build.yaml) (alongside existing `freezed` / `json_serializable` scopes).
+3. Annotate providers with `@riverpod` or `@Riverpod(...)`; add `part '<file>.g.dart';` to each source file.
+4. Run `make gen` from the repo root (or `dart run build_runner build` in the package).
 
-1. `riverpod_generator` 2.x conflicts with the workspace `source_gen: 4.2.0` override (see `docs/ARCHITECTURE.md`).
-2. `riverpod_generator` 3.x + `riverpod_annotation` 3.x require `flutter_riverpod` 3.x workspace-wide (Riverpod 2 and 3 cannot be mixed in one melos workspace).
+### Retry on future providers
 
-**Migration path (when ready):** bump `flutter_riverpod` to `^3.2.0` in every package that depends on it, add `riverpod_annotation` / `riverpod_generator` to `eddyscout_conditions`, copy the pilot into `condition_reports_refresh_token_provider.dart`, register the file in `build.yaml`, run `make gen`, and fix Riverpod 3 API migrations (`FamilyNotifier` → codegen families, etc.).
+`@Riverpod` is a `const` constructor — do **not** pass inline lambdas to `retry:`. Use a top-level function tear-off:
+
+```dart
+Duration? _disableProviderRetry(int retryCount, Object error) => null;
+
+@Riverpod(retry: _disableProviderRetry)
+Future<ConditionsSnapshot> conditionsSnapshot(Ref ref, LaunchPoint launch) async { … }
+```
+
+### Pilot reference
+
+The refresh-token pilot at [`docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`](examples/condition_reports_refresh_token_provider.riverpod_pilot.dart) is implemented in production at [`packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart`](../packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart).
+
+### Prerequisites (resolved)
+
+- Workspace-wide `flutter_riverpod` 3.x (merged PR #19).
+- `riverpod_generator` 4.x works with the workspace `source_gen: 4.2.0` override.
+
+### Next packages
+
+App-shell providers (`apps/eddyscout/lib/preferences/`, map session/planning, router) remain manual until a follow-up migration PR.

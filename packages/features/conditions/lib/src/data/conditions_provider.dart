@@ -5,38 +5,41 @@ import 'package:eddyscout_conditions/src/domain/conditions_load_exception.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/conditions_repository.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'conditions_provider.g.dart';
+
+Duration? _disableProviderRetry(int retryCount, Object error) => null;
 
 /// Shared conditions repository (HTTP-backed [ConditionsService]).
-final Provider<ConditionsService> conditionsServiceProvider =
-    Provider<ConditionsService>((ref) {
-      return ConditionsService(ref.watch(conditionsHttpClientProvider));
-    });
+@riverpod
+ConditionsService conditionsService(Ref ref) {
+  return ConditionsService(ref.watch(conditionsHttpClientProvider));
+}
 
 /// Shared conditions repository (HTTP-backed [ConditionsService]).
-final Provider<ConditionsRepository> conditionsRepositoryProvider =
-    Provider<ConditionsRepository>((ref) {
-      return ref.watch(conditionsServiceProvider);
-    });
+@riverpod
+ConditionsRepository conditionsRepository(Ref ref) {
+  return ref.watch(conditionsServiceProvider);
+}
 
 /// Loads environmental conditions for a launch.
-final FutureProvider<ConditionsSnapshot> Function(LaunchPoint)
-conditionsSnapshotProvider = FutureProvider.autoDispose
-    .family<ConditionsSnapshot, LaunchPoint>(
-      (ref, launch) async {
-        final cancelToken = CancelToken();
-        ref.onDispose(() {
-          if (!cancelToken.isCancelled) {
-            cancelToken.cancel('conditionsSnapshotProvider disposed');
-          }
-        });
-        final result = await ref
-            .watch(conditionsRepositoryProvider)
-            .load(launch, cancelToken: cancelToken);
-        return result.when(
-          success: (value) => value,
-          failure: (error) => throw ConditionsLoadException(error),
-        );
-      },
-      retry: (_, _) => null,
-    );
+@Riverpod(retry: _disableProviderRetry)
+Future<ConditionsSnapshot> conditionsSnapshot(
+  Ref ref,
+  LaunchPoint launch,
+) async {
+  final cancelToken = CancelToken();
+  ref.onDispose(() {
+    if (!cancelToken.isCancelled) {
+      cancelToken.cancel('conditionsSnapshotProvider disposed');
+    }
+  });
+  final result = await ref
+      .watch(conditionsRepositoryProvider)
+      .load(launch, cancelToken: cancelToken);
+  return result.when(
+    success: (value) => value,
+    failure: (error) => throw ConditionsLoadException(error),
+  );
+}

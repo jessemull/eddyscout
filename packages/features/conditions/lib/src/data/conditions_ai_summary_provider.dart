@@ -4,13 +4,15 @@ import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/conditions_ai_summary_repository.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'conditions_ai_summary_provider.g.dart';
 
 /// Injectable [ConditionsAiSummaryRepository] for tests and overrides.
-final Provider<ConditionsAiSummaryRepository>
-conditionsAiSummaryRepositoryProvider = Provider<ConditionsAiSummaryRepository>(
-  (ref) => const ConditionsAiSummaryRepositoryImpl(),
-);
+@riverpod
+ConditionsAiSummaryRepository conditionsAiSummaryRepository(Ref ref) {
+  return const ConditionsAiSummaryRepositoryImpl();
+}
 
 /// UI state for the on-demand conditions AI summary card.
 class ConditionsAiSummaryState {
@@ -35,16 +37,12 @@ class ConditionsAiSummaryState {
 }
 
 /// Notifier for the conditions AI summary card.
-class ConditionsAiSummaryNotifier extends Notifier<ConditionsAiSummaryState> {
-  /// Creates a launch-scoped notifier.
-  ConditionsAiSummaryNotifier(this.launchId);
-
-  /// Family launch id used to scope updates.
-  final String launchId;
+@riverpod
+class ConditionsAiSummary extends _$ConditionsAiSummary {
   CancelToken? _activeCancelToken;
 
   @override
-  ConditionsAiSummaryState build() {
+  ConditionsAiSummaryState build(String launchId) {
     ref.onDispose(() {
       _activeCancelToken?.cancel('conditionsAiSummaryProvider disposed');
     });
@@ -83,13 +81,3 @@ class ConditionsAiSummaryNotifier extends Notifier<ConditionsAiSummaryState> {
     );
   }
 }
-
-/// Family notifier provider keyed by launch id.
-final NotifierProvider<ConditionsAiSummaryNotifier, ConditionsAiSummaryState>
-Function(String)
-conditionsAiSummaryProvider =
-    NotifierProvider.family<
-      ConditionsAiSummaryNotifier,
-      ConditionsAiSummaryState,
-      String
-    >(ConditionsAiSummaryNotifier.new);
