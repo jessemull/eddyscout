@@ -57,7 +57,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     code: code,
                     riverSystemName: riverSystemName,
                   ),
-                AppFailure(:final message) => message,
+                final AppFailure failure => _localizedAppFailure(l10n, failure),
                 String() => message,
                 _ => l10n.launchDetailUnavailable,
               };
@@ -76,6 +76,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
         );
   }
+
+  String _localizedAppFailure(AppLocalizations l10n, AppFailure failure) =>
+      switch (failure) {
+        StorageFailure() => l10n.mapHydroDataReadError,
+        UnexpectedFailure() => l10n.mapHydroDataUnavailable,
+        _ => l10n.mapRouteFailureNoData,
+      };
 
   String _localizedRouteFailure({
     required AppLocalizations l10n,

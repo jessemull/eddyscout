@@ -22,6 +22,8 @@
     }
   },
   "mapRouteFailureNoData": "River route data is not available yet.",
+  "mapHydroDataReadError": "River route data could not be read.",
+  "mapHydroDataUnavailable": "River route data is unavailable.",
   "mapRouteFailurePutInTooFar": "Put-in is too far from the modeled river line. Try another launch.",
   "mapRouteFailureTakeOutTooFar": "Take-out is too far from the modeled river line. Try another launch.",
   "mapRouteFailureNoConnectedPath": "No connected river path between these points in the current data.",

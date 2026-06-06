@@ -54,6 +54,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapRouteFailureNoData => 'River route data is not available yet.';
 
   @override
+  String get mapHydroDataReadError => 'River route data could not be read.';
+
+  @override
+  String get mapHydroDataUnavailable => 'River route data is unavailable.';
+
+  @override
   String get mapRouteFailurePutInTooFar =>
       'Put-in is too far from the modeled river line. Try another launch.';
 

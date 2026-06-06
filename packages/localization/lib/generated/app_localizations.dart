@@ -178,6 +178,18 @@ abstract class AppLocalizations {
   /// **'River route data is not available yet.'**
   String get mapRouteFailureNoData;
 
+  /// No description provided for @mapHydroDataReadError.
+  ///
+  /// In en, this message translates to:
+  /// **'River route data could not be read.'**
+  String get mapHydroDataReadError;
+
+  /// No description provided for @mapHydroDataUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'River route data is unavailable.'**
+  String get mapHydroDataUnavailable;
+
   /// No description provided for @mapRouteFailurePutInTooFar.
   ///
   /// In en, this message translates to:

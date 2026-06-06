@@ -11,7 +11,7 @@ AppFailure mapHydroToAppFailure(Object error, [StackTrace? stackTrace]) {
       stackTrace: stackTrace,
     );
   }
-  return StorageFailure(
+  return UnexpectedFailure(
     message: 'River route data is unavailable.',
     stackTrace: stackTrace,
   );

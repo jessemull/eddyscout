@@ -83,7 +83,10 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(find.textContaining('Could not reach'), findsOneWidget);
+    expect(
+      find.textContaining('Could not load conditions. Check your connection'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('shows go/no-go card and weather when data loads', (

@@ -25,7 +25,11 @@ String launchDetailConditionsErrorMessage(
   Object error,
 ) {
   if (error is AppFailure) {
-    return error.message;
+    return switch (error) {
+      NetworkFailure() => l10n.launchDetailConditionsErrorNetwork,
+      StorageFailure() => l10n.launchDetailConditionsErrorGeneric,
+      _ => l10n.launchDetailConditionsErrorGeneric,
+    };
   }
   final msg = error.toString().toLowerCase();
   if (msg.contains('socket') || msg.contains('network')) {

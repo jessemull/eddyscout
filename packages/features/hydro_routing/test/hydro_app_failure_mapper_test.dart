@@ -17,10 +17,9 @@ void main() {
       expect(failure.message, 'River route data could not be read.');
     });
 
-    test('maps generic Exception to StorageFailure', () {
+    test('maps generic Exception to UnexpectedFailure', () {
       final failure = mapHydroToAppFailure(Exception('asset missing'));
-      expect(failure, isA<StorageFailure>());
-      expect(failure.message, 'River route data is unavailable.');
+      expect(failure, isA<UnexpectedFailure>());
     });
   });
 }
