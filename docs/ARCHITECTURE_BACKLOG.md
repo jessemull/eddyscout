@@ -17,7 +17,7 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 | 85% coverage gates | **Done** | `tooling/coverage.yaml`; CI enforces thresholds |
 | Design system goldens + CI strategy | **Done** | Goldens on `macos-latest`; Ubuntu excludes `golden` tag |
 | Riverpod 3 (manual providers) | **Done** | PR #19 |
-| `@riverpod` codegen migration | **Wave 2** | Conditions, app shell, map, hydro done (#20–#21, #23); **`goRouterProvider` still manual** |
+| `@riverpod` codegen migration | **Done** | Conditions, app shell, map, hydro (#20–#21, #23); routing providers in `packages/routing/` |
 | `packages/routing/` as live router | **Done** | `goRouterProvider` + redirects in routing package (#26) |
 | Result-based repos (conditions data layer) | **Done** | Repository impls return `Result<T, AppFailure>` |
 | Result-based providers & boundaries | **Wave 2** | Conditions providers/callables open; hydro load/parse **done** (`refactor/result-hydro-complete`); map catalog lookup **done** |
@@ -58,10 +58,10 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 
 ### Bucket A — wave 2 (finish completely)
 
-#### A1 — `@riverpod` codegen (**one item left**)
+#### A1 — `@riverpod` codegen
 
 - [x] Conditions, map, hydro, app shell providers
-- [ ] **`goRouterProvider` (+ related routing providers) → `@riverpod`** — then mark **entire A1 section done**
+- [x] **`goRouterProvider` (+ related routing providers) → `@riverpod`**
 - [x] `make gen`, `docs/CODEGEN.md`, `docs/STATE_MANAGEMENT.md`
 
 #### A2 — `Result<T, AppFailure>` completion
