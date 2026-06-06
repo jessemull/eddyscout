@@ -26,7 +26,7 @@ final class GoNoGoProfileRepositoryProvider
         argument: null,
         retry: null,
         name: r'goNoGoProfileRepositoryProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -55,7 +55,7 @@ final class GoNoGoProfileRepositoryProvider
 }
 
 String _$goNoGoProfileRepositoryHash() =>
-    r'd99317c247bbdae1d0c8d3566efb598a32f24e18';
+    r'f098e5eff5d58677d419f8bf4b36d95867b105d9';
 
 /// User skill profile for go/no-go wind thresholds.
 
@@ -72,7 +72,7 @@ final class GoNoGoProfileNotifierProvider
         argument: null,
         retry: _goNoGoProfileRetry,
         name: r'goNoGoProfileProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -86,7 +86,7 @@ final class GoNoGoProfileNotifierProvider
 }
 
 String _$goNoGoProfileNotifierHash() =>
-    r'09aa6cb41cddff851b8b2059ea91e70115648790';
+    r'33d42482163a40d7b0d46f871f99ae3b58a61fab';
 
 /// User skill profile for go/no-go wind thresholds.
 

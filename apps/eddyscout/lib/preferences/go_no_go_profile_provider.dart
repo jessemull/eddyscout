@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'go_no_go_profile_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 GoNoGoProfileRepository goNoGoProfileRepository(Ref ref) {
   final store = ref.watch(keyValueStoreProvider).requireValue;
   return GoNoGoProfileRepositoryImpl(store);
@@ -13,7 +13,11 @@ GoNoGoProfileRepository goNoGoProfileRepository(Ref ref) {
 Duration? _goNoGoProfileRetry(int retryCount, Object error) => null;
 
 /// User skill profile for go/no-go wind thresholds.
-@Riverpod(name: 'goNoGoProfileProvider', retry: _goNoGoProfileRetry)
+@Riverpod(
+  name: 'goNoGoProfileProvider',
+  keepAlive: true,
+  retry: _goNoGoProfileRetry,
+)
 class GoNoGoProfileNotifier extends _$GoNoGoProfileNotifier {
   @override
   Future<GoNoGoProfile> build() async {

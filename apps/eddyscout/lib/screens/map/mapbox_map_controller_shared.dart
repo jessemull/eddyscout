@@ -5,7 +5,9 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 /// Shared map session state for map controller mixins.
 mixin MapboxMapControllerBase {
-  /// Implemented by the map controller notifier.
+  /// Codegen notifiers extend `$Notifier`, not `Notifier`, so mixins cannot
+  /// use `mixin on Notifier<void>`. The map controller implements this getter
+  /// with `ref` and mixins read other providers through it.
   Ref get mapControllerRef;
   // Initialized with empty strings; the MapScreen binds localized values.
   MapUiCallbacks _ui = const MapUiCallbacks(

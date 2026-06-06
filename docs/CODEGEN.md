@@ -130,15 +130,14 @@ The part file name must exactly match the source file name with the appropriate 
 - Run `dart pub get` before `build_runner` to ensure dependency alignment.
 - Verify you committed from a clean generation state, not a partial one.
 
-## Riverpod codegen pilot
+## Riverpod codegen
 
-The first `@riverpod` migration target is the conditions refresh token. A reference implementation lives at:
+The workspace runs `flutter_riverpod` 3.x with `riverpod_annotation` / `riverpod_generator` 4.x. Register each annotated file in the package `build.yaml` under `riverpod_generator|riverpod_generator` `generate_for`, then run `make gen`.
 
-`docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`
+**App shell (live):** `apps/eddyscout/lib/preferences/` and selected `screens/` providers use `@riverpod` — see `apps/eddyscout/build.yaml`.
 
-Production code uses a manual `AutoDisposeNotifier` in `packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart` because:
+**Reference pilot:** `docs/examples/condition_reports_refresh_token_provider.riverpod_pilot.dart`
 
-1. `riverpod_generator` 2.x conflicts with the workspace `source_gen: 4.2.0` override (see `docs/ARCHITECTURE.md`).
-2. `riverpod_generator` 3.x + `riverpod_annotation` 3.x require `flutter_riverpod` 3.x workspace-wide (Riverpod 2 and 3 cannot be mixed in one melos workspace).
+**Feature packages (pending):** `packages/features/conditions/lib/src/domain/condition_reports_refresh_token_provider.dart` still uses a manual notifier. Migrate by copying the pilot, adding `riverpod_annotation` to `dependencies` and `riverpod_generator` to `dev_dependencies`, registering the file in `packages/features/conditions/build.yaml`, and running `make gen`.
 
-**Migration path (when ready):** bump `flutter_riverpod` to `^3.2.0` in every package that depends on it, add `riverpod_annotation` / `riverpod_generator` to `eddyscout_conditions`, copy the pilot into `condition_reports_refresh_token_provider.dart`, register the file in `build.yaml`, run `make gen`, and fix Riverpod 3 API migrations (`FamilyNotifier` → codegen families, etc.).
+**Keep-alive:** Use `@Riverpod(keepAlive: true)` when a provider previously used non–auto-dispose `Provider` / `NotifierProvider` / `AsyncNotifierProvider` and should survive listener disposal (e.g. app-wide preferences, route planning session state).

@@ -21,7 +21,7 @@ class RoutePlanningState {
   final double? routeLengthKm;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class RoutePlanning extends _$RoutePlanning {
   @override
   RoutePlanningState build() => const RoutePlanningState();

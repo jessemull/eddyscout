@@ -20,7 +20,7 @@ final class RoutePlanningProvider
         argument: null,
         retry: null,
         name: r'routePlanningProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -41,7 +41,7 @@ final class RoutePlanningProvider
   }
 }
 
-String _$routePlanningHash() => r'4d2fcb1175f70243f2eaef3f54a13ac9d538f904';
+String _$routePlanningHash() => r'15800b2ae3028c5c21d4e0fe6cffd6437f8d955b';
 
 abstract class _$RoutePlanning extends $Notifier<RoutePlanningState> {
   RoutePlanningState build();
