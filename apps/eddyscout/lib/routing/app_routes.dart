@@ -5,6 +5,7 @@ import 'package:eddyscout/screens/web_map_placeholder_screen.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 part 'app_routes.g.dart';
@@ -33,8 +34,18 @@ class LaunchDetailRoute extends GoRouteData with $LaunchDetailRoute {
   final String launchId;
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    final launch = launchPointById(launchId);
+  Widget build(BuildContext context, GoRouterState state) =>
+      _LaunchDetailRouteBody(launchId: launchId);
+}
+
+class _LaunchDetailRouteBody extends ConsumerWidget {
+  const _LaunchDetailRouteBody({required this.launchId});
+
+  final String launchId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final launch = ref.readLaunchPointIfExists(launchId);
     if (launch == null) {
       return const _LaunchNotFoundBody();
     }

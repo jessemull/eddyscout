@@ -58,7 +58,7 @@ final class MapboxMapController extends _$MapboxMapController
     if (raw is! String) {
       return;
     }
-    final launch = launchPointById(raw);
+    final launch = ref.readLaunchPointIfExists(raw);
     if (launch == null) {
       return;
     }

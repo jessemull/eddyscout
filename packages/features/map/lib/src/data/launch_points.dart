@@ -263,7 +263,7 @@ const List<LaunchPoint> kLaunchPoints = [
 ];
 
 /// Returns the curated launch for [id], or null if not in [kLaunchPoints].
-LaunchPoint? launchPointById(String id) {
+LaunchPoint? findLaunchPointById(String id) {
   for (final p in kLaunchPoints) {
     if (p.id == id) return p;
   }
