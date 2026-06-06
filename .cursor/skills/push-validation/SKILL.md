@@ -89,20 +89,23 @@ Tests must be:
 
 ---
 
-# 1. Full Preflight Validation
+# 1. Push validation
 
-Run full validation suite:
+**`git push`** runs `scripts/push_validate.sh` via husky (analyze, tests, codegen, import/architecture — no coverage).
+
+For coverage thresholds before a PR, also run:
 
 ```bash
 make preflight
 ```
 
-## Must Pass:
+## Must pass before push:
 
 - [ ] `dart format` passes
 - [ ] `dart analyze` passes (no errors or fatal infos)
 - [ ] `flutter test` passes
 - [ ] `make gen-check` passes
+- [ ] import and architecture boundary scripts pass
 
 If any fail:
 - fix issues before proceeding

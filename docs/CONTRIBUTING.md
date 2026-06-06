@@ -132,11 +132,7 @@ chore(ci): add generated code freshness check to preflight
 
 ### Before opening a PR
 
-1. **Run preflight locally:**
-   ```bash
-   melos run preflight
-   ```
-   This runs formatting, analysis, tests, and generated code checks. Fix any failures before pushing.
+1. **Quality gates:** Commits run a fast staged format/analyze hook. **`git push` runs the full test + codegen + boundary checks.** Optionally run `make preflight` before opening a PR (includes coverage, same as CI minus parallel jobs).
 
 2. **Keep PRs focused.** One logical change per PR. If you find yourself writing "also" in the PR description, consider splitting.
 
@@ -168,7 +164,7 @@ chore(ci): add generated code freshness check to preflight
 
 ## Checklist
 
-- [ ] `melos run preflight` passes
+- [ ] Push validation passed (or `make preflight` for full coverage check)
 - [ ] New/changed code has tests
 - [ ] Documentation updated (if applicable)
 - [ ] Generated code is up to date
