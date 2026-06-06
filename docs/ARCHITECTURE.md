@@ -159,7 +159,7 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 | Area | Target | Today |
 |------|--------|-------|
 | Feature layering | `presentation` / `domain` / `data` per feature package | Partial: UI primarily in `apps/eddyscout/lib/screens/`; `map` is mostly data; `conditions` has domain + data + one presentation provider |
-| Riverpod codegen | `@riverpod` for new providers | Manual `FutureProvider`, `StateProvider`, `NotifierProvider`, `AsyncNotifier` throughout |
+| Riverpod codegen | `@riverpod` for new providers | Partial: app shell (`preferences/`, map planning/session, mapbox controller) uses `@riverpod`; feature packages and app routing providers remain manual |
 | `Result<T, AppFailure>` | Package I/O boundaries | Type in `packages/core/`; feature I/O mostly raw `Future` / exceptions |
 | Router assembly | `packages/routing/` | Scaffold only; live router in `apps/eddyscout/lib/routing/` |
 | Auth redirects | Session/login guards when needed | Mapbox token + web platform redirects only |
