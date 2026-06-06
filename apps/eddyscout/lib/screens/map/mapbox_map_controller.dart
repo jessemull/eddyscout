@@ -111,16 +111,24 @@ final class MapboxMapController extends _$MapboxMapController
     final planning = ref.read(routePlanningProvider);
     final put = planning.putIn;
     final take = planning.takeOut;
-    final planner = ref.read(riverRoutePlannerProvider).asData?.value;
+    final plannerAsync = ref.read(riverRoutePlannerProvider);
     if (put == null || take == null) {
       return;
     }
-    if (planner == null) {
+    if (plannerAsync.hasError) {
+      final failure = hydroAppFailureFrom(plannerAsync.error);
+      if (alive && failure != null) {
+        ui.showSnackBar?.call(failure);
+      }
+      return;
+    }
+    if (!plannerAsync.hasValue) {
       if (alive) {
         ui.showSnackBar?.call(ui.riverDataLoadingMessage);
       }
       return;
     }
+    final planner = plannerAsync.requireValue;
 
     final result = planner.plan(put, take);
     if (!alive) {

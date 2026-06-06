@@ -83,7 +83,7 @@ final class RiverRoutePlannerProvider
     : super(
         from: null,
         argument: null,
-        retry: null,
+        retry: disableProviderRetry,
         name: r'riverRoutePlannerProvider',
         isAutoDispose: false,
         dependencies: null,
@@ -105,4 +105,4 @@ final class RiverRoutePlannerProvider
   }
 }
 
-String _$riverRoutePlannerHash() => r'fd4e670f741c963e1d624ffeac462e0e43c5e888';
+String _$riverRoutePlannerHash() => r'c4cd9a80a1f768434af84212905064e51a98bc54';
