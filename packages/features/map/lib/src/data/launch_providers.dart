@@ -5,36 +5,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'launch_providers.g.dart';
 
-LaunchPoint? _readLaunchPointIfExists(
-  LaunchPoint Function(String id) readProvider,
-  String id,
-) {
-  if (findLaunchPointById(id) == null) {
-    return null;
-  }
-  return readProvider(id);
-}
-
-/// Nullable launch lookup routed through [launchPointByIdProvider].
+/// Nullable launch lookup from the curated catalog.
 extension LaunchPointLookupOnRef on Ref {
   /// Returns the launch for [id], or null when not in the catalog.
-  LaunchPoint? readLaunchPointIfExists(String id) {
-    return _readLaunchPointIfExists(
-      (launchId) => read(launchPointByIdProvider(launchId)),
-      id,
-    );
-  }
+  LaunchPoint? readLaunchPointIfExists(String id) => findLaunchPointById(id);
 }
 
-/// Nullable launch lookup routed through [launchPointByIdProvider].
+/// Nullable launch lookup from the curated catalog.
 extension LaunchPointLookupOnWidgetRef on WidgetRef {
   /// Returns the launch for [id], or null when not in the catalog.
-  LaunchPoint? readLaunchPointIfExists(String id) {
-    return _readLaunchPointIfExists(
-      (launchId) => read(launchPointByIdProvider(launchId)),
-      id,
-    );
-  }
+  LaunchPoint? readLaunchPointIfExists(String id) => findLaunchPointById(id);
 }
 
 /// Resolves a curated launch by id.
