@@ -28,6 +28,8 @@ class MapScreen extends ConsumerStatefulWidget {
 }
 
 class _MapScreenState extends ConsumerState<MapScreen> {
+  bool get _usesMapStub => widget.mapSlot != null;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -97,15 +99,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Keep controller alive while this screen is mounted; autoDispose was
-    // disposing it before async launch-marker install finished.
-    ref.watch(mapboxMapControllerProvider);
-    final map = ref.read(mapboxMapControllerProvider.notifier);
-
     final planning = ref.watch(routePlanningProvider);
     final mapInteractive = ref.watch(mapInteractiveProvider);
 
+    // Keep controller alive while this screen is mounted; autoDispose was
+    // disposing it before async launch-marker install finished.
+    ref.watch(mapboxMapControllerProvider);
+    final mapController = ref.read(mapboxMapControllerProvider.notifier);
+
     final l10n = context.l10n;
+    final mapChild = _usesMapStub
+        ? widget.mapSlot!
+        : _liveMapWidget(mapController);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.mapScreenTitle),
@@ -119,7 +124,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               tooltip: planning.planningMode
                   ? l10n.mapExitPlanningTooltip
                   : l10n.mapPlanRouteTooltip,
-              onPressed: map.togglePlanningMode,
+              onPressed: mapController.togglePlanningMode,
               icon: Icon(planning.planningMode ? Icons.close : Icons.alt_route),
             ),
           ),
@@ -130,73 +135,99 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         children: [
           IgnorePointer(
             ignoring: !mapInteractive,
-            child:
-                widget.mapSlot ??
-                MapWidget(
-                  key: const ValueKey<String>('eddyscout_map'),
-                  // TLHC_HC avoids Android texture/surface bugs with Mapbox (experimental).
-                  // ignore: experimental_member_use
-                  androidHostingMode: AndroidPlatformViewHostingMode.TLHC_HC,
-                  viewport: kInitialMapViewport,
-                  mapOptions: MapOptions(
-                    pixelRatio: MediaQuery.devicePixelRatioOf(context),
-                  ),
-                  onMapCreated: map.onMapCreated,
-                  onStyleLoadedListener: (_) => map.onStyleLoaded(),
-                  onCameraChangeListener: kDebugMode
-                      ? map.onDebugCameraChanged
-                      : null,
-                  onZoomListener: kDebugMode ? map.onDebugMapZoomEnded : null,
-                ),
+            child: mapChild,
           ),
-          if (mapInteractive)
-            Positioned(
-              left: Spacing.sm,
-              bottom: MediaQuery.viewPaddingOf(context).bottom + 120,
-              child: Semantics(
-                container: true,
-                label: l10n.mapZoomControlsSemantics,
-                child: Material(
-                  elevation: 4,
-                  borderRadius: BorderRadius.circular(10),
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        tooltip: l10n.mapZoomInLabel,
-                        icon: const Icon(Icons.add),
-                        onPressed: () =>
-                            unawaited(map.nudgeZoomBy(kMapChromeZoomStep)),
-                      ),
-                      const Divider(height: 1),
-                      IconButton(
-                        tooltip: l10n.mapZoomOutLabel,
-                        icon: const Icon(Icons.remove),
-                        onPressed: () =>
-                            unawaited(map.nudgeZoomBy(-kMapChromeZoomStep)),
-                      ),
-                      const Divider(height: 1),
-                      IconButton(
-                        tooltip: l10n.mapShowAllLaunchesLabel,
-                        icon: const Icon(Icons.zoom_out_map),
-                        onPressed: () => unawaited(map.fitRegionFromChrome()),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+          if (mapInteractive && !_usesMapStub)
+            _MapZoomChrome(
+              bottomPadding: MediaQuery.viewPaddingOf(context).bottom + 120,
+              controller: mapController,
+              semanticsLabel: l10n.mapZoomControlsSemantics,
+              zoomInLabel: l10n.mapZoomInLabel,
+              zoomOutLabel: l10n.mapZoomOutLabel,
+              showAllLaunchesLabel: l10n.mapShowAllLaunchesLabel,
             ),
           if (planning.planningMode)
             MapPlanningOverlay(
               putIn: planning.putIn,
               takeOut: planning.takeOut,
               routeLengthKm: planning.routeLengthKm,
-              onClear: () => unawaited(map.clearPlanningSelection()),
-              onDone: map.togglePlanningMode,
+              onClear: () => unawaited(mapController.clearPlanningSelection()),
+              onDone: mapController.togglePlanningMode,
             ),
         ],
       ),
     );
   }
+
+  Widget _liveMapWidget(MapboxMapController controller) => MapWidget(
+    key: const ValueKey<String>('eddyscout_map'),
+    // TLHC_HC avoids Android texture/surface bugs with Mapbox (experimental).
+    // ignore: experimental_member_use
+    androidHostingMode: AndroidPlatformViewHostingMode.TLHC_HC,
+    viewport: kInitialMapViewport,
+    mapOptions: MapOptions(
+      pixelRatio: MediaQuery.devicePixelRatioOf(context),
+    ),
+    onMapCreated: controller.onMapCreated,
+    onStyleLoadedListener: (_) => controller.onStyleLoaded(),
+    onCameraChangeListener: kDebugMode ? controller.onDebugCameraChanged : null,
+    onZoomListener: kDebugMode ? controller.onDebugMapZoomEnded : null,
+  );
+}
+
+class _MapZoomChrome extends StatelessWidget {
+  const _MapZoomChrome({
+    required this.bottomPadding,
+    required this.controller,
+    required this.semanticsLabel,
+    required this.zoomInLabel,
+    required this.zoomOutLabel,
+    required this.showAllLaunchesLabel,
+  });
+
+  final double bottomPadding;
+  final MapboxMapController controller;
+  final String semanticsLabel;
+  final String zoomInLabel;
+  final String zoomOutLabel;
+  final String showAllLaunchesLabel;
+
+  @override
+  Widget build(BuildContext context) => Positioned(
+    left: Spacing.sm,
+    bottom: bottomPadding,
+    child: Semantics(
+      container: true,
+      label: semanticsLabel,
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: zoomInLabel,
+              icon: const Icon(Icons.add),
+              onPressed: () =>
+                  unawaited(controller.nudgeZoomBy(kMapChromeZoomStep)),
+            ),
+            const Divider(height: 1),
+            IconButton(
+              tooltip: zoomOutLabel,
+              icon: const Icon(Icons.remove),
+              onPressed: () =>
+                  unawaited(controller.nudgeZoomBy(-kMapChromeZoomStep)),
+            ),
+            const Divider(height: 1),
+            IconButton(
+              tooltip: showAllLaunchesLabel,
+              icon: const Icon(Icons.zoom_out_map),
+              onPressed: () => unawaited(controller.fitRegionFromChrome()),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }

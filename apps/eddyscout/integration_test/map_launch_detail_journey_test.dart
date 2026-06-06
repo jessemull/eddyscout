@@ -27,23 +27,23 @@ void main() {
     'map to launch detail and back',
     (tester) async {
       await pumpEddyScoutApp(tester);
-      await integrationPumpSettle(tester);
+      await integrationPumpFrames(tester, count: 5);
 
       final l10n = integrationL10n(tester);
-      expect(find.text(l10n.mapScreenTitle), findsOneWidget);
+      await integrationWaitFor(tester, find.text(l10n.mapScreenTitle));
       expect(find.byKey(const Key('integration_map_stub')), findsOneWidget);
 
       final mapContext = tester.element(find.text(l10n.mapScreenTitle));
       await LaunchDetailRoute(launchId: launch.id).push<void>(mapContext);
-      await integrationPumpSettle(tester);
+      await integrationPumpFrames(tester);
 
-      expect(find.text(launch.name), findsOneWidget);
+      await integrationWaitFor(tester, find.text(launch.name));
       expect(find.text(l10n.launchDetailGoNoGoTitle), findsOneWidget);
 
       await tester.tap(find.byType(BackButton));
-      await integrationPumpSettle(tester);
+      await integrationPumpFrames(tester);
 
-      expect(find.text(l10n.mapScreenTitle), findsOneWidget);
+      await integrationWaitFor(tester, find.text(l10n.mapScreenTitle));
       expect(find.byKey(const Key('integration_map_stub')), findsOneWidget);
     },
     skip: _skipJourneyTest,

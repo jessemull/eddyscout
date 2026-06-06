@@ -11,9 +11,9 @@ void main() {
     tester,
   ) async {
     await pumpEddyScoutApp(tester);
-    await integrationPumpSettle(tester);
+    await integrationPumpFrames(tester, count: 5);
 
     final l10n = integrationL10n(tester);
-    expect(find.text(l10n.missingMapboxTokenTitle), findsOneWidget);
+    await integrationWaitFor(tester, find.text(l10n.missingMapboxTokenTitle));
   });
 }

@@ -146,13 +146,15 @@ jobs:
         working-directory: apps/eddyscout
         run: |
           xvfb-run -a -s '-screen 0 1280x720x24' \
+            timeout 4m \
             flutter test integration_test/app_navigation_test.dart -d linux \
-            --timeout 5m -r expanded
+            --timeout 3m -r expanded
       - name: Map to launch detail journey
         working-directory: apps/eddyscout
         run: |
           xvfb-run -a -s '-screen 0 1280x720x24' \
+            timeout 4m \
             flutter test integration_test/map_launch_detail_journey_test.dart -d linux \
             --dart-define=MAPBOX_ACCESS_TOKEN=pk.integration_test \
             --dart-define=INTEGRATION_MAP_STUB=true \
-            --timeout 5m -r expanded
+            --timeout 3m -r expanded
