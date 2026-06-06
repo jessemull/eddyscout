@@ -1,4 +1,4 @@
-import 'package:eddyscout/screens/map/map_ui_callbacks.dart';
+import 'package:eddyscout_map/src/presentation/map_ui_callbacks.dart';
 import 'package:flutter/foundation.dart' show protected;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';

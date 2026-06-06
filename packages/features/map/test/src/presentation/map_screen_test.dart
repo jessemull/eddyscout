@@ -1,12 +1,9 @@
-import 'package:eddyscout/screens/map_planning_provider.dart';
-import 'package:eddyscout/screens/map_screen.dart';
-import 'package:eddyscout/screens/map_session_provider.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../test_localized_app.dart';
+import '../../helpers/test_localized_app.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

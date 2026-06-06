@@ -1,4 +1,4 @@
-import 'package:eddyscout/screens/map_session_provider.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 

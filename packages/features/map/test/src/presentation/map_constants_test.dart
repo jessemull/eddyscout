@@ -1,4 +1,3 @@
-import 'package:eddyscout/screens/map/map_constants.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 

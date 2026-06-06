@@ -1,5 +1,4 @@
 import 'package:eddyscout/screens/launch_detail_screen.dart';
-import 'package:eddyscout/screens/map_screen.dart';
 import 'package:eddyscout/screens/missing_mapbox_token_screen.dart';
 import 'package:eddyscout/screens/web_map_placeholder_screen.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
@@ -20,11 +19,16 @@ class MapRoute extends GoRouteData with $MapRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     if (_integrationMapStub) {
-      return const MapScreen(
-        mapSlot: SizedBox(key: Key('integration_map_stub')),
+      return MapScreen(
+        mapSlot: const SizedBox(key: Key('integration_map_stub')),
+        onOpenLaunchDetail: (launch) =>
+            LaunchDetailRoute(launchId: launch.id).push<void>(context),
       );
     }
-    return const MapScreen();
+    return MapScreen(
+      onOpenLaunchDetail: (launch) =>
+          LaunchDetailRoute(launchId: launch.id).push<void>(context),
+    );
   }
 }
 

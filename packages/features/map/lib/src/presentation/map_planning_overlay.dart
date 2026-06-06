@@ -1,6 +1,6 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
-import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 
 /// Route-planning instructions and put-in / take-out summary over the map.

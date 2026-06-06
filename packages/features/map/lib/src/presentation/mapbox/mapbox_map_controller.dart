@@ -1,14 +1,15 @@
 import 'dart:async' show unawaited;
 
-import 'package:eddyscout/debug/map_debug_log.dart';
-import 'package:eddyscout/screens/map/mapbox_map_camera_mixin.dart';
-import 'package:eddyscout/screens/map/mapbox_map_controller_shared.dart';
-import 'package:eddyscout/screens/map/mapbox_map_markers_mixin.dart';
-import 'package:eddyscout/screens/map/mapbox_map_route_mixin.dart';
-import 'package:eddyscout/screens/map/mapbox_map_style_mixin.dart';
-import 'package:eddyscout/screens/map_planning_provider.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_map/src/data/launch_providers.dart';
+import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/map_debug_log.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_camera_mixin.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller_shared.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_markers_mixin.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_route_mixin.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_style_mixin.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

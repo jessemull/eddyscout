@@ -1,11 +1,11 @@
 import 'dart:async' show unawaited;
 
-import 'package:eddyscout/debug/map_debug_log.dart';
-import 'package:eddyscout/screens/map/map_constants.dart';
-import 'package:eddyscout/screens/map/mapbox_map_controller_shared.dart';
-import 'package:eddyscout/screens/map/mapbox_map_style_mixin.dart';
-import 'package:eddyscout/screens/map_session_provider.dart';
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_map/src/data/launch_points.dart';
+import 'package:eddyscout_map/src/presentation/map_constants.dart';
+import 'package:eddyscout_map/src/presentation/map_session_provider.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/map_debug_log.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller_shared.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_style_mixin.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
