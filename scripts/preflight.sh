@@ -9,11 +9,13 @@ cd "$REPO_ROOT"
 
 STAGED_ONLY=false
 CI_MODE=false
+SKIP_COVERAGE=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --staged) STAGED_ONLY=true; shift ;;
     --ci) CI_MODE=true; shift ;;
+    --no-coverage) SKIP_COVERAGE=true; shift ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
 done
@@ -52,10 +54,12 @@ if ! $STAGED_ONLY; then
   echo "--- Codegen Verification ---"
   "$SCRIPT_DIR/codegen_verify.sh"
 
-  echo ""
-  echo "--- Coverage Thresholds ---"
-  melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --coverage"
-  "$SCRIPT_DIR/check_coverage.sh"
+  if ! $SKIP_COVERAGE; then
+    echo ""
+    echo "--- Coverage Thresholds ---"
+    melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --coverage"
+    "$SCRIPT_DIR/check_coverage.sh"
+  fi
 fi
 
 echo ""

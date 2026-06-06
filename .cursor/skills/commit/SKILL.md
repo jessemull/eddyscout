@@ -263,25 +263,25 @@ Never commit stale generated files.
 
 # 4. Quality Gates
 
-All quality gates must pass before commit.
+**On commit:** husky runs `scripts/pre_commit.sh` (format + analyze on staged `.dart` files).
 
-## Required Commands
+**On push:** husky runs `scripts/push_validate.sh` (full analyze, tests, codegen, import/architecture).
 
-Run:
+Run `make preflight` before opening a PR when you need coverage thresholds locally.
 
-```bash
-make preflight
-```
+Commit hook must validate (staged files):
 
-This must validate:
+- formatting
+- static analysis
+
+Push hook must validate:
 
 - formatting
 - analysis
 - tests
 - code generation
-- linting
 - import hygiene
-- dependency validation
+- architecture boundaries
 
 ---
 

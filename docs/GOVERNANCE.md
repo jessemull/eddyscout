@@ -106,17 +106,25 @@ These constraints apply to every change. Violations are blocking — no exceptio
 | `dart format --set-exit-if-changed .` | Code formatting | Yes |
 | `melos run gen:check` | Generated code is up to date | Yes |
 | `flutter test` | Unit, widget, and integration tests pass | Yes |
-| `scripts/preflight.sh` | All of the above in sequence | Yes (local gate) |
-| PR review | Architecture, security, governance compliance | Yes |
+| `scripts/pre_commit.sh` (husky) | Format + analyze on **staged** Dart files only | Yes (on commit) |
+| `scripts/push_validate.sh` (husky) | Full analyze, test, codegen, import/architecture checks (no coverage) | Yes (on push) |
+| `scripts/preflight.sh` | Format, analyze, test, codegen; optional coverage | Yes (manual / CI) |
+| PR review + CI | Architecture, security, coverage, goldens | Yes (blocks merge) |
 | `riverpod_lint` | Riverpod usage patterns | Yes (via analyze) |
 
 ### CI pipeline
 
 The GitHub Actions CI workflow runs `scripts/preflight.sh --ci`, which executes format, analyze, test, and generated-code checks. A PR cannot merge unless CI is green.
 
-### Local preflight
+### Local quality gates
 
-Developers run `melos run preflight` before pushing. This mirrors CI locally. Skipping it is not acceptable — CI will catch violations regardless.
+| When | What runs |
+|------|-----------|
+| **git commit** | `scripts/pre_commit.sh` — fast format + analyze on staged `.dart` files |
+| **git push** | `scripts/push_validate.sh` — analyze, tests, codegen verify, import/architecture (coverage in CI only) |
+| **Before PR / optional** | `make preflight` — full gate including coverage thresholds |
+
+Skipping hooks is not acceptable for shared branches — CI will catch violations regardless.
 
 ---
 
