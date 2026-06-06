@@ -28,7 +28,7 @@ description: >-
 1. **Diff-first** — read the change before generic checklists.
 2. **Risk-scoped depth** — lite for tiny PRs; deep for auth, navigation, deps, large refactors.
 3. **One bullet = one task** — imperative, fixable; no separate Issue/Fix blocks.
-4. **No checklist theater** — do not dump full `docs/REVIEW.md` into the output.
+4. **Checklists are internal** — work through `docs/REVIEW.md` by domain; **never paste** checklist tables into the review output.
 5. **Nothing hedged in actionable tiers** — no "consider", "probably fine", "optional".
 
 ---
@@ -61,7 +61,42 @@ Do **not** include depth/risk tables in the review output unless the user asks.
 
 ---
 
-## Step 3 — Classify each finding
+## Step 3 — Review against checklists (internal)
+
+Use `docs/REVIEW.md` as the **review rubric**. Apply only sections relevant to the diff (mark others N/A mentally — do not write N/A in output).
+
+| If the diff touches… | Read & apply `docs/REVIEW.md` section |
+|----------------------|----------------------------------------|
+| Any Dart / Flutter code | Architecture review checklist |
+| Providers / notifiers | Riverpod / state review |
+| Widgets / screens | Widget design review |
+| Lists / images / animations | Rebuild / performance review |
+| `await` / navigation / routes | Lifecycle & async safety; Navigation review |
+| Errors / API / offline | Error-state review |
+| User-visible UI | Accessibility review |
+| Secrets / network / WebView | Security review |
+| `*.g.dart` / freezed / routes | Codegen review (also `docs/CODEGEN.md`) |
+| `pubspec.yaml` | Dependency review |
+| Tests added/changed | Testing review |
+| `android/` / `ios/` / `web/` | Platform review |
+| ARB / strings | Localization review |
+| Analytics events | Analytics / privacy review |
+
+**Skip for reviewers:** `docs/REVIEW.md` § PR hygiene (description template, commit format, PR size) — author responsibility, not code review.
+
+**Depth guidance:**
+
+- **Lite:** Architecture + correctness for changed files only.
+- **Standard:** Architecture + Riverpod (if providers) + Widget (if UI) + Testing + Error-state (if I/O).
+- **Deep:** All applicable sections above; read conditional docs from `AGENTS.md`.
+
+Companion skills for deep passes: `riverpod-usage`, `security-review`, `accessibility-review`, `testing`, `navigation-change`.
+
+Findings from checklists become output bullets in Step 4 — not copied checklist rows.
+
+---
+
+## Step 4 — Classify each finding
 
 Before writing output, assign every finding to exactly one bucket:
 
@@ -98,7 +133,7 @@ Often **[SHOULD]:** missing `const` in touched widgets; weak error copy in touch
 
 ---
 
-## Step 4 — Spot-check (when useful)
+## Step 5 — Spot-check (when useful)
 
 ```bash
 melos exec --scope=<package> -- "flutter test test/<relevant>_test.dart"
