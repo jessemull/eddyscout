@@ -12,6 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../test/routing/test_router_overrides.dart';
+
 /// Ensures the integration test binding is initialized once per suite.
 void ensureIntegrationTestInitialized() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +70,7 @@ Future<ProviderContainer> createIntegrationContainer({
 
   return ProviderContainer(
     overrides: [
+      ...appRouterTestOverrides,
       conditionReportsRepositoryProvider.overrideWithValue(
         const IntegrationConditionReportsRepository(),
       ),

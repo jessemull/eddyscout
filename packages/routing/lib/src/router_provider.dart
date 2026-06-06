@@ -11,9 +11,11 @@ GoRouter createRouter({
   String initialLocation = '/',
   String? Function(BuildContext context, GoRouterState state)? redirect,
   List<NavigatorObserver> observers = const <NavigatorObserver>[],
+  bool debugLogDiagnostics = false,
 }) => GoRouter(
   routes: routes,
   initialLocation: initialLocation,
   redirect: redirect,
   observers: observers,
+  debugLogDiagnostics: debugLogDiagnostics,
 );

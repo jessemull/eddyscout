@@ -24,7 +24,7 @@
 | `000-context` | (all) | `CONTEXT.md` | Aligned mandatory doc list |
 | `010-architecture` | `feature-development`, `riverpod-usage` | `ARCHITECTURE.md` | App shell + partial layers documented |
 | `020-state-riverpod` | `state-management`, `riverpod-usage` | `STATE_MANAGEMENT.md` | `@riverpod` = new code preference |
-| `030-navigation-go-router` | `navigation-change` | `NAVIGATION.md` | App-owned router noted |
+| `030-navigation-go-router` | `navigation-change` | `NAVIGATION.md` | Package/app router split documented |
 | `040-testing` | `testing`, `golden-testing` | `TESTING.md` | Examples use real paths |
 | `050-codegen` | `code-generation` | `CODEGEN.md` | Aligned |
 | `060-security` | `security-review` | `SECURITY.md` | Secure storage qualified |
@@ -57,7 +57,7 @@
 | S3 | `StatefulShellRoute` / session auth guards | Marked required when adding tabs/protected routes |
 | S4 | `ref.read` in widgets | Clarified: callbacks/init OK; not in `build()` for reactive reads |
 | S5 | Primary UI in `apps/eddyscout/lib/screens/` | `010-architecture`, `090-widgets`, `feature-development` |
-| S6 | `packages/routing` scaffold | Documented in `ARCHITECTURE.md` current status |
+| S6 | `packages/routing` scaffold | Resolved — router assembly in package; typed routes in app |
 
 ### Aspirational vs. current code (documented, not enforced as present)
 
@@ -81,7 +81,7 @@
 1. Add golden tests under `packages/design_system/test/goldens/`.
 2. Pilot `@riverpod` on one new or refactored provider.
 3. Adopt `Result` in one feature repository boundary.
-4. Move router assembly into `packages/routing` when route count grows.
+4. ~~Move router assembly into `packages/routing` when route count grows.~~ Done.
 
 ---
 

@@ -108,7 +108,7 @@ Rules:
 
 **App shell:** Screen widgets may live in `apps/eddyscout/lib/screens/` while feature packages mature. New UI SHOULD move toward feature `presentation/` when the feature owns the screen. See `docs/ARCHITECTURE.md` § Current implementation status.
 
-**Routing:** Register typed routes in `apps/eddyscout/lib/routing/` today (`navigation-change` skill). Target: compose in `packages/routing/`.
+**Routing:** Add path constants in `packages/routing/` (`RoutePaths`), typed routes in `apps/eddyscout/lib/routing/app_routes.dart`, and wire overrides in `main.dart` (`navigation-change` skill).
 
 ---
 
