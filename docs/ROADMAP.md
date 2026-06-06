@@ -2,7 +2,7 @@
 
 High-level feature map for a PNW-focused kayak companion: **decision-first**, **local nuance**, **conditions fusion**, **honest safety framing**, and **Flutter + Mapbox** on the client. This document is a living plan; tick or adjust as you ship.
 
-> **Platform work:** **wave 2 is done** on `main`. Finish **wave 3** in `docs/ARCHITECTURE_BACKLOG.md` before heavy **Phase C** slices below. New product UI should land in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
+> **Platform work:** **wave 3 is done** — Bucket B screen migration complete (#35, #36, app-shell closeout). Start **Phase C** slices below. New product UI belongs in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
 >
 > **Last updated:** 2026-06-06
 
@@ -92,13 +92,13 @@ flowchart TB
 
 ## Execution order
 
-Product phases (A–F below) assume **wave 3** in `docs/ARCHITECTURE_BACKLOG.md` is complete (wave 2 is done). Finish Bucket B screen migration before heavy Phase C slices — it prevents new UI debt in `apps/eddyscout/lib/screens/`.
+Product phases (A–F below) assume **wave 3** in `docs/ARCHITECTURE_BACKLOG.md` is complete. New UI belongs in feature `presentation/` packages.
 
 | Step | Work | Doc | Status |
 |------|------|-----|--------|
 | 1 | **Wave 2** — Bucket A (`@riverpod` router, Result boundaries, doc sweep) | `ARCHITECTURE_BACKLOG.md` § Bucket A | **Done** (#28–#33, #31) |
-| 2 | **Wave 3** — Bucket B screen migration to feature `presentation/` | `ARCHITECTURE_BACKLOG.md` § Bucket B | **Now** |
-| 3 | **Phase C+** — product slices in this file (GPX, saved routes, moderation, …) | This file § Master checklist | After wave 3 |
+| 2 | **Wave 3** — Bucket B screen migration to feature `presentation/` | `ARCHITECTURE_BACKLOG.md` § Bucket B | **Done** (#35, #36, closeout) |
+| 3 | **Phase C+** — product slices in this file (GPX, saved routes, moderation, …) | This file § Master checklist | **Now** |
 
 **Infra deferrals** (`flutter_secure_storage`, tab shell, `CachedNetworkImage`, session auth guards) ship **with** the product feature that needs them — not as wave 2/3 blockers.
 
@@ -108,11 +108,9 @@ Product phases (A–F below) assume **wave 3** in `docs/ARCHITECTURE_BACKLOG.md`
 
 ### Recommended next implementation
 
-**Now (platform):** **Wave 3** — five parallel agents in `ARCHITECTURE_BACKLOG.md` § Wave 3. Migrate `apps/eddyscout/lib/screens/` into feature `presentation/` packages (conditions, map, mapbox layer, app-shell routes).
+**Now (product — Phase C):** Prioritize **GPX export / trip log**, **saved routes (v1)**, and **route planner follow-ups** (more rivers, segment snap). **Moderation** for condition reports is an alternative early Phase C slice if community trust is the bottleneck.
 
-**Done (platform):** Wave 2 — `@riverpod` routing (#30), Result boundaries (#28, #32, #33), doc closeout (#31).
-
-**Then (product — Phase C):** Prioritize **GPX export / trip log**, **saved routes (v1)**, and **route planner follow-ups** (more rivers, segment snap). **Moderation** for condition reports is an alternative early Phase C slice if community trust is the bottleneck.
+**Done (platform):** Wave 3 — feature presentation migration + app-shell closeout (#35, #36). Wave 2 — `@riverpod` routing (#30), Result boundaries (#28, #32, #33), doc closeout (#31).
 
 **Already shipped (context):** Route preview (v1) — planning mode on the map, put-in / take-out from launches, polyline along bundled hydro GeoJSON (`assets/hydro/`; Willamette Portland reach first).
 
@@ -150,7 +148,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 
 ### Not yet
 
-> **Gate:** treat Phase C items below as **ready to implement** only after wave 3 in `docs/ARCHITECTURE_BACKLOG.md` is merged. Until then, use waves 2–3 branches for platform work.
+> **Gate:** Phase C items below are **ready to implement** now that wave 3 in `docs/ARCHITECTURE_BACKLOG.md` is complete.
 
 - [ ] **(Reports / mod)** Moderation — admin queue, TTL, keyword hold (optional report-abuse UX)
 - [x] **(Phase C)** Route preview on map — planning mode, put-in / take-out from existing launches, path along bundled open hydro LineStrings (`assets/hydro/`; Willamette Portland reach first); not navigation-grade

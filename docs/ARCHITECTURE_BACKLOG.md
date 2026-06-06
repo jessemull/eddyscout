@@ -3,7 +3,7 @@
 > **Purpose:** Single checklist for repo/platform architecture work (not product features).
 > **Product roadmap:** `docs/ROADMAP.md`
 > **Target architecture:** `docs/ARCHITECTURE.md`
-> **Last updated:** 2026-06-06 · **Next platform work:** wave 3 (Bucket B) · **Product:** `docs/ROADMAP.md` § Execution order
+> **Last updated:** 2026-06-06 · **Next platform work:** Phase C product (`docs/ROADMAP.md`) · **Product:** `docs/ROADMAP.md` § Execution order
 
 Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partially done” rows left behind. Link PRs inline.
 
@@ -21,11 +21,11 @@ Tick `- [ ]` → `- [x]` **only when the slice is fully done** — no “partial
 | `packages/routing/` as live router | **Done** | `goRouterProvider` + redirects in routing package (#26) |
 | Result-based repos (conditions data layer) | **Done** | Repository impls return `Result<T, AppFailure>` |
 | Result-based providers & boundaries | **Done** | Conditions (#33), hydro (#32), map (#28); `ARCHITECTURE.md` Result row **Done** |
-| Full feature layering (`presentation` / `domain` / `data`) | **Wave 3** | Most UI still in `apps/eddyscout/lib/screens/` — planned migration |
+| Full feature layering (`presentation` / `domain` / `data`) | **Done** | Conditions + map presentation migrated (#35, #36); token/web gates in `packages/routing/` |
 | Integration tests (E2E) | **Done** | Token gate + map → launch detail; CI Linux deps (#22, #25, #27) |
 | CancelToken on HTTP / callables | **Done** (conditions) | Extend when adding new I/O in other features |
 
-**Wave 2 (Bucket A) is complete** on `main` — merged #30 (`@riverpod` routing), #32 (hydro Result), #33 (conditions Result), #31 (doc closeout). **Start wave 3** (Bucket B below).
+**Wave 3 (Bucket B) is complete** — merged #35 (conditions), #36 (map), app-shell closeout on `refactor/presentation-app-shell-closeout`.
 
 ### Implement alongside product features (not platform backlog)
 
@@ -59,6 +59,8 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 | #32 | A2 hydro Result / `AppFailure` surfacing |
 | #33 | A2 conditions Result completion |
 | #31 | A4 wave 2 doc closeout, husky/preflight guidance, repo-review align, `ROADMAP.md` execution order |
+| #35 | Conditions presentation migration |
+| #36 | Map + Mapbox presentation migration |
 
 ---
 
@@ -93,16 +95,16 @@ These are **not** wave 2/3 blockers — add when the feature that needs them shi
 - [x] `docs/CURSOR_CONSISTENCY_AUDIT.md` integration row (#22)
 - [x] **Final doc sweep** after wave 2 merges: `ARCHITECTURE.md`, `CURSOR_CONSISTENCY_AUDIT.md` aspirational rows, this file
 
-### Bucket B — wave 3 (**next** — before heavy Phase C)
+### Bucket B — wave 3 (complete)
 
-Screen migration is **active platform work**. Wave 2 is merged — migrate `apps/eddyscout/lib/screens/` into feature `presentation/` before starting heavy Phase C product slices.
+Screen migration moved UI from `apps/eddyscout/lib/screens/` into feature `presentation/` packages and routing gate screens.
 
-- [x] **Conditions presentation:** `launch_detail_screen` + `launch_detail/*` → `packages/features/conditions/lib/src/presentation/`
-- [ ] **Map presentation:** `map_screen`, planning overlay, `map_planning` / `map_session` providers → `packages/features/map/lib/src/presentation/`
-- [ ] **Mapbox layer:** controller + mixins → map package (or documented app-shell exception with thin facade)
-- [ ] **App shell screens:** `missing_mapbox_token`, `web_map_placeholder` — stay in app or move to routing; `app_routes.dart` imports from packages
-- [ ] **Tests:** move/update `apps/eddyscout/test/screens/` to match package layout
-- [ ] **Docs:** `ARCHITECTURE.md` feature layering row → **Done**; Bucket B all `[x]`
+- [x] **Conditions presentation:** `launch_detail_screen` + `launch_detail/*` → `packages/features/conditions/lib/src/presentation/` (#35)
+- [x] **Map presentation:** `map_screen`, planning overlay, `map_planning` / `map_session` providers → `packages/features/map/lib/src/presentation/` (#36)
+- [x] **Mapbox layer:** controller + mixins → map package (#36)
+- [x] **App shell screens:** `missing_mapbox_token`, `web_map_placeholder` → `packages/routing/lib/src/presentation/`; `app_routes.dart` imports from packages
+- [x] **Tests:** moved to `packages/features/*/test/` and `packages/routing/test/presentation/`
+- [x] **Docs:** `ARCHITECTURE.md` feature layering row → **Done**; Bucket B all `[x]`
 
 ---
 
@@ -118,19 +120,14 @@ Screen migration is **active platform work**. Wave 2 is merged — migrate `apps
 
 ---
 
-## Wave 3 — parallel agents (Bucket B — **start now**)
+## Wave 3 — parallel agents (Bucket B — complete)
 
-Phase C product work should target feature `presentation/` packages — wave 3 clears existing app-shell debt first.
-
-| Agent | Branch | Closes |
-|-------|--------|--------|
-| 1 | `refactor/presentation-conditions` | Conditions presentation slice + tests |
-| 2 | `refactor/presentation-map-ui` | Map screen, overlay, planning/session providers |
-| 3 | `refactor/presentation-mapbox` | Mapbox controller + mixins |
-| 4 | `refactor/presentation-app-shell` | Token/web screens + `app_routes` import cleanup |
-| 5 | `docs/architecture-wave3-closeout` | Bucket B all `[x]`, `ARCHITECTURE.md` layering row |
-
-**Merge order:** 1–3 can parallel; **4** after 1–2 (routes import new paths); **5** last.
+| Agent | Branch | PR | Status |
+|-------|--------|-----|--------|
+| 1 | `refactor/presentation-conditions` | #35 | Done |
+| 2 | `refactor/presentation-map-ui` | (in #36) | Done |
+| 3 | `refactor/presentation-mapbox` | (in #36) | Done |
+| 4 | `refactor/presentation-app-shell-closeout` | — | Done |
 
 ---
 
@@ -150,6 +147,5 @@ When Bucket A + Bucket B are fully `[x]`:
 
 - Router: `packages/routing/lib/src/go_router_provider.dart`
 - App routes: `apps/eddyscout/lib/routing/app_routes.dart`
-- Conditions Result pattern: `launch_reports_digest_provider.dart`
-- App screens (wave 3 source): `apps/eddyscout/lib/screens/`
+- Gate screens: `packages/routing/lib/src/presentation/`
 - Integration tests: `apps/eddyscout/integration_test/`

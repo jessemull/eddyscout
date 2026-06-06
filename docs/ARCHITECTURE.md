@@ -14,10 +14,8 @@ eddyscout/
 │   └── eddyscout/              # Main Flutter application (composition shell)
 │       ├── lib/
 │       │   ├── main.dart
-│       │   ├── screens/        # Screen-level widgets + Mapbox controller
 │       │   ├── routing/        # Typed go_router_builder routes (screen binding)
-│       │   ├── preferences/    # App-level Riverpod wiring for persistence
-│       │   └── debug/          # Debug-only utilities
+│       │   └── preferences/    # App-level Riverpod wiring for persistence
 │       ├── test/               # App-level tests
 │       ├── assets/             # Static assets (GeoJSON, images)
 │       └── (platform dirs)     # android/, ios/, web/, macos/, linux/, windows/
@@ -65,20 +63,8 @@ The app shell is a **composition layer**: it wires feature packages together int
 | Path | Role |
 |------|------|
 | `main.dart` | `ProviderScope` overrides (`routesProvider`, `isKnownLaunchIdProvider`), Firebase init, `MaterialApp.router` |
-| `routing/app_routes.dart` | Typed `go_router_builder` routes bound to app screens |
-| `screens/map_screen.dart` | Map composition; Mapbox widget host |
-| `screens/map/mapbox_map_controller.dart` | Mapbox lifecycle (`mapboxMapControllerProvider`) |
-| `screens/map/map_constants.dart` | Map style / camera constants |
-| `screens/map/map_planning_overlay.dart` | Route planning UI overlay |
-| `screens/map/map_ui_callbacks.dart` | Map snackbar/navigation callback types (bound on map screen) |
-| `screens/map_planning_provider.dart` | `routePlanningProvider` |
-| `screens/map_session_provider.dart` | `mapInteractiveProvider` |
-| `screens/launch_detail_screen.dart` | Launch detail page (+ `launch_detail/` parts) |
-| `screens/missing_mapbox_token_screen.dart` | `--dart-define` gate |
-| `screens/web_map_placeholder_screen.dart` | Web placeholder |
+| `routing/app_routes.dart` | Typed `go_router_builder` routes bound to feature + routing presentation |
 | `preferences/key_value_store_provider.dart` | `KeyValueStore` → persistence |
-| `preferences/go_no_go_profile_provider.dart` | Skill profile Riverpod |
-| `debug/map_debug_log.dart` | Debug-only map/route logging |
 
 ---
 
@@ -92,13 +78,14 @@ Each feature is a standalone Dart package with `presentation/domain/data` layeri
 |-------|-----------|
 | Domain | `conditions_models.dart`, `go_no_go.dart`, `go_no_go_thresholds.dart`, `condition_reports_repository_provider.dart`, `condition_reports_refresh_token_provider.dart` |
 | Data | `conditions_service.dart`, `conditions_provider.dart`, `parsing/*.dart`, `firebase/*.dart`, `repositories/go_no_go_profile_repository.dart` |
-| Presentation | `launch_reports_digest_provider.dart` |
+| Presentation | `launch_detail/launch_detail_screen.dart`, `go_no_go_profile_provider.dart`, `launch_reports_digest_provider.dart` |
 
 ### `map` — launch catalog and map-related types
 
 | Layer | Key files |
 |-------|-----------|
 | Data | `launch_points.dart` (static catalog), `launch_providers.dart` |
+| Presentation | `map_screen.dart`, `map_planning_overlay.dart`, `map_planning_provider.dart`, `map_session_provider.dart`, `mapbox/mapbox_map_controller.dart` (+ mixins) |
 
 Domain models (`LaunchPoint`, `LaunchFlowBands`) live in `packages/core/lib/src/launch_models.dart`. The barrel re-exports them.
 
@@ -157,7 +144,7 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 
 | Area | Target | Today |
 |------|--------|-------|
-| Feature layering | `presentation` / `domain` / `data` per feature package | Partial: UI primarily in `apps/eddyscout/lib/screens/`; `map` is mostly data; `conditions` has domain + data + one presentation provider |
+| Feature layering | `presentation` / `domain` / `data` per feature package | **Done:** conditions + map presentation migrated; token/web gates in `packages/routing/` |
 | Riverpod codegen | `@riverpod` for new providers | **Done:** conditions, app shell, map, hydro, and `packages/routing/` (`goRouterProvider` + DI tokens) use `@riverpod` codegen |
 | `Result<T, AppFailure>` | Package I/O boundaries | **Done:** conditions repos, providers, and callables; hydro `riverRoutePlannerProvider` surfaces `ParseFailure` / `AssetLoadFailure` via `AsyncError`; map `launchPointByIdProvider` throws `NotFoundFailure` for unknown ids |
 | Router assembly | `packages/routing/` | `goRouterProvider` in package; app supplies `$appRoutes` and launch validation via `ProviderScope` overrides |
@@ -216,9 +203,9 @@ Create a new package under `packages/features/`:
 
 If the feature introduces **shared domain models**, those go in `packages/core/`. If it introduces **shared widgets**, those go in `packages/design_system/`.
 
-### App-only screens
+### App shell composition
 
-Screens that compose feature packages without introducing new domain logic live in `apps/eddyscout/lib/screens/`. Feature-specific widgets that are **not reusable** stay in the app.
+The app shell wires feature packages — it does not host feature screens. Token/web gate screens live in `packages/routing/lib/src/presentation/` (redirect targets for `app_redirect.dart`).
 
 ### Shared widgets
 
@@ -257,19 +244,17 @@ Tests live in `test/` within each package and the app:
 
 ```
 apps/eddyscout/test/
-├── screens/             # Widget tests for screens
 ├── routing/             # Unit tests for route config
-├── preferences/         # Unit tests for profile providers
+├── preferences/         # Unit tests for app-level persistence wiring
 └── firebase/            # Unit tests for Firebase providers
 
 packages/features/conditions/test/
-├── *.dart               # Parsing, go/no-go, payload tests
-
-packages/features/hydro_routing/test/
-├── *.dart               # River graph, route planner tests
+├── src/presentation/    # Launch detail widget tests
+└── …                    # Parsing, go/no-go, payload tests
 
 packages/features/map/test/
-├── *.dart               # Launch provider tests
+├── src/presentation/    # Map screen, planning, session tests
+└── …                    # Launch provider tests
 
 packages/core/test/
 ├── *.dart               # Result type tests
@@ -277,6 +262,7 @@ packages/core/test/
 packages/routing/test/
 ├── app_redirect_test.dart
 ├── go_router_provider_test.dart
+└── presentation/        # Token/web gate screen widget tests
 ```
 
 See `TESTING.md` for naming conventions and coverage requirements.
@@ -318,7 +304,7 @@ Generated files **are committed** to the repository. CI verifies they are up to 
 
 - Use `dart:developer` `log()` for development logging.
 - Never log tokens, PII, or secrets. See `SECURITY.md`.
-- Debug-only utilities live in `lib/debug/` and must be stripped or gated from release builds.
+- Debug-only utilities live in feature packages (e.g. `packages/features/map/lib/src/presentation/mapbox/map_debug_log.dart`) and must be stripped or gated from release builds.
 
 ### Dependency injection
 

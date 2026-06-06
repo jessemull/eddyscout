@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 /// Web platform placeholder when Mapbox map is unavailable.
 class WebMapPlaceholderScreen extends StatelessWidget {
+  /// Creates a web map placeholder screen.
   const WebMapPlaceholderScreen({super.key});
 
   @override
