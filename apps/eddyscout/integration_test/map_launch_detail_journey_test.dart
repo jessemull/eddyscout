@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/eddyscout_integration_harness.dart';
 import 'helpers/integration_localizations.dart';
+import 'helpers/integration_pump.dart';
 
 const _mapboxAccessToken = String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
 const _usesIntegrationMapStub = bool.fromEnvironment('INTEGRATION_MAP_STUB');
@@ -26,7 +27,7 @@ void main() {
     'map to launch detail and back',
     (tester) async {
       await pumpEddyScoutApp(tester);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await integrationPumpSettle(tester);
 
       final l10n = integrationL10n(tester);
       expect(find.text(l10n.mapScreenTitle), findsOneWidget);
@@ -34,13 +35,13 @@ void main() {
 
       final mapContext = tester.element(find.text(l10n.mapScreenTitle));
       await LaunchDetailRoute(launchId: launch.id).push<void>(mapContext);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await integrationPumpSettle(tester);
 
       expect(find.text(launch.name), findsOneWidget);
       expect(find.text(l10n.launchDetailGoNoGoTitle), findsOneWidget);
 
       await tester.tap(find.byType(BackButton));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await integrationPumpSettle(tester);
 
       expect(find.text(l10n.mapScreenTitle), findsOneWidget);
       expect(find.byKey(const Key('integration_map_stub')), findsOneWidget);
