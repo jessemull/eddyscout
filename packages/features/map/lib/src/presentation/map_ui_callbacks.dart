@@ -1,4 +1,4 @@
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 
 /// UI actions the map controller cannot perform without widget context.
 class MapUiCallbacks {

@@ -1,12 +1,18 @@
-import 'package:eddyscout/screens/map_planning_provider.dart';
-import 'package:eddyscout/screens/map_screen.dart';
-import 'package:eddyscout/screens/map_session_provider.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import '../test_localized_app.dart';
+import '../../helpers/test_localized_app.dart';
+
+CircleAnnotation _launchAnnotation(String launchId) {
+  return CircleAnnotation(
+    id: launchId,
+    geometry: Point(coordinates: Position(0, 0)),
+    customData: <String, Object>{'launchId': launchId},
+  );
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -82,6 +88,37 @@ void main() {
     );
     expect(find.textContaining('12.5 km'), findsOneWidget);
   });
+
+  testWidgets(
+    'invokes onOpenLaunchDetail when launch pin tapped outside planning',
+    (tester) async {
+      LaunchPoint? openedLaunch;
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: testLocalizedApp(
+            child: MapScreen(
+              mapSlot: const SizedBox(key: Key('map_test_stub')),
+              onOpenLaunchDetail: (launch) => openedLaunch = launch,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MapScreen)),
+      );
+      container
+          .read(mapboxMapControllerProvider.notifier)
+          .onLaunchCircleTap(_launchAnnotation('cathedral_park'));
+      await tester.pump();
+
+      expect(openedLaunch, isNotNull);
+      expect(openedLaunch!.id, 'cathedral_park');
+    },
+  );
 }
 
 class _FixedRoutePlanning extends RoutePlanning {

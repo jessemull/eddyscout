@@ -1,27 +1,29 @@
 import 'dart:async' show unawaited;
 
-import 'package:eddyscout/routing/app_routes.dart';
-import 'package:eddyscout/screens/map/map_constants.dart';
-import 'package:eddyscout/screens/map/map_planning_overlay.dart';
-import 'package:eddyscout/screens/map/map_ui_callbacks.dart';
-import 'package:eddyscout/screens/map/mapbox_map_controller.dart';
-import 'package:eddyscout/screens/map_planning_provider.dart';
-import 'package:eddyscout/screens/map_session_provider.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_map/src/presentation/map_constants.dart';
+import 'package:eddyscout_map/src/presentation/map_planning_overlay.dart';
+import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
+import 'package:eddyscout_map/src/presentation/map_session_provider.dart';
+import 'package:eddyscout_map/src/presentation/map_ui_callbacks.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
-  const MapScreen({super.key, this.mapSlot});
+  const MapScreen({super.key, this.mapSlot, this.onOpenLaunchDetail});
 
   /// Replaces [MapWidget] in widget tests (avoids Mapbox platform views).
   @visibleForTesting
   final Widget? mapSlot;
+
+  /// Opens launch detail for a tapped pin when not in route-planning mode.
+  final void Function(LaunchPoint launch)? onOpenLaunchDetail;
 
   @override
   ConsumerState<MapScreen> createState() => _MapScreenState();
@@ -71,9 +73,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               if (!context.mounted) {
                 return;
               }
-              unawaited(
-                LaunchDetailRoute(launchId: launch.id).push<void>(context),
-              );
+              widget.onOpenLaunchDetail?.call(launch);
             },
           ),
         );

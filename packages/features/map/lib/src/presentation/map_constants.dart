@@ -1,4 +1,4 @@
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_map/src/data/launch_points.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 /// Approximate centroid of `kLaunchPoints` for initial viewport.

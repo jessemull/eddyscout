@@ -1,4 +1,4 @@
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'map_planning_provider.g.dart';

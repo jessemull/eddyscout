@@ -1,14 +1,12 @@
-import 'package:eddyscout/screens/map/mapbox_map_controller.dart';
-import 'package:eddyscout/screens/map_screen.dart';
-import 'package:eddyscout/screens/map_session_provider.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import '../test_localized_app.dart';
+import '../../helpers/test_localized_app.dart';
 
 CircleAnnotation _launchAnnotation(String launchId) {
   return CircleAnnotation(

@@ -77,6 +77,8 @@ while IFS= read -r line; do
         # App-only UI and platform glue (hard to test deterministically in unit tests).
         if (sf ~ /(^|\/)lib\/screens\//) return 1
         if (sf ~ /(^|\/)lib\/debug\//) return 1
+        # Map presentation + Mapbox layer (migrated from app shell; widget/integration tested).
+        if (sf ~ /(^|\/)lib\/src\/presentation\//) return 1
         if (sf ~ /(^|\/)lib\/main\.dart$/) return 1
         if (sf ~ /(^|\/)lib\/routing\/app_routes\.dart$/) return 1
         return 0

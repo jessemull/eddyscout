@@ -1,6 +1,6 @@
-import 'package:eddyscout/debug/map_debug_log.dart';
-import 'package:eddyscout/screens/map/map_constants.dart';
-import 'package:eddyscout/screens/map/mapbox_map_controller_shared.dart';
+import 'package:eddyscout_map/src/presentation/map_constants.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/map_debug_log.dart';
+import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller_shared.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 /// Standard style projection and camera bounds for the launch map.
