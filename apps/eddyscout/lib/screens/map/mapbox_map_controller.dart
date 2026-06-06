@@ -9,16 +9,32 @@ import 'package:eddyscout/screens/map/mapbox_map_style_mixin.dart';
 import 'package:eddyscout/screens/map_planning_provider.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'mapbox_map_controller.g.dart';
 
 /// Owns Mapbox map lifecycle: markers, route line, camera, and launch taps.
-final class MapboxMapController extends MapboxMapControllerBase
+@riverpod
+final class MapboxMapController extends _$MapboxMapController
     with
+        MapboxMapControllerBase,
         MapboxMapStyleMixin,
         MapboxMapRouteMixin,
         MapboxMapCameraMixin,
         MapboxMapMarkersMixin {
+  @override
+  Ref get mapControllerRef => ref;
+
+  @override
+  void build() {
+    alive = true;
+    ref.onDispose(() {
+      alive = false;
+      tapCancelable?.cancel();
+    });
+  }
+
   Future<void> onMapCreated(MapboxMap mapboxMap) async {
     this.mapboxMap = mapboxMap;
     mapDebugLog('onMapCreated (initial camera from MapWidget viewport)');
@@ -145,8 +161,3 @@ final class MapboxMapController extends MapboxMapControllerBase
     }
   }
 }
-
-final NotifierProvider<MapboxMapController, void> mapboxMapControllerProvider =
-    NotifierProvider.autoDispose<MapboxMapController, void>(
-      MapboxMapController.new,
-    );

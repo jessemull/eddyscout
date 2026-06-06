@@ -10,12 +10,21 @@ import 'package:go_router/go_router.dart';
 
 part 'app_routes.g.dart';
 
+const _integrationMapStub = bool.fromEnvironment('INTEGRATION_MAP_STUB');
+
 @TypedGoRoute<MapRoute>(path: '/')
 class MapRoute extends GoRouteData with $MapRoute {
   const MapRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) => const MapScreen();
+  Widget build(BuildContext context, GoRouterState state) {
+    if (_integrationMapStub) {
+      return const MapScreen(
+        mapSlot: SizedBox(key: Key('integration_map_stub')),
+      );
+    }
+    return const MapScreen();
+  }
 }
 
 @TypedGoRoute<LaunchDetailRoute>(path: '/launch/:launchId')

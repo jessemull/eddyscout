@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/condition_reports_repository_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'launch_reports_digest_provider.g.dart';
 
 /// UI state for the on-demand community digest card.
 class LaunchReportsDigestState {
@@ -25,17 +27,20 @@ class LaunchReportsDigestState {
   bool get isIdle => !isLoading && result == null && errorMessage == null;
 }
 
-/// Notifier for the launch reports digest card.
-class LaunchReportsDigestNotifier extends Notifier<LaunchReportsDigestState> {
-  /// Creates a launch-scoped digest notifier.
-  LaunchReportsDigestNotifier(this.launchId);
+/// Deprecated alias for [LaunchReportsDigest] after `@riverpod` codegen
+/// migration.
+typedef LaunchReportsDigestNotifier = LaunchReportsDigest;
 
-  /// Family launch id used for digest requests.
-  final String launchId;
+/// Notifier for the launch reports digest card.
+///
+/// Keep-alive preserves card state when navigating away from launch detail
+/// and back within the same app session (matches pre-codegen behavior).
+@Riverpod(keepAlive: true)
+class LaunchReportsDigest extends _$LaunchReportsDigest {
   CancelToken? _activeCancelToken;
 
   @override
-  LaunchReportsDigestState build() {
+  LaunchReportsDigestState build(String launchId) {
     ref.onDispose(() {
       _activeCancelToken?.cancel('launchReportsDigestProvider disposed');
     });
@@ -66,13 +71,3 @@ class LaunchReportsDigestNotifier extends Notifier<LaunchReportsDigestState> {
     );
   }
 }
-
-/// Family notifier provider keyed by launch id.
-final NotifierProvider<LaunchReportsDigestNotifier, LaunchReportsDigestState>
-Function(String)
-launchReportsDigestProvider =
-    NotifierProvider.family<
-      LaunchReportsDigestNotifier,
-      LaunchReportsDigestState,
-      String
-    >(LaunchReportsDigestNotifier.new);
