@@ -81,7 +81,7 @@ class AnalyticsNavigatorObserver extends NavigatorObserver {
       GoRouter.of(context).state.matchedLocation,
     );
     if (screenName != null) {
-      client.logScreenView(screenName: screenName);
+      _client.logScreenView(screenName: screenName);
     }
   }
 }

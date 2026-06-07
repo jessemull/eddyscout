@@ -18,7 +18,7 @@ class GoNoGoProfileNotifier extends _$GoNoGoProfileNotifier {
     final result = await ref.read(goNoGoProfileRepositoryProvider).read();
     return result.when(
       success: (value) => value,
-      failure: (error) => throw Exception(error.message),
+      failure: (error) => throw error,
     );
   }
 

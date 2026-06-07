@@ -6,13 +6,18 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'analytics_client_provider.g.dart';
 
-/// Application-wide analytics client.
-///
-/// Debug builds log to console; release builds use [NoOpAnalyticsClient].
-@Riverpod(keepAlive: true)
-AnalyticsClient analyticsClient(Ref ref) {
-  if (kDebugMode) {
+/// Selects the analytics client for the current build mode.
+@visibleForTesting
+AnalyticsClient analyticsClientForDebugMode({required bool debugMode}) {
+  if (debugMode) {
     return const DebugAnalyticsClient();
   }
   return const NoOpAnalyticsClient();
 }
+
+/// Application-wide analytics client.
+///
+/// Debug builds log to console; release builds use [NoOpAnalyticsClient].
+@Riverpod(keepAlive: true)
+AnalyticsClient analyticsClient(Ref ref) =>
+    analyticsClientForDebugMode(debugMode: kDebugMode);

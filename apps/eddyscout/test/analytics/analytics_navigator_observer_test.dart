@@ -8,7 +8,7 @@ void main() {
   testWidgets('AnalyticsNavigatorObserver logs screen view on push', (
     tester,
   ) async {
-    final client = _RecordingAnalyticsClient();
+    final client = RecordingAnalyticsClient();
     final router = _routerWithObserver(
       client,
       initialLocation: '/missing-token',
@@ -27,7 +27,7 @@ void main() {
   testWidgets('AnalyticsNavigatorObserver logs screen view on pop', (
     tester,
   ) async {
-    final client = _RecordingAnalyticsClient();
+    final client = RecordingAnalyticsClient();
     final observer = AnalyticsNavigatorObserver(client);
     final router = GoRouter(
       observers: [observer],
@@ -55,7 +55,7 @@ void main() {
   testWidgets('AnalyticsNavigatorObserver logs screen view on replace', (
     tester,
   ) async {
-    final client = _RecordingAnalyticsClient();
+    final client = RecordingAnalyticsClient();
     final observer = AnalyticsNavigatorObserver(client);
     final router = GoRouter(
       observers: [observer],
@@ -86,7 +86,7 @@ void main() {
 }
 
 GoRouter _routerWithObserver(
-  _RecordingAnalyticsClient client, {
+  RecordingAnalyticsClient client, {
   String initialLocation = '/',
 }) {
   return GoRouter(
@@ -103,25 +103,4 @@ GoRouter _routerWithObserver(
     ],
     initialLocation: initialLocation,
   );
-}
-
-class _RecordingAnalyticsClient implements AnalyticsClient {
-  final screenViews = <String>[];
-
-  @override
-  Future<void> flush() async {}
-
-  @override
-  Future<void> logEvent(AnalyticsEvent event) async {}
-
-  @override
-  Future<void> logScreenView({required String screenName}) async {
-    screenViews.add(screenName);
-  }
-
-  @override
-  Future<void> setUserProperty({
-    required String name,
-    required String value,
-  }) async {}
 }

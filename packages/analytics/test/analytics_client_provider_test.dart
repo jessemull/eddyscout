@@ -10,4 +10,14 @@ void main() {
     final client = container.read(analyticsClientProvider);
     expect(client, isA<DebugAnalyticsClient>());
   });
+
+  test('analyticsClientForDebugMode uses DebugAnalyticsClient in debug', () {
+    final client = analyticsClientForDebugMode(debugMode: true);
+    expect(client, isA<DebugAnalyticsClient>());
+  });
+
+  test('analyticsClientForDebugMode uses NoOpAnalyticsClient in release', () {
+    final client = analyticsClientForDebugMode(debugMode: false);
+    expect(client, isA<NoOpAnalyticsClient>());
+  });
 }

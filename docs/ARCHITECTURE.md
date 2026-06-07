@@ -185,7 +185,7 @@ apps/eddyscout
   ├── packages/analytics           → core
   ├── packages/routing             → design_system, localization, flutter, flutter_riverpod, go_router
   ├── packages/localization        (standalone)
-  ├── packages/features/conditions → core, networking, persistence
+  ├── packages/features/conditions → core, networking, persistence, analytics
   ├── packages/features/map        → core
   └── packages/features/hydro_routing → core
 ```

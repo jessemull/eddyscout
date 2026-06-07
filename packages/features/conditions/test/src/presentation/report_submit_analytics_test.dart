@@ -15,27 +15,6 @@ import '../../helpers/test_localized_app.dart';
 class _MockConditionReportSubmitRepository extends Mock
     implements ConditionReportSubmitRepository {}
 
-class _RecordingAnalyticsClient implements AnalyticsClient {
-  final events = <AnalyticsEvent>[];
-
-  @override
-  Future<void> flush() async {}
-
-  @override
-  Future<void> logEvent(AnalyticsEvent event) async {
-    events.add(event);
-  }
-
-  @override
-  Future<void> logScreenView({required String screenName}) async {}
-
-  @override
-  Future<void> setUserProperty({
-    required String name,
-    required String value,
-  }) async {}
-}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -47,7 +26,7 @@ void main() {
 
     SharedPreferences.setMockInitialValues({});
     final store = await SharedPreferencesKeyValueStore.open();
-    final analytics = _RecordingAnalyticsClient();
+    final analytics = RecordingAnalyticsClient();
     final submitRepo = _MockConditionReportSubmitRepository();
     when(
       () => submitRepo.submit(
