@@ -109,8 +109,9 @@ These constraints apply to **every change** in this repository. No exceptions wi
 ```bash
 ./scripts/ensure_husky.sh
 # or: make ensure-husky
-# or: npm install
 ```
+
+Do **not** run bare `npm install` at the repo root — use `./scripts/npm_install.sh` (called by the commands above). Root `package.json` pins `"name": "eddyscout"` so `package-lock.json` does not pick up the worktree folder name.
 
 Verify: `test -x .husky/_/pre-push && echo OK`
 

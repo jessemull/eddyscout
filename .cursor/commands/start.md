@@ -57,6 +57,8 @@ From the repository root:
 make ensure-husky
 ```
 
+Do not run bare `npm install` at the repo root — use `make ensure-husky` or `./scripts/npm_install.sh`. Root `package.json` pins `"name": "eddyscout"` so `package-lock.json` does not inherit the worktree folder name.
+
 Verify:
 
 ```bash
