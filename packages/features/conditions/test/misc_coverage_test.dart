@@ -5,6 +5,7 @@ import 'package:eddyscout_conditions/src/data/firebase/firebase_bootstrap.dart';
 import 'package:eddyscout_conditions/src/data/firebase/firebase_flags.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -72,16 +73,60 @@ void main() {
       expect(firebaseCallablesAvailable, isTrue);
     });
 
-    test('FirebaseBootstrap hintForLastError returns null when unset', () {
+    test('FirebaseBootstrap hintKind is none when unset', () {
       FirebaseBootstrap.lastError = null;
-      expect(FirebaseBootstrap.hintForLastError(), isNull);
+      expect(FirebaseBootstrap.hintKind, FirebaseBootstrapHintKind.none);
     });
 
     test(
-      'FirebaseBootstrap hintForLastError returns guidance for known auth codes',
+      'FirebaseBootstrap hintKind returns anonymousAuth for known auth codes',
       () {
         FirebaseBootstrap.lastError = 'admin-restricted-operation';
-        expect(FirebaseBootstrap.hintForLastError(), isNotNull);
+        expect(
+          FirebaseBootstrap.hintKind,
+          FirebaseBootstrapHintKind.anonymousAuthDisabled,
+        );
+      },
+    );
+
+    test(
+      'FirebaseBootstrap hintKind returns missingNativeConfig for values.xml',
+      () {
+        FirebaseBootstrap.lastError =
+            'Failed to load FirebaseOptions from resource.';
+        expect(
+          FirebaseBootstrap.hintKind,
+          FirebaseBootstrapHintKind.missingNativeConfig,
+        );
+      },
+    );
+
+    test('FirebaseBootstrap recordInitError keeps first line only', () {
+      FirebaseBootstrap.recordInitError(
+        Exception('Failed to init\nat some.java:1'),
+      );
+      expect(FirebaseBootstrap.lastError, 'Exception: Failed to init');
+      FirebaseBootstrap.lastError = null;
+    });
+
+    test(
+      'FirebaseBootstrap recordInitError uses PlatformException message',
+      () {
+        FirebaseBootstrap.recordInitError(
+          PlatformException(
+            code: 'firebase_core',
+            message: 'Failed to load FirebaseOptions from resource.',
+          ),
+        );
+        expect(
+          FirebaseBootstrap.lastError,
+          'Failed to load FirebaseOptions from resource.',
+        );
+        expect(
+          FirebaseBootstrap.hintKind,
+          FirebaseBootstrapHintKind.missingNativeConfig,
+        );
+        FirebaseBootstrap.lastError = null;
       },
     );
   });

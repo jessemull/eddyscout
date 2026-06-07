@@ -5,15 +5,21 @@ PNW paddling companion — Mapbox map with Portland-area launch pins.
 ## Quick Start
 
 ```bash
-# Bootstrap the monorepo
-./scripts/bootstrap.sh
+# One command (new worktrees: bootstraps packages, links .local.env, starts emulator, runs app)
+make dev
 
-# Run the app (from repo root or apps/eddyscout/)
+# First time only: set your Mapbox token in your main clone's .local.env, or:
 cd apps/eddyscout && cp env.example .local.env
-# Edit .local.env with your Mapbox token, then from repo root:
-make run
-# Or: cd apps/eddyscout && make run
+# Edit MAPBOX_ACCESS_TOKEN, then make dev again.
+
+# Optional: point all worktrees at canonical secrets (auto-linked from sibling worktrees by default)
+export EDDYSCOUT_LOCAL_ENV=~/Development/eddyscout/apps/eddyscout/.local.env
+export EDDYSCOUT_GOOGLE_SERVICES=~/Development/eddyscout/apps/eddyscout/android/app/google-services.json
+
+# Optional: skip pickers — RUN_TARGET=launch:Pixel_9 DEV_INTERACTIVE=0 AUTO_LAUNCH=0
 ```
+
+Manual setup: `./scripts/bootstrap.sh`, then `make run` (emulator must already be running).
 
 ## Repository Structure
 
@@ -59,6 +65,7 @@ Read `CONTEXT.md` before making any changes. It provides mandatory loading order
 | `make preflight` | Full checks + coverage (optional; `git push` runs most gates) |
 | `make ci` | CI-grade validation |
 | `make clean` | Clean all packages |
+| `make dev` | Bootstrap worktree + link secrets + start Android emulator + `flutter run` |
 | `make run` | Run app on device/emulator (needs `apps/eddyscout/.local.env`) |
 
 ## Documentation

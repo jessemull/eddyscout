@@ -1,8 +1,19 @@
 part of 'launch_detail_screen.dart';
 
+String? _launchDetailFirebaseHint(
+  AppLocalizations l10n,
+  FirebaseBootstrapHintKind kind,
+) => switch (kind) {
+  FirebaseBootstrapHintKind.missingNativeConfig =>
+    l10n.launchDetailFirebaseHintMissingNativeConfig,
+  FirebaseBootstrapHintKind.anonymousAuthDisabled =>
+    l10n.launchDetailFirebaseHintAnonymousAuth,
+  FirebaseBootstrapHintKind.none => null,
+};
+
 String _launchDetailFirebaseUnavailableMessage(AppLocalizations l10n) {
   if (FirebaseBootstrap.lastError != null) {
-    final hint = FirebaseBootstrap.hintForLastError();
+    final hint = _launchDetailFirebaseHint(l10n, FirebaseBootstrap.hintKind);
     final buf = StringBuffer()
       ..writeln(l10n.launchDetailFirebaseUnavailableIntro)
       ..writeln()

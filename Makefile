@@ -1,4 +1,4 @@
-.PHONY: bootstrap ensure-husky analyze format test coverage coverage-check gen gen-check clean preflight ci setup run integration-test
+.PHONY: bootstrap ensure-husky analyze format test coverage coverage-check gen gen-check clean preflight ci setup dev run integration-test
 
 bootstrap:
 	./scripts/bootstrap.sh
@@ -41,6 +41,11 @@ ci:
 
 setup:
 	./scripts/bootstrap.sh
+
+# Bootstrap worktree, link .local.env, start Android emulator if needed, flutter run.
+# Optional: RUN_TARGET=launch:Pixel_9 RUN_TARGET=run:emulator-5554 DEVICE_ID=emulator-5554 EMULATOR_ID=Pixel_9 DEV_INTERACTIVE=0 AUTO_LAUNCH=0
+dev:
+	./scripts/dev.sh $(ARGS)
 
 run:
 	$(MAKE) -C apps/eddyscout run ARGS="$(ARGS)"

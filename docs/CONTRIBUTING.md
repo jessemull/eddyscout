@@ -38,14 +38,32 @@ melos run preflight
 ### Running the app
 
 ```bash
-# Android
+# Recommended: bootstraps worktree, links secrets, picks device, runs app
+make dev
+
+# Menu shows (connected) devices first, then (start ...) for AVDs not already running.
+# Pick a connected device to skip launch; pick start Pixel_9 to boot a new emulator.
+
+# Optional: one canonical secrets file for all worktrees
+export EDDYSCOUT_LOCAL_ENV=~/Development/eddyscout/apps/eddyscout/.local.env
+export EDDYSCOUT_GOOGLE_SERVICES=~/Development/eddyscout/apps/eddyscout/android/app/google-services.json
+
+# Optional: skip the interactive menu
+# RUN_TARGET=launch:Pixel_9   or   RUN_TARGET=run:emulator-5554
+# DEV_INTERACTIVE=0             # first target, no menu
+# AUTO_LAUNCH=0                 # connected devices only (no AVD launch rows)
+
+# Manual Android (emulator must already be running)
 ./scripts/run_android.sh
 
-# iOS (from apps/eddyscout/)
+# iOS — requires full Xcode from the App Store (not Command Line Tools alone)
+#   sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+#   sudo xcodebuild -runFirstLaunch
+# Then from apps/eddyscout/:
 flutter run --dart-define-from-file=.local.env
 ```
 
-The `.local.env` file must contain your Mapbox token. See the app's `scripts/` directory for details.
+The `.local.env` file must contain your Mapbox token. New worktrees symlink from a sibling worktree or `EDDYSCOUT_LOCAL_ENV` when possible.
 
 ---
 
