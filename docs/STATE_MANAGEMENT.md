@@ -106,7 +106,7 @@ ConditionReportsRepository conditionReportsRepository(Ref ref) {
 
 1. **One provider per concern.** Don't combine unrelated state into a single provider.
 2. **Providers are owned by the feature that defines the state.** The conditions provider lives in the conditions feature, not in the launch detail screen.
-3. **Cross-feature dependencies** go through provider composition (`ref.watch`), not direct imports of internal state.
+3. **Cross-feature dependencies** go through provider composition (`ref.watch`) and shared types in `packages/core/`, not direct imports of another feature's internal layers. **Exception (shipped):** `eddyscout_map` depends on `eddyscout_hydro_routing` for route preview — map presentation watches `riverRoutePlannerProvider` and related hydro types; see `scripts/check_imports.sh` and `docs/ARCHITECTURE.md` § Package boundaries.
 4. **Package-level providers** (e.g., a `dioProvider` in `packages/networking/`) expose infrastructure, not business logic.
 5. **No orphan providers.** Every provider must be watched or read somewhere. Remove unused providers.
 

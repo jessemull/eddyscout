@@ -22,6 +22,8 @@ dev_dependencies:
 
 dependency_overrides:
   source_gen: 4.2.0
+  # Flutter SDK pins meta 1.17.0 via flutter_test; align workspace until SDK updates.
+  meta: 1.17.0
 
 melos:
   name: eddyscout

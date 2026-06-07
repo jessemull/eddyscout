@@ -171,7 +171,7 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 5. **Design system depends on core (for model types) and Flutter SDK.** It must not depend on networking, persistence, or routing.
 6. **Networking depends on core (for domain types) and dio.** It must not depend on Flutter SDK unless required for interceptors.
 7. **Persistence depends on core (for domain types), drift, and platform packages.** It must not depend on networking.
-8. **Feature packages may depend on shared packages but never on other features.** Cross-feature communication flows through `packages/core/` types or Riverpod providers in the app shell.
+8. **Feature packages must not depend on sibling features**, except the intentional **map → hydro_routing** coupling for shipped route preview (wave 3). `scripts/check_imports.sh` whitelists `eddyscout_map` importing `eddyscout_hydro_routing` so planning mode can call `riverRoutePlannerProvider` without duplicating hydro geometry. All other cross-feature communication flows through `packages/core/` types or Riverpod composition in the app shell.
 
 ### Dependency graph (allowed directions)
 
@@ -185,7 +185,7 @@ apps/eddyscout
   ├── packages/routing             → design_system, localization, flutter, flutter_riverpod, go_router
   ├── packages/localization        (standalone)
   ├── packages/features/conditions → core, networking, persistence
-  ├── packages/features/map        → core
+  ├── packages/features/map        → core, design_system, localization, hydro_routing
   └── packages/features/hydro_routing → core
 ```
 
