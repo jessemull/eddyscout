@@ -126,7 +126,11 @@ launch_avd_and_wait() {
       exit 1
     fi
 
-    new_id="$(dart "$FLUTTER_DEVICES" first-new-booted-device "${before_ids[@]}")"
+    if ((${#before_ids[@]} > 0)); then
+      new_id="$(dart "$FLUTTER_DEVICES" first-new-booted-device "${before_ids[@]}")"
+    else
+      new_id="$(dart "$FLUTTER_DEVICES" first-new-booted-device)"
+    fi
     if [[ -n "$new_id" ]]; then
       echo "dev: $avd_id ready ($new_id)" >&2
       echo "$new_id"
