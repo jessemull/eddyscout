@@ -55,6 +55,7 @@
   "commonDotSeparator": " · ",
   "launchDetailConditionsErrorNetwork": "Could not load conditions. Check your connection and try again.",
   "launchDetailConditionsErrorGeneric": "Could not load conditions. Pull to refresh or try again later.",
+  "launchDetailSkillProfileErrorGeneric": "Could not load your skill profile. Restart the app or try again later.",
   "launchDetailSkillSectionTitle": "Skill (wind thresholds)",
   "launchDetailWindExposureSemantics": "Wind exposure {label}",
   "@launchDetailWindExposureSemantics": {

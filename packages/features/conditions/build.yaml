@@ -30,4 +30,4 @@ targets:
             - lib/src/data/condition_report_submit_provider.dart
             - lib/src/data/conditions_ai_summary_provider.dart
             - lib/src/presentation/go_no_go_profile_provider.dart
-            - lib/src/presentation/launch_reports_digest_provider.dart
+            - lib/src/data/launch_reports_digest_provider.dart

@@ -152,6 +152,7 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 | Tab / shell nav | `StatefulShellRoute` when multi-tab | Single-stack typed routes |
 | Golden tests | Design system + stable layouts | Design system golden tests exist (e.g. `packages/design_system/test/goldens/app_theme_golden_test.dart`) |
 | Integration tests | Critical journeys in `integration_test/` | Token gate + map → launch detail journey; CI `integration-test` job |
+| Client telemetry v1 | Router screen tracking + conversion events | `AnalyticsNavigatorObserver`, `NoOp`/`Debug` clients, `report_submit_success` |
 | Secure storage | `flutter_secure_storage` for secrets | Not in pubspecs; `persistence` uses SharedPreferences for non-sensitive prefs |
 | Remote images | Sized + cached network images | No `CachedNetworkImage` usage yet |
 | CancelToken on HTTP / callables | All new I/O in features | **Done** in conditions; extend per `docs/NETWORKING.md` when adding I/O elsewhere |
@@ -171,7 +172,7 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 5. **Design system depends on core (for model types) and Flutter SDK.** It must not depend on networking, persistence, or routing.
 6. **Networking depends on core (for domain types) and dio.** It must not depend on Flutter SDK unless required for interceptors.
 7. **Persistence depends on core (for domain types), drift, and platform packages.** It must not depend on networking.
-8. **Feature packages may depend on shared packages but never on other features.** Cross-feature communication flows through `packages/core/` types or Riverpod providers in the app shell.
+8. **Feature packages must not depend on sibling features**, except the intentional **map → hydro_routing** coupling for shipped route preview (wave 3). `scripts/check_imports.sh` whitelists `eddyscout_map` importing `eddyscout_hydro_routing` so planning mode can call `riverRoutePlannerProvider` without duplicating hydro geometry. All other cross-feature communication flows through `packages/core/` types or Riverpod composition in the app shell.
 
 ### Dependency graph (allowed directions)
 
@@ -184,8 +185,8 @@ apps/eddyscout
   ├── packages/analytics           → core
   ├── packages/routing             → design_system, localization, flutter, flutter_riverpod, go_router
   ├── packages/localization        (standalone)
-  ├── packages/features/conditions → core, networking, persistence
-  ├── packages/features/map        → core
+  ├── packages/features/conditions → core, networking, persistence, analytics
+  ├── packages/features/map        → core, design_system, localization, hydro_routing
   └── packages/features/hydro_routing → core
 ```
 
@@ -329,4 +330,3 @@ Generated files **are committed** to the repository. CI verifies they are up to 
 
 - Two style rules (`prefer_constructors_over_static_methods`, `prefer_expression_function_bodies`) are suppressed in `tooling/analysis_options.feature.yaml` for feature packages.
 - `dependency_overrides: source_gen: 4.2.0` in the root `pubspec.yaml` works around a `build_runner` / `analyzer` compatibility issue. Remove when upstream deps align.
-- App coverage threshold is 40%. Raise as widget test coverage improves.

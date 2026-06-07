@@ -31,8 +31,15 @@ void main() {
           mapInteractiveProvider.overrideWithValue(true),
         ],
         child: testLocalizedApp(
-          child: const MapScreen(
-            mapSlot: SizedBox(key: Key('map_test_stub')),
+          child: Builder(
+            builder: (context) => Theme(
+              data: Theme.of(context).copyWith(
+                splashFactory: NoSplash.splashFactory,
+              ),
+              child: const MapScreen(
+                mapSlot: SizedBox(key: Key('map_test_stub')),
+              ),
+            ),
           ),
         ),
       ),

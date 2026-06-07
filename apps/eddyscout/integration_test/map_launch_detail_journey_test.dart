@@ -3,6 +3,8 @@
 //   --dart-define=MAPBOX_ACCESS_TOKEN=pk.integration_test \
 //   --dart-define=INTEGRATION_MAP_STUB=true
 
+import 'dart:async' show unawaited;
+
 import 'package:eddyscout/routing/app_routes.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +36,8 @@ void main() {
       expect(find.byKey(const Key('integration_map_stub')), findsOneWidget);
 
       final mapContext = tester.element(find.text(l10n.mapScreenTitle));
-      await LaunchDetailRoute(launchId: launch.id).push<void>(mapContext);
+      // go_router push completes when the route is popped — do not await here.
+      unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(mapContext));
       await integrationPumpFrames(tester);
 
       await integrationWaitFor(tester, find.text(launch.name));

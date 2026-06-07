@@ -286,6 +286,12 @@ abstract class AppLocalizations {
   /// **'Could not load conditions. Pull to refresh or try again later.'**
   String get launchDetailConditionsErrorGeneric;
 
+  /// No description provided for @launchDetailSkillProfileErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your skill profile. Restart the app or try again later.'**
+  String get launchDetailSkillProfileErrorGeneric;
+
   /// No description provided for @launchDetailSkillSectionTitle.
   ///
   /// In en, this message translates to:

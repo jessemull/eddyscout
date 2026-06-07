@@ -1,5 +1,7 @@
+import 'package:eddyscout/analytics/analytics_navigator_observer.dart';
 import 'package:eddyscout/preferences/key_value_store_provider.dart';
 import 'package:eddyscout/routing/app_routes.dart';
+import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
@@ -52,6 +54,11 @@ Future<void> main() async {
         hydroGeoJsonLoaderProvider.overrideWithValue(
           () =>
               rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
+        ),
+        navigatorObserversProvider.overrideWith(
+          (ref) => [
+            AnalyticsNavigatorObserver(ref.watch(analyticsClientProvider)),
+          ],
         ),
       ],
       child: const EddyScoutApp(),

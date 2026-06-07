@@ -48,6 +48,16 @@ String _launchDetailConditionsErrorMessage(
   return l10n.launchDetailConditionsErrorGeneric;
 }
 
+String _launchDetailSkillProfileErrorMessage(
+  AppLocalizations l10n,
+  Object error,
+) {
+  if (error is AppFailure) {
+    return _launchDetailFailureMessage(error);
+  }
+  return l10n.launchDetailSkillProfileErrorGeneric;
+}
+
 String _launchDetailRiverLabel(AppLocalizations l10n, RiverSystem r) =>
     switch (r) {
       RiverSystem.willamette => l10n.launchDetailRiverWillamette,

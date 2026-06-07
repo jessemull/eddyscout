@@ -21,7 +21,7 @@ echo "Dart: $(dart --version 2>&1)"
 # Install Node dependencies (for husky/commitlint)
 if command -v npm &>/dev/null; then
   echo "Installing Node dependencies..."
-  npm install
+  "$SCRIPT_DIR/npm_install.sh"
 else
   echo "WARNING: npm not found. Git hooks (husky/commitlint) will not be installed."
   echo "Install Node.js for commit message linting."

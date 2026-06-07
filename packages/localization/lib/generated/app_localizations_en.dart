@@ -120,6 +120,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not load conditions. Pull to refresh or try again later.';
 
   @override
+  String get launchDetailSkillProfileErrorGeneric =>
+      'Could not load your skill profile. Restart the app or try again later.';
+
+  @override
   String get launchDetailSkillSectionTitle => 'Skill (wind thresholds)';
 
   @override
