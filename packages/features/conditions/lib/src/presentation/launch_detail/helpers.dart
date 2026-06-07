@@ -23,16 +23,6 @@ String _launchDetailFirebaseUnavailableMessage(AppLocalizations l10n) {
 String _launchDetailFailureMessage(Object error) =>
     error is AppFailure ? error.message : error.toString();
 
-String _launchDetailSkillProfileErrorMessage(
-  AppLocalizations l10n,
-  Object error,
-) {
-  if (error is AppFailure) {
-    return _launchDetailFailureMessage(error);
-  }
-  return l10n.launchDetailConditionsErrorGeneric;
-}
-
 String _launchDetailConditionsErrorMessage(
   AppLocalizations l10n,
   Object error,
@@ -45,6 +35,16 @@ String _launchDetailConditionsErrorMessage(
     return l10n.launchDetailConditionsErrorNetwork;
   }
   return l10n.launchDetailConditionsErrorGeneric;
+}
+
+String _launchDetailSkillProfileErrorMessage(
+  AppLocalizations l10n,
+  Object error,
+) {
+  if (error is AppFailure) {
+    return _launchDetailFailureMessage(error);
+  }
+  return l10n.launchDetailSkillProfileErrorGeneric;
 }
 
 String _launchDetailRiverLabel(AppLocalizations l10n, RiverSystem r) =>

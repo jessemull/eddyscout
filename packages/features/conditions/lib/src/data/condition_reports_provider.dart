@@ -6,7 +6,7 @@ import 'package:eddyscout_conditions/src/domain/condition_reports_repository_pro
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-export '../presentation/launch_reports_digest_provider.dart'
+export 'launch_reports_digest_provider.dart'
     show
         LaunchReportsDigest,
         LaunchReportsDigestNotifier,

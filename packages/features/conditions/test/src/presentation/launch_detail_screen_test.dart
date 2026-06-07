@@ -126,6 +126,34 @@ void main() {
     expect(find.text(launch.name), findsOneWidget);
   });
 
+  testWidgets(
+    'shows skill profile error instead of defaulting to intermediate',
+    (
+      tester,
+    ) async {
+      final repo = _MockGoNoGoProfileRepository();
+      when(repo.read).thenAnswer(
+        (_) async => const Result<GoNoGoProfile, AppFailure>.failure(
+          StorageFailure(message: 'Could not read skill profile.'),
+        ),
+      );
+
+      final container = await scopedContainer(
+        loadConditions: () => Future.value(calmSnapshot()),
+        profileRepository: repo,
+      );
+      await pumpLaunchDetail(tester, container: container);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.textContaining('Could not read skill profile'),
+        findsOneWidget,
+      );
+      expect(find.text('Go / No-go (informational)'), findsNothing);
+      expect(find.text('Intermed.'), findsNothing);
+    },
+  );
+
   testWidgets('shows friendly error when conditions fail', (tester) async {
     final container = await scopedContainer(
       loadConditions: () async {

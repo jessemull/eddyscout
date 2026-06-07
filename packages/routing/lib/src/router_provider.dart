@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
-/// Lightweight router factory shared by the app and feature shells.
+/// Lightweight router factory shared by the app and `packages/routing/`.
 ///
 /// Route lists are assembled in the app shell (`app_routes.dart`); this package
 /// centralizes router creation options (initial location, redirect hook,
