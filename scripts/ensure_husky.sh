@@ -12,14 +12,8 @@ fi
 
 echo "husky: .husky/_/ missing (common in new git worktrees)"
 
-if ! command -v npm &>/dev/null; then
-  echo "ERROR: npm not found. Install Node.js, then run: npm install"
-  echo "Without .husky/_/, pre-commit and pre-push hooks will not run."
-  exit 1
-fi
-
 echo "husky: running npm install to generate hook stubs..."
-npm install
+"$SCRIPT_DIR/npm_install.sh"
 
 if [[ -x .husky/_/pre-push ]]; then
   echo "husky: hooks installed"

@@ -112,6 +112,7 @@ Target repo/platform architecture is **done** for the current design. Shipped hi
 | Router package | `goRouterProvider`, redirects, gate screens in `packages/routing/` (#26, closeout) |
 | `Result<T, AppFailure>` | Conditions, hydro, map boundaries (#28, #32, #33) |
 | Feature layering | Conditions + map `presentation/`; token/web gates in routing (#35, #36, closeout) |
+| Client telemetry v1 | Router screen tracking via `AnalyticsNavigatorObserver`; debug/no-op client; `report_submit_success` event |
 | Integration tests (E2E) | Token gate + map → launch detail; CI Linux deps (#22, #25, #27) |
 
 **Canonical design reference:** `docs/ARCHITECTURE.md` (package graph, layering, current implementation status).
@@ -126,9 +127,11 @@ Apply these **with** the product slice that needs them — not as standalone pla
 |---------------|----------|
 | **New Riverpod provider** | Use `@riverpod` codegen (`docs/CODEGEN.md`, `docs/STATE_MANAGEMENT.md`) |
 | **New package I/O** (HTTP, callables, file load) | Return `Result<T, AppFailure>` or surface typed `AppFailure` via `AsyncError`; wire `CancelToken` per `docs/NETWORKING.md` (conditions is the reference) |
-| **New user-facing screen** | Build in `packages/features/<name>/presentation/`; bind routes from `apps/eddyscout/lib/routing/app_routes.dart` |
+| **New user-facing screen** | Build in `packages/features/<name>/presentation/`; bind routes from `apps/eddyscout/lib/routing/app_routes.dart`; add path to `AnalyticsScreenNames` (screen views are automatic via router observer) |
 | **New design-system widget** | Add golden test (`docs/TESTING.md`; `packages/design_system/test/goldens/`) |
-| **New critical user journey** | Add or extend `apps/eddyscout/integration_test/` |
+| **New critical user journey** | Add or extend `apps/eddyscout/integration_test/` per `docs/TESTING.md` integration criteria |
+| **New conversion / goal flow** | Add `AnalyticsEvent` per `docs/ANALYTICS.md` taxonomy (no PII in parameters) |
+| **Edit launch detail UI** | Extract new sections into separate part files/widgets; avoid growing `widgets_conditions.dart` / `widgets_reports.dart` in place |
 | **Authentication / saved identity** | Add `flutter_secure_storage` for tokens/credentials; add session auth router guards beyond Mapbox token/web redirects (`docs/NAVIGATION.md`, `docs/SECURITY.md`) — see **(Phase C) Auth** below |
 | **Multi-tab navigation** | Use `StatefulShellRoute` (`docs/NAVIGATION.md`) |
 | **Remote image UI** | Use `CachedNetworkImage` sized to display dimensions (`docs/PERFORMANCE.md`) |
@@ -141,6 +144,16 @@ Apply these **with** the product slice that needs them — not as standalone pla
 | **Tab shell** (e.g. map + trips + profile) | `StatefulShellRoute`, shell routes in `packages/routing/` |
 | **(Phase D) Media** / trip cards with photos | `CachedNetworkImage`, image sizing, optional upload pipeline |
 | **New HTTP-heavy feature** | Extend `CancelToken` + `Result` pattern from conditions to that feature's repos |
+
+### Integration test backlog
+
+Add E2E coverage when the corresponding product slice ships (not before):
+
+- **Report submit journey** — when moderation or report UX changes materially
+- **Degraded / offline conditions** — when offline or cached conditions ship
+- **Auth session flow** — with **(Phase C) Auth**
+
+Budget: at most **one new** `integration_test/` file per product epic unless justified in the PR.
 
 ---
 
@@ -185,6 +198,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [x] **(Phase E)** **Snapshot summary (v1)** — `summarizeConditions` + “Summarize with AI” on launch detail
 - [x] **(Phase E)** **Reports digest** (community notes paraphrase; see **Reports** rows above)
 - [x] **(Infra)** Result-based providers + cancellation (CancelToken / callable cancel guards) for conditions, reports, and AI summary
+- [x] **(Infra)** Client telemetry v1 — router screen tracking, debug/no-op `AnalyticsClient`, `report_submit_success` event
 
 ### Not yet
 

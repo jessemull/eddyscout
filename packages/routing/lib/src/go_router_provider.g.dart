@@ -115,6 +115,59 @@ final class IsKnownLaunchIdProvider
 
 String _$isKnownLaunchIdHash() => r'e911bd8f7e8d69e850c38bee1fdd4482c3a1ed9d';
 
+/// Navigator observers supplied by the app composition root.
+
+@ProviderFor(navigatorObservers)
+final navigatorObserversProvider = NavigatorObserversProvider._();
+
+/// Navigator observers supplied by the app composition root.
+
+final class NavigatorObserversProvider
+    extends
+        $FunctionalProvider<
+          List<NavigatorObserver>,
+          List<NavigatorObserver>,
+          List<NavigatorObserver>
+        >
+    with $Provider<List<NavigatorObserver>> {
+  /// Navigator observers supplied by the app composition root.
+  NavigatorObserversProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'navigatorObserversProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$navigatorObserversHash();
+
+  @$internal
+  @override
+  $ProviderElement<List<NavigatorObserver>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<NavigatorObserver> create(Ref ref) {
+    return navigatorObservers(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<NavigatorObserver> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<NavigatorObserver>>(value),
+    );
+  }
+}
+
+String _$navigatorObserversHash() =>
+    r'39a041e01cb553cd60a999d06dfe541e7ae562cb';
+
 /// Mapbox token for routing gates; override in tests via [ProviderContainer].
 
 @ProviderFor(mapboxAccessToken)
@@ -205,4 +258,4 @@ final class GoRouterProvider
   }
 }
 
-String _$goRouterHash() => r'7d41eed914fbc1988f966a3ed21afcf77d96d90c';
+String _$goRouterHash() => r'5c7fa16424747e90d5f93ab7fa0c558dad21112d';

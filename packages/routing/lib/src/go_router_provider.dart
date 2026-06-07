@@ -1,6 +1,7 @@
 import 'package:eddyscout_routing/src/app_redirect.dart' as app_redirect;
 import 'package:eddyscout_routing/src/router_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -25,6 +26,10 @@ bool Function(String launchId) isKnownLaunchId(Ref ref) {
   );
 }
 
+/// Navigator observers supplied by the app composition root.
+@Riverpod(keepAlive: true)
+List<NavigatorObserver> navigatorObservers(Ref ref) => const [];
+
 /// Mapbox token for routing gates; override in tests via [ProviderContainer].
 @Riverpod(keepAlive: true)
 String mapboxAccessToken(Ref ref) => app_redirect.mapboxAccessToken;
@@ -41,6 +46,7 @@ GoRouter goRouter(Ref ref) {
       hasMapboxToken: token.isNotEmpty,
     ),
     debugLogDiagnostics: kDebugMode,
+    observers: ref.watch(navigatorObserversProvider),
     redirect: (context, state) => app_redirect.resolveAppRedirect(
       location: state.matchedLocation,
       isWeb: kIsWeb,

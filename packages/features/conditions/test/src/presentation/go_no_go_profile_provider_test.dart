@@ -88,6 +88,10 @@ void main() {
           .onError((_, _) => GoNoGoProfile.intermediate);
 
       expect(container.read(goNoGoProfileProvider).hasError, isTrue);
+      expect(
+        container.read(goNoGoProfileProvider).error,
+        isA<StorageFailure>(),
+      );
     });
 
     test('setProfile write failure sets AsyncError', () async {
