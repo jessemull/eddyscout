@@ -102,4 +102,39 @@ void main() {
       RoutePaths.missingToken,
     );
   });
+
+  testWidgets('goRouterProvider wires navigator observers', (tester) async {
+    final recordingObserver = _RecordingNavigatorObserver();
+    final container = ProviderContainer(
+      overrides: [
+        routesProvider.overrideWithValue(_testRoutes()),
+        isKnownLaunchIdProvider.overrideWithValue((_) => true),
+        navigatorObserversProvider.overrideWithValue([recordingObserver]),
+      ],
+    );
+    addTearDown(container.dispose);
+    final router = container.read(goRouterProvider);
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Router.withConfig(config: router),
+      ),
+    );
+
+    router.go(RoutePaths.map);
+    await tester.pumpAndSettle();
+
+    expect(recordingObserver.pushCount, greaterThan(0));
+  });
+}
+
+class _RecordingNavigatorObserver extends NavigatorObserver {
+  int pushCount = 0;
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    pushCount++;
+    super.didPush(route, previousRoute);
+  }
 }

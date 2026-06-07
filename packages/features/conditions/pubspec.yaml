@@ -11,6 +11,8 @@ environment:
 dependencies:
   cloud_functions: ^5.2.1
   dio: ^5.7.0
+  eddyscout_analytics:
+    path: ../../analytics
   eddyscout_core:
     path: ../../core
   eddyscout_design_system:

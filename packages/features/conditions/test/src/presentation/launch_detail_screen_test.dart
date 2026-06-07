@@ -81,14 +81,13 @@ void main() {
   Future<ProviderContainer> scopedContainer({
     required Future<ConditionsSnapshot> Function() loadConditions,
     LaunchPoint? launchPoint,
-    GoNoGoProfileRepository? goNoGoProfileRepository,
+    GoNoGoProfileRepository? profileRepository,
     List<Override> extraOverrides = const [],
   }) async {
     final activeLaunch = launchPoint ?? launch;
     SharedPreferences.setMockInitialValues({});
     final store = await SharedPreferencesKeyValueStore.open();
-    final profileRepo =
-        goNoGoProfileRepository ?? GoNoGoProfileRepositoryImpl(store);
+    final profileRepo = profileRepository ?? GoNoGoProfileRepositoryImpl(store);
     return ProviderContainer(
       overrides: [
         goNoGoProfileRepositoryProvider.overrideWithValue(profileRepo),
@@ -141,7 +140,7 @@ void main() {
 
       final container = await scopedContainer(
         loadConditions: () => Future.value(calmSnapshot()),
-        goNoGoProfileRepository: repo,
+        profileRepository: repo,
       );
       await pumpLaunchDetail(tester, container: container);
       await tester.pumpAndSettle();
@@ -166,6 +165,27 @@ void main() {
     await tester.pump();
 
     expect(find.textContaining('Could not reach'), findsOneWidget);
+  });
+
+  testWidgets('shows skill profile load error when repository read fails', (
+    tester,
+  ) async {
+    final repo = _MockGoNoGoProfileRepository();
+    when(repo.read).thenAnswer(
+      (_) async => const Result<GoNoGoProfile, AppFailure>.failure(
+        StorageFailure(message: 'Could not load skill profile.'),
+      ),
+    );
+
+    final container = await scopedContainer(
+      loadConditions: () => Future.value(calmSnapshot()),
+      profileRepository: repo,
+    );
+    await pumpLaunchDetail(tester, container: container);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Could not load skill profile'), findsOneWidget);
+    expect(find.text('Go / No-go (informational)'), findsNothing);
   });
 
   testWidgets('shows go/no-go card and weather when data loads', (

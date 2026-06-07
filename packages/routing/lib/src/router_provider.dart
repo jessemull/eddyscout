@@ -3,9 +3,9 @@ import 'package:go_router/go_router.dart';
 
 /// Lightweight router factory shared by the app and `packages/routing/`.
 ///
-/// Typed routes are bound in `apps/eddyscout/lib/routing/app_routes.dart`;
-/// this factory centralizes creation options (initial location, redirect hook,
-/// observers) so router assembly stays testable and consistent.
+/// Route lists are assembled in the app shell (`app_routes.dart`); this package
+/// centralizes router creation options (initial location, redirect hook,
+/// observers) so wiring stays testable and consistent.
 GoRouter createRouter({
   required List<RouteBase> routes,
   String initialLocation = '/',
