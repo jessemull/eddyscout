@@ -98,21 +98,21 @@ resolve_run_target_override() {
 launch_emulator_and_wait() {
   local avd_id="$1"
   local before_count="$2"
-  echo "dev: launching '$avd_id'"
+  echo "dev: launching '$avd_id'" >&2
   flutter emulators --launch "$avd_id" &
   local elapsed=0
   while (( elapsed < EMULATOR_BOOT_TIMEOUT_SEC )); do
     local after_count
     after_count="$(read_android_device_count)"
     if (( after_count > before_count )); then
-      echo "dev: emulator ready"
+      echo "dev: emulator ready" >&2
       return 0
     fi
     sleep 2
     elapsed=$((elapsed + 2))
   done
-  echo "ERROR: emulator did not appear within ${EMULATOR_BOOT_TIMEOUT_SEC}s"
-  echo "  Start one manually: flutter emulators --launch $avd_id"
+  echo "ERROR: emulator did not appear within ${EMULATOR_BOOT_TIMEOUT_SEC}s" >&2
+  echo "  Start one manually: flutter emulators --launch $avd_id" >&2
   exit 1
 }
 
