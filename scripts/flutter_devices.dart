@@ -1,34 +1,62 @@
 // Flutter device/emulator helpers for make dev (no extra deps beyond Dart SDK).
 //
 // Usage:
-//   dart scripts/flutter_devices.dart android-emulators   # id<TAB>label per line
-//   dart scripts/flutter_devices.dart android-devices     # id<TAB>label per line
+//   dart scripts/flutter_devices.dart list-run-targets
+//     action<TAB>id<TAB>label — action is "run" (connected) or "launch" (AVD)
 import 'dart:convert';
 import 'dart:io';
 
 Future<void> main(List<String> args) async {
   final command = args.isNotEmpty ? args[0] : '';
   switch (command) {
-    case 'android-emulators':
-      _printPairs(await _listAndroidEmulators());
-    case 'android-devices':
-      _printPairs(await _listAndroidDevices());
+    case 'list-run-targets':
+      _printRunTargets(await _listRunTargets());
     default:
       stderr.writeln(
-        'Usage: dart scripts/flutter_devices.dart '
-        '<android-emulators|android-devices>',
+        'Usage: dart scripts/flutter_devices.dart list-run-targets',
       );
       exit(64);
   }
 }
 
-void _printPairs(List<({String id, String label})> items) {
+void _printRunTargets(List<({String action, String id, String label})> items) {
   for (final item in items) {
-    stdout.writeln('${item.id}\t${item.label}');
+    stdout.writeln('${item.action}\t${item.id}\t${item.label}');
   }
 }
 
-Future<List<({String id, String label})>> _listAndroidEmulators() async {
+bool _isMobilePlatform(String platform) {
+  return platform.startsWith('android') || platform.startsWith('ios');
+}
+
+Future<List<({String id, String label})>> _listConnectedMobileDevices() async {
+  final result = await Process.run('flutter', ['devices', '--machine']);
+  if (result.exitCode != 0) {
+    stderr.writeln(result.stderr);
+    exit(result.exitCode);
+  }
+  final raw = jsonDecode('${result.stdout}') as List<dynamic>;
+  final devices = <({String id, String label})>[];
+  for (final entry in raw) {
+    final map = Map<String, dynamic>.from(entry as Map);
+    final platform = '${map['targetPlatform'] ?? ''}';
+    if (!_isMobilePlatform(platform)) {
+      continue;
+    }
+    final id = '${map['id'] ?? ''}';
+    if (id.isEmpty) {
+      continue;
+    }
+    final name = '${map['name'] ?? id}';
+    final os = platform.startsWith('ios') ? 'iOS' : 'Android';
+    final emulator = map['emulator'] == true;
+    final kind = emulator ? 'emulator' : 'device';
+    devices.add((id: id, label: '$name — $os $kind (connected)'));
+  }
+  return devices;
+}
+
+Future<List<({String id, String label})>> _listMobileEmulators() async {
   final result = await Process.run('flutter', ['emulators']);
   if (result.exitCode != 0) {
     stderr.writeln(result.stderr);
@@ -44,7 +72,7 @@ Future<List<({String id, String label})>> _listAndroidEmulators() async {
       continue;
     }
     final platform = parts[3].toLowerCase();
-    if (platform != 'android') {
+    if (platform != 'android' && platform != 'ios') {
       continue;
     }
     final id = parts[0];
@@ -52,33 +80,20 @@ Future<List<({String id, String label})>> _listAndroidEmulators() async {
     if (id.isEmpty || id == 'Id') {
       continue;
     }
-    emulators.add((id: id, label: '$name ($id)'));
+    final os = platform == 'ios' ? 'iOS' : 'Android';
+    emulators.add((id: id, label: '$name — $os simulator (launch)'));
   }
   return emulators;
 }
 
-Future<List<({String id, String label})>> _listAndroidDevices() async {
-  final result = await Process.run('flutter', ['devices', '--machine']);
-  if (result.exitCode != 0) {
-    stderr.writeln(result.stderr);
-    exit(result.exitCode);
+Future<List<({String action, String id, String label})>>
+_listRunTargets() async {
+  final targets = <({String action, String id, String label})>[];
+  for (final device in await _listConnectedMobileDevices()) {
+    targets.add((action: 'run', id: device.id, label: device.label));
   }
-  final raw = jsonDecode('${result.stdout}') as List<dynamic>;
-  final devices = <({String id, String label})>[];
-  for (final entry in raw) {
-    final map = Map<String, dynamic>.from(entry as Map);
-    final platform = '${map['targetPlatform'] ?? ''}';
-    if (!platform.startsWith('android')) {
-      continue;
-    }
-    final id = '${map['id'] ?? ''}';
-    if (id.isEmpty) {
-      continue;
-    }
-    final name = '${map['name'] ?? id}';
-    final emulator = map['emulator'] == true;
-    final suffix = emulator ? ' (emulator)' : '';
-    devices.add((id: id, label: '$name$suffix'));
+  for (final emulator in await _listMobileEmulators()) {
+    targets.add((action: 'launch', id: emulator.id, label: emulator.label));
   }
-  return devices;
+  return targets;
 }

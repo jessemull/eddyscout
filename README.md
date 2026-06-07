@@ -16,7 +16,7 @@ cd apps/eddyscout && cp env.example .local.env
 export EDDYSCOUT_LOCAL_ENV=~/Development/eddyscout/apps/eddyscout/.local.env
 export EDDYSCOUT_GOOGLE_SERVICES=~/Development/eddyscout/apps/eddyscout/android/app/google-services.json
 
-# Optional: skip pickers — EMULATOR_ID=Pixel_7 DEVICE_ID=emulator-5554 DEV_INTERACTIVE=0
+# Optional: skip pickers — RUN_TARGET=launch:Pixel_9 DEV_INTERACTIVE=0 AUTO_LAUNCH=0
 ```
 
 Manual setup: `./scripts/bootstrap.sh`, then `make run` (emulator must already be running).

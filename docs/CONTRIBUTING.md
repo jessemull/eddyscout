@@ -45,8 +45,10 @@ make dev
 export EDDYSCOUT_LOCAL_ENV=~/Development/eddyscout/apps/eddyscout/.local.env
 export EDDYSCOUT_GOOGLE_SERVICES=~/Development/eddyscout/apps/eddyscout/android/app/google-services.json
 
-# Optional: skip interactive device pickers (use first emulator/device)
-# EMULATOR_ID=Pixel_7 DEVICE_ID=emulator-5554 DEV_INTERACTIVE=0 make dev
+# Optional: skip the interactive menu
+# RUN_TARGET=launch:Pixel_9   or   RUN_TARGET=run:emulator-5554
+# DEV_INTERACTIVE=0             # first target, no menu
+# AUTO_LAUNCH=0                 # connected devices only (no AVD launch rows)
 
 # Manual Android (emulator must already be running)
 ./scripts/run_android.sh
