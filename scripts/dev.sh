@@ -101,37 +101,48 @@ launch_avd_and_wait() {
   local avd_id="$1"
   local -a before_ids=()
   local id elapsed new_id
+  local emu_log="$REPO_ROOT/.dart_tool/dev-emulator-${avd_id}.log"
 
   if [[ ! -x "$EMULATOR_BIN" ]]; then
     echo "ERROR: emulator binary not found at $EMULATOR_BIN" >&2
     exit 1
   fi
 
+  mkdir -p "$REPO_ROOT/.dart_tool"
   while IFS= read -r id; do
     [[ -n "$id" ]] && before_ids+=("$id")
   done < <(read_connected_ids)
 
   echo "dev: starting $avd_id (can take 1–2 minutes on first boot)..." >&2
+  echo "dev: emulator log → $emu_log" >&2
   # flutter emulators --launch is unreliable when another AVD is running; use the
   # emulator binary directly instead.
-  "$EMULATOR_BIN" -avd "$avd_id" >/dev/null 2>&1 &
+  "$EMULATOR_BIN" -avd "$avd_id" >>"$emu_log" 2>&1 &
   local emu_pid=$!
 
   elapsed=0
   while (( elapsed < EMULATOR_BOOT_TIMEOUT_SEC )); do
     if ! kill -0 "$emu_pid" 2>/dev/null; then
       echo "ERROR: '$avd_id' exited during startup." >&2
+      echo "  Log: $emu_log" >&2
       echo "  If it is already running, pick the (connected) entry instead." >&2
-      echo "  To stop emulators: adb -s emulator-5554 emu kill" >&2
       exit 1
     fi
 
     if ((${#before_ids[@]} > 0)); then
-      new_id="$(dart "$FLUTTER_DEVICES" first-new-booted-device "${before_ids[@]}")"
+      new_id="$(dart "$FLUTTER_DEVICES" first-new-booted-device --avd "$avd_id" "${before_ids[@]}")"
     else
-      new_id="$(dart "$FLUTTER_DEVICES" first-new-booted-device)"
+      new_id="$(dart "$FLUTTER_DEVICES" first-new-booted-device --avd "$avd_id")"
     fi
     if [[ -n "$new_id" ]]; then
+      echo "dev: waiting for $avd_id to settle..." >&2
+      sleep 5
+      if ! adb -s "$new_id" get-state 2>/dev/null | grep -q device; then
+        echo "dev: $new_id not ready yet, continuing to wait..." >&2
+        sleep 3
+        elapsed=$((elapsed + 8))
+        continue
+      fi
       echo "dev: $avd_id ready ($new_id)" >&2
       echo "$new_id"
       return 0
@@ -142,6 +153,7 @@ launch_avd_and_wait() {
   done
 
   echo "ERROR: timed out waiting for '$avd_id' to boot." >&2
+  echo "  Log: $emu_log" >&2
   exit 1
 }
 
@@ -204,4 +216,11 @@ if [[ -z "$run_id" ]]; then
 fi
 
 echo "dev: flutter run -d $run_id" >&2
-exec ./scripts/run_android.sh -d "$run_id" "$@"
+if ! ./scripts/run_android.sh -d "$run_id" --device-timeout=120 "$@"; then
+  echo "" >&2
+  echo "dev: flutter run ended (often 'Lost connection to device' = emulator closed or app crashed)." >&2
+  echo "  • Keep the emulator window open while the app runs" >&2
+  echo "  • Try Pixel 7 if Pixel 9 keeps disconnecting" >&2
+  echo "  • Logs: adb -s $run_id logcat -d | tail -80" >&2
+  exit 1
+fi

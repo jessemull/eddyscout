@@ -19,8 +19,20 @@ Future<void> main(List<String> args) async {
         stdout.writeln(id);
       }
     case 'first-new-booted-device':
-      final before = args.skip(1).toSet();
-      final id = await _firstNewBootedDevice(before);
+      var expectedAvd = '';
+      final before = <String>{};
+      for (var i = 1; i < args.length; i++) {
+        final arg = args[i];
+        if (arg == '--avd' && i + 1 < args.length) {
+          expectedAvd = args[++i];
+        } else if (arg.isNotEmpty) {
+          before.add(arg);
+        }
+      }
+      final id = await _firstNewBootedDevice(
+        before,
+        expectedAvd: expectedAvd.isEmpty ? null : expectedAvd,
+      );
       if (id != null) {
         stdout.writeln(id);
       }
@@ -189,14 +201,24 @@ _listRunTargets() async {
   return targets;
 }
 
-Future<String?> _firstNewBootedDevice(Set<String> before) async {
+Future<String?> _firstNewBootedDevice(
+  Set<String> before, {
+  String? expectedAvd,
+}) async {
   for (final device in await _listConnectedMobileDevicesRaw()) {
     if (before.contains(device.id)) {
       continue;
     }
-    if (await _isBootCompleted(device.id)) {
-      return device.id;
+    if (!await _isBootCompleted(device.id)) {
+      continue;
     }
+    if (expectedAvd != null) {
+      final avdName = await _avdNameForDevice(device.id);
+      if (avdName != expectedAvd) {
+        continue;
+      }
+    }
+    return device.id;
   }
   return null;
 }
