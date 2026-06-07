@@ -200,7 +200,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchDetailFirebaseHintAnonymousAuth =>
-      'Firebase is blocking anonymous sign-in. In Firebase Console open Authentication → Sign-in method → enable Anonymous → Save. If it is already on, open Authentication → Settings and ensure user sign-up is not disabled. Then stop the app fully and run make run again (not hot reload).';
+      'Firebase is blocking anonymous sign-in. In Firebase Console open Authentication → Sign-in method → enable Anonymous → Save. If it is already on, open Authentication → Settings and ensure user sign-up is not disabled. Then stop the app fully and run make dev again (not hot reload).';
 
   @override
   String get launchDetailRiverWillamette => 'Willamette';

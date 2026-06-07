@@ -6,8 +6,9 @@
 //     action: "run" (connected) | "launch" (AVD not already running)
 //   dart scripts/flutter_devices.dart connected-ids
 //   dart scripts/flutter_devices.dart first-new-booted-device <known-id>...
-import 'dart:convert';
 import 'dart:io';
+
+import 'flutter_devices_lib.dart';
 
 Future<void> main(List<String> args) async {
   final command = args.isNotEmpty ? args[0] : '';
@@ -45,46 +46,23 @@ Future<void> main(List<String> args) async {
   }
 }
 
-void _printRunTargets(List<({String action, String id, String label})> items) {
+void _printRunTargets(List<RunTarget> items) {
   for (final item in items) {
     stdout.writeln('${item.action}\t${item.id}\t${item.label}');
   }
 }
 
-bool _isMobilePlatform(String platform) {
-  return platform.startsWith('android') || platform.startsWith('ios');
-}
-
-Future<List<({String id, String name, bool emulator})>>
-_listConnectedMobileDevicesRaw() async {
+Future<List<ConnectedDevice>> _listConnectedAndroidDevicesRaw() async {
   final result = await Process.run('flutter', ['devices', '--machine']);
   if (result.exitCode != 0) {
     stderr.writeln(result.stderr);
     exit(result.exitCode);
   }
-  final raw = jsonDecode('${result.stdout}') as List<dynamic>;
-  final devices = <({String id, String name, bool emulator})>[];
-  for (final entry in raw) {
-    final map = Map<String, dynamic>.from(entry as Map);
-    final platform = '${map['targetPlatform'] ?? ''}';
-    if (!_isMobilePlatform(platform)) {
-      continue;
-    }
-    final id = '${map['id'] ?? ''}';
-    if (id.isEmpty) {
-      continue;
-    }
-    devices.add((
-      id: id,
-      name: '${map['name'] ?? id}',
-      emulator: map['emulator'] == true,
-    ));
-  }
-  return devices;
+  return parseFlutterDevicesMachineJson('${result.stdout}');
 }
 
 Future<List<String>> _connectedMobileDeviceIds() async {
-  return (await _listConnectedMobileDevicesRaw()).map((d) => d.id).toList();
+  return (await _listConnectedAndroidDevicesRaw()).map((d) => d.id).toList();
 }
 
 Future<String?> _avdNameForDevice(String deviceId) async {
@@ -118,7 +96,7 @@ Future<bool> _isBootCompleted(String deviceId) async {
 
 Future<Set<String>> _runningAvdIds() async {
   final running = <String>{};
-  for (final device in await _listConnectedMobileDevicesRaw()) {
+  for (final device in await _listConnectedAndroidDevicesRaw()) {
     if (!device.emulator) {
       continue;
     }
@@ -130,32 +108,27 @@ Future<Set<String>> _runningAvdIds() async {
   return running;
 }
 
-String _displayAvdName(String avdId) {
-  return avdId.replaceAll('_', ' ');
-}
-
 Future<List<({String id, String label})>> _listConnectedRunTargets() async {
   final targets = <({String id, String label})>[];
-  for (final device in await _listConnectedMobileDevicesRaw()) {
-    final os = device.id.contains('ios') ? 'iOS' : 'Android';
+  for (final device in await _listConnectedAndroidDevicesRaw()) {
     if (device.emulator) {
       final avdName = await _avdNameForDevice(device.id);
-      final friendly = avdName != null ? _displayAvdName(avdName) : device.name;
+      final friendly = avdName != null ? displayAvdName(avdName) : device.name;
       targets.add((
         id: device.id,
-        label: '$friendly — $os emulator (connected, ${device.id})',
+        label: '$friendly — Android emulator (connected, ${device.id})',
       ));
     } else {
       targets.add((
         id: device.id,
-        label: '${device.name} — $os device (connected, ${device.id})',
+        label: '${device.name} — Android device (connected, ${device.id})',
       ));
     }
   }
   return targets;
 }
 
-Future<List<({String id, String label})>> _listLaunchableEmulators(
+Future<List<EmulatorTarget>> _listLaunchableEmulators(
   Set<String> runningAvdIds,
 ) async {
   final result = await Process.run('flutter', ['emulators']);
@@ -163,49 +136,25 @@ Future<List<({String id, String label})>> _listLaunchableEmulators(
     stderr.writeln(result.stderr);
     exit(result.exitCode);
   }
-  final emulators = <({String id, String label})>[];
-  for (final line in '${result.stdout}'.split('\n')) {
-    if (!line.contains('•')) {
-      continue;
-    }
-    final parts = line.split('•').map((part) => part.trim()).toList();
-    if (parts.length < 4) {
-      continue;
-    }
-    final platform = parts[3].toLowerCase();
-    if (platform != 'android' && platform != 'ios') {
-      continue;
-    }
-    final id = parts[0];
-    final name = parts[1];
-    if (id.isEmpty || id == 'Id' || runningAvdIds.contains(id)) {
-      continue;
-    }
-    final os = platform == 'ios' ? 'iOS' : 'Android';
-    emulators.add((id: id, label: '$name — $os simulator (start $id)'));
-  }
-  return emulators;
+  return parseFlutterEmulatorsOutput(
+    '${result.stdout}',
+    runningAvdIds: runningAvdIds,
+  );
 }
 
-Future<List<({String action, String id, String label})>>
-_listRunTargets() async {
-  final targets = <({String action, String id, String label})>[];
+Future<List<RunTarget>> _listRunTargets() async {
   final runningAvds = await _runningAvdIds();
-
-  for (final device in await _listConnectedRunTargets()) {
-    targets.add((action: 'run', id: device.id, label: device.label));
-  }
-  for (final emulator in await _listLaunchableEmulators(runningAvds)) {
-    targets.add((action: 'launch', id: emulator.id, label: emulator.label));
-  }
-  return targets;
+  return buildRunTargets(
+    connected: await _listConnectedRunTargets(),
+    launchable: await _listLaunchableEmulators(runningAvds),
+  );
 }
 
 Future<String?> _firstNewBootedDevice(
   Set<String> before, {
   String? expectedAvd,
 }) async {
-  for (final device in await _listConnectedMobileDevicesRaw()) {
+  for (final device in await _listConnectedAndroidDevicesRaw()) {
     if (before.contains(device.id)) {
       continue;
     }

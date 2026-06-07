@@ -220,7 +220,7 @@ if ! ./scripts/run_android.sh -d "$run_id" --device-timeout=120 "$@"; then
   echo "" >&2
   echo "dev: flutter run ended (often 'Lost connection to device' = emulator closed or app crashed)." >&2
   echo "  • Keep the emulator window open while the app runs" >&2
-  echo "  • Try Pixel 7 if Pixel 9 keeps disconnecting" >&2
+  echo "  • Try another AVD or cold-boot the emulator if disconnects persist" >&2
   echo "  • Logs: adb -s $run_id logcat -d | tail -80" >&2
   exit 1
 fi
