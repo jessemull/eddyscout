@@ -15,6 +15,8 @@ cd apps/eddyscout && cp env.example .local.env
 # Optional: point all worktrees at canonical secrets (auto-linked from sibling worktrees by default)
 export EDDYSCOUT_LOCAL_ENV=~/Development/eddyscout/apps/eddyscout/.local.env
 export EDDYSCOUT_GOOGLE_SERVICES=~/Development/eddyscout/apps/eddyscout/android/app/google-services.json
+
+# Optional: skip pickers — EMULATOR_ID=Pixel_7 DEVICE_ID=emulator-5554 DEV_INTERACTIVE=0
 ```
 
 Manual setup: `./scripts/bootstrap.sh`, then `make run` (emulator must already be running).

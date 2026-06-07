@@ -1,5 +1,17 @@
 import 'package:flutter/services.dart';
 
+/// Known Firebase startup failure categories for localized UI hints.
+enum FirebaseBootstrapHintKind {
+  /// No extra hint for the current last error.
+  none,
+
+  /// Missing `google-services.json` / native Firebase options.
+  missingNativeConfig,
+
+  /// Anonymous sign-in disabled or restricted in Firebase Console.
+  anonymousAuthDisabled,
+}
+
 /// Set from app startup when Firebase init runs.
 ///
 /// Used for debug messaging on launch detail.
@@ -30,25 +42,21 @@ class FirebaseBootstrap {
     return firstLine;
   }
 
-  /// Extra guidance when [lastError] matches a known Firebase Auth code.
-  static String? hintForLastError() {
+  /// Hint category derived from [lastError] for presentation-layer l10n.
+  static FirebaseBootstrapHintKind get hintKind {
     final e = lastError;
-    if (e == null) return null;
+    if (e == null) {
+      return FirebaseBootstrapHintKind.none;
+    }
     if (e.contains('Failed to load FirebaseOptions') ||
         e.contains('values.xml') ||
         e.contains('google-services.json')) {
-      return 'Add apps/eddyscout/android/app/google-services.json from Firebase '
-          'Console. In a git worktree, run make dev to symlink from your main '
-          'clone. Then stop the app fully and rebuild (not hot reload).';
+      return FirebaseBootstrapHintKind.missingNativeConfig;
     }
     if (e.contains('admin-restricted-operation') ||
         e.contains('operation-not-allowed')) {
-      return 'Firebase is blocking anonymous sign-in. In Firebase Console open '
-          'Authentication → Sign-in method → enable **Anonymous** → Save. '
-          'If it is already on, open Authentication → Settings and ensure user '
-          'sign-up / account creation is not disabled. Then stop the app fully '
-          'and run `make run` again (not hot reload).';
+      return FirebaseBootstrapHintKind.anonymousAuthDisabled;
     }
-    return null;
+    return FirebaseBootstrapHintKind.none;
   }
 }

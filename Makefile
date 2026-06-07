@@ -43,7 +43,7 @@ setup:
 	./scripts/bootstrap.sh
 
 # Bootstrap worktree, link .local.env, start Android emulator if needed, flutter run.
-# Optional: DEVICE=none EMULATOR_ID=Pixel_7 ARGS="-d emulator-5554"
+# Optional: DEVICE=none EMULATOR_ID=Pixel_7 DEVICE_ID=emulator-5554 DEV_INTERACTIVE=0 ARGS="-d emulator-5554"
 dev:
 	./scripts/dev.sh $(ARGS)
 

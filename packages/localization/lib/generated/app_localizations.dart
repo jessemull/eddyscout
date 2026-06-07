@@ -400,6 +400,18 @@ abstract class AppLocalizations {
   /// **'Error: {error}'**
   String launchDetailFirebaseErrorLabel(String error);
 
+  /// No description provided for @launchDetailFirebaseHintMissingNativeConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Add apps/eddyscout/android/app/google-services.json from Firebase Console. In a git worktree, run make dev to symlink from your main clone. Then stop the app fully and rebuild (not hot reload).'**
+  String get launchDetailFirebaseHintMissingNativeConfig;
+
+  /// No description provided for @launchDetailFirebaseHintAnonymousAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'Firebase is blocking anonymous sign-in. In Firebase Console open Authentication → Sign-in method → enable Anonymous → Save. If it is already on, open Authentication → Settings and ensure user sign-up is not disabled. Then stop the app fully and run make run again (not hot reload).'**
+  String get launchDetailFirebaseHintAnonymousAuth;
+
   /// No description provided for @launchDetailRiverWillamette.
   ///
   /// In en, this message translates to:

@@ -4,8 +4,10 @@
 # Usage:
 #   make dev
 #   make dev ARGS="-d emulator-5554"
-#   EMULATOR_ID=Pixel_7 make dev
-#   DEVICE=none make dev          # skip auto-launching an emulator
+#   EMULATOR_ID=Pixel_7 make dev          # skip emulator picker
+#   DEVICE_ID=emulator-5554 make dev      # skip connected-device picker
+#   DEV_INTERACTIVE=0 make dev            # pick first emulator/device without prompting
+#   DEVICE=none make dev                  # skip auto-launching an emulator
 #
 # Secrets: set EDDYSCOUT_LOCAL_ENV to a canonical .local.env path, or rely on sibling worktree discovery.
 set -euo pipefail
@@ -13,36 +15,84 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 APP_ROOT="$REPO_ROOT/apps/eddyscout"
+FLUTTER_DEVICES="$SCRIPT_DIR/flutter_devices.dart"
 
-# android | none — iOS is manual until Xcode is installed (see docs/CONTRIBUTING.md).
+# android | none — iOS support deferred until Xcode is configured.
 DEVICE="${DEVICE:-android}"
-EMULATOR_ID="${EMULATOR_ID:-Pixel_7}"
 EMULATOR_BOOT_TIMEOUT_SEC="${EMULATOR_BOOT_TIMEOUT_SEC:-120}"
 
-# Plain `flutter devices` footer mentions "emulators" — use machine JSON to avoid false positives.
-android_device_id() {
-  flutter devices --machine 2>/dev/null | python3 -c '
-import json, sys
-for device in json.load(sys.stdin):
-    platform = str(device.get("targetPlatform", ""))
-    if platform.startswith("android"):
-        print(device["id"])
-        break
-'
+read_android_emulators() {
+  dart "$FLUTTER_DEVICES" android-emulators
 }
 
-has_android_target() {
-  [[ -n "$(android_device_id)" ]]
+read_android_devices() {
+  dart "$FLUTTER_DEVICES" android-devices
+}
+
+pick_from_pairs() {
+  local prompt="$1"
+  local env_override="${2:-}"
+  local -a ids=()
+  local -a labels=()
+  local id label choice
+
+  if [[ -n "$env_override" ]]; then
+    echo "$env_override"
+    return 0
+  fi
+
+  while IFS=$'\t' read -r id label; do
+    [[ -z "$id" ]] && continue
+    ids+=("$id")
+    labels+=("${label:-$id}")
+  done
+
+  if ((${#ids[@]} == 0)); then
+    return 1
+  fi
+  if ((${#ids[@]} == 1)); then
+    echo "${ids[0]}"
+    return 0
+  fi
+  if [[ ! -t 0 && ! -t 1 ]] || [[ "${DEV_INTERACTIVE:-1}" == "0" ]]; then
+    echo "${ids[0]}"
+    return 0
+  fi
+
+  echo "$prompt" >/dev/tty
+  local i=1
+  for label in "${labels[@]}"; do
+    echo "  [$i] $label" >/dev/tty
+    i=$((i + 1))
+  done
+  while true; do
+    read -rp "Choice [1-${#ids[@]}]: " choice </dev/tty
+    if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#ids[@]} )); then
+      echo "${ids[$((choice - 1))]}"
+      return 0
+    fi
+    echo "Enter a number between 1 and ${#ids[@]}." >/dev/tty
+  done
+}
+
+resolve_android_emulator_id() {
+  local selected
+  if ! selected="$(pick_from_pairs "Select an Android emulator to launch:" "${EMULATOR_ID:-}" < <(read_android_emulators))"; then
+    echo "ERROR: no Android emulators configured (flutter emulators lists none)"
+    echo "  Create one in Android Studio Device Manager, or: flutter emulators --create"
+    exit 1
+  fi
+  echo "$selected"
 }
 
 launch_android_emulator() {
   local id="$1"
-  echo "dev: no Android device found — launching emulator '$id'"
+  echo "dev: launching emulator '$id'"
   flutter emulators --launch "$id" &
   local elapsed=0
   while (( elapsed < EMULATOR_BOOT_TIMEOUT_SEC )); do
-    if has_android_target; then
-      echo "dev: emulator ready ($(android_device_id))"
+    if read_android_devices | grep -q .; then
+      echo "dev: emulator ready"
       return 0
     fi
     sleep 2
@@ -54,8 +104,8 @@ launch_android_emulator() {
 }
 
 ensure_android_device() {
-  if has_android_target; then
-    echo "dev: Android device/emulator detected ($(android_device_id))"
+  if read_android_devices | grep -q .; then
+    echo "dev: Android device/emulator already connected"
     return 0
   fi
   if [[ "$DEVICE" == "none" ]]; then
@@ -64,10 +114,14 @@ ensure_android_device() {
     exit 1
   fi
   if [[ "$DEVICE" != "android" ]]; then
-    echo "ERROR: unsupported DEVICE=$DEVICE (use android or none)"
+    echo "ERROR: unsupported DEVICE=$DEVICE (use android or none; iOS coming later)"
     exit 1
   fi
-  launch_android_emulator "$EMULATOR_ID"
+  launch_android_emulator "$(resolve_android_emulator_id)"
+}
+
+resolve_android_run_device_id() {
+  pick_from_pairs "Select an Android device for flutter run:" "${DEVICE_ID:-}" < <(read_android_devices)
 }
 
 args_contain_device_flag() {
@@ -91,10 +145,11 @@ if args_contain_device_flag "$@"; then
   exec ./scripts/run_android.sh "$@"
 fi
 
-android_id="$(android_device_id)"
+android_id="$(resolve_android_run_device_id)"
 if [[ -z "$android_id" ]]; then
   echo "ERROR: no Android device id available for flutter run"
   exit 1
 fi
 
+echo "dev: flutter run -d $android_id"
 exec ./scripts/run_android.sh -d "$android_id" "$@"

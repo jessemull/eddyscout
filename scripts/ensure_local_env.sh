@@ -4,6 +4,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck source=_worktree_helpers.sh
+source "$SCRIPT_DIR/_worktree_helpers.sh"
 APP_ROOT="$REPO_ROOT/apps/eddyscout"
 LOCAL_ENV="$APP_ROOT/.local.env"
 EXAMPLE_ENV="$APP_ROOT/env.example"
@@ -17,19 +19,6 @@ has_mapbox_token() {
   source "$file"
   set +a
   [[ -n "${MAPBOX_ACCESS_TOKEN:-}" ]]
-}
-
-find_sibling_local_env() {
-  local wt_path candidate
-  while IFS= read -r wt_path; do
-    [[ "$wt_path" == "$REPO_ROOT" ]] && continue
-    candidate="$wt_path/apps/eddyscout/.local.env"
-    if [[ -f "$candidate" ]] && has_mapbox_token "$candidate"; then
-      echo "$candidate"
-      return 0
-    fi
-  done < <(git -C "$REPO_ROOT" worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2}')
-  return 1
 }
 
 link_local_env() {
@@ -50,7 +39,8 @@ if [[ -n "${EDDYSCOUT_LOCAL_ENV:-}" && -f "$EDDYSCOUT_LOCAL_ENV" ]]; then
   exit 0
 fi
 
-if sibling="$(find_sibling_local_env)"; then
+if sibling="$(find_sibling_worktree_file "$REPO_ROOT" "apps/eddyscout/.local.env")" \
+  && has_mapbox_token "$sibling"; then
   link_local_env "$sibling"
   exit 0
 fi

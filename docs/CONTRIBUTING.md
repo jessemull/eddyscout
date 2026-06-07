@@ -43,6 +43,10 @@ make dev
 
 # Optional: one canonical secrets file for all worktrees
 export EDDYSCOUT_LOCAL_ENV=~/Development/eddyscout/apps/eddyscout/.local.env
+export EDDYSCOUT_GOOGLE_SERVICES=~/Development/eddyscout/apps/eddyscout/android/app/google-services.json
+
+# Optional: skip interactive device pickers (use first emulator/device)
+# EMULATOR_ID=Pixel_7 DEVICE_ID=emulator-5554 DEV_INTERACTIVE=0 make dev
 
 # Manual Android (emulator must already be running)
 ./scripts/run_android.sh

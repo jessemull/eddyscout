@@ -4,20 +4,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck source=_worktree_helpers.sh
+source "$SCRIPT_DIR/_worktree_helpers.sh"
 GOOGLE_SERVICES="$REPO_ROOT/apps/eddyscout/android/app/google-services.json"
-
-find_sibling_google_services() {
-  local wt_path candidate
-  while IFS= read -r wt_path; do
-    [[ "$wt_path" == "$REPO_ROOT" ]] && continue
-    candidate="$wt_path/apps/eddyscout/android/app/google-services.json"
-    if [[ -f "$candidate" ]]; then
-      echo "$candidate"
-      return 0
-    fi
-  done < <(git -C "$REPO_ROOT" worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2}')
-  return 1
-}
 
 uses_firebase() {
   local env_file="$REPO_ROOT/apps/eddyscout/.local.env"
@@ -42,7 +31,7 @@ if [[ -n "${EDDYSCOUT_GOOGLE_SERVICES:-}" && -f "$EDDYSCOUT_GOOGLE_SERVICES" ]];
   exit 0
 fi
 
-if sibling="$(find_sibling_google_services)"; then
+if sibling="$(find_sibling_worktree_file "$REPO_ROOT" "apps/eddyscout/android/app/google-services.json")"; then
   echo "google-services.json: linking $GOOGLE_SERVICES -> $sibling"
   ln -sf "$sibling" "$GOOGLE_SERVICES"
   exit 0
