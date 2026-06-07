@@ -19,12 +19,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (kUseFirebase && !kIsWeb) {
-    FirebaseBootstrap.attempted = true;
     try {
       await Firebase.initializeApp();
       await FirebaseAuth.instance.signInAnonymously();
+      FirebaseBootstrap.attempted = true;
     } on Exception catch (e, st) {
-      FirebaseBootstrap.lastError = e.toString();
+      FirebaseBootstrap.recordInitError(e);
       if (kDebugMode) {
         debugPrint(
           'Firebase init/sign-in failed (add native config or set USE_FIREBASE=false): $e\n$st',

@@ -84,6 +84,23 @@ void main() {
         expect(FirebaseBootstrap.hintForLastError(), isNotNull);
       },
     );
+
+    test(
+      'FirebaseBootstrap hintForLastError returns guidance for missing native config',
+      () {
+        FirebaseBootstrap.lastError =
+            'Failed to load FirebaseOptions from resource.';
+        expect(FirebaseBootstrap.hintForLastError(), isNotNull);
+      },
+    );
+
+    test('FirebaseBootstrap recordInitError keeps first line only', () {
+      FirebaseBootstrap.recordInitError(
+        Exception('Failed to init\nat some.java:1'),
+      );
+      expect(FirebaseBootstrap.lastError, 'Exception: Failed to init');
+      FirebaseBootstrap.lastError = null;
+    });
   });
 
   group('conditions_http_provider', () {

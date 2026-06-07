@@ -38,14 +38,23 @@ melos run preflight
 ### Running the app
 
 ```bash
-# Android
+# Recommended (bootstraps worktree, links .local.env, starts Android emulator, runs app)
+make dev
+
+# Optional: one canonical secrets file for all worktrees
+export EDDYSCOUT_LOCAL_ENV=~/Development/eddyscout/apps/eddyscout/.local.env
+
+# Manual Android (emulator must already be running)
 ./scripts/run_android.sh
 
-# iOS (from apps/eddyscout/)
+# iOS — requires full Xcode from the App Store (not Command Line Tools alone)
+#   sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+#   sudo xcodebuild -runFirstLaunch
+# Then from apps/eddyscout/:
 flutter run --dart-define-from-file=.local.env
 ```
 
-The `.local.env` file must contain your Mapbox token. See the app's `scripts/` directory for details.
+The `.local.env` file must contain your Mapbox token. New worktrees symlink from a sibling worktree or `EDDYSCOUT_LOCAL_ENV` when possible.
 
 ---
 
