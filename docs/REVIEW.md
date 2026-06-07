@@ -200,10 +200,27 @@ Suggestions for improvement. Author may accept or decline without further discus
 ## Analytics / privacy review
 
 - [ ] Analytics events are intentional and documented
-- [ ] No PII captured in analytics payloads
-- [ ] User consent respected for data collection
+- [ ] No PII captured in analytics payloads (including user-generated text, tokens, precise location)
+- [ ] User consent respected for data collection (when consent UI ships)
 - [ ] Data retention expectations met
 - [ ] Tracking follows the project's analytics strategy
+
+**When to flag in PR review (SHOULD fix before merge):**
+
+- New routed screen without an entry in `AnalyticsScreenNames` (screen views will not fire)
+- New conversion / goal flow without an `AnalyticsEvent`
+- PII or report text in event parameters
+
+**Do not block for:** refactors with no new user paths, domain-only changes, internal tooling.
+
+## Integration test review
+
+- [ ] New critical user journey has E2E coverage or explicit N/A with rationale in PR
+- [ ] E2E is not duplicated when widget tests already cover the behavior
+- [ ] Integration test follows stub patterns in `docs/TESTING.md` (e.g. `INTEGRATION_MAP_STUB`)
+- [ ] At most one new integration test file per product epic unless justified
+
+**Do not block for:** single-screen widget-testable changes, domain/data-only PRs.
 
 ---
 

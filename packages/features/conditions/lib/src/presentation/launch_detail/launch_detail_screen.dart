@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 
+import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
@@ -11,7 +12,6 @@ import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../data/condition_report_submit_provider.dart';
 import '../../data/condition_reports_provider.dart';

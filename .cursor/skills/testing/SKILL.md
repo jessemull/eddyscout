@@ -94,6 +94,16 @@ Prefer:
 | Integration | full app flows | `integration_test/` |
 | Golden | visual regression | `test/` with `_golden_test.dart` |
 
+### Integration test decision criteria
+
+**Add E2E when:** new critical multi-route journey; behavior widget tests cannot cover; auth/submit/offline product slices.
+
+**Skip E2E when:** widget tests cover the screen; domain/data-only change; duplicate of existing journey.
+
+**Budget:** at most one new `integration_test/` file per product epic unless justified in PR.
+
+See `docs/TESTING.md` and `docs/ROADMAP.md` § Integration test backlog.
+
 ---
 
 ## Rules

@@ -142,7 +142,7 @@ Assign every finding to exactly one bucket:
 | Tier | Examples |
 |------|----------|
 | **MUST** | Cross-feature import; hand-edited `*.g.dart`/`*.freezed.dart`; secrets/PII in logs; `throw` across package boundary; missing error UI for new async paths; `context` after `await` without `mounted`; new behavior without tests |
-| **SHOULD** | Edge-case test in touched module; l10n for new user-facing string; weak error copy in touched UI; missing `AsyncValue` error handling in changed widget |
+| **SHOULD** | Edge-case test in touched module; l10n for new user-facing string; weak error copy in touched UI; missing `AsyncValue` error handling in changed widget; new routed screen without `AnalyticsScreenNames` entry; conversion flow without `AnalyticsEvent`; new critical journey without E2E or documented N/A |
 | **NICE TO HAVE** | Missing `const` in touched subtree; rename for clarity in touched file; extract small sub-widget in file already edited; minor readability in changed lines only |
 
 ---
