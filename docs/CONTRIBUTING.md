@@ -38,8 +38,11 @@ melos run preflight
 ### Running the app
 
 ```bash
-# Recommended (bootstraps worktree, links .local.env, starts Android emulator, runs app)
+# Recommended: bootstraps worktree, links secrets, picks device, runs app
 make dev
+
+# Menu shows (connected) devices first, then (start ...) for AVDs not already running.
+# Pick a connected device to skip launch; pick start Pixel_9 to boot a new emulator.
 
 # Optional: one canonical secrets file for all worktrees
 export EDDYSCOUT_LOCAL_ENV=~/Development/eddyscout/apps/eddyscout/.local.env
