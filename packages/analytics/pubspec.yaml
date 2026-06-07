@@ -11,7 +11,7 @@ environment:
 dependencies:
   eddyscout_core:
     path: ../core
-  meta: ^1.18.0
+  meta: ^1.17.0
 
 dev_dependencies:
   flutter_test:
