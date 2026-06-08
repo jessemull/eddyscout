@@ -68,6 +68,24 @@ Required for:
 - Authentication flows
 - Data submission flows
 
+### Integration test decision criteria
+
+**Add or extend E2E when:**
+
+- The change introduces a **new critical user journey** (multi-route, app-level) you would put on a release checklist
+- Behavior **cannot be reliably covered** by widget tests (real navigation stack, platform gates, stubbed map journey pattern)
+- You ship **auth**, **submit flows**, or **offline/degraded** product behavior
+
+**Do not add E2E when:**
+
+- Widget tests already cover loading, error, data, and key interactions for a single screen
+- The change is domain/data-only (unit tests suffice)
+- The journey duplicates an existing integration test with minor UI tweaks
+
+**Budget rule:** at most **one new** `integration_test/` file per product epic unless explicitly justified in the PR.
+
+See `docs/ROADMAP.md` § Integration test backlog for planned journeys.
+
 ### Golden Tests
 
 - **Scope**: Design system components, complex layouts

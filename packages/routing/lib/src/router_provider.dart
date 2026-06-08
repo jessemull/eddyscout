@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
-/// Lightweight router factory shared by the app and feature shells.
+/// Lightweight router factory shared by the app and `packages/routing/`.
 ///
-/// Route definitions live at the app boundary until feature packages own their
-/// routes, but we still centralize creation options (initial location,
-/// redirect hook) in this package so it remains testable and consistent.
+/// Route lists are assembled in the app shell (`app_routes.dart`); this package
+/// centralizes router creation options (initial location, redirect hook,
+/// observers) so wiring stays testable and consistent.
 GoRouter createRouter({
   required List<RouteBase> routes,
   String initialLocation = '/',

@@ -10,6 +10,8 @@ environment:
 
 dependencies:
   cupertino_icons: ^1.0.8
+  eddyscout_analytics:
+    path: ../../packages/analytics
   eddyscout_conditions:
     path: ../../packages/features/conditions
   eddyscout_core:

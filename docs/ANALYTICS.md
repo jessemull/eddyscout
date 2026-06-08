@@ -11,23 +11,46 @@
 All analytics calls go through an **`AnalyticsClient`** interface. No widget, provider, or service should call a specific analytics SDK directly.
 
 ```dart
-abstract interface class AnalyticsClient {
-  Future<void> logEvent(String name, {Map<String, Object>? parameters});
-  Future<void> setScreen(String screenName);
-  Future<void> setUserId(String? userId);
-  Future<void> setUserProperty(String name, String value);
+abstract class AnalyticsClient {
+  Future<void> logEvent(AnalyticsEvent event);
+  Future<void> logScreenView({required String screenName});
+  Future<void> setUserProperty({required String name, required String value});
+  Future<void> flush();
 }
 ```
 
-- Implementations wrap specific SDKs (e.g., Firebase Analytics, Mixpanel, Amplitude).
+- Implementations wrap specific SDKs (e.g., Firebase Analytics, Mixpanel, Amplitude) when added later.
 - Swap implementations without changing call sites.
-- Use a **`NoOpAnalyticsClient`** in tests and when analytics are disabled.
+- **`NoOpAnalyticsClient`** — release builds and tests when telemetry must not leave the device.
+- **`DebugAnalyticsClient`** — debug builds; logs to console via `debugPrint` only.
+
+Access the client via Riverpod: `ref.read(analyticsClientProvider)`.
+
+## v1 implementation (shipped)
+
+| Component | Location |
+|-----------|----------|
+| Client interface + events | `packages/analytics/` |
+| Screen name mapping | `AnalyticsScreenNames.fromMatchedLocation()` |
+| Router screen tracking | `apps/eddyscout/lib/analytics/analytics_navigator_observer.dart` |
+| App wiring | `main.dart` overrides `navigatorObserversProvider` |
+
+Third-party analytics SDKs are **not** wired yet. Consent UI is deferred — see Consent Management below.
+
+## When to add analytics
+
+| Change | Required analytics |
+|--------|-------------------|
+| **New routed screen** | Add path to `AnalyticsScreenNames` — screen view is automatic via router observer |
+| **New conversion / goal** (submit, save, complete flow) | Add `AnalyticsEvent` using constants in `AnalyticsEvents` |
+| **Domain/data-only refactor** | None |
+| **Every button tap** | Do **not** add — avoid event spam |
 
 ## Event Naming Conventions
 
 | Rule | Example |
 |------|---------|
-| **snake_case** | `view_launch_detail`, `tap_go_nogo_card` |
+| **snake_case** | `report_submit_success`, `route_planned` |
 | **verb_noun** format | `select_skill_level`, `submit_condition_report` |
 | **Max 40 characters** | Keep names concise but descriptive |
 | **No PII in event names** | Never embed user-specific data in the event name itself |
@@ -40,19 +63,25 @@ Prefix events by domain when helpful for filtering:
 
 ## Screen Tracking Standards
 
-- Every routed screen logs a screen view event via `AnalyticsClient.setScreen()`.
-- Screen names match route names or descriptive constants, not widget class names.
-- Track screen views in the router observer, not manually in each screen widget.
+- Every routed screen logs a screen view via `AnalyticsClient.logScreenView`.
+- Screen names use constants in `AnalyticsScreenNames`, not widget class names.
+- Track screen views in **`AnalyticsNavigatorObserver`**, not manually in each screen widget.
+- When adding a route in `apps/eddyscout/lib/routing/app_routes.dart`, extend `AnalyticsScreenNames.fromMatchedLocation`.
 
 ```dart
-class AnalyticsRouteObserver extends NavigatorObserver {
-  AnalyticsRouteObserver(this._client);
+class AnalyticsNavigatorObserver extends NavigatorObserver {
+  AnalyticsNavigatorObserver(this._client);
   final AnalyticsClient _client;
 
   @override
-  void didPush(Route route, Route? previousRoute) {
-    if (route.settings.name != null) {
-      _client.setScreen(route.settings.name!);
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    final context = route.navigator?.context;
+    if (context == null || !context.mounted) return;
+    final screenName = AnalyticsScreenNames.fromMatchedLocation(
+      GoRouter.of(context).state.matchedLocation,
+    );
+    if (screenName != null) {
+      _client.logScreenView(screenName: screenName);
     }
   }
 }
@@ -76,8 +105,9 @@ The following are considered PII and must not appear in analytics payloads:
 | **Authentication** | Auth tokens, session IDs, passwords |
 | **Device identifiers** | IMEI, MAC address (advertising ID only with consent) |
 | **Financial** | Payment card numbers, bank accounts |
+| **User content** | Condition report message text, free-form notes |
 
-**Allowed:** Anonymized user IDs, coarse location (city-level or region), device model, OS version, app version.
+**Allowed:** Opaque launch ids, coarse location (city-level or region), device model, OS version, app version.
 
 ## Event Taxonomy
 
@@ -85,33 +115,30 @@ Categorize events for organized dashboards and analysis:
 
 | Category | Purpose | Examples |
 |----------|---------|---------|
-| **Navigation** | Screen views, tab switches, deep links | `nav_to_launch_detail`, `nav_back_to_map` |
+| **Navigation** | Screen views, tab switches, deep links | `screen_map`, `screen_launch_detail` |
 | **Interaction** | User taps, gestures, selections | `tap_launch_pin`, `select_skill_level` |
-| **Conversion** | Goal completions, feature adoption | `submit_condition_report`, `complete_onboarding` |
+| **Conversion** | Goal completions, feature adoption | `report_submit_success`, `complete_onboarding` |
 | **Error** | User-facing errors, failures | `error_weather_load`, `error_report_submit` |
 
 ## Consent Management
 
-- Analytics must respect the user's consent preferences.
-- On first launch, present a clear consent prompt if required by jurisdiction (GDPR, CCPA).
-- Provide a settings toggle to opt out of analytics at any time.
-- When consent is revoked, stop sending events **immediately** and delete any locally queued events.
-- The `AnalyticsClient` implementation must check consent state before dispatching any event.
+- Analytics must respect the user's consent preferences when a consent UI ships.
+- **v1:** No consent prompt — debug client logs locally only; release uses `NoOpAnalyticsClient`.
+- **Future:** On first launch, present a clear consent prompt if required by jurisdiction (GDPR, CCPA). Gate SDK implementations behind consent; `NoOpAnalyticsClient` when opted out.
 
 ## Debug vs. Production Analytics
 
 | Environment | Behavior |
 |-------------|----------|
-| **Debug** | Log events to console via `debugPrint`; do **not** send to production analytics backends |
-| **Profile** | Optionally send to a staging analytics project |
-| **Release** | Send to the production analytics project |
+| **Debug** | `DebugAnalyticsClient` — log events to console via `debugPrint`; do **not** send to production backends |
+| **Release** | `NoOpAnalyticsClient` until a production SDK adapter is added |
 
-- Use `kDebugMode` or build flavor to switch `AnalyticsClient` implementations.
-- Debug logging should include event name and all parameters for easy verification.
+- Use `kDebugMode` in `analyticsClientProvider` to select the implementation.
+- When a production SDK is added, swap the release binding only — call sites stay unchanged.
 
 ## Analytics Testing Strategy
 
-- **Unit tests:** Verify that interactions trigger the expected events by injecting a mock `AnalyticsClient`.
-- **Integration tests:** Confirm screen tracking fires on navigation.
-- **Event audit:** Periodically review the event catalog against the analytics dashboard to identify dead or missing events.
-- **Privacy tests:** Add lint rules or review checks to flag potential PII in event parameters.
+- **Unit tests:** Inject a recording/fake `AnalyticsClient` via `analyticsClientProvider.overrideWithValue`.
+- **Widget tests:** Assert conversion events on goal completions (see `report_submit_analytics_test.dart`).
+- **Integration tests:** Confirm screen tracking fires on navigation when E2E journeys are added.
+- **Privacy tests:** Review PRs for PII in event parameters; never log report text or tokens.

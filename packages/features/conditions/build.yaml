@@ -35,4 +35,4 @@ targets:
             - lib/src/presentation/conditions_snapshot_provider.dart
             - lib/src/presentation/firebase_bootstrap_provider.dart
             - lib/src/presentation/go_no_go_profile_provider.dart
-            - lib/src/presentation/launch_reports_digest_provider.dart
+            - lib/src/data/launch_reports_digest_provider.dart

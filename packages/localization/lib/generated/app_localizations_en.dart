@@ -120,6 +120,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not load conditions. Pull to refresh or try again later.';
 
   @override
+  String get launchDetailSkillProfileErrorGeneric =>
+      'Could not load your skill profile. Restart the app or try again later.';
+
+  @override
   String get launchDetailSkillSectionTitle => 'Skill (wind thresholds)';
 
   @override
@@ -189,6 +193,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String launchDetailFirebaseErrorLabel(String error) {
     return 'Error: $error';
   }
+
+  @override
+  String get launchDetailFirebaseHintMissingNativeConfig =>
+      'Add apps/eddyscout/android/app/google-services.json from Firebase Console. In a git worktree, run make dev to symlink from your main clone. Then stop the app fully and rebuild (not hot reload).';
+
+  @override
+  String get launchDetailFirebaseHintAnonymousAuth =>
+      'Firebase is blocking anonymous sign-in. In Firebase Console open Authentication → Sign-in method → enable Anonymous → Save. If it is already on, open Authentication → Settings and ensure user sign-up is not disabled. Then stop the app fully and run make dev again (not hot reload).';
 
   @override
   String get launchDetailRiverWillamette => 'Willamette';

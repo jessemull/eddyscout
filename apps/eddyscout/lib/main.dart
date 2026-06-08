@@ -1,5 +1,7 @@
+import 'package:eddyscout/analytics/analytics_navigator_observer.dart';
 import 'package:eddyscout/bootstrap/app_bootstrap.dart';
 import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
+import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
@@ -17,6 +19,11 @@ Future<void> main() async {
         ...buildAppProviderOverrides(keyValueStore: bootstrap.keyValueStore),
         firebaseBootstrapProvider.overrideWithValue(
           bootstrap.firebaseBootstrapState,
+        ),
+        navigatorObserversProvider.overrideWith(
+          (ref) => [
+            AnalyticsNavigatorObserver(ref.watch(analyticsClientProvider)),
+          ],
         ),
       ],
       child: const EddyScoutApp(),

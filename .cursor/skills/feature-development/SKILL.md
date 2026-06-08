@@ -28,6 +28,7 @@ Read the following before implementing any feature:
 Conditional reads:
 - `docs/ERROR_HANDLING.md` — when feature involves error/retry/offline flows
 - `docs/LOCALIZATION.md` — when feature adds user-facing strings
+- `docs/ANALYTICS.md` — when feature adds screens, conversion flows, or user-facing journeys
 - `docs/PLATFORMS.md` — when feature includes platform-specific code
 
 Companion skills (use for deeper passes in specific areas):
@@ -464,12 +465,22 @@ The data layer implements domain contracts.
 
 # 13. Analytics & Observability
 
+Read `docs/ANALYTICS.md` when adding screens or conversion flows.
+
 ## Analytics
 
-- [ ] Analytics events implemented correctly
-- [ ] Naming conventions followed
-- [ ] Duplicate events avoided
-- [ ] PII not tracked
+- [ ] New routed screens added to `AnalyticsScreenNames` (screen views automatic via router observer)
+- [ ] Conversion / goal flows emit `AnalyticsEvent` (no PII in parameters)
+- [ ] Naming conventions followed (`AnalyticsEvents` constants)
+- [ ] No direct SDK calls — use `analyticsClientProvider` only
+
+## Integration tests (E2E)
+
+Read `docs/TESTING.md` § Integration test decision criteria.
+
+- [ ] Add E2E only for new critical multi-route journeys widget tests cannot cover
+- [ ] Do not add E2E for single-screen or domain-only changes
+- [ ] Budget: one new integration test file per product epic unless justified
 
 ## Logging
 
