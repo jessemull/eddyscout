@@ -170,6 +170,17 @@ preflight_run_tests() {
     test_args+=("$@")
   fi
 
+  # Coverage lcov is unreliable when packages or test isolates run in parallel.
+  local arg
+  for arg in "${test_args[@]}"; do
+    if [[ "$arg" == "--coverage" ]]; then
+      jobs=1
+      flutter_j=1
+      test_args=(--exclude-tags golden --concurrency=1 --coverage)
+      break
+    fi
+  done
+
   local -a melos_common=(
     exec
     --fail-fast
