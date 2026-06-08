@@ -16,6 +16,24 @@ const _sampleGpx = '''
   </trkseg></trk>
 </gpx>''';
 
+const _outsidePnwGpx = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="test">
+  <trk><trkseg>
+    <trkpt lat="40.0" lon="-74.0"/>
+    <trkpt lat="41.0" lon="-75.0"/>
+  </trkseg></trk>
+</gpx>''';
+
+const _pnwFarFromLaunchesGpx = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="test">
+  <trk><trkseg>
+    <trkpt lat="44.058" lon="-121.315"/>
+    <trkpt lat="44.060" lon="-121.310"/>
+  </trkseg></trk>
+</gpx>''';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -37,6 +55,16 @@ void main() {
         routePlanningProvider.overrideWith(
           () => _PlannedRoutePlanning(polyline),
         ),
+      ],
+    );
+  }
+
+  ProviderContainer containerForImport() {
+    return ProviderContainer(
+      overrides: [
+        gpxFileGatewayProvider.overrideWithValue(gateway),
+        analyticsClientProvider.overrideWithValue(analytics),
+        mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
       ],
     );
   }
@@ -79,13 +107,11 @@ void main() {
         .exportRoute();
 
     expect(outcome, isA<GpxActionFailure>());
+    final failure = (outcome as GpxActionFailure).failure;
+    expect(failure, isA<GpxCodecActionFailure>());
     expect(
-      (outcome as GpxActionFailure).failure,
-      isA<GpxFailure>().having(
-        (f) => f.code,
-        'code',
-        GpxFailureCode.noRouteToExport,
-      ),
+      (failure as GpxCodecActionFailure).failure.code,
+      GpxFailureCode.noRouteToExport,
     );
     expect(analytics.events.single.name, AnalyticsEvents.gpxExportFailure);
   });
@@ -95,13 +121,7 @@ void main() {
       (_) async => const Result.success(_sampleGpx),
     );
 
-    final container = ProviderContainer(
-      overrides: [
-        gpxFileGatewayProvider.overrideWithValue(gateway),
-        analyticsClientProvider.overrideWithValue(analytics),
-        mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
-      ],
-    );
+    final container = containerForImport();
     addTearDown(container.dispose);
 
     final outcome = await container
@@ -114,6 +134,78 @@ void main() {
     expect(planning.polylineLonLat?.length, 2);
     expect(planning.routeOrigin, RouteOrigin.imported);
   });
+
+  test(
+    'importRoute returns malformed failure and logs gpx_import_failure',
+    () async {
+      when(() => gateway.pickAndReadGpx()).thenAnswer(
+        (_) async => const Result.success('<<<not gpx xml>>>'),
+      );
+
+      final container = containerForImport();
+      addTearDown(container.dispose);
+
+      final outcome = await container
+          .read(gpxActionsProvider.notifier)
+          .importRoute();
+
+      expect(outcome, isA<GpxActionFailure>());
+      final failure = (outcome as GpxActionFailure).failure;
+      expect(failure, isA<GpxCodecActionFailure>());
+      expect(
+        (failure as GpxCodecActionFailure).failure.code,
+        GpxFailureCode.malformedXml,
+      );
+      expect(analytics.events.single.name, AnalyticsEvents.gpxImportFailure);
+      expect(
+        analytics.events.single.parameters['failure_code'],
+        GpxFailureCode.malformedXml.name,
+      );
+    },
+  );
+
+  test(
+    'importRoute warns outsidePnw when all points are outside bbox',
+    () async {
+      when(() => gateway.pickAndReadGpx()).thenAnswer(
+        (_) async => const Result.success(_outsidePnwGpx),
+      );
+
+      final container = containerForImport();
+      addTearDown(container.dispose);
+
+      final outcome = await container
+          .read(gpxActionsProvider.notifier)
+          .importRoute();
+
+      expect(outcome, isA<GpxActionSuccess>());
+      expect(
+        (outcome as GpxActionSuccess).warnings,
+        contains(GpxImportWarning.outsidePnw),
+      );
+    },
+  );
+
+  test(
+    'importRoute warns launchSnapFailed when endpoints exceed snap threshold',
+    () async {
+      when(() => gateway.pickAndReadGpx()).thenAnswer(
+        (_) async => const Result.success(_pnwFarFromLaunchesGpx),
+      );
+
+      final container = containerForImport();
+      addTearDown(container.dispose);
+
+      final outcome = await container
+          .read(gpxActionsProvider.notifier)
+          .importRoute();
+
+      expect(outcome, isA<GpxActionSuccess>());
+      final success = outcome as GpxActionSuccess;
+      expect(success.warnings, contains(GpxImportWarning.launchSnapFailed));
+      expect(success.warnings, isNot(contains(GpxImportWarning.outsidePnw)));
+    },
+  );
 
   test('importRoute returns cancelled when picker dismissed', () async {
     when(() => gateway.pickAndReadGpx()).thenAnswer(

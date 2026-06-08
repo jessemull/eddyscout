@@ -192,13 +192,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         }
       case GpxActionFailure(:final failure):
         final localized = switch (failure) {
-          GpxFailure(:final code) => _localizedGpxFailure(context.l10n, code),
-          StorageFailure(:final message) => _localizedGpxStorageFailure(
+          GpxCodecActionFailure(:final failure) => _localizedGpxFailure(
             context.l10n,
-            message,
+            failure.code,
           ),
-          AppFailure() => context.l10n.mapGpxFailureGeneric,
-          _ => context.l10n.mapGpxFailureGeneric,
+          GpxPlatformActionFailure(:final failure) => switch (failure) {
+            StorageFailure(:final message) => _localizedGpxStorageFailure(
+              context.l10n,
+              message,
+            ),
+            AppFailure() => context.l10n.mapGpxFailureGeneric,
+          },
         };
         ScaffoldMessenger.of(
           context,

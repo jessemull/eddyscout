@@ -71,16 +71,22 @@ class GpxFileGatewayImpl implements GpxFileGateway {
   }) async {
     try {
       final bytes = utf8.encode(gpxXml);
-      final xFile = kIsWeb
-          ? XFile.fromData(
-              bytes,
-              name: filename,
-              mimeType: 'application/gpx+xml',
-            )
-          : XFile(
-              await _writeTempFile(filename: filename, contents: gpxXml),
-              mimeType: 'application/gpx+xml',
-            );
+      final XFile xFile;
+      if (kIsWeb) {
+        xFile = XFile.fromData(
+          bytes,
+          name: filename,
+          mimeType: 'application/gpx+xml',
+        );
+      } else {
+        final path = await _writeTempFile(filename: filename, contents: gpxXml);
+        if (path == null) {
+          return const Result.failure(
+            StorageFailure(message: 'gpx_file_write_failed'),
+          );
+        }
+        xFile = XFile(path, mimeType: 'application/gpx+xml');
+      }
 
       final shareResult = await SharePlus.instance.share(
         ShareParams(
@@ -103,14 +109,18 @@ class GpxFileGatewayImpl implements GpxFileGateway {
     }
   }
 
-  Future<String> _writeTempFile({
+  Future<String?> _writeTempFile({
     required String filename,
     required String contents,
   }) async {
-    final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/$filename');
-    await file.writeAsString(contents);
-    return file.path;
+    try {
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/$filename');
+      await file.writeAsString(contents);
+      return file.path;
+    } on Object {
+      return null;
+    }
   }
 }
 
@@ -120,6 +130,7 @@ GpxFailureCode gpxFailureCodeFromAppFailure(AppFailure failure) {
     return switch (failure.message) {
       'gpx_file_read_failed' ||
       'gpx_read_failed' => GpxFailureCode.fileReadFailed,
+      'gpx_file_write_failed' => GpxFailureCode.fileWriteFailed,
       'gpx_share_failed' => GpxFailureCode.shareFailed,
       _ => GpxFailureCode.fileReadFailed,
     };

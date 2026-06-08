@@ -18,6 +18,29 @@ enum GpxImportWarning {
   launchSnapFailed,
 }
 
+/// Domain or platform failure surfaced from GPX export/import.
+sealed class GpxActionFailureValue {
+  const GpxActionFailureValue();
+}
+
+/// GPX parse/serialize domain failure.
+final class GpxCodecActionFailure extends GpxActionFailureValue {
+  /// Creates a [GpxCodecActionFailure].
+  const GpxCodecActionFailure(this.failure);
+
+  /// Typed GPX failure from [GpxCodec].
+  final GpxFailure failure;
+}
+
+/// Platform file pick/share failure.
+final class GpxPlatformActionFailure extends GpxActionFailureValue {
+  /// Creates a [GpxPlatformActionFailure].
+  const GpxPlatformActionFailure(this.failure);
+
+  /// Storage or share failure from [GpxFileGateway].
+  final AppFailure failure;
+}
+
 /// Outcome of a GPX export or import action for UI feedback.
 sealed class GpxActionOutcome {
   const GpxActionOutcome();
@@ -38,7 +61,7 @@ final class GpxActionFailure extends GpxActionOutcome {
   const GpxActionFailure(this.failure);
 
   /// Failure surfaced to the UI layer.
-  final Object failure;
+  final GpxActionFailureValue failure;
 }
 
 /// User cancelled file pick — no snackbar.
@@ -59,7 +82,9 @@ class GpxActions extends _$GpxActions {
     if (polyline == null || polyline.length < 2) {
       await _logExportFailure(GpxFailureCode.noRouteToExport);
       return const GpxActionFailure(
-        GpxFailure(code: GpxFailureCode.noRouteToExport),
+        GpxCodecActionFailure(
+          GpxFailure(code: GpxFailureCode.noRouteToExport),
+        ),
       );
     }
 
@@ -77,7 +102,9 @@ class GpxActions extends _$GpxActions {
     if (serialized.isFailure) {
       final code = serialized.errorOrNull!.code;
       await _logExportFailure(code);
-      return GpxActionFailure(serialized.errorOrNull!);
+      return GpxActionFailure(
+        GpxCodecActionFailure(serialized.errorOrNull!),
+      );
     }
 
     final now = DateTime.now().toUtc();
@@ -111,7 +138,7 @@ class GpxActions extends _$GpxActions {
       },
       failure: (error) async {
         await _logExportFailure(_failureCodeFrom(error));
-        return GpxActionFailure(error);
+        return GpxActionFailure(GpxPlatformActionFailure(error));
       },
     );
   }
@@ -130,13 +157,15 @@ class GpxActions extends _$GpxActions {
         return const GpxActionCancelled();
       }
       await _logImportFailure(_failureCodeFrom(error));
-      return GpxActionFailure(error);
+      return GpxActionFailure(GpxPlatformActionFailure(error));
     }
 
     final parsed = GpxCodec.parse(picked.valueOrNull!);
     if (parsed.isFailure) {
       await _logImportFailure(parsed.errorOrNull!.code);
-      return GpxActionFailure(parsed.errorOrNull!);
+      return GpxActionFailure(
+        GpxCodecActionFailure(parsed.errorOrNull!),
+      );
     }
 
     final route = LaunchEndpointSnapper.snapEndpoints(

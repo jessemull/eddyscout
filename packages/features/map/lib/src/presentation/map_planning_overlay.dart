@@ -95,15 +95,23 @@ class MapPlanningOverlay extends StatelessWidget {
                       runSpacing: 4,
                       alignment: WrapAlignment.end,
                       children: [
-                        TextButton(
-                          onPressed: gpxBusy ? null : onImportGpx,
-                          child: Text(l10n.mapGpxImportLabel),
+                        Semantics(
+                          button: true,
+                          label: l10n.mapGpxImportLabel,
+                          child: TextButton(
+                            onPressed: gpxBusy ? null : onImportGpx,
+                            child: Text(l10n.mapGpxImportLabel),
+                          ),
                         ),
-                        TextButton(
-                          onPressed: canExportGpx && !gpxBusy
-                              ? onExportGpx
-                              : null,
-                          child: Text(l10n.mapGpxExportLabel),
+                        Semantics(
+                          button: true,
+                          label: l10n.mapGpxExportLabel,
+                          child: TextButton(
+                            onPressed: canExportGpx && !gpxBusy
+                                ? onExportGpx
+                                : null,
+                            child: Text(l10n.mapGpxExportLabel),
+                          ),
                         ),
                         TextButton(
                           onPressed: gpxBusy ? null : onClear,

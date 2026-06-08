@@ -1,0 +1,75 @@
+import 'package:eddyscout_analytics/eddyscout_analytics.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
+import '../../helpers/test_localized_app.dart';
+
+class _MockGpxFileGateway extends Mock implements GpxFileGateway {}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('shows localized snackbar when GPX import is malformed', (
+    tester,
+  ) async {
+    final gateway = _MockGpxFileGateway();
+    when(gateway.pickAndReadGpx).thenAnswer(
+      (_) async => const Result.success('<<<not gpx xml>>>'),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          gpxFileGatewayProvider.overrideWithValue(gateway),
+          analyticsClientProvider.overrideWithValue(RecordingAnalyticsClient()),
+          mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
+          mapInteractiveProvider.overrideWithValue(true),
+          routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
+        ],
+        child: testLocalizedApp(
+          child: Builder(
+            builder: (context) => Theme(
+              data: Theme.of(context).copyWith(
+                splashFactory: NoSplash.splashFactory,
+              ),
+              child: const MapScreen(
+                mapSlot: SizedBox(key: Key('map_test_stub')),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    await tester.tap(find.text('Import GPX'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Could not read that GPX file.'), findsOneWidget);
+  });
+}
+
+class _FixedRoutePlanning extends RoutePlanning {
+  @override
+  RoutePlanningState build() {
+    final putIn = kLaunchPoints.first;
+    final takeOut = kLaunchPoints[1];
+    return RoutePlanningState(
+      planningMode: true,
+      putIn: putIn,
+      takeOut: takeOut,
+      routeLengthKm: 12.5,
+      polylineLonLat: [
+        [putIn.longitude, putIn.latitude],
+        [takeOut.longitude, takeOut.latitude],
+      ],
+      routeOrigin: RouteOrigin.planner,
+    );
+  }
+}
