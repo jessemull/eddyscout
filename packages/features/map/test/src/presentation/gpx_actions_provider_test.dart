@@ -93,6 +93,51 @@ void main() {
     expect(analytics.events.single.name, AnalyticsEvents.gpxExportSuccess);
   });
 
+  test(
+    'exportRoute logs gpx_export_failure when temp file write fails',
+    () async {
+      when(
+        () => gateway.writeAndShareGpx(
+          filename: any(named: 'filename'),
+          gpxXml: any(named: 'gpxXml'),
+        ),
+      ).thenAnswer(
+        (_) async => const Result.failure(
+          StorageFailure(message: 'gpx_file_write_failed'),
+        ),
+      );
+
+      final container = containerWithPlanning(
+        polyline: [
+          [-122.73, 45.56],
+          [-122.66, 45.47],
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final outcome = await container
+          .read(gpxActionsProvider.notifier)
+          .exportRoute();
+
+      expect(outcome, isA<GpxActionFailure>());
+      final failure = (outcome as GpxActionFailure).failure;
+      expect(failure, isA<GpxPlatformActionFailure>());
+      expect(
+        (failure as GpxPlatformActionFailure).failure,
+        isA<StorageFailure>().having(
+          (f) => f.message,
+          'message',
+          'gpx_file_write_failed',
+        ),
+      );
+      expect(analytics.events.single.name, AnalyticsEvents.gpxExportFailure);
+      expect(
+        analytics.events.single.parameters['failure_code'],
+        GpxFailureCode.fileWriteFailed.name,
+      );
+    },
+  );
+
   test('exportRoute returns failure when no polyline', () async {
     final container = ProviderContainer(
       overrides: [

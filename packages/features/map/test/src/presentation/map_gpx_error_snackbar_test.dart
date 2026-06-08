@@ -10,6 +10,15 @@ import '../../helpers/test_localized_app.dart';
 
 class _MockGpxFileGateway extends Mock implements GpxFileGateway {}
 
+const _outsidePnwGpx = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="test">
+  <trk><trkseg>
+    <trkpt lat="40.0" lon="-74.0"/>
+    <trkpt lat="41.0" lon="-75.0"/>
+  </trkseg></trk>
+</gpx>''';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -53,6 +62,65 @@ void main() {
 
     expect(find.text('Could not read that GPX file.'), findsOneWidget);
   });
+
+  testWidgets(
+    'shows PNW warning snackbar after success when track is outside bbox',
+    (tester) async {
+      final gateway = _MockGpxFileGateway();
+      when(gateway.pickAndReadGpx).thenAnswer(
+        (_) async => const Result.success(_outsidePnwGpx),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            gpxFileGatewayProvider.overrideWithValue(gateway),
+            analyticsClientProvider.overrideWithValue(
+              RecordingAnalyticsClient(),
+            ),
+            mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
+            mapInteractiveProvider.overrideWithValue(true),
+            routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
+          ],
+          child: testLocalizedApp(
+            child: Builder(
+              builder: (context) => Theme(
+                data: Theme.of(context).copyWith(
+                  splashFactory: NoSplash.splashFactory,
+                ),
+                child: const MapScreen(
+                  mapSlot: SizedBox(key: Key('map_test_stub')),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      const pnwWarning =
+          'This track is outside our Pacific Northwest focus area.';
+
+      await tester.tap(find.text('Import GPX'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Track imported.'), findsOneWidget);
+
+      var sawPnwWarning = false;
+      for (var frame = 0; frame < 50; frame++) {
+        await tester.pump(const Duration(milliseconds: 100));
+        if (find.text(pnwWarning).evaluate().isNotEmpty) {
+          sawPnwWarning = true;
+          break;
+        }
+      }
+
+      expect(sawPnwWarning, isTrue, reason: 'Expected PNW warning snackbar');
+      expect(find.text(pnwWarning), findsOneWidget);
+    },
+  );
 }
 
 class _FixedRoutePlanning extends RoutePlanning {
