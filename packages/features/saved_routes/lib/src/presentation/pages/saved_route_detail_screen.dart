@@ -35,9 +35,11 @@ class _SavedRouteDetailScreenState
   final _notesController = TextEditingController();
   final _durationController = TextEditingController();
   var _dirty = false;
+  String? _boundRouteId;
   List<RouteWaypoint> _waypoints = [];
   RouteDifficulty? _difficulty;
   RecommendedSkillLevel? _skillLevel;
+  Set<RouteCategory> _selectedCategories = {};
   var _isFavorite = false;
 
   @override
@@ -59,9 +61,18 @@ class _SavedRouteDetailScreenState
       ..sort((a, b) => a.order.compareTo(b.order));
     _difficulty = route.metadata.difficulty;
     _skillLevel = route.metadata.recommendedSkillLevel;
+    _selectedCategories = _categoriesFromNames(route.metadata.categories);
     _isFavorite = route.isFavorite;
     _dirty = false;
   }
+
+  Set<RouteCategory> _categoriesFromNames(List<String> names) => {
+    for (final category in RouteCategory.values)
+      if (names.contains(category.name)) category,
+  };
+
+  List<String> _categoryNames() =>
+      _selectedCategories.map((category) => category.name).toList();
 
   SavedRoute _buildUpdated(SavedRoute existing) {
     final durationRaw = int.tryParse(_durationController.text.trim());
@@ -80,6 +91,7 @@ class _SavedRouteDetailScreenState
         difficulty: _difficulty,
         recommendedSkillLevel: _skillLevel,
         estimatedDurationMinutes: durationRaw,
+        categories: _categoryNames(),
       ),
       updatedAt: DateTime.now(),
     );
@@ -88,6 +100,19 @@ class _SavedRouteDetailScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+
+    ref.listen(savedRouteByIdProvider(widget.routeId), (previous, next) {
+      next.whenData((route) {
+        if (route == null || _dirty) {
+          return;
+        }
+        if (_boundRouteId != route.id) {
+          _bindFromRoute(route);
+          _boundRouteId = route.id;
+        }
+      });
+    });
+
     final routeAsync = ref.watch(savedRouteByIdProvider(widget.routeId));
 
     return routeAsync.when(
@@ -105,9 +130,6 @@ class _SavedRouteDetailScreenState
             appBar: AppBar(title: Text(l10n.savedRoutesDetailTitle)),
             body: Center(child: Text(l10n.savedRoutesNotFound)),
           );
-        }
-        if (!_dirty && _nameController.text.isEmpty) {
-          _bindFromRoute(route);
         }
 
         return Scaffold(
@@ -202,6 +224,31 @@ class _SavedRouteDetailScreenState
                   _dirty = true;
                 }),
               ),
+              const SizedBox(height: Spacing.md),
+              Text(
+                l10n.savedRoutesCategoriesLabel,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: Spacing.sm),
+              Wrap(
+                spacing: Spacing.sm,
+                runSpacing: Spacing.sm,
+                children: RouteCategory.values.map((category) {
+                  final selected = _selectedCategories.contains(category);
+                  return FilterChip(
+                    label: Text(_categoryLabel(l10n, category)),
+                    selected: selected,
+                    onSelected: (value) => setState(() {
+                      if (value) {
+                        _selectedCategories.add(category);
+                      } else {
+                        _selectedCategories.remove(category);
+                      }
+                      _dirty = true;
+                    }),
+                  );
+                }).toList(),
+              ),
               const SizedBox(height: Spacing.lg),
               Text(
                 l10n.savedRoutesWaypointsTitle,
@@ -283,6 +330,14 @@ class _SavedRouteDetailScreenState
         RecommendedSkillLevel.intermediate =>
           l10n.launchDetailSkillIntermediate,
         RecommendedSkillLevel.advanced => l10n.launchDetailSkillAdvanced,
+      };
+
+  String _categoryLabel(AppLocalizations l10n, RouteCategory category) =>
+      switch (category) {
+        RouteCategory.scenic => l10n.savedRoutesCategoryScenic,
+        RouteCategory.training => l10n.savedRoutesCategoryTraining,
+        RouteCategory.commute => l10n.savedRoutesCategoryCommute,
+        RouteCategory.overnight => l10n.savedRoutesCategoryOvernight,
       };
 
   Future<void> _save(BuildContext context, SavedRoute existing) async {

@@ -553,6 +553,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedRoutesSkillNone => 'Not set';
 
   @override
+  String get savedRoutesCategoriesLabel => 'Categories';
+
+  @override
+  String get savedRoutesCategoryScenic => 'Scenic';
+
+  @override
+  String get savedRoutesCategoryTraining => 'Training';
+
+  @override
+  String get savedRoutesCategoryCommute => 'Commute';
+
+  @override
+  String get savedRoutesCategoryOvernight => 'Overnight';
+
+  @override
+  String get savedRoutesLoadOnMapInsufficientWaypoints =>
+      'Could not load route — too few known launch points.';
+
+  @override
   String get savedRoutesWaypointsTitle => 'Waypoints';
 
   @override

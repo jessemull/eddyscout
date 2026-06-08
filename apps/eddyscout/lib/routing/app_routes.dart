@@ -81,16 +81,16 @@ class _MapRouteHost extends ConsumerWidget {
         mapSlot: const SizedBox(key: Key('integration_map_stub')),
         onOpenLaunchDetail: onOpenLaunchDetail,
         onSaveRoute: () => unawaited(showMapSaveRouteSheet(context, ref)),
-        onPendingRouteLoad: (mapRef) {
-          unawaited(handlePendingSavedRouteLoad(mapRef));
+        onPendingRouteLoad: (ctx, mapRef) {
+          unawaited(handlePendingSavedRouteLoad(ctx, mapRef));
         },
       );
     }
     return MapScreen(
       onOpenLaunchDetail: onOpenLaunchDetail,
       onSaveRoute: () => unawaited(showMapSaveRouteSheet(context, ref)),
-      onPendingRouteLoad: (mapRef) {
-        unawaited(handlePendingSavedRouteLoad(mapRef));
+      onPendingRouteLoad: (ctx, mapRef) {
+        unawaited(handlePendingSavedRouteLoad(ctx, mapRef));
       },
     );
   }

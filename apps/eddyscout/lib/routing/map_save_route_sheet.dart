@@ -122,7 +122,11 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
 }
 
 /// Loads a pending saved route onto the map when the map tab mounts.
-Future<void> handlePendingSavedRouteLoad(WidgetRef ref) async {
+Future<void> handlePendingSavedRouteLoad(
+  BuildContext context,
+  WidgetRef ref,
+) async {
+  final l10n = context.l10n;
   final routeId = ref.read(pendingSavedRouteLoadProvider.notifier).take();
   if (routeId == null) {
     return;
@@ -142,6 +146,12 @@ Future<void> handlePendingSavedRouteLoad(WidgetRef ref) async {
     }
   }
   if (launches.length < 2) {
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.savedRoutesLoadOnMapInsufficientWaypoints)),
+    );
     return;
   }
   ref.read(routePlanningProvider.notifier).loadFromSavedRoute(route, launches);

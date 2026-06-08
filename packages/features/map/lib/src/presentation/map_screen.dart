@@ -35,7 +35,7 @@ class MapScreen extends ConsumerStatefulWidget {
   final VoidCallback? onSaveRoute;
 
   /// Called once after mount to consume a pending saved-route load request.
-  final void Function(WidgetRef ref)? onPendingRouteLoad;
+  final void Function(BuildContext context, WidgetRef ref)? onPendingRouteLoad;
 
   @override
   ConsumerState<MapScreen> createState() => _MapScreenState();
@@ -50,7 +50,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     // Riverpod forbids modifying providers during build/initState; bind after frame.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _bindUiCallbacks();
-      widget.onPendingRouteLoad?.call(ref);
+      widget.onPendingRouteLoad?.call(context, ref);
     });
   }
 

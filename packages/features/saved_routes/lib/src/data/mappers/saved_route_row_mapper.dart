@@ -31,6 +31,15 @@ SavedRoute savedRouteFromRow(SavedRouteRow row) {
   );
 }
 
+/// Maps a row when JSON is valid; null when the row cannot be parsed.
+SavedRoute? trySavedRouteFromRow(SavedRouteRow row) {
+  try {
+    return savedRouteFromRow(row);
+  } on Object {
+    return null;
+  }
+}
+
 /// Maps a [SavedRoute] entity to a Drift companion row.
 SavedRoutesCompanion savedRouteToCompanion(SavedRoute route) {
   return SavedRoutesCompanion.insert(

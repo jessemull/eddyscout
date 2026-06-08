@@ -1006,6 +1006,42 @@ abstract class AppLocalizations {
   /// **'Not set'**
   String get savedRoutesSkillNone;
 
+  /// No description provided for @savedRoutesCategoriesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get savedRoutesCategoriesLabel;
+
+  /// No description provided for @savedRoutesCategoryScenic.
+  ///
+  /// In en, this message translates to:
+  /// **'Scenic'**
+  String get savedRoutesCategoryScenic;
+
+  /// No description provided for @savedRoutesCategoryTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get savedRoutesCategoryTraining;
+
+  /// No description provided for @savedRoutesCategoryCommute.
+  ///
+  /// In en, this message translates to:
+  /// **'Commute'**
+  String get savedRoutesCategoryCommute;
+
+  /// No description provided for @savedRoutesCategoryOvernight.
+  ///
+  /// In en, this message translates to:
+  /// **'Overnight'**
+  String get savedRoutesCategoryOvernight;
+
+  /// No description provided for @savedRoutesLoadOnMapInsufficientWaypoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load route — too few known launch points.'**
+  String get savedRoutesLoadOnMapInsufficientWaypoints;
+
   /// No description provided for @savedRoutesWaypointsTitle.
   ///
   /// In en, this message translates to:

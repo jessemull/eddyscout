@@ -1,13 +1,13 @@
 import 'package:eddyscout/analytics/analytics_navigator_observer.dart';
 import 'package:eddyscout/preferences/key_value_store_provider.dart';
 import 'package:eddyscout/routing/app_routes.dart';
+import 'package:eddyscout/routing/saved_routes_database_override.dart';
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
-import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:eddyscout_saved_routes/eddyscout_saved_routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -53,9 +53,7 @@ Future<void> main() async {
           final store = ref.watch(keyValueStoreProvider).requireValue;
           return GoNoGoProfileRepositoryImpl(store);
         }),
-        savedRoutesDatabaseProvider.overrideWith(
-          (ref) => openSavedRoutesDatabase(),
-        ),
+        savedRoutesDatabaseProductionOverride(),
         launchPointLookupProvider.overrideWithValue(findLaunchPointById),
         hydroGeoJsonLoaderProvider.overrideWithValue(
           () =>

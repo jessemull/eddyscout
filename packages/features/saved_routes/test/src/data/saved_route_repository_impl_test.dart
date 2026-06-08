@@ -61,4 +61,40 @@ void main() {
     final get = await repository.getById('d1');
     expect(get.valueOrNull, isNull);
   });
+
+  test('listAll skips rows with corrupt waypoints_json', () async {
+    await db.upsertRoute(
+      SavedRoutesCompanion.insert(
+        id: 'bad',
+        name: 'Corrupt',
+        waypointsJson: 'not-valid-json',
+        metadataJson: '{}',
+        createdAt: 1000,
+        updatedAt: 1000,
+      ),
+    );
+    await repository.upsert(sampleRoute(routeId: 'good', routeName: 'Good'));
+
+    final list = await repository.listAll();
+    expect(list.isSuccess, isTrue);
+    expect(list.valueOrNull, hasLength(1));
+    expect(list.valueOrNull!.single.id, 'good');
+  });
+
+  test('getById returns ParseFailure for corrupt row', () async {
+    await db.upsertRoute(
+      SavedRoutesCompanion.insert(
+        id: 'bad',
+        name: 'Corrupt',
+        waypointsJson: '{',
+        metadataJson: '{}',
+        createdAt: 1000,
+        updatedAt: 1000,
+      ),
+    );
+
+    final result = await repository.getById('bad');
+    expect(result.isFailure, isTrue);
+    expect(result.errorOrNull, isA<ParseFailure>());
+  });
 }

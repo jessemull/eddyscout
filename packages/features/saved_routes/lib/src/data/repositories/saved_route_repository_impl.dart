@@ -14,8 +14,9 @@ class SavedRouteRepositoryImpl implements SavedRouteRepository {
   FutureResult<List<SavedRoute>, AppFailure> listAll() async {
     try {
       final rows = await _database.getAllRoutes();
-      return Result.success(rows.map(savedRouteFromRow).toList());
-    } on Object catch (e, st) {
+      final routes = rows.map(trySavedRouteFromRow).whereType<SavedRoute>();
+      return Result.success(routes.toList());
+    } on Object catch (_, st) {
       return Result.failure(
         StorageFailure(message: 'Could not load saved routes.', stackTrace: st),
       );
@@ -26,8 +27,9 @@ class SavedRouteRepositoryImpl implements SavedRouteRepository {
   FutureResult<List<SavedRoute>, AppFailure> listFavorites() async {
     try {
       final rows = await _database.getFavoriteRoutes();
-      return Result.success(rows.map(savedRouteFromRow).toList());
-    } on Object catch (e, st) {
+      final routes = rows.map(trySavedRouteFromRow).whereType<SavedRoute>();
+      return Result.success(routes.toList());
+    } on Object catch (_, st) {
       return Result.failure(
         StorageFailure(
           message: 'Could not load favorite routes.',
@@ -44,8 +46,12 @@ class SavedRouteRepositoryImpl implements SavedRouteRepository {
       if (row == null) {
         return const Result.success(null);
       }
-      return Result.success(savedRouteFromRow(row));
-    } on Object catch (e, st) {
+      try {
+        return Result.success(savedRouteFromRow(row));
+      } on Object catch (_, st) {
+        return Result.failure(ParseFailure(stackTrace: st));
+      }
+    } on Object catch (_, st) {
       return Result.failure(
         StorageFailure(message: 'Could not load saved route.', stackTrace: st),
       );
@@ -57,7 +63,7 @@ class SavedRouteRepositoryImpl implements SavedRouteRepository {
     try {
       await _database.upsertRoute(savedRouteToCompanion(route));
       return Result.success(route);
-    } on Object catch (e, st) {
+    } on Object catch (_, st) {
       return Result.failure(
         StorageFailure(message: 'Could not save route.', stackTrace: st),
       );
@@ -74,7 +80,7 @@ class SavedRouteRepositoryImpl implements SavedRouteRepository {
         );
       }
       return const Result.success(null);
-    } on Object catch (e, st) {
+    } on Object catch (_, st) {
       return Result.failure(
         StorageFailure(message: 'Could not delete route.', stackTrace: st),
       );
@@ -100,8 +106,17 @@ class SavedRouteRepositoryImpl implements SavedRouteRepository {
         updatedAtMs: updatedAt,
       );
       final row = await _database.getRouteById(id);
-      return Result.success(savedRouteFromRow(row!));
-    } on Object catch (e, st) {
+      if (row == null) {
+        return Result.failure(
+          NotFoundFailure(message: 'Saved route not found: $id'),
+        );
+      }
+      try {
+        return Result.success(savedRouteFromRow(row));
+      } on Object catch (_, st) {
+        return Result.failure(ParseFailure(stackTrace: st));
+      }
+    } on Object catch (_, st) {
       return Result.failure(
         StorageFailure(
           message: 'Could not update favorite.',
