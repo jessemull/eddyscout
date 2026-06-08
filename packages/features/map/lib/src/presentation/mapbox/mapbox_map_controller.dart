@@ -111,10 +111,9 @@ final class MapboxMapController extends _$MapboxMapController
 
   Future<void> _runRoute() async {
     final planning = ref.read(routePlanningProvider);
-    final put = planning.putIn;
-    final take = planning.takeOut;
+    final waypoints = planning.waypoints;
     final plannerAsync = ref.read(riverRoutePlannerProvider);
-    if (put == null || take == null) {
+    if (waypoints.length < 2) {
       return;
     }
     if (plannerAsync.hasError) {
@@ -132,34 +131,43 @@ final class MapboxMapController extends _$MapboxMapController
     }
     final planner = plannerAsync.requireValue;
 
-    final result = planner.plan(put, take);
+    final planResult = planMultiSegmentRoute(planner, waypoints);
     if (!alive) {
       return;
     }
 
-    if (result is RouteFailure) {
-      mapDebugLog(
-        'plan FAILED ${put.id} -> ${take.id}: '
-        '${result.code}(${result.riverSystemName ?? ''})',
-      );
-      ref.read(routePlanningProvider.notifier).setRouteLengthKm(null);
+    if (planResult case Failure(:final error)) {
+      mapDebugLog('plan FAILED multi-segment: ${error.code}');
+      ref
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: null,
+            routeLengthKm: null,
+          );
       unawaited(clearRouteLine());
-      ui.showSnackBar?.call(result);
+      ui.showSnackBar?.call(error);
       return;
     }
 
-    final ok = result as RouteSuccess;
+    final segments =
+        (planResult as Success<List<RouteSuccess>, RouteFailure>).value;
+    final geometry = mergeRouteSegments(segments);
+    if (geometry == null) {
+      return;
+    }
     mapDebugLog(
-      'plan OK ${put.id} -> ${take.id} '
-      'lengthM=${ok.lengthMeters.toStringAsFixed(0)}',
+      'plan OK ${waypoints.length} stops '
+      'lengthM=${geometry.lengthMeters.toStringAsFixed(0)}',
     );
-    mapDebugLogRoutePolyline('planner output', ok.polylineLonLat);
-    mapDebugLogRouteSegmentMeters(ok.polylineLonLat);
+    mapDebugLogRoutePolyline('planner output', geometry.polylineLonLat);
     ref
         .read(routePlanningProvider.notifier)
-        .setRouteLengthKm(ok.lengthMeters / 1000.0);
-    await drawRouteLine(ok.polylineLonLat);
-    await fitCameraToRoute(ok.polylineLonLat);
+        .setActiveGeometry(
+          geometry: geometry,
+          routeLengthKm: geometry.lengthMeters / 1000.0,
+        );
+    await drawRouteLine(geometry.polylineLonLat);
+    await fitCameraToRoute(geometry.polylineLonLat);
   }
 
   Future<void> _afterExitPlanning() async {
@@ -170,4 +178,7 @@ final class MapboxMapController extends _$MapboxMapController
       await mapDebugLogMapboxSnapshot(map, 'afterExitPlanning');
     }
   }
+
+  /// Recomputes and draws the route for the current planning waypoints.
+  Future<void> rerunActiveRoute() => _runRoute();
 }

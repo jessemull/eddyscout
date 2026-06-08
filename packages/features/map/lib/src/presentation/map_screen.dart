@@ -16,7 +16,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
-  const MapScreen({super.key, this.mapSlot, this.onOpenLaunchDetail});
+  const MapScreen({
+    super.key,
+    this.mapSlot,
+    this.onOpenLaunchDetail,
+    this.onSaveRoute,
+    this.onPendingRouteLoad,
+  });
 
   /// Replaces [MapWidget] in widget tests (avoids Mapbox platform views).
   @visibleForTesting
@@ -24,6 +30,12 @@ class MapScreen extends ConsumerStatefulWidget {
 
   /// Opens launch detail for a tapped pin when not in route-planning mode.
   final void Function(LaunchPoint launch)? onOpenLaunchDetail;
+
+  /// Opens the save-route flow when planning has a valid route.
+  final VoidCallback? onSaveRoute;
+
+  /// Called once after mount to consume a pending saved-route load request.
+  final void Function(WidgetRef ref)? onPendingRouteLoad;
 
   @override
   ConsumerState<MapScreen> createState() => _MapScreenState();
@@ -36,7 +48,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Riverpod forbids modifying providers during build/initState; bind after frame.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _bindUiCallbacks());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _bindUiCallbacks();
+      widget.onPendingRouteLoad?.call(ref);
+    });
   }
 
   void _bindUiCallbacks() {
@@ -148,11 +163,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           if (planning.planningMode)
             MapPlanningOverlay(
-              putIn: planning.putIn,
-              takeOut: planning.takeOut,
+              waypoints: planning.waypoints,
               routeLengthKm: planning.routeLengthKm,
+              canSave:
+                  planning.hasRunnableRoute && planning.activeGeometry != null,
               onClear: () => unawaited(mapController.clearPlanningSelection()),
               onDone: mapController.togglePlanningMode,
+              onSave: () => widget.onSaveRoute?.call(),
             ),
         ],
       ),

@@ -16,6 +16,7 @@ workspace:
   - packages/features/map
   - packages/features/conditions
   - packages/features/hydro_routing
+  - packages/features/saved_routes
 
 dev_dependencies:
   melos: ^7.8.1

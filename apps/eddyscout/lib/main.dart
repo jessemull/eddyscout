@@ -7,7 +7,9 @@ import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
+import 'package:eddyscout_saved_routes/eddyscout_saved_routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -51,6 +53,10 @@ Future<void> main() async {
           final store = ref.watch(keyValueStoreProvider).requireValue;
           return GoNoGoProfileRepositoryImpl(store);
         }),
+        savedRoutesDatabaseProvider.overrideWith(
+          (ref) => openSavedRoutesDatabase(),
+        ),
+        launchPointLookupProvider.overrideWithValue(findLaunchPointById),
         hydroGeoJsonLoaderProvider.overrideWithValue(
           () =>
               rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),

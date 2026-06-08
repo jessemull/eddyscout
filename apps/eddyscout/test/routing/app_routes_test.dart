@@ -16,4 +16,20 @@ void main() {
       expect(const MapRoute().location, RoutePaths.map);
     });
   });
+
+  group('SavedRoutesListRoute', () {
+    test('location is saved routes path', () {
+      expect(
+        const SavedRoutesListRoute().location,
+        RoutePaths.savedRoutes,
+      );
+    });
+  });
+
+  group('SavedRouteDetailRoute', () {
+    test('location encodes route id', () {
+      const route = SavedRouteDetailRoute(routeId: 'sr_123');
+      expect(route.location, '/saved-routes/sr_123');
+    });
+  });
 }

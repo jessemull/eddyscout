@@ -462,4 +462,147 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get webMapPlaceholderBody =>
       'Use the Android or iOS app for the interactive map.';
+
+  @override
+  String get shellTabMap => 'Map';
+
+  @override
+  String get shellTabSavedRoutes => 'Saved routes';
+
+  @override
+  String get savedRoutesListTitle => 'Saved routes';
+
+  @override
+  String get savedRoutesAllTab => 'All';
+
+  @override
+  String get savedRoutesFavoritesTab => 'Favorites';
+
+  @override
+  String get savedRoutesListEmpty =>
+      'No saved routes yet. Plan a route on the Map tab and tap Save.';
+
+  @override
+  String get savedRoutesFavoritesEmpty => 'No favorite routes yet.';
+
+  @override
+  String get savedRoutesListError => 'Could not load saved routes.';
+
+  @override
+  String savedRoutesDistanceKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String savedRoutesWaypointCount(int count) {
+    return '$count stops';
+  }
+
+  @override
+  String get savedRoutesFavoriteTooltip => 'Add to favorites';
+
+  @override
+  String get savedRoutesUnfavoriteTooltip => 'Remove from favorites';
+
+  @override
+  String get savedRoutesDetailTitle => 'Route details';
+
+  @override
+  String get savedRoutesDetailError => 'Could not load this route.';
+
+  @override
+  String get savedRoutesNotFound => 'Route not found.';
+
+  @override
+  String get savedRoutesNameLabel => 'Name';
+
+  @override
+  String get savedRoutesDescriptionLabel => 'Description';
+
+  @override
+  String get savedRoutesNotesLabel => 'Notes';
+
+  @override
+  String get savedRoutesDurationLabel => 'Estimated duration (minutes)';
+
+  @override
+  String get savedRoutesDurationHint => 'Optional — e.g. distance ÷ 4 km/h';
+
+  @override
+  String get savedRoutesDifficultyLabel => 'Difficulty';
+
+  @override
+  String get savedRoutesDifficultyNone => 'Not set';
+
+  @override
+  String get savedRoutesDifficultyEasy => 'Easy';
+
+  @override
+  String get savedRoutesDifficultyModerate => 'Moderate';
+
+  @override
+  String get savedRoutesDifficultyHard => 'Hard';
+
+  @override
+  String get savedRoutesDifficultyExpert => 'Expert';
+
+  @override
+  String get savedRoutesSkillLabel => 'Recommended skill';
+
+  @override
+  String get savedRoutesSkillNone => 'Not set';
+
+  @override
+  String get savedRoutesWaypointsTitle => 'Waypoints';
+
+  @override
+  String get savedRoutesUnknownLaunch => 'Unknown launch';
+
+  @override
+  String get savedRoutesSaveButton => 'Save changes';
+
+  @override
+  String get savedRoutesLoadOnMapButton => 'Load on map';
+
+  @override
+  String get savedRoutesDeleteButton => 'Delete route';
+
+  @override
+  String get savedRoutesNameRequired => 'Enter a route name.';
+
+  @override
+  String get savedRoutesSaveSuccess => 'Route saved.';
+
+  @override
+  String get savedRoutesSaveError => 'Could not save route.';
+
+  @override
+  String get savedRoutesDeleteConfirmTitle => 'Delete route?';
+
+  @override
+  String get savedRoutesDeleteConfirmBody =>
+      'This removes the route from your device. This cannot be undone.';
+
+  @override
+  String get savedRoutesDeleteError => 'Could not delete route.';
+
+  @override
+  String get savedRoutesSaveDialogTitle => 'Save route';
+
+  @override
+  String get savedRoutesSaveFromMapButton => 'Save';
+
+  @override
+  String get mapPlanningSaveLabel => 'Save route';
+
+  @override
+  String mapPlanningWaypointCount(int count) {
+    return '$count stops';
+  }
+
+  @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String get commonCancel => 'Cancel';
 }

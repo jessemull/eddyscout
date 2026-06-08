@@ -3,27 +3,32 @@ import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/material.dart';
 
-/// Route-planning instructions and put-in / take-out summary over the map.
+/// Route-planning instructions and waypoint summary over the map.
 class MapPlanningOverlay extends StatelessWidget {
   const MapPlanningOverlay({
-    required this.putIn,
-    required this.takeOut,
+    required this.waypoints,
     required this.routeLengthKm,
+    required this.canSave,
     required this.onClear,
     required this.onDone,
+    required this.onSave,
     super.key,
   });
 
-  final LaunchPoint? putIn;
-  final LaunchPoint? takeOut;
+  final List<LaunchPoint> waypoints;
   final double? routeLengthKm;
+  final bool canSave;
   final VoidCallback onClear;
   final VoidCallback onDone;
+  final VoidCallback onSave;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
+    final putIn = waypoints.isNotEmpty ? waypoints.first : null;
+    final takeOut = waypoints.length >= 2 ? waypoints.last : null;
+
     return SafeArea(
       child: Align(
         alignment: Alignment.topCenter,
@@ -58,17 +63,24 @@ class MapPlanningOverlay extends StatelessWidget {
                         color: scheme.onSurfaceVariant,
                       ),
                     ),
+                    if (waypoints.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.mapPlanningWaypointCount(waypoints.length),
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ],
                     if (putIn != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        l10n.mapPlanningPutInName(putIn!.name),
+                        l10n.mapPlanningPutInName(putIn.name),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
-                    if (takeOut != null) ...[
+                    if (takeOut != null && waypoints.length == 2) ...[
                       const SizedBox(height: 4),
                       Text(
-                        l10n.mapPlanningTakeOutName(takeOut!.name),
+                        l10n.mapPlanningTakeOutName(takeOut.name),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
@@ -91,6 +103,11 @@ class MapPlanningOverlay extends StatelessWidget {
                           onPressed: onClear,
                           child: Text(l10n.mapPlanningClearLabel),
                         ),
+                        if (canSave)
+                          TextButton(
+                            onPressed: onSave,
+                            child: Text(l10n.mapPlanningSaveLabel),
+                          ),
                         TextButton(
                           onPressed: onDone,
                           child: Text(l10n.mapPlanningDoneLabel),

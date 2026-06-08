@@ -1,3 +1,4 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,14 +77,25 @@ void main() {
       container
           .read(routePlanningProvider.notifier)
           .handleLaunchTap(_launch(id: 'a'));
-      container.read(routePlanningProvider.notifier).setRouteLengthKm(12.5);
+      container
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: RouteGeometrySnapshot(
+              polylineLonLat: const [
+                [-122.6, 45.5],
+                [-122.5, 45.6],
+              ],
+              lengthMeters: 12500,
+              computedAt: DateTime.utc(2026),
+            ),
+            routeLengthKm: 12.5,
+          );
 
       container.read(routePlanningProvider.notifier).clearSelection();
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
-      expect(state.putIn, isNull);
-      expect(state.takeOut, isNull);
+      expect(state.waypoints, isEmpty);
       expect(state.routeLengthKm, isNull);
     });
 

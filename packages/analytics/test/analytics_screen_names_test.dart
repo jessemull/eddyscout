@@ -31,6 +31,20 @@ void main() {
       );
     });
 
+    test('maps saved routes list', () {
+      expect(
+        AnalyticsScreenNames.fromMatchedLocation('/saved-routes'),
+        AnalyticsScreenNames.savedRoutesList,
+      );
+    });
+
+    test('maps saved route detail', () {
+      expect(
+        AnalyticsScreenNames.fromMatchedLocation('/saved-routes/abc'),
+        AnalyticsScreenNames.savedRouteDetail,
+      );
+    });
+
     test('returns null for unknown locations', () {
       expect(AnalyticsScreenNames.fromMatchedLocation('/unknown'), isNull);
     });
