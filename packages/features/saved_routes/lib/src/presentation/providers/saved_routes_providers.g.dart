@@ -336,7 +336,7 @@ final class PendingSavedRouteLoadProvider
 }
 
 String _$pendingSavedRouteLoadHash() =>
-    r'17b365be6d56d5b70a946ddd1ff94e55449e371e';
+    r'25478f8fc3483bda6f6ef32eaaa98e9d728b05ed';
 
 /// Draft saved route to load on the map tab on next visit.
 

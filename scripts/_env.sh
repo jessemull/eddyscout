@@ -38,7 +38,14 @@ if ! command -v flutter >/dev/null 2>&1 && [[ -f "$_eddyscout_root/.tool-version
 fi
 
 if command -v flutter >/dev/null 2>&1; then
-  export FLUTTER_ROOT="${FLUTTER_ROOT:-$(cd "$(dirname "$(command -v flutter)")/.." && pwd)}"
+  _flutter_cmd="$(command -v flutter)"
+  if [[ -L "$_flutter_cmd" ]] && command -v readlink >/dev/null 2>&1; then
+    _flutter_cmd="$(readlink -f "$_flutter_cmd" 2>/dev/null || echo "$_flutter_cmd")"
+  fi
+  _flutter_bin="$(cd "$(dirname "$_flutter_cmd")" && pwd)"
+  _eddyscout_prepend_path "$_flutter_bin"
+  export FLUTTER_ROOT="${FLUTTER_ROOT:-$(cd "$_flutter_bin/.." && pwd)}"
+  unset _flutter_cmd _flutter_bin
 fi
 
 # Pub global executables (melos when activated globally).
