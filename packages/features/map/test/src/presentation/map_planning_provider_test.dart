@@ -76,7 +76,16 @@ void main() {
       container
           .read(routePlanningProvider.notifier)
           .handleLaunchTap(_launch(id: 'a'));
-      container.read(routePlanningProvider.notifier).setRouteLengthKm(12.5);
+      container
+          .read(routePlanningProvider.notifier)
+          .setPlannedRoute(
+            polylineLonLat: [
+              [-122.7, 45.5],
+              [-122.6, 45.4],
+            ],
+            routeLengthKm: 12.5,
+            routeOrigin: RouteOrigin.planner,
+          );
 
       container.read(routePlanningProvider.notifier).clearSelection();
 
@@ -85,6 +94,32 @@ void main() {
       expect(state.putIn, isNull);
       expect(state.takeOut, isNull);
       expect(state.routeLengthKm, isNull);
+      expect(state.polylineLonLat, isNull);
+    });
+
+    test('applyImportedRoute stores polyline and launch picks', () {
+      final putIn = _launch(id: 'a');
+      final takeOut = _launch(id: 'b');
+      final route = PlannedRoute(
+        points: const [
+          GpxPoint(latitude: 45.5, longitude: -122.7),
+          GpxPoint(latitude: 45.4, longitude: -122.6),
+        ],
+        putIn: putIn,
+        takeOut: takeOut,
+        lengthMeters: 8000,
+        origin: RouteOrigin.imported,
+      );
+
+      container.read(routePlanningProvider.notifier).applyImportedRoute(route);
+
+      final state = container.read(routePlanningProvider);
+      expect(state.planningMode, isTrue);
+      expect(state.putIn, putIn);
+      expect(state.takeOut, takeOut);
+      expect(state.routeLengthKm, closeTo(8.0, 0.01));
+      expect(state.polylineLonLat?.length, 2);
+      expect(state.routeOrigin, RouteOrigin.imported);
     });
 
     test('keeps state after listeners are removed', () {
