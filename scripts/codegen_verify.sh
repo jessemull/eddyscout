@@ -3,22 +3,20 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck source=preflight_lib.sh
+source "$SCRIPT_DIR/preflight_lib.sh"
 cd "$REPO_ROOT"
 
 echo "--- Verifying generated code is up to date ---"
 
-# Run code generation
-"$SCRIPT_DIR/codegen.sh" 2>/dev/null || true
-
-# Unstaged edits only — staged renames (e.g. moving *.g.dart across packages) are OK.
-DIRTY=$(git diff --name-only -- '*.g.dart' '*.freezed.dart' '*.gr.dart' 2>/dev/null || true)
-
-if [ -n "$DIRTY" ]; then
-  echo "ERROR: Generated files are out of date:"
-  echo "$DIRTY"
-  echo ""
-  echo "Run 'make gen' and commit the changes."
-  exit 1
+if preflight_needs_codegen_build; then
+  echo "Running build_runner (codegen-relevant sources changed)."
+  # shellcheck source=_env.sh
+  source "$SCRIPT_DIR/_env.sh"
+  melos exec --concurrency="$(preflight_resolve_jobs)" --depends-on=build_runner -- \
+    "dart run build_runner build --delete-conflicting-outputs"
+else
+  echo "Skipping build_runner (no codegen-relevant source changes; CI always runs full verify)."
 fi
 
-echo "Generated code is up to date."
+preflight_verify_generated_clean
