@@ -1,8 +1,11 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
-import 'package:eddyscout_saved_routes/src/data/repositories/saved_route_repository_impl.dart';
 import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+// Relative import required: package src/data/ URIs are blocked in presentation/.
+// ignore: always_use_package_imports
+import '../../data/repositories/saved_route_repository_impl.dart';
 
 part 'saved_routes_providers.g.dart';
 
