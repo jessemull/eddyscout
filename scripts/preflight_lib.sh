@@ -144,6 +144,9 @@ preflight_run_parallel() {
 }
 
 preflight_should_use_affected_tests() {
+  if [[ "${PUSH_VALIDATE_FULL_SUITE:-}" == "1" ]]; then
+    return 1
+  fi
   if [[ "${PUSH_VALIDATE_AFFECTED:-}" == "1" ]] || [[ "${PUSH_VALIDATE_AUTO_AFFECTED:-}" == "1" ]]; then
     if [[ "${PUSH_VALIDATE_AUTO_AFFECTED:-}" == "1" ]] && preflight_global_config_changed; then
       echo "Global config changed — running full test suite."

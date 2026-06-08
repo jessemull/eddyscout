@@ -80,4 +80,8 @@ preflight_collect_diff_files() { echo "Makefile"; }
 assert_false "auto affected falls back when global config changed" preflight_should_use_affected_tests
 unset PUSH_VALIDATE_AUTO_AFFECTED
 
+export PUSH_VALIDATE_FULL_SUITE=1
+assert_false "full suite flag disables affected tests" preflight_should_use_affected_tests
+unset PUSH_VALIDATE_FULL_SUITE
+
 echo "preflight_lib_test: OK"

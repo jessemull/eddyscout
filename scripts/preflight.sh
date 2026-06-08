@@ -30,6 +30,13 @@ if $AFFECTED_TESTS; then
   export PUSH_VALIDATE_AFFECTED=1
 fi
 
+if $CI_MODE; then
+  # Scheduled / explicit CI preflight: full codegen + full test suite (no --since).
+  export CODEGEN_VERIFY_FULL=1
+  export PUSH_VALIDATE_FULL_SUITE=1
+  unset PUSH_VALIDATE_AFFECTED PUSH_VALIDATE_AUTO_AFFECTED
+fi
+
 PREFLIGHT_START=$SECONDS
 JOBS="$(preflight_resolve_jobs)"
 echo "=== EddyScout Preflight (melos concurrency: ${JOBS}) ==="
@@ -74,9 +81,13 @@ else
     "Import boundaries" "$SCRIPT_DIR/check_imports.sh" \
     "Architecture" "$SCRIPT_DIR/check_architecture.sh"
 
-  preflight_run_parallel \
-    "Tests" "$SCRIPT_DIR/run_tests.sh" \
-    "Codegen verification" "$SCRIPT_DIR/codegen_verify.sh"
+  preflight_phase_start "Codegen verification"
+  "$SCRIPT_DIR/codegen_verify.sh"
+  preflight_phase_end "Codegen verification"
+
+  preflight_phase_start "Tests"
+  "$SCRIPT_DIR/run_tests.sh"
+  preflight_phase_end "Tests"
 
   if ! $SKIP_COVERAGE; then
     preflight_phase_start "Coverage thresholds"
