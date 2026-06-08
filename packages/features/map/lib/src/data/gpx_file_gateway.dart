@@ -7,7 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:share_plus_platform_interface/share_plus_platform_interface.dart';
 
 part 'gpx_file_gateway.g.dart';
 
@@ -88,7 +88,7 @@ class GpxFileGatewayImpl implements GpxFileGateway {
         xFile = XFile(path, mimeType: 'application/gpx+xml');
       }
 
-      final shareResult = await SharePlus.instance.share(
+      final shareResult = await SharePlatform.instance.share(
         ShareParams(
           files: [xFile],
           subject: 'EddyScout route',
