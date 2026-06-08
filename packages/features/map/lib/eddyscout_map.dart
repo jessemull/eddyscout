@@ -14,8 +14,9 @@ export 'package:eddyscout_core/eddyscout_core.dart'
         kFlowBandsUsgs14144700ColumbiaVancouver,
         kFlowBandsUsgs14211010ClackamasNearOc,
         kFlowBandsUsgs14211720WillamettePortland;
-export 'src/data/launch_points.dart';
 export 'src/data/launch_providers.dart';
+export 'src/domain/launch_points.dart';
+export 'src/presentation/launch_lookup.dart';
 export 'src/presentation/map_constants.dart';
 export 'src/presentation/map_planning_overlay.dart';
 export 'src/presentation/map_planning_provider.dart';

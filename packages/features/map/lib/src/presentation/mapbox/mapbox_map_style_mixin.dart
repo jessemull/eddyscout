@@ -1,7 +1,8 @@
-import 'package:eddyscout_map/src/presentation/map_constants.dart';
-import 'package:eddyscout_map/src/presentation/mapbox/map_debug_log.dart';
-import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller_shared.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+
+import '../map_constants.dart';
+import 'map_debug_log.dart';
+import 'mapbox_map_controller_shared.dart';
 
 /// Standard style projection and camera bounds for the launch map.
 mixin MapboxMapStyleMixin on MapboxMapControllerBase {

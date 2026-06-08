@@ -10,8 +10,5 @@ echo "=== Push Validation ==="
 # Full preflight without coverage (coverage enforced in CI).
 "$SCRIPT_DIR/preflight.sh" --no-coverage
 
-"$SCRIPT_DIR/check_imports.sh"
-"$SCRIPT_DIR/check_architecture.sh"
-
 echo ""
 echo "=== Push Validation PASSED ==="

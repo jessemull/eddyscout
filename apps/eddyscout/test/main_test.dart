@@ -1,22 +1,19 @@
-import 'package:eddyscout/main.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:eddyscout/main.dart' as app;
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'routing/test_router_overrides.dart';
-import 'test_localized_app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('EddyScoutApp boots with missing Mapbox token route', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: appRouterTestOverrides,
-        child: testLocalizedApp(child: const EddyScoutApp()),
-      ),
-    );
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
+  testWidgets('main boots the app shell', (tester) async {
+    await app.main();
     await tester.pumpAndSettle();
 
-    expect(find.text('Mapbox token required'), findsOneWidget);
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

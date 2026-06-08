@@ -168,5 +168,5 @@ Router DI and assembly providers live in [`packages/routing/lib/src/go_router_pr
 
 1. **`riverpod_annotation`** in `dependencies`; **`riverpod_generator`** in `dev_dependencies` ([`packages/routing/pubspec.yaml`](../packages/routing/pubspec.yaml)).
 2. Register `go_router_provider.dart` under `riverpod_generator|riverpod_generator` in [`packages/routing/build.yaml`](../packages/routing/build.yaml).
-3. Use `@Riverpod(keepAlive: true)` for app-lifetime providers (`routesProvider`, `isKnownLaunchIdProvider`, `mapboxAccessTokenProvider`, `goRouterProvider`).
+3. Use `@Riverpod(keepAlive: true)` for app-lifetime providers (`routesProvider`, `mapboxAccessTokenProvider`, `goRouterProvider`, repository DI tokens).
 4. Hide codegen function names from the barrel export in [`packages/routing/lib/eddyscout_routing.dart`](../packages/routing/lib/eddyscout_routing.dart) to avoid clashing with `mapboxAccessToken` from `app_redirect.dart`.

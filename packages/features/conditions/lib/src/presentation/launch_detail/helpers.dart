@@ -1,14 +1,16 @@
 part of 'launch_detail_screen.dart';
 
-String _launchDetailFirebaseUnavailableMessage(AppLocalizations l10n) {
-  if (FirebaseBootstrap.lastError != null) {
-    final hint = FirebaseBootstrap.hintForLastError();
+String _launchDetailFirebaseUnavailableMessage(
+  AppLocalizations l10n,
+  FirebaseBootstrapState bootstrap,
+) {
+  final error = bootstrap.userFacingError;
+  if (error != null) {
+    final hint = bootstrap.hintForError();
     final buf = StringBuffer()
       ..writeln(l10n.launchDetailFirebaseUnavailableIntro)
       ..writeln()
-      ..writeln(
-        l10n.launchDetailFirebaseErrorLabel(FirebaseBootstrap.lastError!),
-      )
+      ..writeln(l10n.launchDetailFirebaseErrorLabel(error))
       ..writeln();
     if (hint != null) {
       buf

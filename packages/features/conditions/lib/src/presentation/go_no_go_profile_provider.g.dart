@@ -37,7 +37,7 @@ final class GoNoGoProfileNotifierProvider
 }
 
 String _$goNoGoProfileNotifierHash() =>
-    r'e0c34950e8ba799e951a489927141e62f6d0695f';
+    r'55a1e92efe93693a9a5d22a2d50603b06ef2364c';
 
 /// User skill profile for go/no-go wind thresholds.
 

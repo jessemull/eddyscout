@@ -8,62 +8,6 @@ part of 'condition_report_submit_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Injectable submit repository for tests and overrides.
-
-@ProviderFor(conditionReportSubmitRepository)
-final conditionReportSubmitRepositoryProvider =
-    ConditionReportSubmitRepositoryProvider._();
-
-/// Injectable submit repository for tests and overrides.
-
-final class ConditionReportSubmitRepositoryProvider
-    extends
-        $FunctionalProvider<
-          ConditionReportSubmitRepository,
-          ConditionReportSubmitRepository,
-          ConditionReportSubmitRepository
-        >
-    with $Provider<ConditionReportSubmitRepository> {
-  /// Injectable submit repository for tests and overrides.
-  ConditionReportSubmitRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'conditionReportSubmitRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$conditionReportSubmitRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<ConditionReportSubmitRepository> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  ConditionReportSubmitRepository create(Ref ref) {
-    return conditionReportSubmitRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ConditionReportSubmitRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<ConditionReportSubmitRepository>(
-        value,
-      ),
-    );
-  }
-}
-
-String _$conditionReportSubmitRepositoryHash() =>
-    r'ab4fede0db73c7fa591addf56811efe10e84d603';
-
 /// Submits a paddler condition report via Firebase Callable.
 
 @ProviderFor(ConditionReportSubmit)

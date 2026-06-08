@@ -291,11 +291,12 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
       return;
     }
     if (!ok) {
-      final err = ref.read(conditionReportSubmitProvider(submitArgs).notifier);
+      final submitState = ref.read(conditionReportSubmitProvider(submitArgs));
       widget.scaffoldMessenger?.showSnackBar(
         SnackBar(
           content: Text(
-            err.errorMessage ?? context.l10n.launchDetailReportSubmitError,
+            conditionReportSubmitErrorMessage(submitState) ??
+                context.l10n.launchDetailReportSubmitError,
           ),
         ),
       );
@@ -307,7 +308,7 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
       if (!mounted) {
         return;
       }
-      context.pop();
+      Navigator.of(context).pop();
       widget.onSuccessFeedback();
     });
   }

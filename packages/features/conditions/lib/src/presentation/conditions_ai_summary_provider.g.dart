@@ -8,62 +8,6 @@ part of 'conditions_ai_summary_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Injectable [ConditionsAiSummaryRepository] for tests and overrides.
-
-@ProviderFor(conditionsAiSummaryRepository)
-final conditionsAiSummaryRepositoryProvider =
-    ConditionsAiSummaryRepositoryProvider._();
-
-/// Injectable [ConditionsAiSummaryRepository] for tests and overrides.
-
-final class ConditionsAiSummaryRepositoryProvider
-    extends
-        $FunctionalProvider<
-          ConditionsAiSummaryRepository,
-          ConditionsAiSummaryRepository,
-          ConditionsAiSummaryRepository
-        >
-    with $Provider<ConditionsAiSummaryRepository> {
-  /// Injectable [ConditionsAiSummaryRepository] for tests and overrides.
-  ConditionsAiSummaryRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'conditionsAiSummaryRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$conditionsAiSummaryRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<ConditionsAiSummaryRepository> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  ConditionsAiSummaryRepository create(Ref ref) {
-    return conditionsAiSummaryRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ConditionsAiSummaryRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<ConditionsAiSummaryRepository>(
-        value,
-      ),
-    );
-  }
-}
-
-String _$conditionsAiSummaryRepositoryHash() =>
-    r'4bed46a87a6a99ec7d11be53b6c8d6f4bd35233d';
-
 /// Notifier for the conditions AI summary card.
 ///
 /// Keep-alive preserves card state when navigating away from launch detail

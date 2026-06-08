@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:eddyscout_conditions/src/data/repositories/condition_report_submit_repository_impl.dart';
-import 'package:eddyscout_conditions/src/domain/condition_reports_refresh_token_provider.dart';
-import 'package:eddyscout_conditions/src/domain/repositories/condition_report_submit_repository.dart';
+import 'package:eddyscout_conditions/src/domain/condition_report_submit_repository_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/condition_reports_refresh_token_provider.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -12,12 +11,6 @@ typedef ConditionReportSubmitArgs = ({
   String launchId,
   String? clientConditionsFetchedAt,
 });
-
-/// Injectable submit repository for tests and overrides.
-@riverpod
-ConditionReportSubmitRepository conditionReportSubmitRepository(Ref ref) {
-  return const ConditionReportSubmitRepositoryImpl();
-}
 
 /// Submits a paddler condition report via Firebase Callable.
 @riverpod
@@ -68,16 +61,16 @@ class ConditionReportSubmit extends _$ConditionReportSubmit {
       },
     );
   }
+}
 
-  /// User-facing message when [state] is error.
-  String? get errorMessage {
-    final err = state.error;
-    if (err == null) {
-      return null;
-    }
-    if (err is AppFailure) {
-      return err.message;
-    }
-    return err.toString();
+/// User-facing message when [conditionReportSubmitProvider] is in error.
+String? conditionReportSubmitErrorMessage(AsyncValue<void> state) {
+  final err = state.error;
+  if (err == null) {
+    return null;
   }
+  if (err is AppFailure) {
+    return err.message;
+  }
+  return err.toString();
 }

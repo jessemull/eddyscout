@@ -4,7 +4,7 @@ High-level feature map for a PNW-focused kayak companion: **decision-first**, **
 
 > **Platform:** target architecture is **complete** (waves 1–3 merged; see § Platform architecture). **Product work** is Phase C+ below. New UI belongs in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
 >
-> **Last updated:** 2026-06-06
+> **Last updated:** 2026-06-07
 
 ## Vision
 
@@ -115,6 +115,21 @@ Target repo/platform architecture is **done** for the current design. Shipped hi
 | Integration tests (E2E) | Token gate + map → launch detail; CI Linux deps (#22, #25, #27) |
 
 **Canonical design reference:** `docs/ARCHITECTURE.md` (package graph, layering, current implementation status).
+
+### Platform follow-ups (deferred / partial)
+
+Revisit when a product slice needs them — not blocking Phase C:
+
+| Item | Status | Notes |
+|------|--------|-------|
+| **Mapbox mixin device coverage** | Partial | `lib/src/presentation/mapbox/` excluded from unit-coverage gate; add integration/device tests for camera, markers, style, route mixins |
+| **`custom_lint` wiring** | Deferred | Analyzer version conflict with `riverpod_generator`; using `riverpod_lint` via `analysis_server_plugin` until deps align |
+| **Riverpod-in-domain migration** | Partial | Repository DI tokens in domain; presentation providers still in feature packages |
+| **`CancelToken` in domain HTTP contract** | Partial | Done in conditions; extend when adding HTTP in other features |
+| **`INTEGRATION_MAP_STUB` branch** | Partial | Compile-time flag on `MapRoute`; covered by integration tests, not default unit tests |
+| **Firebase bootstrap failure path** | Partial | `app_bootstrap.dart` Firebase init only exercised when `USE_FIREBASE=true` on device |
+| **`eddyscout_map` core type re-exports** | Deferred | Barrel still re-exports `LaunchPoint` from core for ergonomics |
+| **Hydro geodesy export coupling** | Deferred | `hydro_routing` data layer used directly by map presentation |
 
 ---
 

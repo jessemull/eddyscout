@@ -1,4 +1,4 @@
-import 'package:eddyscout_map/src/data/launch_points.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -18,11 +18,6 @@ void main() {
 
     test('findLaunchPointById returns null when missing', () {
       expect(findLaunchPointById('not-a-launch'), isNull);
-    });
-
-    test('kPortlandLaunchPoints is an alias of kLaunchPoints', () {
-      expect(identical(kPortlandLaunchPoints, kLaunchPoints), isTrue);
-      expect(kPortlandLaunchPoints.length, kLaunchPoints.length);
     });
   });
 }

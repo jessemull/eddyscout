@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/data/app_failure_mapper.dart';
 import 'package:eddyscout_conditions/src/data/conditions_http_provider.dart';
-import 'package:eddyscout_conditions/src/data/firebase/firebase_bootstrap.dart';
-import 'package:eddyscout_conditions/src/data/firebase/firebase_flags.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/firebase_flags.dart';
+import 'package:eddyscout_conditions/src/presentation/firebase_bootstrap_provider.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -72,16 +72,18 @@ void main() {
       expect(firebaseCallablesAvailable, isTrue);
     });
 
-    test('FirebaseBootstrap hintForLastError returns null when unset', () {
-      FirebaseBootstrap.lastError = null;
-      expect(FirebaseBootstrap.hintForLastError(), isNull);
+    test('FirebaseBootstrapState hintForError returns null when unset', () {
+      const bootstrap = FirebaseBootstrapState();
+      expect(bootstrap.hintForError(), isNull);
     });
 
     test(
-      'FirebaseBootstrap hintForLastError returns guidance for known auth codes',
+      'FirebaseBootstrapState hintForError returns guidance for known auth codes',
       () {
-        FirebaseBootstrap.lastError = 'admin-restricted-operation';
-        expect(FirebaseBootstrap.hintForLastError(), isNotNull);
+        const bootstrap = FirebaseBootstrapState(
+          userFacingError: 'admin-restricted-operation',
+        );
+        expect(bootstrap.hintForError(), isNotNull);
       },
     );
   });

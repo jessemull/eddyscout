@@ -27,10 +27,6 @@ class LaunchReportsDigestState {
   bool get isIdle => !isLoading && result == null && errorMessage == null;
 }
 
-/// Deprecated alias for [LaunchReportsDigest] after `@riverpod` codegen
-/// migration.
-typedef LaunchReportsDigestNotifier = LaunchReportsDigest;
-
 /// Notifier for the launch reports digest card.
 ///
 /// Keep-alive preserves card state when navigating away from launch detail

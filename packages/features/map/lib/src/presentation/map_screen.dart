@@ -2,25 +2,35 @@ import 'dart:async' show unawaited;
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
-import 'package:eddyscout_map/src/presentation/map_constants.dart';
-import 'package:eddyscout_map/src/presentation/map_planning_overlay.dart';
-import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
-import 'package:eddyscout_map/src/presentation/map_session_provider.dart';
-import 'package:eddyscout_map/src/presentation/map_ui_callbacks.dart';
-import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
+import 'map_constants.dart';
+import 'map_planning_overlay.dart';
+import 'map_planning_provider.dart';
+import 'map_route_failure_l10n.dart';
+import 'map_session_provider.dart';
+import 'map_ui_callbacks.dart';
+import 'mapbox/mapbox_map_controller.dart';
+
 class MapScreen extends ConsumerStatefulWidget {
-  const MapScreen({super.key, this.mapSlot, this.onOpenLaunchDetail});
+  const MapScreen({
+    super.key,
+    this.mapSlot,
+    this.onOpenLaunchDetail,
+    @visibleForTesting this.forceZoomChromeForTest = false,
+  });
 
   /// Replaces [MapWidget] in widget tests (avoids Mapbox platform views).
   @visibleForTesting
   final Widget? mapSlot;
+
+  /// Shows zoom chrome while [mapSlot] is set (widget tests only).
+  @visibleForTesting
+  final bool forceZoomChromeForTest;
 
   /// Opens launch detail for a tapped pin when not in route-planning mode.
   final void Function(LaunchPoint launch)? onOpenLaunchDetail;
@@ -55,18 +65,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               if (!context.mounted) {
                 return;
               }
-              final localized = switch (message) {
-                RouteFailure(:final code, :final riverSystemName) =>
-                  _localizedRouteFailure(
-                    l10n: l10n,
-                    code: code,
-                    riverSystemName: riverSystemName,
-                  ),
-                ParseFailure() => l10n.mapRiverDataReadFailed,
-                AssetLoadFailure() => l10n.mapRiverDataUnavailable,
-                String() => message,
-                _ => l10n.launchDetailUnavailable,
-              };
+              final localized = localizeMapPlannerMessage(
+                l10n: l10n,
+                message: message,
+              );
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(localized)));
@@ -80,22 +82,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
         );
   }
-
-  String _localizedRouteFailure({
-    required AppLocalizations l10n,
-    required RouteFailureCode code,
-    required String? riverSystemName,
-  }) => switch (code) {
-    RouteFailureCode.sameLaunch => l10n.mapRouteFailureSameLaunch,
-    RouteFailureCode.differentSystem => l10n.mapRouteFailureDifferentSystem,
-    RouteFailureCode.noBundledLine => l10n.mapRouteFailureNoBundledLine(
-      riverSystemName ?? '',
-    ),
-    RouteFailureCode.noRiverGeometryLoaded => l10n.mapRouteFailureNoData,
-    RouteFailureCode.putInTooFar => l10n.mapRouteFailurePutInTooFar,
-    RouteFailureCode.takeOutTooFar => l10n.mapRouteFailureTakeOutTooFar,
-    RouteFailureCode.noConnectedPath => l10n.mapRouteFailureNoConnectedPath,
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +123,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ignoring: !mapInteractive,
             child: mapChild,
           ),
-          if (mapInteractive && !_usesMapStub)
+          if (mapInteractive &&
+              (!_usesMapStub || widget.forceZoomChromeForTest))
             _MapZoomChrome(
               bottomPadding: MediaQuery.viewPaddingOf(context).bottom + 120,
               controller: mapController,

@@ -1,19 +1,56 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_conditions/eddyscout_conditions_data.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_launches.dart';
 import '../../helpers/test_localized_app.dart';
 
+class _MockConditionsAiSummaryRepository extends Mock
+    implements ConditionsAiSummaryRepository {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  late _MockConditionsAiSummaryRepository aiSummaryRepository;
+
+  setUpAll(() {
+    registerFallbackValue(CancelToken());
+    registerFallbackValue(testCathedralParkLaunch);
+    registerFallbackValue(
+      ConditionsSnapshot(fetchedAt: DateTime.utc(2026, 6, 15, 12)),
+    );
+    registerFallbackValue(
+      GoNoGoResult(
+        verdict: GoNoGoVerdict.go,
+        reasons: const [],
+        computedAt: DateTime.utc(2026, 6, 15, 12),
+      ),
+    );
+    registerFallbackValue(GoNoGoProfile.intermediate);
+  });
+
+  setUp(() {
+    aiSummaryRepository = _MockConditionsAiSummaryRepository();
+    when(
+      () => aiSummaryRepository.summarize(
+        launch: any(named: 'launch'),
+        snapshot: any(named: 'snapshot'),
+        goNoGo: any(named: 'goNoGo'),
+        skillProfile: any(named: 'skillProfile'),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer((_) async => const Result.success('Calm afternoon paddle.'));
+  });
 
   final launch = testCathedralParkLaunch;
   final kelleyPoint = testKelleyPointLaunch;
@@ -86,6 +123,12 @@ void main() {
       overrides: [
         goNoGoProfileRepositoryProvider.overrideWithValue(
           GoNoGoProfileRepositoryImpl(store),
+        ),
+        conditionsAiSummaryRepositoryProvider.overrideWithValue(
+          aiSummaryRepository,
+        ),
+        conditionReportSubmitRepositoryProvider.overrideWithValue(
+          const ConditionReportSubmitRepositoryImpl(),
         ),
         conditionsSnapshotProvider(activeLaunch).overrideWith(
           (ref) => loadConditions(),

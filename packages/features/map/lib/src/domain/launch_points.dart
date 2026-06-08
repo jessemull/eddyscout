@@ -269,6 +269,3 @@ LaunchPoint? findLaunchPointById(String id) {
   }
   return null;
 }
-
-/// Legacy name used by early milestones; same as [kLaunchPoints].
-const List<LaunchPoint> kPortlandLaunchPoints = kLaunchPoints;

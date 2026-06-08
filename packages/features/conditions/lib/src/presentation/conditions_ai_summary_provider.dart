@@ -1,18 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:eddyscout_conditions/src/data/repositories/conditions_ai_summary_repository_impl.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_ai_summary_repository_provider.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
-import 'package:eddyscout_conditions/src/domain/repositories/conditions_ai_summary_repository.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'conditions_ai_summary_provider.g.dart';
-
-/// Injectable [ConditionsAiSummaryRepository] for tests and overrides.
-@riverpod
-ConditionsAiSummaryRepository conditionsAiSummaryRepository(Ref ref) {
-  return const ConditionsAiSummaryRepositoryImpl();
-}
 
 /// UI state for the on-demand conditions AI summary card.
 class ConditionsAiSummaryState {

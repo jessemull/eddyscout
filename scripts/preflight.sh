@@ -59,10 +59,18 @@ if ! $STAGED_ONLY; then
   if ! $SKIP_COVERAGE; then
     echo ""
     echo "--- Coverage Thresholds ---"
-    melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --coverage"
+    melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --coverage --exclude-tags golden"
     "$SCRIPT_DIR/check_coverage.sh"
   fi
 fi
+
+echo ""
+echo "--- Import Boundaries ---"
+"$SCRIPT_DIR/check_imports.sh"
+
+echo ""
+echo "--- Architecture Check ---"
+"$SCRIPT_DIR/check_architecture.sh"
 
 echo ""
 echo "=== Preflight PASSED ==="

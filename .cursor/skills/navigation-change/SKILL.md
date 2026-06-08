@@ -95,7 +95,7 @@ No string-based navigation is allowed for application routes.
 
 - **Router assembly:** `packages/routing/` — `goRouterProvider`, `RoutePaths`, `resolveAppRedirect`
 - **Typed routes:** `apps/eddyscout/lib/routing/app_routes.dart` — `@TypedGoRoute` classes bound to app screens
-- **App wiring:** `main.dart` overrides `routesProvider` and `isKnownLaunchIdProvider` in `ProviderScope`
+- **App wiring:** `buildAppProviderOverrides()` in `apps/eddyscout/lib/bootstrap/` overrides `routesProvider` and repository tokens
 
 See `docs/NAVIGATION.md` for the full split and override pattern.
 
@@ -160,7 +160,7 @@ Verify:
 - [ ] add or update path in `packages/routing/lib/src/route_paths.dart` (`RoutePaths`)
 - [ ] define typed route in `apps/eddyscout/lib/routing/app_routes.dart` and run `make gen`
 - [ ] ensure `$appRoutes` includes the new route (generated from `app_routes.dart`)
-- [ ] wire app-specific validation in `main.dart` if the route needs injectable guards (e.g. `isKnownLaunchIdProvider`)
+- [ ] handle unknown route parameters in the route body (e.g. `LaunchNotFoundScreen` for bad launch ids) rather than silent redirects
 
 ## Nesting Rules
 

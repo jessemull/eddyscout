@@ -27,7 +27,6 @@ ProviderContainer _routerContainer() {
   final container = ProviderContainer(
     overrides: [
       routesProvider.overrideWithValue(_testRoutes()),
-      isKnownLaunchIdProvider.overrideWithValue((_) => true),
     ],
   );
   addTearDown(container.dispose);
@@ -45,31 +44,8 @@ void main() {
     );
   });
 
-  test('goRouterProvider throws without isKnownLaunchIdProvider override', () {
-    final container = ProviderContainer(
-      overrides: [
-        routesProvider.overrideWithValue(_testRoutes()),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    expect(
-      () => container.read(goRouterProvider),
-      throwsA(
-        predicate(
-          (error) =>
-              error.toString().contains('Override isKnownLaunchIdProvider'),
-        ),
-      ),
-    );
-  });
-
   test('goRouterProvider throws without routesProvider override', () {
-    final container = ProviderContainer(
-      overrides: [
-        isKnownLaunchIdProvider.overrideWithValue((_) => true),
-      ],
-    );
+    final container = ProviderContainer();
     addTearDown(container.dispose);
 
     expect(

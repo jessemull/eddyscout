@@ -1,7 +1,6 @@
 import 'dart:async' show unawaited;
 
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
-import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:flutter/material.dart';
@@ -50,11 +49,14 @@ class _LaunchDetailRouteBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final launch = ref.readLaunchPointIfExists(launchId);
-    if (launch == null) {
-      return const _LaunchNotFoundBody();
-    }
-    return LaunchDetailScreen(launch: launch);
+    final launchAsync = ref.watch(launchPointByIdProvider(launchId));
+    return launchAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, _) => const LaunchNotFoundScreen(),
+      data: (launch) => LaunchDetailScreen(launch: launch),
+    );
   }
 }
 
@@ -75,27 +77,4 @@ class WebMapPlaceholderRoute extends GoRouteData with $WebMapPlaceholderRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const WebMapPlaceholderScreen();
-}
-
-/// Fallback when a deep link references an unknown launch id.
-class _LaunchNotFoundBody extends StatelessWidget {
-  const _LaunchNotFoundBody();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.launchNotFoundTitle)),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            l10n.launchNotFoundBody,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ),
-      ),
-    );
-  }
 }

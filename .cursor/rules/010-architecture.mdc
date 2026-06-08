@@ -257,7 +257,7 @@ Allowed via:
 
 - `RoutePaths`, `resolveAppRedirect`, and `goRouterProvider` in `packages/routing/`
 - typed routes and screen binding in `apps/eddyscout/lib/routing/app_routes.dart`
-- app overrides `routesProvider` and `isKnownLaunchIdProvider` in `main.dart`
+- app overrides via `buildAppProviderOverrides()` in `apps/eddyscout/lib/bootstrap/`
 - platform/token redirects stay feature-agnostic via injectable launch-id validation
 
 ---

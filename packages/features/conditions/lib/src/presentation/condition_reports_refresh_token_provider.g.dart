@@ -9,21 +9,15 @@ part of 'condition_reports_refresh_token_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Incremented after a paddler submits a condition report to refresh the list.
-///
-/// Lives in domain so data providers can watch without presentation imports.
 
 @ProviderFor(ConditionReportsRefreshToken)
 final conditionReportsRefreshTokenProvider =
     ConditionReportsRefreshTokenProvider._();
 
 /// Incremented after a paddler submits a condition report to refresh the list.
-///
-/// Lives in domain so data providers can watch without presentation imports.
 final class ConditionReportsRefreshTokenProvider
     extends $NotifierProvider<ConditionReportsRefreshToken, int> {
   /// Incremented after a paddler submits a condition report to refresh the list.
-  ///
-  /// Lives in domain so data providers can watch without presentation imports.
   ConditionReportsRefreshTokenProvider._()
     : super(
         from: null,
@@ -55,8 +49,6 @@ String _$conditionReportsRefreshTokenHash() =>
     r'6b0eba2f07f13d57a5db774953db7d04601c48c6';
 
 /// Incremented after a paddler submits a condition report to refresh the list.
-///
-/// Lives in domain so data providers can watch without presentation imports.
 
 abstract class _$ConditionReportsRefreshToken extends $Notifier<int> {
   int build();
