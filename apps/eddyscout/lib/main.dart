@@ -24,7 +24,7 @@ Future<void> main() async {
         firebaseBootstrapProvider.overrideWithValue(
           bootstrap.firebaseBootstrapState,
         ),
-        savedRoutesDatabaseProductionOverride(),
+        ...savedRoutesProductionOverrides(),
         launchPointLookupProvider.overrideWithValue(findLaunchPointById),
         navigatorObserversProvider.overrideWith(
           (ref) => [

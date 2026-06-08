@@ -320,7 +320,7 @@ void main() {
                     unawaited(() async {
                       container
                               .read(pendingSavedRouteLoadProvider.notifier)
-                              .draftRoute =
+                              .state =
                           route;
                       await handlePendingSavedRouteLoad(context, ref);
                     }());
@@ -379,9 +379,7 @@ void main() {
                   body: FilledButton(
                     onPressed: () {
                       unawaited(() async {
-                        ref
-                                .read(pendingSavedRouteLoadProvider.notifier)
-                                .draftRoute =
+                        ref.read(pendingSavedRouteLoadProvider.notifier).state =
                             route;
                         await handlePendingSavedRouteLoad(context, ref);
                       }());
@@ -439,9 +437,7 @@ void main() {
                   body: FilledButton(
                     onPressed: () {
                       unawaited(() async {
-                        ref
-                                .read(pendingSavedRouteLoadProvider.notifier)
-                                .draftRoute =
+                        ref.read(pendingSavedRouteLoadProvider.notifier).state =
                             draft;
                         await handlePendingSavedRouteLoad(context, ref);
                       }());
@@ -515,9 +511,7 @@ void main() {
                   body: FilledButton(
                     onPressed: () {
                       unawaited(() async {
-                        ref
-                                .read(pendingSavedRouteLoadProvider.notifier)
-                                .draftRoute =
+                        ref.read(pendingSavedRouteLoadProvider.notifier).state =
                             draft;
                         await handlePendingSavedRouteLoad(context, ref);
                       }());
@@ -609,9 +603,7 @@ void main() {
                 body: FilledButton(
                   onPressed: () {
                     unawaited(() async {
-                      ref
-                              .read(pendingSavedRouteLoadProvider.notifier)
-                              .draftRoute =
+                      ref.read(pendingSavedRouteLoadProvider.notifier).state =
                           draft;
                       await handlePendingSavedRouteLoad(context, ref);
                     }());

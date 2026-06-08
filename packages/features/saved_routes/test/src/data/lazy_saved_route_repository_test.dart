@@ -1,5 +1,6 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
+import 'package:eddyscout_saved_routes/eddyscout_saved_routes_data.dart';
 import 'package:eddyscout_saved_routes/src/presentation/providers/saved_routes_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +15,7 @@ void main() {
           ref.onDispose(db.close);
           return db;
         }),
+        savedRouteRepositoryProvider.overrideWith(LazySavedRouteRepository.new),
       ],
     );
     addTearDown(container.dispose);

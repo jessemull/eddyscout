@@ -170,7 +170,7 @@ void _loadSavedRouteOnMap(
   WidgetRef ref,
   SavedRoute route,
 ) {
-  ref.read(pendingSavedRouteLoadProvider.notifier).draftRoute = route;
+  ref.read(pendingSavedRouteLoadProvider.notifier).queueDraft(route);
   unawaited(
     ref
         .read(analyticsClientProvider)

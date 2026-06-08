@@ -221,7 +221,7 @@ void main() {
           overrides: [
             ...appOverrides(
               extra: [
-                savedRoutesDatabaseTestOverride(),
+                ...savedRoutesTestOverrides(),
                 launchPointLookupProvider.overrideWithValue((_) => null),
                 savedRouteByIdProvider(
                   'sr_123',

@@ -9,10 +9,7 @@ import 'package:flutter_riverpod/misc.dart';
 /// Router wiring overrides required by tests that mount the app shell.
 final List<Override> appRouterTestOverrides = [
   routesProvider.overrideWithValue($appRoutes),
-  isKnownLaunchIdProvider.overrideWithValue(
-    (launchId) => findLaunchPointById(launchId) != null,
-  ),
-  savedRoutesDatabaseTestOverride(),
+  ...savedRoutesTestOverrides(),
   launchPointLookupProvider.overrideWithValue(findLaunchPointById),
   navigatorObserversProvider.overrideWithValue(const []),
   analyticsClientProvider.overrideWithValue(RecordingAnalyticsClient()),

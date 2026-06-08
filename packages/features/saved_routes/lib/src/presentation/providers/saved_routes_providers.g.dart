@@ -60,59 +60,6 @@ final class LaunchPointLookupProvider
 
 String _$launchPointLookupHash() => r'6c3d52f039df3280fad3611c3257c891f30197a2';
 
-/// Local [SavedRouteRepository] backed by Drift.
-
-@ProviderFor(savedRouteRepository)
-final savedRouteRepositoryProvider = SavedRouteRepositoryProvider._();
-
-/// Local [SavedRouteRepository] backed by Drift.
-
-final class SavedRouteRepositoryProvider
-    extends
-        $FunctionalProvider<
-          SavedRouteRepository,
-          SavedRouteRepository,
-          SavedRouteRepository
-        >
-    with $Provider<SavedRouteRepository> {
-  /// Local [SavedRouteRepository] backed by Drift.
-  SavedRouteRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'savedRouteRepositoryProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$savedRouteRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<SavedRouteRepository> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  SavedRouteRepository create(Ref ref) {
-    return savedRouteRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(SavedRouteRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<SavedRouteRepository>(value),
-    );
-  }
-}
-
-String _$savedRouteRepositoryHash() =>
-    r'23e5630d18a116b205065354cb1109482b06adb1';
-
 /// All saved routes from local storage.
 
 @ProviderFor(SavedRoutesList)

@@ -88,7 +88,7 @@ Future<ProviderContainer> createIntegrationContainer({
             ? _mapboxAccessToken
             : null,
       )..addAll([
-        savedRoutesDatabaseTestOverride(),
+        ...savedRoutesTestOverrides(),
         launchPointLookupProvider.overrideWithValue(findLaunchPointById),
       ]);
   if (_integrationMapStub) {

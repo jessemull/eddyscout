@@ -1,10 +1,8 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
+import 'package:eddyscout_saved_routes/src/domain/saved_route_repository_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-// Relative import required: package src/data/ URIs are blocked in presentation/.
-// ignore: always_use_package_imports
-import '../../data/repositories/lazy_saved_route_repository.dart';
+export '../../domain/saved_route_repository_provider.dart';
 
 part 'saved_routes_providers.g.dart';
 
@@ -15,12 +13,6 @@ LaunchPointLookup launchPointLookup(Ref ref) {
     'Override launchPointLookupProvider in ProviderScope '
     '(see apps/eddyscout/lib/main.dart).',
   );
-}
-
-/// Local [SavedRouteRepository] backed by Drift.
-@Riverpod(keepAlive: true)
-SavedRouteRepository savedRouteRepository(Ref ref) {
-  return LazySavedRouteRepository(ref);
 }
 
 /// All saved routes from local storage.
@@ -128,11 +120,9 @@ class PendingSavedRouteLoad extends _$PendingSavedRouteLoad {
   @override
   SavedRoute? build() => null;
 
-  /// Draft awaiting map load, if any.
-  SavedRoute? get draftRoute => state;
-
   /// Queues [route] (including unsaved edits) for load on the map tab.
-  set draftRoute(SavedRoute route) => state = route;
+  // ignore: use_setters_to_change_properties — setter would violate avoid_public_notifier_properties.
+  void queueDraft(SavedRoute route) => state = route;
 
   /// Returns and clears the pending route draft.
   SavedRoute? take() {
