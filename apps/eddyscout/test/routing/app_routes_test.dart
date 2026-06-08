@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
 import 'package:eddyscout/main.dart';
 import 'package:eddyscout/routing/app_routes.dart';
-import 'package:eddyscout/routing/saved_routes_database_override.dart';
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -20,6 +19,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'test_router_overrides.dart';
 
 SavedRoute _shellTestRoute() {
   final now = DateTime.utc(2026);
@@ -40,10 +41,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late KeyValueStore store;
+  late RecordingAnalyticsClient analytics;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     store = await SharedPreferencesKeyValueStore.open();
+    analytics = RecordingAnalyticsClient();
   });
 
   List<Override> appOverrides({List<Override> extra = const []}) => [
@@ -53,6 +56,8 @@ void main() {
       mapInteractiveOverride: true,
     ),
     firebaseBootstrapProvider.overrideWithValue(const FirebaseBootstrapState()),
+    ...appShellTestOverrides,
+    analyticsClientProvider.overrideWithValue(analytics),
     ...extra,
   ];
 
@@ -91,11 +96,9 @@ void main() {
   });
 
   testWidgets('unknown launch route renders not-found screen', (tester) async {
-    final analytics = RecordingAnalyticsClient();
     await pumpAt(
       tester,
       location: '/launch/not-a-real-launch',
-      extra: [analyticsClientProvider.overrideWithValue(analytics)],
     );
     await tester.pump();
     await tester.pumpAndSettle();
@@ -221,8 +224,6 @@ void main() {
           overrides: [
             ...appOverrides(
               extra: [
-                ...savedRoutesTestOverrides(),
-                launchPointLookupProvider.overrideWithValue((_) => null),
                 savedRouteByIdProvider(
                   'sr_123',
                 ).overrideWith((ref) async => _shellTestRoute()),

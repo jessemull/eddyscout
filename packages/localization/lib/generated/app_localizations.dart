@@ -1156,6 +1156,12 @@ abstract class AppLocalizations {
   /// **'Could not load route — too few known launch points.'**
   String get savedRoutesLoadOnMapInsufficientWaypoints;
 
+  /// No description provided for @savedRoutesLoadOnMapDrawError.
+  ///
+  /// In en, this message translates to:
+  /// **'Route loaded, but the map could not draw the line.'**
+  String get savedRoutesLoadOnMapDrawError;
+
   /// No description provided for @savedRoutesWaypointsTitle.
   ///
   /// In en, this message translates to:

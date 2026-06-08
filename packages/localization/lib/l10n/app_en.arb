@@ -324,6 +324,7 @@
   "savedRoutesCustomTagAdd": "Add tag",
   "savedRoutesFavoriteError": "Could not update favorite.",
   "savedRoutesLoadOnMapInsufficientWaypoints": "Could not load route — too few known launch points.",
+  "savedRoutesLoadOnMapDrawError": "Route loaded, but the map could not draw the line.",
   "savedRoutesWaypointsTitle": "Waypoints",
   "savedRoutesWaypointSemantics": "Waypoint {position}, {name}",
   "@savedRoutesWaypointSemantics": {

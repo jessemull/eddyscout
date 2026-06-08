@@ -633,6 +633,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not load route — too few known launch points.';
 
   @override
+  String get savedRoutesLoadOnMapDrawError =>
+      'Route loaded, but the map could not draw the line.';
+
+  @override
   String get savedRoutesWaypointsTitle => 'Waypoints';
 
   @override

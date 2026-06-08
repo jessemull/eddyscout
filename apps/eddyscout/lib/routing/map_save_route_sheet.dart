@@ -94,20 +94,9 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
       return;
     }
 
-    final Result<SavedRoute, AppFailure> result;
-    try {
-      result = await ref
-          .read(savedRoutesControllerProvider.notifier)
-          .create(draft);
-    } on Object {
-      if (!context.mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.savedRoutesSaveError)),
-      );
-      return;
-    }
+    final result = await ref
+        .read(savedRoutesControllerProvider.notifier)
+        .create(draft);
     if (!context.mounted) {
       return;
     }
@@ -220,11 +209,20 @@ Future<void> handlePendingSavedRouteLoad(
   }
   ref.read(routePlanningProvider.notifier).loadFromSavedRoute(route, launches);
 
-  final polyline = route.geometrySnapshot?.polylineLonLat;
-  final mapController = ref.read(mapboxMapControllerProvider.notifier);
-  if (polyline != null && polyline.length >= 2) {
-    await mapController.displayPlannedRoute(polyline);
-  } else {
-    await mapController.rerunActiveRoute();
+  try {
+    final polyline = route.geometrySnapshot?.polylineLonLat;
+    final mapController = ref.read(mapboxMapControllerProvider.notifier);
+    if (polyline != null && polyline.length >= 2) {
+      await mapController.displayPlannedRoute(polyline);
+    } else {
+      await mapController.rerunActiveRoute();
+    }
+  } on Object {
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.savedRoutesLoadOnMapDrawError)),
+    );
   }
 }
