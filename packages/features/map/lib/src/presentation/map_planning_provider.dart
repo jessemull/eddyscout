@@ -1,4 +1,5 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'map_planning_provider.g.dart';
@@ -13,12 +14,18 @@ class RoutePlanningState {
     this.putIn,
     this.takeOut,
     this.routeLengthKm,
+    this.polylineLonLat,
+    this.routeOrigin,
   });
 
   final bool planningMode;
   final LaunchPoint? putIn;
   final LaunchPoint? takeOut;
   final double? routeLengthKm;
+
+  /// Mapbox order: each pair is `[longitude, latitude]`.
+  final List<List<double>>? polylineLonLat;
+  final RouteOrigin? routeOrigin;
 }
 
 @Riverpod(keepAlive: true)
@@ -38,12 +45,33 @@ class RoutePlanning extends _$RoutePlanning {
     state = RoutePlanningState(planningMode: state.planningMode);
   }
 
-  void setRouteLengthKm(double? routeLengthKm) {
+  void setPlannedRoute({
+    List<List<double>>? polylineLonLat,
+    double? routeLengthKm,
+    RouteOrigin? routeOrigin,
+    LaunchPoint? putIn,
+    LaunchPoint? takeOut,
+  }) {
     state = RoutePlanningState(
       planningMode: state.planningMode,
-      putIn: state.putIn,
-      takeOut: state.takeOut,
+      putIn: putIn ?? state.putIn,
+      takeOut: takeOut ?? state.takeOut,
       routeLengthKm: routeLengthKm,
+      polylineLonLat: polylineLonLat,
+      routeOrigin: routeOrigin,
+    );
+  }
+
+  void applyImportedRoute(PlannedRoute route) {
+    state = RoutePlanningState(
+      planningMode: true,
+      putIn: route.putIn,
+      takeOut: route.takeOut,
+      routeLengthKm: route.lengthMeters != null
+          ? route.lengthMeters! / 1000.0
+          : null,
+      polylineLonLat: route.toPolylineLonLat(),
+      routeOrigin: RouteOrigin.imported,
     );
   }
 

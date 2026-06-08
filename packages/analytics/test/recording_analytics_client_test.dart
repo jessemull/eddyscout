@@ -3,8 +3,26 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('RecordingAnalyticsClient', () {
+    test('records screen views and events in order', () async {
+      final client = RecordingAnalyticsClient();
+
+      await client.logScreenView(screenName: AnalyticsScreenNames.map);
+      await client.logEvent(
+        const AnalyticsEvent(
+          name: AnalyticsEvents.reportSubmitSuccess,
+          parameters: {'launch_id': 'test-launch'},
+        ),
+      );
+      await client.setUserProperty(name: 'skill', value: 'beginner');
+      await client.flush();
+
+      expect(client.screenViews, [AnalyticsScreenNames.map]);
+      expect(client.events, hasLength(1));
+      expect(client.events.single.name, AnalyticsEvents.reportSubmitSuccess);
+    });
+
     test(
-      'records events, screen views, and completes side-effect methods',
+      'records launch detail screen views and report submit events',
       () async {
         final client = RecordingAnalyticsClient();
         const event = AnalyticsEvent(

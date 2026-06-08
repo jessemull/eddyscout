@@ -7,7 +7,9 @@ cd "$REPO_ROOT"
 
 echo "=== Push Validation ==="
 
-# Full preflight without coverage (coverage enforced in CI).
+# Optional: PUSH_VALIDATE_AUTO_AFFECTED=1 runs --since=origin/main tests when safe.
+# Optional: PUSH_VALIDATE_AFFECTED=1 always uses affected tests (if origin/main exists).
+# Optional: PUSH_VALIDATE_JOBS=N caps parallel melos package jobs (default: min(ncpu, 8)).
 "$SCRIPT_DIR/preflight.sh" --no-coverage
 
 echo ""

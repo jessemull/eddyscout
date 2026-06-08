@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
+import 'gpx_actions_provider.dart';
 import 'map_constants.dart';
 import 'map_planning_overlay.dart';
 import 'map_planning_provider.dart';
@@ -41,6 +42,7 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   bool get _usesMapStub => widget.mapSlot != null;
+  bool _gpxBusy = false;
 
   @override
   void didChangeDependencies() {
@@ -81,6 +83,70 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             },
           ),
         );
+  }
+
+  Future<void> _handleGpxExport() async {
+    if (_gpxBusy) {
+      return;
+    }
+    setState(() => _gpxBusy = true);
+    try {
+      final outcome = await ref.read(gpxActionsProvider.notifier).exportRoute();
+      if (!mounted) {
+        return;
+      }
+      _showGpxOutcome(
+        outcome,
+        successMessage: context.l10n.mapGpxExportSuccess,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _gpxBusy = false);
+      }
+    }
+  }
+
+  Future<void> _handleGpxImport() async {
+    if (_gpxBusy) {
+      return;
+    }
+    setState(() => _gpxBusy = true);
+    try {
+      final outcome = await ref.read(gpxActionsProvider.notifier).importRoute();
+      if (!mounted) {
+        return;
+      }
+      _showGpxOutcome(
+        outcome,
+        successMessage: context.l10n.mapGpxImportSuccess,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _gpxBusy = false);
+      }
+    }
+  }
+
+  void _showGpxOutcome(
+    GpxActionOutcome outcome, {
+    required String successMessage,
+  }) {
+    switch (outcome) {
+      case GpxActionCancelled():
+        return;
+      case GpxActionSuccess():
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(successMessage)));
+      case GpxActionFailure(:final failure):
+        final localized = localizeGpxActionFailure(
+          l10n: context.l10n,
+          failure: failure,
+        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(localized)));
+    }
   }
 
   @override
@@ -138,8 +204,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               putIn: planning.putIn,
               takeOut: planning.takeOut,
               routeLengthKm: planning.routeLengthKm,
+              canExportGpx:
+                  planning.polylineLonLat != null &&
+                  planning.polylineLonLat!.length >= 2,
+              gpxBusy: _gpxBusy,
               onClear: () => unawaited(mapController.clearPlanningSelection()),
               onDone: mapController.togglePlanningMode,
+              onExportGpx: () => unawaited(_handleGpxExport()),
+              onImportGpx: () => unawaited(_handleGpxImport()),
             ),
         ],
       ),
