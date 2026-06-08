@@ -1,5 +1,6 @@
 import 'package:eddyscout/preferences/key_value_store_provider.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_conditions/eddyscout_conditions_data.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
