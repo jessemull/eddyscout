@@ -4,7 +4,6 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
-import 'package:eddyscout_map/src/data/gpx_file_gateway.dart';
 import 'package:eddyscout_map/src/presentation/gpx_actions_provider.dart';
 import 'package:eddyscout_map/src/presentation/map_constants.dart';
 import 'package:eddyscout_map/src/presentation/map_planning_overlay.dart';
@@ -16,6 +15,8 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+
+import '../data/gpx_file_gateway.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key, this.mapSlot, this.onOpenLaunchDetail});

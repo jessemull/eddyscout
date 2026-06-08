@@ -1,11 +1,12 @@
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
-import 'package:eddyscout_map/src/data/gpx_file_gateway.dart';
-import 'package:eddyscout_map/src/data/launch_points.dart';
 import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
 import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../data/gpx_file_gateway.dart';
+import '../data/launch_points.dart';
 
 part 'gpx_actions_provider.g.dart';
 
