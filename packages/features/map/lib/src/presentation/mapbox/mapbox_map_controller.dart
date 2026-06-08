@@ -9,6 +9,7 @@ import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller_shar
 import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_markers_mixin.dart';
 import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_route_mixin.dart';
 import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_style_mixin.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -80,6 +81,13 @@ final class MapboxMapController extends _$MapboxMapController
     if (wasPlanning) {
       unawaited(_afterExitPlanning());
     }
+  }
+
+  /// Invokes the snackbar callback bound from the map screen
+  /// (widget tests only).
+  @visibleForTesting
+  void showSnackBarForTest(Object message) {
+    ui.showSnackBar?.call(message);
   }
 
   Future<void> clearPlanningSelection() async {

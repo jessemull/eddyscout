@@ -1,3 +1,4 @@
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -90,6 +91,40 @@ void main() {
     );
     expect(find.textContaining('12.5 km'), findsOneWidget);
   });
+
+  testWidgets(
+    'shows localized named snackbar for disconnected reach failure',
+    (tester) async {
+      await pumpMap(tester, overrides: []);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MapScreen)),
+      );
+      container
+          .read(mapboxMapControllerProvider.notifier)
+          .showSnackBarForTest(
+            const RouteResult.failure(
+              code: RouteFailureCode.disconnectedReach,
+              putInReachId: 'willamette_portland',
+              takeOutReachId: 'columbia_gorge',
+            ),
+          );
+      await tester.pump();
+
+      expect(
+        find.textContaining('willamette_portland'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('columbia_gorge'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('different bundled segments'),
+        findsOneWidget,
+      );
+    },
+  );
 
   testWidgets(
     'invokes onOpenLaunchDetail when launch pin tapped outside planning',

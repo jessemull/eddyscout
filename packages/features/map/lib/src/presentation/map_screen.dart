@@ -175,6 +175,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   planning.plannedRoute?.riverSystem ??
                   planning.putIn?.riverSystem,
               lastFailureCode: planning.lastFailureCode,
+              lastFailurePutInReachId: planning.lastFailurePutInReachId,
+              lastFailureTakeOutReachId: planning.lastFailureTakeOutReachId,
               onClear: () => unawaited(mapController.clearPlanningSelection()),
               onDone: mapController.togglePlanningMode,
             ),

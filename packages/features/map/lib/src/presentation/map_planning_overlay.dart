@@ -16,6 +16,8 @@ class MapPlanningOverlay extends StatelessWidget {
     required this.lastFailureCode,
     required this.onClear,
     required this.onDone,
+    this.lastFailurePutInReachId,
+    this.lastFailureTakeOutReachId,
     super.key,
   });
 
@@ -25,6 +27,8 @@ class MapPlanningOverlay extends StatelessWidget {
   final double? routeLengthKm;
   final RiverSystem? riverSystem;
   final RouteFailureCode? lastFailureCode;
+  final String? lastFailurePutInReachId;
+  final String? lastFailureTakeOutReachId;
   final VoidCallback onClear;
   final VoidCallback onDone;
 
@@ -125,7 +129,12 @@ class MapPlanningOverlay extends StatelessWidget {
                         lastFailureCode != null) ...[
                       const SizedBox(height: Spacing.sm),
                       Text(
-                        _inlineFailureMessage(l10n, lastFailureCode!),
+                        _inlineFailureMessage(
+                          l10n,
+                          lastFailureCode!,
+                          putInReachId: lastFailurePutInReachId,
+                          takeOutReachId: lastFailureTakeOutReachId,
+                        ),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: scheme.error,
                         ),
@@ -167,8 +176,10 @@ class MapPlanningOverlay extends StatelessWidget {
 
   String _inlineFailureMessage(
     AppLocalizations l10n,
-    RouteFailureCode code,
-  ) => switch (code) {
+    RouteFailureCode code, {
+    String? putInReachId,
+    String? takeOutReachId,
+  }) => switch (code) {
     RouteFailureCode.sameLaunch => l10n.mapRouteFailureSameLaunch,
     RouteFailureCode.differentSystem => l10n.mapRouteFailureDifferentSystem,
     RouteFailureCode.noBundledLine => l10n.mapRouteFailureNoData,
@@ -176,6 +187,15 @@ class MapPlanningOverlay extends StatelessWidget {
     RouteFailureCode.putInTooFar => l10n.mapRouteFailurePutInTooFar,
     RouteFailureCode.takeOutTooFar => l10n.mapRouteFailureTakeOutTooFar,
     RouteFailureCode.noConnectedPath => l10n.mapRouteFailureNoConnectedPath,
-    RouteFailureCode.disconnectedReach => l10n.mapRouteFailureDisconnectedReach,
+    RouteFailureCode.disconnectedReach =>
+      putInReachId != null &&
+              takeOutReachId != null &&
+              putInReachId.isNotEmpty &&
+              takeOutReachId.isNotEmpty
+          ? l10n.mapRouteFailureDisconnectedReachNamed(
+              putInReachId,
+              takeOutReachId,
+            )
+          : l10n.mapRouteFailureDisconnectedReach,
   };
 }

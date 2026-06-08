@@ -165,12 +165,16 @@ void main() {
             takeOut: takeOut,
             result: const RouteResult.failure(
               code: RouteFailureCode.disconnectedReach,
+              putInReachId: 'willamette_portland',
+              takeOutReachId: 'columbia_gorge',
             ),
           );
 
       final state = container.read(routePlanningProvider);
       expect(state.phase, RoutePlanningPhase.routeError);
       expect(state.lastFailureCode, RouteFailureCode.disconnectedReach);
+      expect(state.lastFailurePutInReachId, 'willamette_portland');
+      expect(state.lastFailureTakeOutReachId, 'columbia_gorge');
     });
 
     test('keeps state after listeners are removed', () {

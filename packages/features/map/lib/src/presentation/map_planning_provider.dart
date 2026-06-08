@@ -26,6 +26,8 @@ class RoutePlanningState {
     this.routeLengthKm,
     this.plannedRoute,
     this.lastFailureCode,
+    this.lastFailurePutInReachId,
+    this.lastFailureTakeOutReachId,
   });
 
   final bool planningMode;
@@ -35,6 +37,8 @@ class RoutePlanningState {
   final double? routeLengthKm;
   final PlannedRoute? plannedRoute;
   final RouteFailureCode? lastFailureCode;
+  final String? lastFailurePutInReachId;
+  final String? lastFailureTakeOutReachId;
 }
 
 @Riverpod(keepAlive: true)
@@ -89,13 +93,19 @@ class RoutePlanning extends _$RoutePlanning {
           routeLengthKm: lengthMeters / 1000.0,
           plannedRoute: plannedRoute,
         );
-      case RouteFailure(:final code):
+      case RouteFailure(
+        :final code,
+        :final putInReachId,
+        :final takeOutReachId,
+      ):
         state = RoutePlanningState(
           planningMode: state.planningMode,
           phase: RoutePlanningPhase.routeError,
           putIn: putIn,
           takeOut: takeOut,
           lastFailureCode: code,
+          lastFailurePutInReachId: putInReachId,
+          lastFailureTakeOutReachId: takeOutReachId,
         );
     }
   }
@@ -109,6 +119,8 @@ class RoutePlanning extends _$RoutePlanning {
       routeLengthKm: routeLengthKm,
       plannedRoute: state.plannedRoute,
       lastFailureCode: state.lastFailureCode,
+      lastFailurePutInReachId: state.lastFailurePutInReachId,
+      lastFailureTakeOutReachId: state.lastFailureTakeOutReachId,
     );
   }
 

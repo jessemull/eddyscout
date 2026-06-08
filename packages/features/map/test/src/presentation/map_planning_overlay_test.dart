@@ -16,6 +16,8 @@ void main() {
           routeLengthKm: null,
           riverSystem: null,
           lastFailureCode: null,
+          lastFailurePutInReachId: null,
+          lastFailureTakeOutReachId: null,
           onClear: () {},
           onDone: () {},
         ),
@@ -40,6 +42,8 @@ void main() {
           routeLengthKm: 8.2,
           riverSystem: RiverSystem.willamette,
           lastFailureCode: null,
+          lastFailurePutInReachId: null,
+          lastFailureTakeOutReachId: null,
           onClear: () {},
           onDone: () {},
         ),
@@ -62,6 +66,8 @@ void main() {
           routeLengthKm: null,
           riverSystem: null,
           lastFailureCode: RouteFailureCode.disconnectedReach,
+          lastFailurePutInReachId: null,
+          lastFailureTakeOutReachId: null,
           onClear: () {},
           onDone: () {},
         ),
@@ -70,6 +76,40 @@ void main() {
 
     expect(
       find.textContaining('different river segments'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('shows named inline error when reach ids are known', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      testLocalizedApp(
+        child: MapPlanningOverlay(
+          phase: RoutePlanningPhase.routeError,
+          putIn: kLaunchPoints.first,
+          takeOut: kLaunchPoints[1],
+          routeLengthKm: null,
+          riverSystem: null,
+          lastFailureCode: RouteFailureCode.disconnectedReach,
+          lastFailurePutInReachId: 'willamette_portland',
+          lastFailureTakeOutReachId: 'columbia_gorge',
+          onClear: () {},
+          onDone: () {},
+        ),
+      ),
+    );
+
+    expect(
+      find.textContaining('willamette_portland'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('columbia_gorge'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('different bundled segments'),
       findsOneWidget,
     );
   });
@@ -84,6 +124,8 @@ void main() {
           routeLengthKm: null,
           riverSystem: null,
           lastFailureCode: null,
+          lastFailurePutInReachId: null,
+          lastFailureTakeOutReachId: null,
           onClear: () {},
           onDone: () {},
         ),
