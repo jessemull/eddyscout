@@ -8,13 +8,17 @@ part of 'gpx_file_gateway.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Default platform [GpxFileGateway] for GPX pick/share flows.
 
 @ProviderFor(gpxFileGateway)
 final gpxFileGatewayProvider = GpxFileGatewayProvider._();
 
+/// Default platform [GpxFileGateway] for GPX pick/share flows.
+
 final class GpxFileGatewayProvider
     extends $FunctionalProvider<GpxFileGateway, GpxFileGateway, GpxFileGateway>
     with $Provider<GpxFileGateway> {
+  /// Default platform [GpxFileGateway] for GPX pick/share flows.
   GpxFileGatewayProvider._()
     : super(
         from: null,
