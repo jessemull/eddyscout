@@ -153,7 +153,9 @@ void main() {
       final (:result, :planned) = planner.planLaunches(putIn, takeOut);
       expect(result, isA<RouteSuccess>());
       expect(planned, isNotNull);
-      expect(planned!.putInLaunchId, 'port_of_camas');
+      expect(planned!.putIn?.id, 'port_of_camas');
+      expect(planned.takeOut?.id, 'washougal');
+      expect(planned.points.length, greaterThan(1));
     });
   });
 
@@ -174,10 +176,10 @@ void main() {
       );
       final planned = planner.planRoute(putIn, takeOut);
       expect(planned, isNotNull);
-      expect(planned!.putInLaunchId, 'port_of_camas');
-      expect(planned.takeOutLaunchId, 'washougal');
-      expect(planned.riverSystem, RiverSystem.columbia);
-      expect(planned.reachId, 'columbia_gorge');
+      expect(planned!.putIn?.id, 'port_of_camas');
+      expect(planned.takeOut?.id, 'washougal');
+      expect(planned.lengthMeters, greaterThan(100));
+      expect(planned.toPolylineLonLat().length, greaterThan(1));
 
       expect(
         planner.planRoute(putIn, putIn),

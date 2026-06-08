@@ -24,7 +24,8 @@ class RoutePlanningState {
     this.putIn,
     this.takeOut,
     this.routeLengthKm,
-    this.plannedRoute,
+    this.polylineLonLat,
+    this.routeOrigin,
     this.lastFailureCode,
     this.lastFailurePutInReachId,
     this.lastFailureTakeOutReachId,
@@ -35,7 +36,10 @@ class RoutePlanningState {
   final LaunchPoint? putIn;
   final LaunchPoint? takeOut;
   final double? routeLengthKm;
-  final PlannedRoute? plannedRoute;
+
+  /// Mapbox order: each pair is `[longitude, latitude]`.
+  final List<List<double>>? polylineLonLat;
+  final RouteOrigin? routeOrigin;
   final RouteFailureCode? lastFailureCode;
   final String? lastFailurePutInReachId;
   final String? lastFailureTakeOutReachId;
@@ -77,50 +81,60 @@ class RoutePlanning extends _$RoutePlanning {
     );
   }
 
-  void setRouteResult({
-    required LaunchPoint putIn,
-    required LaunchPoint takeOut,
-    required RouteResult result,
-    PlannedRoute? plannedRoute,
+  void setPlannedRoute({
+    List<List<double>>? polylineLonLat,
+    double? routeLengthKm,
+    RouteOrigin? routeOrigin,
+    LaunchPoint? putIn,
+    LaunchPoint? takeOut,
+    RoutePlanningPhase? phase,
   }) {
-    switch (result) {
-      case RouteSuccess(:final lengthMeters):
-        state = RoutePlanningState(
-          planningMode: state.planningMode,
-          phase: RoutePlanningPhase.routeReady,
-          putIn: putIn,
-          takeOut: takeOut,
-          routeLengthKm: lengthMeters / 1000.0,
-          plannedRoute: plannedRoute,
-        );
-      case RouteFailure(
-        :final code,
-        :final putInReachId,
-        :final takeOutReachId,
-      ):
-        state = RoutePlanningState(
-          planningMode: state.planningMode,
-          phase: RoutePlanningPhase.routeError,
-          putIn: putIn,
-          takeOut: takeOut,
-          lastFailureCode: code,
-          lastFailurePutInReachId: putInReachId,
-          lastFailureTakeOutReachId: takeOutReachId,
-        );
-    }
-  }
-
-  void setRouteLengthKm(double? routeLengthKm) {
+    final ready =
+        polylineLonLat != null &&
+        polylineLonLat.length >= 2 &&
+        routeLengthKm != null;
     state = RoutePlanningState(
       planningMode: state.planningMode,
-      phase: state.phase,
-      putIn: state.putIn,
-      takeOut: state.takeOut,
+      phase:
+          phase ??
+          (ready
+              ? RoutePlanningPhase.routeReady
+              : RoutePlanningPhase.pickTakeOut),
+      putIn: putIn ?? state.putIn,
+      takeOut: takeOut ?? state.takeOut,
       routeLengthKm: routeLengthKm,
-      plannedRoute: state.plannedRoute,
-      lastFailureCode: state.lastFailureCode,
-      lastFailurePutInReachId: state.lastFailurePutInReachId,
-      lastFailureTakeOutReachId: state.lastFailureTakeOutReachId,
+      polylineLonLat: polylineLonLat,
+      routeOrigin: routeOrigin,
+    );
+  }
+
+  void setRouteFailure({
+    required LaunchPoint putIn,
+    required LaunchPoint takeOut,
+    required RouteFailure failure,
+  }) {
+    state = RoutePlanningState(
+      planningMode: state.planningMode,
+      phase: RoutePlanningPhase.routeError,
+      putIn: putIn,
+      takeOut: takeOut,
+      lastFailureCode: failure.code,
+      lastFailurePutInReachId: failure.putInReachId,
+      lastFailureTakeOutReachId: failure.takeOutReachId,
+    );
+  }
+
+  void applyImportedRoute(PlannedRoute route) {
+    state = RoutePlanningState(
+      planningMode: true,
+      phase: RoutePlanningPhase.routeReady,
+      putIn: route.putIn,
+      takeOut: route.takeOut,
+      routeLengthKm: route.lengthMeters != null
+          ? route.lengthMeters! / 1000.0
+          : null,
+      polylineLonLat: route.toPolylineLonLat(),
+      routeOrigin: RouteOrigin.imported,
     );
   }
 

@@ -14,8 +14,12 @@ class MapPlanningOverlay extends StatelessWidget {
     required this.routeLengthKm,
     required this.riverSystem,
     required this.lastFailureCode,
+    required this.canExportGpx,
+    required this.gpxBusy,
     required this.onClear,
     required this.onDone,
+    required this.onExportGpx,
+    required this.onImportGpx,
     this.lastFailurePutInReachId,
     this.lastFailureTakeOutReachId,
     super.key,
@@ -29,8 +33,12 @@ class MapPlanningOverlay extends StatelessWidget {
   final RouteFailureCode? lastFailureCode;
   final String? lastFailurePutInReachId;
   final String? lastFailureTakeOutReachId;
+  final bool canExportGpx;
+  final bool gpxBusy;
   final VoidCallback onClear;
   final VoidCallback onDone;
+  final VoidCallback onExportGpx;
+  final VoidCallback onImportGpx;
 
   @override
   Widget build(BuildContext context) {
@@ -146,12 +154,30 @@ class MapPlanningOverlay extends StatelessWidget {
                       runSpacing: Spacing.xs,
                       alignment: WrapAlignment.end,
                       children: [
+                        Semantics(
+                          button: true,
+                          label: l10n.mapGpxImportLabel,
+                          child: TextButton(
+                            onPressed: gpxBusy ? null : onImportGpx,
+                            child: Text(l10n.mapGpxImportLabel),
+                          ),
+                        ),
+                        Semantics(
+                          button: true,
+                          label: l10n.mapGpxExportLabel,
+                          child: TextButton(
+                            onPressed: canExportGpx && !gpxBusy
+                                ? onExportGpx
+                                : null,
+                            child: Text(l10n.mapGpxExportLabel),
+                          ),
+                        ),
                         TextButton(
-                          onPressed: onClear,
+                          onPressed: gpxBusy ? null : onClear,
                           child: Text(l10n.mapPlanningClearLabel),
                         ),
                         TextButton(
-                          onPressed: onDone,
+                          onPressed: gpxBusy ? null : onDone,
                           child: Text(l10n.mapPlanningDoneLabel),
                         ),
                       ],

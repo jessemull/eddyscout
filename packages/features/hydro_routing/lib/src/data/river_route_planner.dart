@@ -98,13 +98,10 @@ class RiverRoutePlanner {
     if (result is! RouteSuccess) {
       return null;
     }
-    return PlannedRoute(
-      putInLaunchId: putIn.id,
-      takeOutLaunchId: takeOut.id,
-      riverSystem: putIn.riverSystem,
-      polylineLonLat: result.polylineLonLat,
-      lengthMeters: result.lengthMeters,
-      reachId: result.reachId,
+    return PlannedRoute.fromRouteSuccess(
+      result,
+      putIn: putIn,
+      takeOut: takeOut,
     );
   }
 }

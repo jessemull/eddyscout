@@ -143,7 +143,7 @@ final class MapboxMapController extends _$MapboxMapController
     }
     final planner = plannerAsync.requireValue;
 
-    final (:result, :planned) = planner.planLaunches(put, take);
+    final result = planner.plan(put, take);
     if (!alive) {
       return;
     }
@@ -155,11 +155,7 @@ final class MapboxMapController extends _$MapboxMapController
       );
       ref
           .read(routePlanningProvider.notifier)
-          .setRouteResult(
-            putIn: put,
-            takeOut: take,
-            result: result,
-          );
+          .setRouteFailure(putIn: put, takeOut: take, failure: result);
       unawaited(clearRouteLine());
       ui.showSnackBar?.call(result);
       return;
@@ -174,14 +170,29 @@ final class MapboxMapController extends _$MapboxMapController
     mapDebugLogRouteSegmentMeters(ok.polylineLonLat);
     ref
         .read(routePlanningProvider.notifier)
-        .setRouteResult(
+        .setPlannedRoute(
+          polylineLonLat: ok.polylineLonLat,
+          routeLengthKm: ok.lengthMeters / 1000.0,
+          routeOrigin: RouteOrigin.planner,
           putIn: put,
           takeOut: take,
-          result: ok,
-          plannedRoute: planned,
+          phase: RoutePlanningPhase.routeReady,
         );
     await drawRouteLine(ok.polylineLonLat);
     await fitCameraToRoute(ok.polylineLonLat);
+  }
+
+  /// Applies an imported GPX route to planning state and the map line.
+  Future<void> applyImportedRoute(PlannedRoute route) async {
+    if (!alive) {
+      return;
+    }
+    ref.read(routePlanningProvider.notifier).applyImportedRoute(route);
+    final polyline = route.toPolylineLonLat();
+    if (polyline.length >= 2) {
+      await drawRouteLine(polyline);
+      await fitCameraToRoute(polyline);
+    }
   }
 
   Future<void> _afterExitPlanning() async {

@@ -86,7 +86,16 @@ void main() {
       container
           .read(routePlanningProvider.notifier)
           .handleLaunchTap(_launch(id: 'a'));
-      container.read(routePlanningProvider.notifier).setRouteLengthKm(12.5);
+      container
+          .read(routePlanningProvider.notifier)
+          .setPlannedRoute(
+            polylineLonLat: [
+              [-122.7, 45.5],
+              [-122.6, 45.4],
+            ],
+            routeLengthKm: 12.5,
+            routeOrigin: RouteOrigin.planner,
+          );
 
       container.read(routePlanningProvider.notifier).clearSelection();
 
@@ -96,40 +105,58 @@ void main() {
       expect(state.putIn, isNull);
       expect(state.takeOut, isNull);
       expect(state.routeLengthKm, isNull);
+      expect(state.polylineLonLat, isNull);
     });
 
-    test('setRouteResult stores planned route on success', () {
+    test('applyImportedRoute stores polyline and launch picks', () {
+      final putIn = _launch(id: 'a');
+      final takeOut = _launch(id: 'b');
+      final route = PlannedRoute(
+        points: const [
+          GpxPoint(latitude: 45.5, longitude: -122.7),
+          GpxPoint(latitude: 45.4, longitude: -122.6),
+        ],
+        putIn: putIn,
+        takeOut: takeOut,
+        lengthMeters: 8000,
+        origin: RouteOrigin.imported,
+      );
+
+      container.read(routePlanningProvider.notifier).applyImportedRoute(route);
+
+      final state = container.read(routePlanningProvider);
+      expect(state.planningMode, isTrue);
+      expect(state.putIn, putIn);
+      expect(state.takeOut, takeOut);
+      expect(state.routeLengthKm, closeTo(8.0, 0.01));
+      expect(state.polylineLonLat?.length, 2);
+      expect(state.routeOrigin, RouteOrigin.imported);
+    });
+
+    test('setPlannedRoute stores polyline on success', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final putIn = _launch(id: 'a');
       final takeOut = _launch(id: 'b');
-      final planned = PlannedRoute(
-        putInLaunchId: 'a',
-        takeOutLaunchId: 'b',
-        riverSystem: RiverSystem.willamette,
-        polylineLonLat: const [
-          [-122.6, 45.5],
-          [-122.5, 45.5],
-        ],
-        lengthMeters: 4200,
-        reachId: 'willamette_portland',
-      );
 
       container
           .read(routePlanningProvider.notifier)
-          .setRouteResult(
+          .setPlannedRoute(
+            polylineLonLat: const [
+              [-122.6, 45.5],
+              [-122.5, 45.5],
+            ],
+            routeLengthKm: 4.2,
+            routeOrigin: RouteOrigin.planner,
             putIn: putIn,
             takeOut: takeOut,
-            result: RouteResult.success(
-              polylineLonLat: planned.polylineLonLat,
-              lengthMeters: planned.lengthMeters,
-            ),
-            plannedRoute: planned,
+            phase: RoutePlanningPhase.routeReady,
           );
 
       final state = container.read(routePlanningProvider);
       expect(state.phase, RoutePlanningPhase.routeReady);
       expect(state.routeLengthKm, closeTo(4.2, 0.01));
-      expect(state.plannedRoute, planned);
+      expect(state.polylineLonLat?.length, 2);
+      expect(state.routeOrigin, RouteOrigin.planner);
     });
 
     test(
@@ -153,17 +180,17 @@ void main() {
       },
     );
 
-    test('setRouteResult stores failure code on error', () {
+    test('setRouteFailure stores failure code on error', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final putIn = _launch(id: 'a');
       final takeOut = _launch(id: 'b');
 
       container
           .read(routePlanningProvider.notifier)
-          .setRouteResult(
+          .setRouteFailure(
             putIn: putIn,
             takeOut: takeOut,
-            result: const RouteResult.failure(
+            failure: const RouteFailure(
               code: RouteFailureCode.disconnectedReach,
               putInReachId: 'willamette_portland',
               takeOutReachId: 'columbia_gorge',

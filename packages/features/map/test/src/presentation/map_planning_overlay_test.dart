@@ -5,22 +5,40 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_localized_app.dart';
 
+MapPlanningOverlay _overlay({
+  required RoutePlanningPhase phase,
+  LaunchPoint? putIn,
+  LaunchPoint? takeOut,
+  double? routeLengthKm,
+  RiverSystem? riverSystem,
+  RouteFailureCode? lastFailureCode,
+  String? lastFailurePutInReachId,
+  String? lastFailureTakeOutReachId,
+  bool canExportGpx = false,
+}) {
+  return MapPlanningOverlay(
+    phase: phase,
+    putIn: putIn,
+    takeOut: takeOut,
+    routeLengthKm: routeLengthKm,
+    riverSystem: riverSystem,
+    lastFailureCode: lastFailureCode,
+    lastFailurePutInReachId: lastFailurePutInReachId,
+    lastFailureTakeOutReachId: lastFailureTakeOutReachId,
+    canExportGpx: canExportGpx,
+    gpxBusy: false,
+    onClear: () {},
+    onDone: () {},
+    onExportGpx: () {},
+    onImportGpx: () {},
+  );
+}
+
 void main() {
   testWidgets('shows pick put-in step hint', (tester) async {
     await tester.pumpWidget(
       testLocalizedApp(
-        child: MapPlanningOverlay(
-          phase: RoutePlanningPhase.pickPutIn,
-          putIn: null,
-          takeOut: null,
-          routeLengthKm: null,
-          riverSystem: null,
-          lastFailureCode: null,
-          lastFailurePutInReachId: null,
-          lastFailureTakeOutReachId: null,
-          onClear: () {},
-          onDone: () {},
-        ),
+        child: _overlay(phase: RoutePlanningPhase.pickPutIn),
       ),
     );
 
@@ -35,17 +53,13 @@ void main() {
 
     await tester.pumpWidget(
       testLocalizedApp(
-        child: MapPlanningOverlay(
+        child: _overlay(
           phase: RoutePlanningPhase.routeReady,
           putIn: putIn,
           takeOut: takeOut,
           routeLengthKm: 8.2,
           riverSystem: RiverSystem.willamette,
-          lastFailureCode: null,
-          lastFailurePutInReachId: null,
-          lastFailureTakeOutReachId: null,
-          onClear: () {},
-          onDone: () {},
+          canExportGpx: true,
         ),
       ),
     );
@@ -59,17 +73,11 @@ void main() {
   testWidgets('shows inline error on routeError phase', (tester) async {
     await tester.pumpWidget(
       testLocalizedApp(
-        child: MapPlanningOverlay(
+        child: _overlay(
           phase: RoutePlanningPhase.routeError,
           putIn: kLaunchPoints.first,
           takeOut: kLaunchPoints[1],
-          routeLengthKm: null,
-          riverSystem: null,
           lastFailureCode: RouteFailureCode.disconnectedReach,
-          lastFailurePutInReachId: null,
-          lastFailureTakeOutReachId: null,
-          onClear: () {},
-          onDone: () {},
         ),
       ),
     );
@@ -85,17 +93,13 @@ void main() {
   ) async {
     await tester.pumpWidget(
       testLocalizedApp(
-        child: MapPlanningOverlay(
+        child: _overlay(
           phase: RoutePlanningPhase.routeError,
           putIn: kLaunchPoints.first,
           takeOut: kLaunchPoints[1],
-          routeLengthKm: null,
-          riverSystem: null,
           lastFailureCode: RouteFailureCode.disconnectedReach,
           lastFailurePutInReachId: 'willamette_portland',
           lastFailureTakeOutReachId: 'columbia_gorge',
-          onClear: () {},
-          onDone: () {},
         ),
       ),
     );
@@ -117,17 +121,10 @@ void main() {
   testWidgets('shows loading indicator while computing', (tester) async {
     await tester.pumpWidget(
       testLocalizedApp(
-        child: MapPlanningOverlay(
+        child: _overlay(
           phase: RoutePlanningPhase.computingRoute,
           putIn: kLaunchPoints.first,
           takeOut: kLaunchPoints[1],
-          routeLengthKm: null,
-          riverSystem: null,
-          lastFailureCode: null,
-          lastFailurePutInReachId: null,
-          lastFailureTakeOutReachId: null,
-          onClear: () {},
-          onDone: () {},
         ),
       ),
     );
