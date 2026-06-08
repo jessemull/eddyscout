@@ -188,6 +188,7 @@ final class MapboxMapController extends _$MapboxMapController
           putIn: put,
           takeOut: take,
           phase: RoutePlanningPhase.routeReady,
+          routeReachId: ok.reachId,
         );
     await drawRouteLine(ok.polylineLonLat);
     await fitCameraToRoute(ok.polylineLonLat);

@@ -99,6 +99,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String mapPlanningRouteReach(String reachId) {
+    return 'Bundled reach: $reachId';
+  }
+
+  @override
   String get mapPlanningSemanticsLabel => 'River route planning';
 
   @override

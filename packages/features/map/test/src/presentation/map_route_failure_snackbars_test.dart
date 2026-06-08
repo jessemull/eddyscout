@@ -97,7 +97,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(
-      find.textContaining('No bundled river line'),
+      find.descendant(
+        of: find.byType(SnackBar),
+        matching: find.textContaining('No bundled river line'),
+      ),
       findsOneWidget,
     );
   });

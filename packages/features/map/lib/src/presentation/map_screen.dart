@@ -207,8 +207,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               routeLengthKm: planning.routeLengthKm,
               riverSystem: planning.putIn?.riverSystem,
               lastFailureCode: planning.lastFailureCode,
+              lastFailureRiverSystemName: planning.lastFailureRiverSystemName,
               lastFailurePutInReachId: planning.lastFailurePutInReachId,
               lastFailureTakeOutReachId: planning.lastFailureTakeOutReachId,
+              routeReachId: planning.routeReachId,
               canExportGpx:
                   planning.polylineLonLat != null &&
                   planning.polylineLonLat!.length >= 2,

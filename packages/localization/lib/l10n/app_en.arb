@@ -44,6 +44,12 @@
       "system": {"type": "String"}
     }
   },
+  "mapPlanningRouteReach": "Bundled reach: {reachId}",
+  "@mapPlanningRouteReach": {
+    "placeholders": {
+      "reachId": {"type": "String"}
+    }
+  },
   "mapPlanningSemanticsLabel": "River route planning",
   "mapPlanningTitleBeta": "River route (beta)",
   "mapPlanningInstructions": "Tap a launch for put-in, then another for take-out. The line follows bundled open hydro data (approximate centerline)—not for navigation. Several downtown launches sit close together; overlapping pins are separate sites. Clear removes the route line and picks so you can start over. Done closes this panel and clears the route.",

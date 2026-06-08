@@ -247,6 +247,12 @@ abstract class AppLocalizations {
   /// **'River system: {system}'**
   String mapPlanningRiverSystem(String system);
 
+  /// No description provided for @mapPlanningRouteReach.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundled reach: {reachId}'**
+  String mapPlanningRouteReach(String reachId);
+
   /// No description provided for @mapPlanningSemanticsLabel.
   ///
   /// In en, this message translates to:

@@ -12,8 +12,10 @@ MapPlanningOverlay _overlay({
   double? routeLengthKm,
   RiverSystem? riverSystem,
   RouteFailureCode? lastFailureCode,
+  String? lastFailureRiverSystemName,
   String? lastFailurePutInReachId,
   String? lastFailureTakeOutReachId,
+  String? routeReachId,
   bool canExportGpx = false,
 }) {
   return MapPlanningOverlay(
@@ -23,8 +25,10 @@ MapPlanningOverlay _overlay({
     routeLengthKm: routeLengthKm,
     riverSystem: riverSystem,
     lastFailureCode: lastFailureCode,
+    lastFailureRiverSystemName: lastFailureRiverSystemName,
     lastFailurePutInReachId: lastFailurePutInReachId,
     lastFailureTakeOutReachId: lastFailureTakeOutReachId,
+    routeReachId: routeReachId,
     canExportGpx: canExportGpx,
     gpxBusy: false,
     onClear: () {},
@@ -131,5 +135,42 @@ void main() {
 
     expect(find.text('Calculating route…'), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
+
+  testWidgets('shows bundled reach id when route is ready', (tester) async {
+    await tester.pumpWidget(
+      testLocalizedApp(
+        child: _overlay(
+          phase: RoutePlanningPhase.routeReady,
+          putIn: kLaunchPoints.first,
+          takeOut: kLaunchPoints[1],
+          routeLengthKm: 8.2,
+          riverSystem: RiverSystem.columbia,
+          routeReachId: 'columbia_gorge',
+        ),
+      ),
+    );
+
+    expect(find.textContaining('columbia_gorge'), findsOneWidget);
+    expect(find.textContaining('Bundled reach'), findsOneWidget);
+  });
+
+  testWidgets('shows noBundledLine inline copy with river system name', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      testLocalizedApp(
+        child: _overlay(
+          phase: RoutePlanningPhase.routeError,
+          putIn: kLaunchPoints.first,
+          takeOut: kLaunchPoints[1],
+          lastFailureCode: RouteFailureCode.noBundledLine,
+          lastFailureRiverSystemName: 'slough',
+        ),
+      ),
+    );
+
+    expect(find.textContaining('slough'), findsOneWidget);
+    expect(find.textContaining('No bundled river line'), findsOneWidget);
   });
 }

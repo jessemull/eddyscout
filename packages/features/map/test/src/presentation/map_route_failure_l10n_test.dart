@@ -45,6 +45,16 @@ void main() {
           l10n.mapRouteFailureTakeOutTooFar,
       const RouteFailure(code: RouteFailureCode.noConnectedPath):
           l10n.mapRouteFailureNoConnectedPath,
+      const RouteFailure(code: RouteFailureCode.disconnectedReach):
+          l10n.mapRouteFailureDisconnectedReach,
+      const RouteFailure(
+        code: RouteFailureCode.disconnectedReach,
+        putInReachId: 'willamette_portland',
+        takeOutReachId: 'columbia_gorge',
+      ): l10n.mapRouteFailureDisconnectedReachNamed(
+        'willamette_portland',
+        'columbia_gorge',
+      ),
       const ParseFailure(): l10n.mapRiverDataReadFailed,
       const AssetLoadFailure(): l10n.mapRiverDataUnavailable,
       'plain text': 'plain text',

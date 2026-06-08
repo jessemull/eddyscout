@@ -27,8 +27,10 @@ class RoutePlanningState {
     this.polylineLonLat,
     this.routeOrigin,
     this.lastFailureCode,
+    this.lastFailureRiverSystemName,
     this.lastFailurePutInReachId,
     this.lastFailureTakeOutReachId,
+    this.routeReachId,
   });
 
   final bool planningMode;
@@ -41,8 +43,12 @@ class RoutePlanningState {
   final List<List<double>>? polylineLonLat;
   final RouteOrigin? routeOrigin;
   final RouteFailureCode? lastFailureCode;
+  final String? lastFailureRiverSystemName;
   final String? lastFailurePutInReachId;
   final String? lastFailureTakeOutReachId;
+
+  /// Bundled hydro reach id when the planner returns a single-segment route.
+  final String? routeReachId;
 }
 
 @Riverpod(keepAlive: true)
@@ -88,6 +94,7 @@ class RoutePlanning extends _$RoutePlanning {
     LaunchPoint? putIn,
     LaunchPoint? takeOut,
     RoutePlanningPhase? phase,
+    String? routeReachId,
   }) {
     final ready =
         polylineLonLat != null &&
@@ -105,6 +112,7 @@ class RoutePlanning extends _$RoutePlanning {
       routeLengthKm: routeLengthKm,
       polylineLonLat: polylineLonLat,
       routeOrigin: routeOrigin,
+      routeReachId: routeReachId,
     );
   }
 
@@ -119,6 +127,7 @@ class RoutePlanning extends _$RoutePlanning {
       putIn: putIn,
       takeOut: takeOut,
       lastFailureCode: failure.code,
+      lastFailureRiverSystemName: failure.riverSystemName,
       lastFailurePutInReachId: failure.putInReachId,
       lastFailureTakeOutReachId: failure.takeOutReachId,
     );

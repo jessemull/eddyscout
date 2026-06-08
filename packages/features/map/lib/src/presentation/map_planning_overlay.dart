@@ -3,6 +3,7 @@ import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
+import 'package:eddyscout_map/src/presentation/map_route_failure_l10n.dart';
 import 'package:flutter/material.dart';
 
 /// Route-planning instructions and put-in / take-out summary over the map.
@@ -20,8 +21,10 @@ class MapPlanningOverlay extends StatelessWidget {
     required this.onDone,
     required this.onExportGpx,
     required this.onImportGpx,
+    this.lastFailureRiverSystemName,
     this.lastFailurePutInReachId,
     this.lastFailureTakeOutReachId,
+    this.routeReachId,
     super.key,
   });
 
@@ -31,8 +34,10 @@ class MapPlanningOverlay extends StatelessWidget {
   final double? routeLengthKm;
   final RiverSystem? riverSystem;
   final RouteFailureCode? lastFailureCode;
+  final String? lastFailureRiverSystemName;
   final String? lastFailurePutInReachId;
   final String? lastFailureTakeOutReachId;
+  final String? routeReachId;
   final bool canExportGpx;
   final bool gpxBusy;
   final VoidCallback onClear;
@@ -124,6 +129,17 @@ class MapPlanningOverlay extends StatelessWidget {
                         ),
                       ),
                     ],
+                    if (phase == RoutePlanningPhase.routeReady &&
+                        routeReachId != null &&
+                        routeReachId!.isNotEmpty) ...[
+                      const SizedBox(height: Spacing.xs),
+                      Text(
+                        l10n.mapPlanningRouteReach(routeReachId!),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                     if (routeLengthKm != null) ...[
                       const SizedBox(height: Spacing.sm - 2),
                       Text(
@@ -137,11 +153,14 @@ class MapPlanningOverlay extends StatelessWidget {
                         lastFailureCode != null) ...[
                       const SizedBox(height: Spacing.sm),
                       Text(
-                        _inlineFailureMessage(
-                          l10n,
-                          lastFailureCode!,
-                          putInReachId: lastFailurePutInReachId,
-                          takeOutReachId: lastFailureTakeOutReachId,
+                        localizeMapPlannerMessage(
+                          l10n: l10n,
+                          message: RouteFailure(
+                            code: lastFailureCode!,
+                            riverSystemName: lastFailureRiverSystemName,
+                            putInReachId: lastFailurePutInReachId,
+                            takeOutReachId: lastFailureTakeOutReachId,
+                          ),
                         ),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: scheme.error,
@@ -198,30 +217,5 @@ class MapPlanningOverlay extends StatelessWidget {
     RoutePlanningPhase.computingRoute => l10n.mapPlanningInstructions,
     RoutePlanningPhase.routeReady => l10n.mapPlanningInstructions,
     RoutePlanningPhase.routeError => l10n.mapPlanningInstructions,
-  };
-
-  String _inlineFailureMessage(
-    AppLocalizations l10n,
-    RouteFailureCode code, {
-    String? putInReachId,
-    String? takeOutReachId,
-  }) => switch (code) {
-    RouteFailureCode.sameLaunch => l10n.mapRouteFailureSameLaunch,
-    RouteFailureCode.differentSystem => l10n.mapRouteFailureDifferentSystem,
-    RouteFailureCode.noBundledLine => l10n.mapRouteFailureNoData,
-    RouteFailureCode.noRiverGeometryLoaded => l10n.mapRouteFailureNoData,
-    RouteFailureCode.putInTooFar => l10n.mapRouteFailurePutInTooFar,
-    RouteFailureCode.takeOutTooFar => l10n.mapRouteFailureTakeOutTooFar,
-    RouteFailureCode.noConnectedPath => l10n.mapRouteFailureNoConnectedPath,
-    RouteFailureCode.disconnectedReach =>
-      putInReachId != null &&
-              takeOutReachId != null &&
-              putInReachId.isNotEmpty &&
-              takeOutReachId.isNotEmpty
-          ? l10n.mapRouteFailureDisconnectedReachNamed(
-              putInReachId,
-              takeOutReachId,
-            )
-          : l10n.mapRouteFailureDisconnectedReach,
   };
 }

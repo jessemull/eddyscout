@@ -204,6 +204,50 @@ void main() {
       expect(state.lastFailureTakeOutReachId, 'columbia_gorge');
     });
 
+    test('setRouteFailure stores river system name for noBundledLine copy', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final putIn = _launch(id: 'a');
+      final takeOut = _launch(id: 'b');
+
+      container
+          .read(routePlanningProvider.notifier)
+          .setRouteFailure(
+            putIn: putIn,
+            takeOut: takeOut,
+            failure: const RouteFailure(
+              code: RouteFailureCode.noBundledLine,
+              riverSystemName: 'slough',
+            ),
+          );
+
+      expect(
+        container.read(routePlanningProvider).lastFailureRiverSystemName,
+        'slough',
+      );
+    });
+
+    test('setPlannedRoute stores route reach id on success', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+
+      container
+          .read(routePlanningProvider.notifier)
+          .setPlannedRoute(
+            polylineLonLat: const [
+              [-122.6, 45.5],
+              [-122.5, 45.5],
+            ],
+            routeLengthKm: 4.2,
+            routeOrigin: RouteOrigin.planner,
+            routeReachId: 'columbia_gorge',
+            phase: RoutePlanningPhase.routeReady,
+          );
+
+      expect(
+        container.read(routePlanningProvider).routeReachId,
+        'columbia_gorge',
+      );
+    });
+
     test('keeps state after listeners are removed', () {
       final sub = container.listen(routePlanningProvider, (_, _) {});
 
