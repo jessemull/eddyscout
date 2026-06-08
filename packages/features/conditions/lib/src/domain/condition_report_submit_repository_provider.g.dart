@@ -8,13 +8,13 @@ part of 'condition_report_submit_repository_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Injectable [ConditionReportSubmitRepository] token for presentation and tests.
+/// Injectable submit repository token for presentation and tests.
 
 @ProviderFor(conditionReportSubmitRepository)
 final conditionReportSubmitRepositoryProvider =
     ConditionReportSubmitRepositoryProvider._();
 
-/// Injectable [ConditionReportSubmitRepository] token for presentation and tests.
+/// Injectable submit repository token for presentation and tests.
 
 final class ConditionReportSubmitRepositoryProvider
     extends
@@ -24,7 +24,7 @@ final class ConditionReportSubmitRepositoryProvider
           ConditionReportSubmitRepository
         >
     with $Provider<ConditionReportSubmitRepository> {
-  /// Injectable [ConditionReportSubmitRepository] token for presentation and tests.
+  /// Injectable submit repository token for presentation and tests.
   ConditionReportSubmitRepositoryProvider._()
     : super(
         from: null,
