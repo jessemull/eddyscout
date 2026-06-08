@@ -26,6 +26,9 @@ enum RouteFailureCode {
 
   /// No connected path exists between snapped vertices.
   noConnectedPath,
+
+  /// Put-in and take-out snap to different disconnected hydro segments.
+  disconnectedReach,
 }
 
 /// Outcome of routing between two launches along bundled hydro lines.
@@ -39,6 +42,9 @@ sealed class RouteResult with _$RouteResult {
     /// Mapbox order: each pair is `[longitude, latitude]`.
     required List<List<double>> polylineLonLat,
     required double lengthMeters,
+
+    /// Reach id when both endpoints share one bundled segment.
+    String? reachId,
   }) = RouteSuccess;
 
   const factory RouteResult.failure({
@@ -46,6 +52,12 @@ sealed class RouteResult with _$RouteResult {
 
     /// River system name (for messaging like: no bundled line).
     String? riverSystemName,
+
+    /// Reach id nearest the put-in snap, when known.
+    String? putInReachId,
+
+    /// Reach id nearest the take-out snap, when known.
+    String? takeOutReachId,
   }) = RouteFailure;
 
   /// True when this result is [RouteSuccess].

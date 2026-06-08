@@ -88,7 +88,12 @@ Future<ProviderContainer> createIntegrationContainer() async {
       const IntegrationConditionsRepository(),
     ),
     hydroGeoJsonLoaderProvider.overrideWithValue(
-      () => rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
+      () async => [
+        await rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
+        await rootBundle.loadString(
+          'assets/hydro/columbia_gorge_waterway.geojson',
+        ),
+      ],
     ),
     keyValueStoreProvider.overrideWith((ref) async => store),
     goNoGoProfileRepositoryProvider.overrideWith(

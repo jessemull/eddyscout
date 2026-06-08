@@ -72,6 +72,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'No connected river path between these points in the current data.';
 
   @override
+  String get mapRouteFailureDisconnectedReach =>
+      'Put-in and take-out are on different river segments in our bundled data. Try launches on the same reach.';
+
+  @override
+  String get mapPlanningStepPickPutIn => 'Step 1: Tap a launch for put-in.';
+
+  @override
+  String get mapPlanningStepPickTakeOut =>
+      'Step 2: Tap another launch for take-out.';
+
+  @override
+  String get mapPlanningComputingRoute => 'Calculating route…';
+
+  @override
+  String mapPlanningRiverSystem(String system) {
+    return 'River system: $system';
+  }
+
+  @override
   String get mapPlanningSemanticsLabel => 'River route planning';
 
   @override

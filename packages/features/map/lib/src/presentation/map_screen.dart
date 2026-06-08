@@ -56,11 +56,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 return;
               }
               final localized = switch (message) {
-                RouteFailure(:final code, :final riverSystemName) =>
+                RouteFailure(
+                  :final code,
+                  :final riverSystemName,
+                  :final putInReachId,
+                  :final takeOutReachId,
+                ) =>
                   _localizedRouteFailure(
                     l10n: l10n,
                     code: code,
                     riverSystemName: riverSystemName,
+                    putInReachId: putInReachId,
+                    takeOutReachId: takeOutReachId,
                   ),
                 ParseFailure() => l10n.mapRiverDataReadFailed,
                 AssetLoadFailure() => l10n.mapRiverDataUnavailable,
@@ -85,6 +92,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     required AppLocalizations l10n,
     required RouteFailureCode code,
     required String? riverSystemName,
+    String? putInReachId,
+    String? takeOutReachId,
   }) => switch (code) {
     RouteFailureCode.sameLaunch => l10n.mapRouteFailureSameLaunch,
     RouteFailureCode.differentSystem => l10n.mapRouteFailureDifferentSystem,
@@ -95,6 +104,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     RouteFailureCode.putInTooFar => l10n.mapRouteFailurePutInTooFar,
     RouteFailureCode.takeOutTooFar => l10n.mapRouteFailureTakeOutTooFar,
     RouteFailureCode.noConnectedPath => l10n.mapRouteFailureNoConnectedPath,
+    RouteFailureCode.disconnectedReach => l10n.mapRouteFailureDisconnectedReach,
   };
 
   @override
@@ -148,9 +158,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           if (planning.planningMode)
             MapPlanningOverlay(
+              phase: planning.phase,
               putIn: planning.putIn,
               takeOut: planning.takeOut,
               routeLengthKm: planning.routeLengthKm,
+              riverSystem:
+                  planning.plannedRoute?.riverSystem ??
+                  planning.putIn?.riverSystem,
+              lastFailureCode: planning.lastFailureCode,
               onClear: () => unawaited(mapController.clearPlanningSelection()),
               onDone: mapController.togglePlanningMode,
             ),

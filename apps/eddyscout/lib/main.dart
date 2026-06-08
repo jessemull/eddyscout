@@ -52,8 +52,17 @@ Future<void> main() async {
           return GoNoGoProfileRepositoryImpl(store);
         }),
         hydroGeoJsonLoaderProvider.overrideWithValue(
-          () =>
-              rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
+          () async {
+            final bundle = rootBundle;
+            return [
+              await bundle.loadString(
+                'assets/hydro/willamette_waterway.geojson',
+              ),
+              await bundle.loadString(
+                'assets/hydro/columbia_gorge_waterway.geojson',
+              ),
+            ];
+          },
         ),
         navigatorObserversProvider.overrideWith(
           (ref) => [

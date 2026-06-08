@@ -4,3 +4,4 @@ targets:
       freezed:
         generate_for:
           - lib/src/domain/route_result.dart
+          - lib/src/domain/planned_route.dart

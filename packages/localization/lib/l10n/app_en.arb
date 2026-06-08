@@ -27,6 +27,16 @@
   "mapRouteFailurePutInTooFar": "Put-in is too far from the modeled river line. Try another launch.",
   "mapRouteFailureTakeOutTooFar": "Take-out is too far from the modeled river line. Try another launch.",
   "mapRouteFailureNoConnectedPath": "No connected river path between these points in the current data.",
+  "mapRouteFailureDisconnectedReach": "Put-in and take-out are on different river segments in our bundled data. Try launches on the same reach.",
+  "mapPlanningStepPickPutIn": "Step 1: Tap a launch for put-in.",
+  "mapPlanningStepPickTakeOut": "Step 2: Tap another launch for take-out.",
+  "mapPlanningComputingRoute": "Calculating route…",
+  "mapPlanningRiverSystem": "River system: {system}",
+  "@mapPlanningRiverSystem": {
+    "placeholders": {
+      "system": {"type": "String"}
+    }
+  },
   "mapPlanningSemanticsLabel": "River route planning",
   "mapPlanningTitleBeta": "River route (beta)",
   "mapPlanningInstructions": "Tap a launch for put-in, then another for take-out. The line follows bundled open hydro data (approximate centerline)—not for navigation. Several downtown launches sit close together; overlapping pins are separate sites. Clear removes the route line and picks so you can start over. Done closes this panel and clears the route.",

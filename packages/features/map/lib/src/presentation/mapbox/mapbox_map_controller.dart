@@ -117,6 +117,7 @@ final class MapboxMapController extends _$MapboxMapController
     if (put == null || take == null) {
       return;
     }
+    ref.read(routePlanningProvider.notifier).setComputingRoute();
     if (plannerAsync.hasError) {
       if (alive) {
         final failure = hydroAppFailureFrom(plannerAsync.error);
@@ -137,12 +138,20 @@ final class MapboxMapController extends _$MapboxMapController
       return;
     }
 
+    final plannedRoute = planner.planRoute(put, take);
+
     if (result is RouteFailure) {
       mapDebugLog(
         'plan FAILED ${put.id} -> ${take.id}: '
         '${result.code}(${result.riverSystemName ?? ''})',
       );
-      ref.read(routePlanningProvider.notifier).setRouteLengthKm(null);
+      ref
+          .read(routePlanningProvider.notifier)
+          .setRouteResult(
+            putIn: put,
+            takeOut: take,
+            result: result,
+          );
       unawaited(clearRouteLine());
       ui.showSnackBar?.call(result);
       return;
@@ -157,7 +166,12 @@ final class MapboxMapController extends _$MapboxMapController
     mapDebugLogRouteSegmentMeters(ok.polylineLonLat);
     ref
         .read(routePlanningProvider.notifier)
-        .setRouteLengthKm(ok.lengthMeters / 1000.0);
+        .setRouteResult(
+          putIn: put,
+          takeOut: take,
+          result: ok,
+          plannedRoute: plannedRoute,
+        );
     await drawRouteLine(ok.polylineLonLat);
     await fitCameraToRoute(ok.polylineLonLat);
   }

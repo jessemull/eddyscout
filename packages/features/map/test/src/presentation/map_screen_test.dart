@@ -130,6 +130,7 @@ class _FixedRoutePlanning extends RoutePlanning {
     final takeOut = kLaunchPoints[1];
     return RoutePlanningState(
       planningMode: true,
+      phase: RoutePlanningPhase.routeReady,
       putIn: putIn,
       takeOut: takeOut,
       routeLengthKm: 12.5,

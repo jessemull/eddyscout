@@ -1,3 +1,4 @@
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,12 +45,21 @@ void main() {
       final putIn = _launch(id: 'a', name: 'Put-in');
       final takeOut = _launch(id: 'b', name: 'Take-out');
 
+      expect(
+        container.read(routePlanningProvider).phase,
+        RoutePlanningPhase.pickPutIn,
+      );
+
       final first = container
           .read(routePlanningProvider.notifier)
           .handleLaunchTap(putIn);
       expect(first, RoutePlanningTapResult.putInSelected);
       expect(container.read(routePlanningProvider).putIn, putIn);
       expect(container.read(routePlanningProvider).takeOut, isNull);
+      expect(
+        container.read(routePlanningProvider).phase,
+        RoutePlanningPhase.pickTakeOut,
+      );
 
       final second = container
           .read(routePlanningProvider.notifier)
@@ -71,7 +81,7 @@ void main() {
       expect(container.read(routePlanningProvider).takeOut, isNull);
     });
 
-    test('clearSelection resets picks but keeps planning mode', () {
+    test('clearSelection resets picks and phase but keeps planning mode', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       container
           .read(routePlanningProvider.notifier)
@@ -82,9 +92,64 @@ void main() {
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
+      expect(state.phase, RoutePlanningPhase.pickPutIn);
       expect(state.putIn, isNull);
       expect(state.takeOut, isNull);
       expect(state.routeLengthKm, isNull);
+    });
+
+    test('setRouteResult stores planned route on success', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final putIn = _launch(id: 'a');
+      final takeOut = _launch(id: 'b');
+      final planned = PlannedRoute(
+        putInLaunchId: 'a',
+        takeOutLaunchId: 'b',
+        riverSystem: RiverSystem.willamette,
+        polylineLonLat: const [
+          [-122.6, 45.5],
+          [-122.5, 45.5],
+        ],
+        lengthMeters: 4200,
+        reachId: 'willamette_portland',
+      );
+
+      container
+          .read(routePlanningProvider.notifier)
+          .setRouteResult(
+            putIn: putIn,
+            takeOut: takeOut,
+            result: RouteResult.success(
+              polylineLonLat: planned.polylineLonLat,
+              lengthMeters: planned.lengthMeters,
+            ),
+            plannedRoute: planned,
+          );
+
+      final state = container.read(routePlanningProvider);
+      expect(state.phase, RoutePlanningPhase.routeReady);
+      expect(state.routeLengthKm, closeTo(4.2, 0.01));
+      expect(state.plannedRoute, planned);
+    });
+
+    test('setRouteResult stores failure code on error', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final putIn = _launch(id: 'a');
+      final takeOut = _launch(id: 'b');
+
+      container
+          .read(routePlanningProvider.notifier)
+          .setRouteResult(
+            putIn: putIn,
+            takeOut: takeOut,
+            result: const RouteResult.failure(
+              code: RouteFailureCode.disconnectedReach,
+            ),
+          );
+
+      final state = container.read(routePlanningProvider);
+      expect(state.phase, RoutePlanningPhase.routeError);
+      expect(state.lastFailureCode, RouteFailureCode.disconnectedReach);
     });
 
     test('keeps state after listeners are removed', () {
