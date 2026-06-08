@@ -12,13 +12,14 @@ void main() {
       testLocalizedApp(
         child: Material(
           child: MapPlanningOverlay(
-            putIn: kLaunchPoints.first,
-            takeOut: null,
+            waypoints: [kLaunchPoints.first],
             routeLengthKm: null,
+            canSave: false,
             canExportGpx: false,
             gpxBusy: false,
             onClear: () {},
             onDone: () {},
+            onSave: () {},
             onExportGpx: () {},
             onImportGpx: () {},
           ),
@@ -41,13 +42,14 @@ void main() {
       testLocalizedApp(
         child: Material(
           child: MapPlanningOverlay(
-            putIn: kLaunchPoints.first,
-            takeOut: kLaunchPoints[1],
+            waypoints: [kLaunchPoints.first, kLaunchPoints[1]],
             routeLengthKm: 8.2,
+            canSave: false,
             canExportGpx: true,
             gpxBusy: false,
             onClear: () {},
             onDone: () {},
+            onSave: () {},
             onExportGpx: () => exported = true,
             onImportGpx: () {},
           ),

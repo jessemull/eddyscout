@@ -1,3 +1,4 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -148,13 +149,16 @@ class _FixedRoutePlanning extends RoutePlanning {
     final takeOut = kLaunchPoints[1];
     return RoutePlanningState(
       planningMode: true,
-      putIn: putIn,
-      takeOut: takeOut,
+      waypoints: [putIn, takeOut],
       routeLengthKm: 12.5,
-      polylineLonLat: [
-        [putIn.longitude, putIn.latitude],
-        [takeOut.longitude, takeOut.latitude],
-      ],
+      activeGeometry: RouteGeometrySnapshot(
+        polylineLonLat: [
+          [putIn.longitude, putIn.latitude],
+          [takeOut.longitude, takeOut.latitude],
+        ],
+        lengthMeters: 12500,
+        computedAt: DateTime.utc(2026),
+      ),
       routeOrigin: RouteOrigin.planner,
     );
   }

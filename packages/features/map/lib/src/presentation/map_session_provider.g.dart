@@ -73,3 +73,69 @@ abstract class _$MapInteractive extends $Notifier<bool> {
     element.handleCreate(ref, build);
   }
 }
+
+/// Increments when the map tab becomes active again (bottom nav).
+///
+/// Map route chrome listens to redraw saved/planned lines after offstage tabs.
+
+@ProviderFor(MapTabResumed)
+final mapTabResumedProvider = MapTabResumedProvider._();
+
+/// Increments when the map tab becomes active again (bottom nav).
+///
+/// Map route chrome listens to redraw saved/planned lines after offstage tabs.
+final class MapTabResumedProvider
+    extends $NotifierProvider<MapTabResumed, int> {
+  /// Increments when the map tab becomes active again (bottom nav).
+  ///
+  /// Map route chrome listens to redraw saved/planned lines after offstage tabs.
+  MapTabResumedProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'mapTabResumedProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$mapTabResumedHash();
+
+  @$internal
+  @override
+  MapTabResumed create() => MapTabResumed();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
+    );
+  }
+}
+
+String _$mapTabResumedHash() => r'3a6283ac505606f13bb7b2c2213fe32bac01e671';
+
+/// Increments when the map tab becomes active again (bottom nav).
+///
+/// Map route chrome listens to redraw saved/planned lines after offstage tabs.
+
+abstract class _$MapTabResumed extends $Notifier<int> {
+  int build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<int, int>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<int, int>,
+              int,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}

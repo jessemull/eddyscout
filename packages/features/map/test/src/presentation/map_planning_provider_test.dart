@@ -1,3 +1,4 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -78,21 +79,23 @@ void main() {
           .handleLaunchTap(_launch(id: 'a'));
       container
           .read(routePlanningProvider.notifier)
-          .setPlannedRoute(
-            polylineLonLat: [
-              [-122.7, 45.5],
-              [-122.6, 45.4],
-            ],
+          .setActiveGeometry(
+            geometry: RouteGeometrySnapshot(
+              polylineLonLat: const [
+                [-122.6, 45.5],
+                [-122.5, 45.6],
+              ],
+              lengthMeters: 12500,
+              computedAt: DateTime.utc(2026),
+            ),
             routeLengthKm: 12.5,
-            routeOrigin: RouteOrigin.planner,
           );
 
       container.read(routePlanningProvider.notifier).clearSelection();
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
-      expect(state.putIn, isNull);
-      expect(state.takeOut, isNull);
+      expect(state.waypoints, isEmpty);
       expect(state.routeLengthKm, isNull);
       expect(state.polylineLonLat, isNull);
     });
@@ -131,6 +134,150 @@ void main() {
       sub.close();
 
       expect(container.read(routePlanningProvider).planningMode, isTrue);
+    });
+
+    test('captureForSave and restoreCapture preserve route geometry', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final putIn = _launch(id: 'a', name: 'Put-in');
+      final takeOut = _launch(id: 'b', name: 'Take-out');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(takeOut);
+      final geometry = RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.6, 45.5],
+          [-122.5, 45.6],
+        ],
+        lengthMeters: 12500,
+        computedAt: DateTime.utc(2026),
+      );
+      container
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: geometry,
+            routeLengthKm: 12.5,
+          );
+
+      final capture = container
+          .read(routePlanningProvider.notifier)
+          .captureForSave();
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+
+      expect(container.read(routePlanningProvider).waypoints, isEmpty);
+
+      container.read(routePlanningProvider.notifier).restoreCapture(capture);
+
+      final restored = container.read(routePlanningProvider);
+      expect(restored.planningMode, isTrue);
+      expect(restored.waypoints, [putIn, takeOut]);
+      expect(restored.routeLengthKm, closeTo(12.5, 0.01));
+      expect(restored.activeGeometry, geometry);
+    });
+
+    test('snapshotForSaveFromCapture builds draft from frozen capture', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final putIn = _launch(id: 'a', name: 'Put-in');
+      final takeOut = _launch(id: 'b', name: 'Take-out');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(takeOut);
+      final geometry = RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.6, 45.5],
+          [-122.5, 45.6],
+        ],
+        lengthMeters: 12500,
+        computedAt: DateTime.utc(2026),
+      );
+      container
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: geometry,
+            routeLengthKm: 12.5,
+          );
+
+      final capture = container
+          .read(routePlanningProvider.notifier)
+          .captureForSave();
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+
+      final draft = container
+          .read(routePlanningProvider.notifier)
+          .snapshotForSaveFromCapture(capture, name: 'Morning paddle');
+
+      expect(draft, isNotNull);
+      expect(draft!.name, 'Morning paddle');
+      expect(draft.waypoints.map((w) => w.launchId), ['a', 'b']);
+      expect(draft.geometrySnapshot, geometry);
+    });
+
+    test('loadFromSavedRoute restores waypoints and geometry', () {
+      final putIn = _launch(id: 'a', name: 'Put-in');
+      final takeOut = _launch(id: 'b', name: 'Take-out');
+      final geometry = RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.6, 45.5],
+          [-122.5, 45.6],
+        ],
+        lengthMeters: 5000,
+        computedAt: DateTime.utc(2026),
+      );
+      final saved = SavedRoute(
+        id: 'sr_1',
+        name: 'Saved',
+        waypoints: const [
+          RouteWaypoint(launchId: 'a', order: 0),
+          RouteWaypoint(launchId: 'b', order: 1),
+        ],
+        metadata: const SavedRouteMetadata(distanceMeters: 5000),
+        geometrySnapshot: geometry,
+        createdAt: DateTime.utc(2026),
+        updatedAt: DateTime.utc(2026),
+      );
+
+      container.read(routePlanningProvider.notifier).loadFromSavedRoute(saved, [
+        putIn,
+        takeOut,
+      ]);
+
+      final state = container.read(routePlanningProvider);
+      expect(state.planningMode, isTrue);
+      expect(state.waypoints, [putIn, takeOut]);
+      expect(state.loadedSavedRouteId, 'sr_1');
+      expect(state.routeLengthKm, closeTo(5.0, 0.01));
+      expect(state.activeGeometry, geometry);
+    });
+
+    test('removeWaypoint drops a stop while planning', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final a = _launch(id: 'a');
+      final b = _launch(id: 'b');
+      final c = _launch(id: 'c');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(a);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(b);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(c);
+
+      container.read(routePlanningProvider.notifier).removeWaypoint(1);
+
+      expect(
+        container.read(routePlanningProvider).waypoints.map((w) => w.id),
+        ['a', 'c'],
+      );
+    });
+
+    test('reorderWaypoints changes stop order', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final a = _launch(id: 'a');
+      final b = _launch(id: 'b');
+      final c = _launch(id: 'c');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(a);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(b);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(c);
+
+      container.read(routePlanningProvider.notifier).reorderWaypoints(0, 2);
+
+      expect(
+        container.read(routePlanningProvider).waypoints.map((w) => w.id),
+        ['b', 'c', 'a'],
+      );
     });
   });
 }

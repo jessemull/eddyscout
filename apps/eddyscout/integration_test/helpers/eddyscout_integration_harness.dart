@@ -1,11 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
 import 'package:eddyscout/main.dart';
+import 'package:eddyscout/routing/saved_routes_database_override.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
+import 'package:eddyscout_saved_routes/eddyscout_saved_routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,23 +72,30 @@ class IntegrationConditionsRepository implements ConditionsRepository {
 }
 
 /// Shared overrides mirroring [main] plus deterministic conditions for E2E.
-Future<ProviderContainer> createIntegrationContainer() async {
+Future<ProviderContainer> createIntegrationContainer({
+  List<Override> extraOverrides = const [],
+}) async {
   SharedPreferences.setMockInitialValues({});
   final store = await SharedPreferencesKeyValueStore.open();
 
-  final overrides = buildAppProviderOverrides(
-    keyValueStore: store,
-    conditionReportsRepository: const IntegrationConditionReportsRepository(),
-    conditionsRepository: const IntegrationConditionsRepository(),
-    mapboxTokenOverride: _mapboxAccessToken.isNotEmpty
-        ? _mapboxAccessToken
-        : null,
-  );
+  final overrides =
+      buildAppProviderOverrides(
+        keyValueStore: store,
+        conditionReportsRepository:
+            const IntegrationConditionReportsRepository(),
+        conditionsRepository: const IntegrationConditionsRepository(),
+        mapboxTokenOverride: _mapboxAccessToken.isNotEmpty
+            ? _mapboxAccessToken
+            : null,
+      )..addAll([
+        ...savedRoutesTestOverrides(),
+        launchPointLookupProvider.overrideWithValue(findLaunchPointById),
+      ]);
   if (_integrationMapStub) {
     overrides.add(mapInteractiveProvider.overrideWithValue(true));
   }
 
-  return ProviderContainer(overrides: overrides);
+  return ProviderContainer(overrides: [...overrides, ...extraOverrides]);
 }
 
 /// Pumps [EddyScoutApp] with integration overrides; returns the container.

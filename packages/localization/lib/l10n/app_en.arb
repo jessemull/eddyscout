@@ -275,5 +275,90 @@
   "missingMapboxTokenCompileIntro": "Or pass at compile time:",
   "missingMapboxTokenSecurityNote": "Never commit .local.env. Use a restricted public token in Mapbox.",
   "webMapPlaceholderTitle": "Map on mobile",
-  "webMapPlaceholderBody": "Use the Android or iOS app for the interactive map."
+  "webMapPlaceholderBody": "Use the Android or iOS app for the interactive map.",
+  "shellTabMap": "Map",
+  "shellTabSavedRoutes": "Saved routes",
+  "savedRoutesListTitle": "Saved routes",
+  "savedRoutesAllTab": "All",
+  "savedRoutesFavoritesTab": "Favorites",
+  "savedRoutesListEmpty": "No saved routes yet. Plan a route on the Map tab and tap Save.",
+  "savedRoutesFavoritesEmpty": "No favorite routes yet.",
+  "savedRoutesListError": "Could not load saved routes.",
+  "savedRoutesDistanceKm": "{km} km",
+  "@savedRoutesDistanceKm": {
+    "placeholders": {
+      "km": {"type": "String"}
+    }
+  },
+  "savedRoutesWaypointCount": "{count} stops",
+  "@savedRoutesWaypointCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "savedRoutesFavoriteTooltip": "Add to favorites",
+  "savedRoutesUnfavoriteTooltip": "Remove from favorites",
+  "savedRoutesDetailTitle": "Route details",
+  "savedRoutesDetailError": "Could not load this route.",
+  "savedRoutesNotFound": "Route not found.",
+  "savedRoutesNameLabel": "Name",
+  "savedRoutesDescriptionLabel": "Description",
+  "savedRoutesNotesLabel": "Notes",
+  "savedRoutesDurationLabel": "Estimated duration (minutes)",
+  "savedRoutesDurationHint": "Optional — e.g. distance ÷ 4 km/h",
+  "savedRoutesDifficultyLabel": "Difficulty",
+  "savedRoutesDifficultyNone": "Not set",
+  "savedRoutesDifficultyEasy": "Easy",
+  "savedRoutesDifficultyModerate": "Moderate",
+  "savedRoutesDifficultyHard": "Hard",
+  "savedRoutesDifficultyExpert": "Expert",
+  "savedRoutesSkillLabel": "Recommended skill",
+  "savedRoutesSkillNone": "Not set",
+  "savedRoutesCategoriesLabel": "Categories",
+  "savedRoutesCategoryScenic": "Scenic",
+  "savedRoutesCategoryTraining": "Training",
+  "savedRoutesCategoryCommute": "Commute",
+  "savedRoutesCategoryOvernight": "Overnight",
+  "savedRoutesCustomTagsLabel": "Custom tags",
+  "savedRoutesCustomTagHint": "Add a tag",
+  "savedRoutesCustomTagAdd": "Add tag",
+  "savedRoutesFavoriteError": "Could not update favorite.",
+  "savedRoutesLoadOnMapInsufficientWaypoints": "Could not load route — too few known launch points.",
+  "savedRoutesLoadOnMapDrawError": "Route loaded, but the map could not draw the line.",
+  "savedRoutesWaypointsTitle": "Waypoints",
+  "savedRoutesWaypointSemantics": "Waypoint {position}, {name}",
+  "@savedRoutesWaypointSemantics": {
+    "placeholders": {
+      "position": {"type": "int"},
+      "name": {"type": "String"}
+    }
+  },
+  "savedRoutesReorderWaypointHint": "Drag to reorder",
+  "savedRoutesDeleteWaypointSemantics": "Delete waypoint {position}",
+  "@savedRoutesDeleteWaypointSemantics": {
+    "placeholders": {
+      "position": {"type": "int"}
+    }
+  },
+  "savedRoutesUnknownLaunch": "Unknown launch",
+  "savedRoutesSaveButton": "Save changes",
+  "savedRoutesLoadOnMapButton": "Load on map",
+  "savedRoutesDeleteButton": "Delete route",
+  "savedRoutesNameRequired": "Enter a route name.",
+  "savedRoutesSaveSuccess": "Route saved.",
+  "savedRoutesSaveError": "Could not save route.",
+  "savedRoutesDeleteConfirmTitle": "Delete route?",
+  "savedRoutesDeleteConfirmBody": "This removes the route from your device. This cannot be undone.",
+  "savedRoutesDeleteError": "Could not delete route.",
+  "savedRoutesSaveDialogTitle": "Save route",
+  "savedRoutesSaveFromMapButton": "Save",
+  "mapPlanningSaveLabel": "Save route",
+  "mapPlanningWaypointCount": "{count} stops",
+  "@mapPlanningWaypointCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "commonRetry": "Retry",
+  "commonCancel": "Cancel"
 }

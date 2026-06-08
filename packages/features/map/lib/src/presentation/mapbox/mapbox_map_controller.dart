@@ -17,7 +17,7 @@ import 'mapbox_map_style_mixin.dart';
 part 'mapbox_map_controller.g.dart';
 
 /// Owns Mapbox map lifecycle: markers, route line, camera, and launch taps.
-@riverpod
+@Riverpod(keepAlive: true)
 final class MapboxMapController extends _$MapboxMapController
     with
         MapboxMapControllerBase,
@@ -38,7 +38,7 @@ final class MapboxMapController extends _$MapboxMapController
       })
       ..listen(riverRoutePlannerProvider, (previous, next) {
         final planning = ref.read(routePlanningProvider);
-        if (planning.putIn == null || planning.takeOut == null) {
+        if (planning.waypoints.length < 2) {
           return;
         }
         final wasPending = previous == null || !previous.hasValue;
@@ -122,61 +122,53 @@ final class MapboxMapController extends _$MapboxMapController
 
   Future<void> _runRoute() async {
     final planning = ref.read(routePlanningProvider);
-    final put = planning.putIn;
-    final take = planning.takeOut;
-    final plannerAsync = ref.watch(riverRoutePlannerProvider);
-    if (put == null || take == null) {
+    final waypoints = planning.waypoints;
+    if (waypoints.length < 2) {
       return;
     }
-    if (plannerAsync.hasError) {
-      if (alive) {
-        final failure = hydroAppFailureFrom(plannerAsync.error);
-        ui.showSnackBar?.call(failure ?? ui.riverDataLoadFailedMessage);
-      }
-      return;
-    }
-    if (!plannerAsync.hasValue) {
-      if (alive) {
-        ui.showSnackBar?.call(ui.riverDataLoadingMessage);
-      }
-      return;
-    }
-    final planner = plannerAsync.requireValue;
 
-    final result = planner.plan(put, take);
+    final planner = await _resolveRoutePlanner();
+    if (planner == null || !alive) {
+      return;
+    }
+
+    final planResult = planMultiSegmentRoute(planner, waypoints);
     if (!alive) {
       return;
     }
 
-    if (result is RouteFailure) {
-      mapDebugLog(
-        'plan FAILED ${put.id} -> ${take.id}: '
-        '${result.code}(${result.riverSystemName ?? ''})',
-      );
-      ref.read(routePlanningProvider.notifier).setPlannedRoute();
+    if (planResult case Failure(:final error)) {
+      mapDebugLog('plan FAILED multi-segment: ${error.code}');
+      ref
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: null,
+            routeLengthKm: null,
+          );
       unawaited(clearRouteLine());
-      ui.showSnackBar?.call(result);
+      ui.showSnackBar?.call(error);
       return;
     }
 
-    final ok = result as RouteSuccess;
+    final segments =
+        (planResult as Success<List<RouteSuccess>, RouteFailure>).value;
+    final geometry = mergeRouteSegments(segments);
+    if (geometry == null) {
+      return;
+    }
     mapDebugLog(
-      'plan OK ${put.id} -> ${take.id} '
-      'lengthM=${ok.lengthMeters.toStringAsFixed(0)}',
+      'plan OK ${waypoints.length} stops '
+      'lengthM=${geometry.lengthMeters.toStringAsFixed(0)}',
     );
-    mapDebugLogRoutePolyline('planner output', ok.polylineLonLat);
-    mapDebugLogRouteSegmentMeters(ok.polylineLonLat);
+    mapDebugLogRoutePolyline('planner output', geometry.polylineLonLat);
     ref
         .read(routePlanningProvider.notifier)
-        .setPlannedRoute(
-          polylineLonLat: ok.polylineLonLat,
-          routeLengthKm: ok.lengthMeters / 1000.0,
-          routeOrigin: RouteOrigin.planner,
-          putIn: put,
-          takeOut: take,
+        .setActiveGeometry(
+          geometry: geometry,
+          routeLengthKm: geometry.lengthMeters / 1000.0,
         );
-    await drawRouteLine(ok.polylineLonLat);
-    await fitCameraToRoute(ok.polylineLonLat);
+    await drawRouteLine(geometry.polylineLonLat);
+    await fitCameraToRoute(geometry.polylineLonLat);
   }
 
   /// Applies an imported GPX route to planning state and the map line.
@@ -198,6 +190,47 @@ final class MapboxMapController extends _$MapboxMapController
     if (map != null) {
       await fitViewportToAllLaunches(map);
       await mapDebugLogMapboxSnapshot(map, 'afterExitPlanning');
+    }
+  }
+
+  /// Recomputes and draws the route for the current planning waypoints.
+  Future<void> rerunActiveRoute() => _runRoute();
+
+  /// Draws a saved or imported route polyline and fits the camera.
+  Future<void> displayPlannedRoute(List<List<double>> polyline) async {
+    if (!alive || polyline.length < 2) {
+      return;
+    }
+    await drawRouteLine(polyline);
+    if (mapboxMap == null) {
+      // Map tab may have just become visible after shell branch switch.
+      await Future<void>.delayed(Duration.zero);
+      await drawRouteLine(polyline);
+    }
+    await fitCameraToRoute(polyline);
+  }
+
+  /// Waits for bundled hydro graphs when still loading; surfaces load errors.
+  Future<RiverRoutePlanner?> _resolveRoutePlanner() async {
+    final plannerAsync = ref.read(riverRoutePlannerProvider);
+    if (plannerAsync.hasValue) {
+      return plannerAsync.requireValue;
+    }
+    if (plannerAsync.hasError) {
+      if (alive) {
+        final failure = hydroAppFailureFrom(plannerAsync.error);
+        ui.showSnackBar?.call(failure ?? ui.riverDataLoadFailedMessage);
+      }
+      return null;
+    }
+    try {
+      return await ref.read(riverRoutePlannerProvider.future);
+    } on Object catch (error) {
+      if (alive) {
+        final failure = hydroAppFailureFrom(error);
+        ui.showSnackBar?.call(failure ?? ui.riverDataLoadFailedMessage);
+      }
+      return null;
     }
   }
 }

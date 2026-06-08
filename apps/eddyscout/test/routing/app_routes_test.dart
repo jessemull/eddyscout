@@ -10,6 +10,7 @@ import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
+import 'package:eddyscout_saved_routes/eddyscout_saved_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,14 +20,33 @@ import 'package:go_router/go_router.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'test_router_overrides.dart';
+
+SavedRoute _shellTestRoute() {
+  final now = DateTime.utc(2026);
+  return SavedRoute(
+    id: 'sr_123',
+    name: 'Shell Test Route',
+    waypoints: const [
+      RouteWaypoint(launchId: 'a', order: 0),
+      RouteWaypoint(launchId: 'b', order: 1),
+    ],
+    metadata: const SavedRouteMetadata(),
+    createdAt: now,
+    updatedAt: now,
+  );
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late KeyValueStore store;
+  late RecordingAnalyticsClient analytics;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     store = await SharedPreferencesKeyValueStore.open();
+    analytics = RecordingAnalyticsClient();
   });
 
   List<Override> appOverrides({List<Override> extra = const []}) => [
@@ -36,6 +56,8 @@ void main() {
       mapInteractiveOverride: true,
     ),
     firebaseBootstrapProvider.overrideWithValue(const FirebaseBootstrapState()),
+    ...appShellTestOverrides,
+    analyticsClientProvider.overrideWithValue(analytics),
     ...extra,
   ];
 
@@ -74,11 +96,9 @@ void main() {
   });
 
   testWidgets('unknown launch route renders not-found screen', (tester) async {
-    final analytics = RecordingAnalyticsClient();
     await pumpAt(
       tester,
       location: '/launch/not-a-real-launch',
-      extra: [analyticsClientProvider.overrideWithValue(analytics)],
     );
     await tester.pump();
     await tester.pumpAndSettle();
@@ -173,5 +193,80 @@ void main() {
 
     expect(find.byType(MaterialApp), findsOneWidget);
     expect(find.text('EddyScout'), findsOneWidget);
+  });
+
+  group('SavedRoutesListRoute', () {
+    test('location is saved routes path', () {
+      expect(
+        const SavedRoutesListRoute().location,
+        RoutePaths.savedRoutes,
+      );
+    });
+  });
+
+  group('SavedRouteDetailRoute', () {
+    test('location encodes route id', () {
+      const route = SavedRouteDetailRoute(routeId: 'sr_123');
+      expect(route.location, '/saved-routes/sr_123');
+    });
+  });
+
+  group('AppShell navigation', () {
+    testWidgets('deep link to saved route detail selects saved tab', (
+      tester,
+    ) async {
+      final router = GoRouter(
+        routes: $appRoutes,
+        initialLocation: '/saved-routes/sr_123',
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            ...appOverrides(
+              extra: [
+                savedRouteByIdProvider(
+                  'sr_123',
+                ).overrideWith((ref) async => _shellTestRoute()),
+              ],
+            ),
+          ],
+          child: MaterialApp.router(
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Route details'), findsOneWidget);
+      expect(
+        find.widgetWithText(TextField, 'Shell Test Route'),
+        findsOneWidget,
+      );
+
+      final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
+      expect(nav.selectedIndex, 1);
+    });
+
+    testWidgets('switching to map tab notifies mapTabResumed', (tester) async {
+      await pumpAt(tester, location: '/saved-routes');
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(NavigationBar)),
+      );
+      expect(container.read(mapTabResumedProvider), 0);
+
+      await tester.tap(find.text('Map'));
+      await tester.pumpAndSettle();
+
+      expect(container.read(mapTabResumedProvider), 1);
+    });
   });
 }
