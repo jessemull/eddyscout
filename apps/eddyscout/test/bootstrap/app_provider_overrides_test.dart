@@ -1,6 +1,7 @@
 import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_map/eddyscout_map_data.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +29,7 @@ void main() {
     expect(container.read(conditionsAiSummaryRepositoryProvider), isNotNull);
     expect(container.read(conditionReportSubmitRepositoryProvider), isNotNull);
     expect(container.read(goNoGoProfileRepositoryProvider), isNotNull);
+    expect(container.read(gpxFileGatewayProvider), isA<GpxFileGatewayImpl>());
   });
 
   test('buildAppProviderOverrides applies optional map overrides', () {

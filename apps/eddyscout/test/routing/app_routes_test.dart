@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
 import 'package:eddyscout/main.dart';
 import 'package:eddyscout/routing/app_routes.dart';
+import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
@@ -72,11 +74,38 @@ void main() {
   });
 
   testWidgets('unknown launch route renders not-found screen', (tester) async {
-    await pumpAt(tester, location: '/launch/not-a-real-launch');
+    final analytics = RecordingAnalyticsClient();
+    await pumpAt(
+      tester,
+      location: '/launch/not-a-real-launch',
+      extra: [analyticsClientProvider.overrideWithValue(analytics)],
+    );
     await tester.pump();
     await tester.pumpAndSettle();
 
     expect(find.byType(LaunchNotFoundScreen), findsOneWidget);
+    expect(analytics.screenViews, [AnalyticsScreenNames.launchNotFound]);
+  });
+
+  testWidgets('non-not-found launch provider error shows unavailable body', (
+    tester,
+  ) async {
+    await pumpAt(
+      tester,
+      location: '/launch/cathedral_park',
+      extra: [
+        launchPointByIdProvider('cathedral_park').overrideWith(
+          (ref) => Future<LaunchPoint>.error(
+            const NetworkFailure(message: 'offline'),
+          ),
+        ),
+      ],
+    );
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LaunchNotFoundScreen), findsNothing);
+    expect(find.text('offline'), findsOneWidget);
   });
 
   testWidgets('delayed launch provider shows loading indicator', (
