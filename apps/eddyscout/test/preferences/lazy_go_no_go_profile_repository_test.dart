@@ -35,5 +35,38 @@ void main() {
         () => store.getString(GoNoGoProfileRepositoryImpl.storageKey),
       ).called(1);
     });
+
+    test('waits for keyValueStore before writing profile', () async {
+      final store = _MockKeyValueStore();
+      when(
+        () => store.setString(
+          GoNoGoProfileRepositoryImpl.storageKey,
+          GoNoGoProfile.advanced.name,
+        ),
+      ).thenAnswer((_) async => true);
+
+      final container = ProviderContainer(
+        overrides: [
+          keyValueStoreProvider.overrideWith((ref) async {
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+            return store;
+          }),
+          lazyGoNoGoProfileRepositoryOverride(),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final result = await container
+          .read(goNoGoProfileRepositoryProvider)
+          .write(GoNoGoProfile.advanced);
+
+      expect(result.isSuccess, isTrue);
+      verify(
+        () => store.setString(
+          GoNoGoProfileRepositoryImpl.storageKey,
+          GoNoGoProfile.advanced.name,
+        ),
+      ).called(1);
+    });
   });
 }

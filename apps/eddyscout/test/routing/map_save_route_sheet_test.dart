@@ -623,4 +623,78 @@ void main() {
 
     expect(find.text('Could not load this route.'), findsOneWidget);
   });
+
+  testWidgets('handlePendingSavedRouteLoad shows error when map draw fails', (
+    tester,
+  ) async {
+    final putIn = findLaunchPointById('cathedral_park')!;
+    final takeOut = findLaunchPointById('sellwood_riverfront')!;
+    final route = SavedRoute(
+      id: 'sr_draw_fail',
+      name: 'Draw fail',
+      waypoints: const [
+        RouteWaypoint(launchId: 'cathedral_park', order: 0),
+        RouteWaypoint(launchId: 'sellwood_riverfront', order: 1),
+      ],
+      metadata: const SavedRouteMetadata(),
+      geometrySnapshot: RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.73, 45.56],
+          [-122.66, 45.47],
+        ],
+        lengthMeters: 5200,
+        computedAt: DateTime.utc(2026),
+      ),
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
+    );
+
+    when(() => repository.getById('sr_draw_fail')).thenAnswer(
+      (_) async => Result.success(route),
+    );
+    debugDrawSavedRouteOnMap = (_, _) async => throw StateError('draw failed');
+    addTearDown(() => debugDrawSavedRouteOnMap = null);
+
+    late ProviderContainer container;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          launchPointLookupProvider.overrideWithValue(findLaunchPointById),
+          savedRouteRepositoryProvider.overrideWithValue(repository),
+        ],
+        child: testLocalizedApp(
+          child: Consumer(
+            builder: (context, ref, _) {
+              container = ProviderScope.containerOf(context);
+              return Scaffold(
+                body: FilledButton(
+                  onPressed: () {
+                    unawaited(() async {
+                      ref
+                          .read(pendingSavedRouteLoadProvider.notifier)
+                          .queueDraft(route);
+                      await handlePendingSavedRouteLoad(context, ref);
+                    }());
+                  },
+                  child: const Text('Load pending'),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Load pending'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Route loaded, but the map could not draw the line.'),
+      findsOneWidget,
+    );
+    final planning = container.read(routePlanningProvider);
+    expect(planning.waypoints, [putIn, takeOut]);
+  });
 }

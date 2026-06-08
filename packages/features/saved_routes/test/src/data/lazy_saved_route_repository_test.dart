@@ -41,4 +41,74 @@ void main() {
     expect(list, hasLength(1));
     expect(list.single.name, 'Lazy Route');
   });
+
+  test(
+    'lazy repository delegates favorites delete and favorite flag',
+    () async {
+      final container = ProviderContainer(
+        overrides: [
+          savedRoutesDatabaseProvider.overrideWith((ref) async {
+            final db = openSavedRoutesDatabaseForTest();
+            ref.onDispose(db.close);
+            return db;
+          }),
+          savedRouteRepositoryProvider.overrideWith(
+            LazySavedRouteRepository.new,
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final route = SavedRoute(
+        id: 'sr_lazy_fav',
+        name: 'Favorite Route',
+        waypoints: const [
+          RouteWaypoint(launchId: 'a', order: 0),
+          RouteWaypoint(launchId: 'b', order: 1),
+        ],
+        metadata: const SavedRouteMetadata(distanceMeters: 1000),
+        isFavorite: true,
+        createdAt: DateTime.utc(2026),
+        updatedAt: DateTime.utc(2026),
+      );
+
+      final repository = container.read(savedRouteRepositoryProvider);
+      expect((await repository.upsert(route)).isSuccess, isTrue);
+
+      final loaded = await repository.getById('sr_lazy_fav');
+      expect(loaded.isSuccess, isTrue);
+      expect(
+        loaded.when(success: (value) => value?.id, failure: (_) => null),
+        'sr_lazy_fav',
+      );
+
+      final favorites = await repository.listFavorites();
+      expect(
+        favorites.when(success: (routes) => routes.length, failure: (_) => -1),
+        1,
+      );
+
+      final unfavorite = await repository.setFavorite(
+        'sr_lazy_fav',
+        isFavorite: false,
+      );
+      expect(unfavorite.isSuccess, isTrue);
+      expect(
+        (await repository.listFavorites()).when(
+          success: (routes) => routes.length,
+          failure: (_) => -1,
+        ),
+        0,
+      );
+
+      expect((await repository.delete('sr_lazy_fav')).isSuccess, isTrue);
+      expect(
+        (await repository.getById('sr_lazy_fav')).when(
+          success: (value) => value,
+          failure: (_) => route,
+        ),
+        isNull,
+      );
+    },
+  );
 }

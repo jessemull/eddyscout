@@ -9,6 +9,11 @@ import 'package:eddyscout_saved_routes/eddyscout_saved_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Test hook to simulate map draw failures without a live Mapbox map.
+@visibleForTesting
+Future<void> Function(WidgetRef ref, SavedRoute route)?
+debugDrawSavedRouteOnMap;
+
 /// Bottom sheet to name and save the current map plan locally.
 Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
   final l10n = context.l10n;
@@ -210,12 +215,16 @@ Future<void> handlePendingSavedRouteLoad(
   ref.read(routePlanningProvider.notifier).loadFromSavedRoute(route, launches);
 
   try {
-    final polyline = route.geometrySnapshot?.polylineLonLat;
-    final mapController = ref.read(mapboxMapControllerProvider.notifier);
-    if (polyline != null && polyline.length >= 2) {
-      await mapController.displayPlannedRoute(polyline);
+    if (debugDrawSavedRouteOnMap != null) {
+      await debugDrawSavedRouteOnMap!(ref, route);
     } else {
-      await mapController.rerunActiveRoute();
+      final polyline = route.geometrySnapshot?.polylineLonLat;
+      final mapController = ref.read(mapboxMapControllerProvider.notifier);
+      if (polyline != null && polyline.length >= 2) {
+        await mapController.displayPlannedRoute(polyline);
+      } else {
+        await mapController.rerunActiveRoute();
+      }
     }
   } on Object {
     if (!context.mounted) {

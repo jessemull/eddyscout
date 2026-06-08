@@ -253,5 +253,20 @@ void main() {
       final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
       expect(nav.selectedIndex, 1);
     });
+
+    testWidgets('switching to map tab notifies mapTabResumed', (tester) async {
+      await pumpAt(tester, location: '/saved-routes');
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(NavigationBar)),
+      );
+      expect(container.read(mapTabResumedProvider), 0);
+
+      await tester.tap(find.text('Map'));
+      await tester.pumpAndSettle();
+
+      expect(container.read(mapTabResumedProvider), 1);
+    });
   });
 }

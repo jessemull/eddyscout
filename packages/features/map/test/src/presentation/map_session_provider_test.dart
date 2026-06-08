@@ -10,12 +10,12 @@ void main() {
     expect(container.read(mapInteractiveProvider), isFalse);
   });
 
-  test('mapInteractiveProvider can be enabled', () {
+  test('notifyResumed increments map tab resume counter', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
-    container.read(mapInteractiveProvider.notifier).markInteractive();
-
-    expect(container.read(mapInteractiveProvider), isTrue);
+    expect(container.read(mapTabResumedProvider), 0);
+    container.read(mapTabResumedProvider.notifier).notifyResumed();
+    expect(container.read(mapTabResumedProvider), 1);
   });
 }
