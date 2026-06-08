@@ -106,9 +106,21 @@ class _SavedRoutesListScreenState extends ConsumerState<SavedRoutesListScreen> {
   }
 
   Future<void> _toggleFavorite(SavedRoute route) async {
-    await ref
+    final l10n = context.l10n;
+    final result = await ref
         .read(savedRoutesControllerProvider.notifier)
         .toggleFavorite(route.id, isFavorite: !route.isFavorite);
+    if (!mounted) {
+      return;
+    }
+    result.when(
+      success: (_) {},
+      failure: (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.savedRoutesFavoriteError)),
+        );
+      },
+    );
   }
 }
 

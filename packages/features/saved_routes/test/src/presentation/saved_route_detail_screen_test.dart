@@ -28,9 +28,13 @@ void main() {
 
   Future<void> tapScrollable(WidgetTester tester, Finder finder) async {
     final scrollable = find.byType(Scrollable).first;
-    await tester.scrollUntilVisible(finder, 500, scrollable: scrollable);
+    await tester.scrollUntilVisible(
+      finder,
+      800,
+      scrollable: scrollable,
+    );
     await tester.ensureVisible(finder);
-    await tester.tap(finder);
+    await tester.tap(finder, warnIfMissed: false);
     await tester.pump();
   }
 
@@ -171,5 +175,122 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(() => repository.delete(route.id)).called(1);
+  });
+
+  testWidgets('save without edits preserves custom tags from metadata', (
+    tester,
+  ) async {
+    final route = testSavedRoute().copyWith(
+      metadata: const SavedRouteMetadata(
+        distanceMeters: 5200,
+        categories: ['scenic', 'summer paddle'],
+      ),
+    );
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+    when(() => repository.upsert(any())).thenAnswer(
+      (invocation) async => Result.success(
+        invocation.positionalArguments.first as SavedRoute,
+      ),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+    );
+
+    await tapScrollable(tester, find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    final captured =
+        verify(() => repository.upsert(captureAny())).captured.single
+            as SavedRoute;
+    expect(captured.metadata.categories, contains('summer paddle'));
+  });
+
+  testWidgets('binds category chips and custom tags on first load', (
+    tester,
+  ) async {
+    final route = testSavedRoute().copyWith(
+      metadata: const SavedRouteMetadata(
+        distanceMeters: 5200,
+        categories: ['scenic', 'summer paddle'],
+      ),
+    );
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+    );
+    await tester.scrollUntilVisible(
+      find.text('Custom tags'),
+      800,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pump();
+
+    final scenicChip = tester.widget<FilterChip>(
+      find.widgetWithText(FilterChip, 'Scenic'),
+    );
+    expect(scenicChip.selected, isTrue);
+    expect(find.byType(InputChip), findsOneWidget);
+    expect(find.text('summer paddle'), findsOneWidget);
+  });
+
+  testWidgets('save persists custom tags with enum categories', (
+    tester,
+  ) async {
+    final route = testSavedRoute(name: 'Tagged Route').copyWith(
+      metadata: const SavedRouteMetadata(
+        distanceMeters: 5200,
+        categories: ['training'],
+      ),
+    );
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+    when(() => repository.upsert(any())).thenAnswer(
+      (invocation) async => Result.success(
+        invocation.positionalArguments.first as SavedRoute,
+      ),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+    );
+
+    const tagField = Key('saved_route_custom_tag_field');
+    await tester.scrollUntilVisible(
+      find.byKey(tagField),
+      800,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.enterText(find.byKey(tagField), 'family');
+    await tester.scrollUntilVisible(
+      find.byIcon(Icons.add),
+      800,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    await tapScrollable(tester, find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    final captured =
+        verify(() => repository.upsert(captureAny())).captured.single
+            as SavedRoute;
+    expect(
+      captured.metadata.categories,
+      containsAll(['training', 'family']),
+    );
   });
 }

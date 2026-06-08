@@ -8,6 +8,10 @@ import 'package:eddyscout_saved_routes/src/presentation/providers/saved_routes_p
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+final Set<String> _routeCategoryNames = {
+  for (final category in RouteCategory.values) category.name,
+};
+
 /// Detail and edit screen for a single saved route.
 class SavedRouteDetailScreen extends ConsumerStatefulWidget {
   /// Creates the detail screen for [routeId].
@@ -34,12 +38,14 @@ class _SavedRouteDetailScreenState
   final _descriptionController = TextEditingController();
   final _notesController = TextEditingController();
   final _durationController = TextEditingController();
+  final _customTagController = TextEditingController();
   var _dirty = false;
   String? _boundRouteId;
   List<RouteWaypoint> _waypoints = [];
   RouteDifficulty? _difficulty;
   RecommendedSkillLevel? _skillLevel;
   Set<RouteCategory> _selectedCategories = {};
+  List<String> _customTags = [];
   var _isFavorite = false;
 
   @override
@@ -48,6 +54,7 @@ class _SavedRouteDetailScreenState
     _descriptionController.dispose();
     _notesController.dispose();
     _durationController.dispose();
+    _customTagController.dispose();
     super.dispose();
   }
 
@@ -62,6 +69,8 @@ class _SavedRouteDetailScreenState
     _difficulty = route.metadata.difficulty;
     _skillLevel = route.metadata.recommendedSkillLevel;
     _selectedCategories = _categoriesFromNames(route.metadata.categories);
+    _customTags = _customTagsFromNames(route.metadata.categories);
+    _customTagController.clear();
     _isFavorite = route.isFavorite;
     _dirty = false;
   }
@@ -71,8 +80,28 @@ class _SavedRouteDetailScreenState
       if (names.contains(category.name)) category,
   };
 
-  List<String> _categoryNames() =>
-      _selectedCategories.map((category) => category.name).toList();
+  List<String> _customTagsFromNames(List<String> names) =>
+      names.where((name) => !_routeCategoryNames.contains(name)).toList();
+
+  List<String> _allCategoryNames() => [
+    ..._selectedCategories.map((category) => category.name),
+    ..._customTags,
+  ];
+
+  void _addCustomTag() {
+    final tag = _customTagController.text.trim();
+    if (tag.isEmpty ||
+        _routeCategoryNames.contains(tag) ||
+        _customTags.contains(tag)) {
+      _customTagController.clear();
+      return;
+    }
+    setState(() {
+      _customTags.add(tag);
+      _customTagController.clear();
+      _dirty = true;
+    });
+  }
 
   SavedRoute _buildUpdated(SavedRoute existing) {
     final durationRaw = int.tryParse(_durationController.text.trim());
@@ -91,7 +120,7 @@ class _SavedRouteDetailScreenState
         difficulty: _difficulty,
         recommendedSkillLevel: _skillLevel,
         estimatedDurationMinutes: durationRaw,
-        categories: _categoryNames(),
+        categories: _allCategoryNames(),
       ),
       updatedAt: DateTime.now(),
     );
@@ -109,6 +138,11 @@ class _SavedRouteDetailScreenState
         if (_boundRouteId != route.id) {
           _bindFromRoute(route);
           _boundRouteId = route.id;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {});
+            }
+          });
         }
       });
     });
@@ -248,6 +282,47 @@ class _SavedRouteDetailScreenState
                     }),
                   );
                 }).toList(),
+              ),
+              const SizedBox(height: Spacing.md),
+              Text(
+                l10n.savedRoutesCustomTagsLabel,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: Spacing.sm),
+              if (_customTags.isNotEmpty)
+                Wrap(
+                  spacing: Spacing.sm,
+                  runSpacing: Spacing.sm,
+                  children: _customTags.map((tag) {
+                    return InputChip(
+                      label: Text(tag),
+                      onDeleted: () => setState(() {
+                        _customTags.remove(tag);
+                        _dirty = true;
+                      }),
+                    );
+                  }).toList(),
+                ),
+              if (_customTags.isNotEmpty) const SizedBox(height: Spacing.sm),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      key: const Key('saved_route_custom_tag_field'),
+                      controller: _customTagController,
+                      decoration: InputDecoration(
+                        labelText: l10n.savedRoutesCustomTagHint,
+                      ),
+                      onSubmitted: (_) => _addCustomTag(),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: l10n.savedRoutesCustomTagAdd,
+                    icon: const Icon(Icons.add),
+                    onPressed: _addCustomTag,
+                  ),
+                ],
               ),
               const SizedBox(height: Spacing.lg),
               Text(

@@ -568,6 +568,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedRoutesCategoryOvernight => 'Overnight';
 
   @override
+  String get savedRoutesCustomTagsLabel => 'Custom tags';
+
+  @override
+  String get savedRoutesCustomTagHint => 'Add a tag';
+
+  @override
+  String get savedRoutesCustomTagAdd => 'Add tag';
+
+  @override
+  String get savedRoutesFavoriteError => 'Could not update favorite.';
+
+  @override
   String get savedRoutesLoadOnMapInsufficientWaypoints =>
       'Could not load route — too few known launch points.';
 

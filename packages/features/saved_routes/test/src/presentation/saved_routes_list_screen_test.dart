@@ -1,11 +1,16 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_routes_list_screen.dart';
 import 'package:eddyscout_saved_routes/src/presentation/providers/saved_routes_providers.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/test_localized_app.dart';
 import '../../helpers/test_saved_routes.dart';
+
+class _MockSavedRouteRepository extends Mock implements SavedRouteRepository {}
 
 class _EmptySavedRoutesList extends SavedRoutesList {
   @override
@@ -30,6 +35,12 @@ class _ErrorSavedRoutesList extends SavedRoutesList {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  late _MockSavedRouteRepository repository;
+
+  setUp(() {
+    repository = _MockSavedRouteRepository();
+  });
 
   Future<void> pumpList(
     WidgetTester tester, {
@@ -105,5 +116,34 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No favorite routes yet.'), findsOneWidget);
+  });
+
+  testWidgets('shows snackbar when favorite toggle fails', (tester) async {
+    final route = testSavedRoute();
+    when(
+      () => repository.setFavorite(route.id, isFavorite: true),
+    ).thenAnswer(
+      (_) async => const Result.failure(
+        StorageFailure(message: 'favorite failure'),
+      ),
+    );
+
+    await pumpList(
+      tester,
+      overrides: [
+        savedRouteRepositoryProvider.overrideWithValue(repository),
+        savedRoutesListProvider.overrideWith(
+          () => _FixedSavedRoutesList([route]),
+        ),
+      ],
+    );
+
+    await tester.tap(find.byIcon(Icons.star_border));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Could not update favorite.'), findsOneWidget);
+    verify(
+      () => repository.setFavorite(route.id, isFavorite: true),
+    ).called(1);
   });
 }

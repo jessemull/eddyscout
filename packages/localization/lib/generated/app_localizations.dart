@@ -1036,6 +1036,30 @@ abstract class AppLocalizations {
   /// **'Overnight'**
   String get savedRoutesCategoryOvernight;
 
+  /// No description provided for @savedRoutesCustomTagsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom tags'**
+  String get savedRoutesCustomTagsLabel;
+
+  /// No description provided for @savedRoutesCustomTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tag'**
+  String get savedRoutesCustomTagHint;
+
+  /// No description provided for @savedRoutesCustomTagAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tag'**
+  String get savedRoutesCustomTagAdd;
+
+  /// No description provided for @savedRoutesFavoriteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update favorite.'**
+  String get savedRoutesFavoriteError;
+
   /// No description provided for @savedRoutesLoadOnMapInsufficientWaypoints.
   ///
   /// In en, this message translates to:
