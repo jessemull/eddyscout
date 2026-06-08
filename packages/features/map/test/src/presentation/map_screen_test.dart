@@ -1,3 +1,4 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -89,6 +90,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.textContaining('12.5 km'), findsOneWidget);
+    expect(find.text('Import GPX'), findsOneWidget);
+    expect(find.text('Export GPX'), findsOneWidget);
   });
 
   testWidgets(
@@ -132,6 +135,15 @@ class _FixedRoutePlanning extends RoutePlanning {
       planningMode: true,
       waypoints: [putIn, takeOut],
       routeLengthKm: 12.5,
+      activeGeometry: RouteGeometrySnapshot(
+        polylineLonLat: [
+          [putIn.longitude, putIn.latitude],
+          [takeOut.longitude, takeOut.latitude],
+        ],
+        lengthMeters: 12500,
+        computedAt: DateTime.utc(2026),
+      ),
+      routeOrigin: RouteOrigin.planner,
     );
   }
 }

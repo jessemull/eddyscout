@@ -170,6 +170,19 @@ final class MapboxMapController extends _$MapboxMapController
     await fitCameraToRoute(geometry.polylineLonLat);
   }
 
+  /// Applies an imported GPX route to planning state and the map line.
+  Future<void> applyImportedRoute(PlannedRoute route) async {
+    if (!alive) {
+      return;
+    }
+    ref.read(routePlanningProvider.notifier).applyImportedRoute(route);
+    final polyline = route.toPolylineLonLat();
+    if (polyline.length >= 2) {
+      await drawRouteLine(polyline);
+      await fitCameraToRoute(polyline);
+    }
+  }
+
   Future<void> _afterExitPlanning() async {
     await clearRouteLine();
     final map = mapboxMap;

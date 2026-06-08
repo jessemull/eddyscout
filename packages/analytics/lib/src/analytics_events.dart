@@ -14,4 +14,16 @@ abstract final class AnalyticsEvents {
 
   /// User loaded a saved route onto the map.
   static const savedRouteLoadOnMap = 'saved_route_load_on_map';
+
+  /// User exported a planned route to GPX.
+  static const gpxExportSuccess = 'gpx_export_success';
+
+  /// User imported a GPX track into route planning.
+  static const gpxImportSuccess = 'gpx_import_success';
+
+  /// GPX export failed.
+  static const gpxExportFailure = 'gpx_export_failure';
+
+  /// GPX import failed.
+  static const gpxImportFailure = 'gpx_import_failure';
 }

@@ -24,6 +24,7 @@ class RoutePlanningState {
     this.routeLengthKm,
     this.activeGeometry,
     this.loadedSavedRouteId,
+    this.routeOrigin,
   });
 
   final bool planningMode;
@@ -31,6 +32,7 @@ class RoutePlanningState {
   final double? routeLengthKm;
   final RouteGeometrySnapshot? activeGeometry;
   final String? loadedSavedRouteId;
+  final RouteOrigin? routeOrigin;
 
   /// First waypoint (put-in).
   LaunchPoint? get putIn => waypoints.isNotEmpty ? waypoints.first : null;
@@ -40,6 +42,9 @@ class RoutePlanningState {
 
   /// Whether hydro routing can run (at least two distinct stops).
   bool get hasRunnableRoute => waypoints.length >= 2;
+
+  /// Mapbox order: each pair is `[longitude, latitude]`.
+  List<List<double>>? get polylineLonLat => activeGeometry?.polylineLonLat;
 }
 
 @Riverpod(keepAlive: true)
@@ -62,6 +67,7 @@ class RoutePlanning extends _$RoutePlanning {
   void setActiveGeometry({
     required RouteGeometrySnapshot? geometry,
     required double? routeLengthKm,
+    RouteOrigin? routeOrigin,
   }) {
     state = RoutePlanningState(
       planningMode: state.planningMode,
@@ -69,6 +75,33 @@ class RoutePlanning extends _$RoutePlanning {
       routeLengthKm: routeLengthKm,
       activeGeometry: geometry,
       loadedSavedRouteId: state.loadedSavedRouteId,
+      routeOrigin: geometry != null
+          ? (routeOrigin ?? RouteOrigin.planner)
+          : routeOrigin,
+    );
+  }
+
+  void applyImportedRoute(PlannedRoute route) {
+    final waypoints = <LaunchPoint>[
+      if (route.putIn != null) route.putIn!,
+      if (route.takeOut != null && route.takeOut!.id != route.putIn?.id)
+        route.takeOut!,
+    ];
+    final polyline = route.toPolylineLonLat();
+    state = RoutePlanningState(
+      planningMode: true,
+      waypoints: waypoints,
+      routeLengthKm: route.lengthMeters != null
+          ? route.lengthMeters! / 1000.0
+          : null,
+      activeGeometry: polyline.length >= 2
+          ? RouteGeometrySnapshot(
+              polylineLonLat: polyline,
+              lengthMeters: route.lengthMeters ?? 0,
+              computedAt: DateTime.now(),
+            )
+          : null,
+      routeOrigin: RouteOrigin.imported,
     );
   }
 
@@ -129,6 +162,7 @@ class RoutePlanning extends _$RoutePlanning {
       routeLengthKm: state.routeLengthKm,
       activeGeometry: state.activeGeometry,
       loadedSavedRouteId: state.loadedSavedRouteId,
+      routeOrigin: state.routeOrigin,
     );
   }
 
@@ -140,6 +174,11 @@ class RoutePlanning extends _$RoutePlanning {
       planningMode: true,
       waypoints: resolvedWaypoints,
       loadedSavedRouteId: route.id,
+      activeGeometry: route.geometrySnapshot,
+      routeLengthKm: route.geometrySnapshot != null
+          ? route.geometrySnapshot!.lengthMeters / 1000.0
+          : null,
+      routeOrigin: route.geometrySnapshot != null ? RouteOrigin.planner : null,
     );
   }
 

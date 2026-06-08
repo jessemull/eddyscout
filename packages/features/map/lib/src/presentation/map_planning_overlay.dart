@@ -9,18 +9,26 @@ class MapPlanningOverlay extends StatelessWidget {
     required this.waypoints,
     required this.routeLengthKm,
     required this.canSave,
+    required this.canExportGpx,
+    required this.gpxBusy,
     required this.onClear,
     required this.onDone,
     required this.onSave,
+    required this.onExportGpx,
+    required this.onImportGpx,
     super.key,
   });
 
   final List<LaunchPoint> waypoints;
   final double? routeLengthKm;
   final bool canSave;
+  final bool canExportGpx;
+  final bool gpxBusy;
   final VoidCallback onClear;
   final VoidCallback onDone;
   final VoidCallback onSave;
+  final VoidCallback onExportGpx;
+  final VoidCallback onImportGpx;
 
   @override
   Widget build(BuildContext context) {
@@ -99,8 +107,26 @@ class MapPlanningOverlay extends StatelessWidget {
                       runSpacing: 4,
                       alignment: WrapAlignment.end,
                       children: [
+                        Semantics(
+                          button: true,
+                          label: l10n.mapGpxImportLabel,
+                          child: TextButton(
+                            onPressed: gpxBusy ? null : onImportGpx,
+                            child: Text(l10n.mapGpxImportLabel),
+                          ),
+                        ),
+                        Semantics(
+                          button: true,
+                          label: l10n.mapGpxExportLabel,
+                          child: TextButton(
+                            onPressed: canExportGpx && !gpxBusy
+                                ? onExportGpx
+                                : null,
+                            child: Text(l10n.mapGpxExportLabel),
+                          ),
+                        ),
                         TextButton(
-                          onPressed: onClear,
+                          onPressed: gpxBusy ? null : onClear,
                           child: Text(l10n.mapPlanningClearLabel),
                         ),
                         if (canSave)
@@ -109,7 +135,7 @@ class MapPlanningOverlay extends StatelessWidget {
                             child: Text(l10n.mapPlanningSaveLabel),
                           ),
                         TextButton(
-                          onPressed: onDone,
+                          onPressed: gpxBusy ? null : onDone,
                           child: Text(l10n.mapPlanningDoneLabel),
                         ),
                       ],
