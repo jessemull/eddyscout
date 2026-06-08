@@ -21,13 +21,15 @@ void main() {
   Future<void> pumpMap(
     WidgetTester tester, {
     required List<Object?> overrides,
+    bool forceZoomChrome = false,
   }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides.cast(),
         child: testLocalizedApp(
-          child: const MapScreen(
-            mapSlot: SizedBox(key: Key('map_test_stub')),
+          child: MapScreen(
+            mapSlot: const SizedBox(key: Key('map_test_stub')),
+            forceZoomChromeForTest: forceZoomChrome,
           ),
         ),
       ),
@@ -41,6 +43,20 @@ void main() {
 
     expect(find.text('EddyScout'), findsOneWidget);
     expect(find.byKey(const Key('map_test_stub')), findsOneWidget);
+  });
+
+  testWidgets('shows zoom chrome in test mode with map stub', (tester) async {
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+      ],
+      forceZoomChrome: true,
+    );
+
+    expect(find.byTooltip('Zoom in'), findsOneWidget);
+    expect(find.byTooltip('Zoom out'), findsOneWidget);
+    expect(find.byTooltip('Show all launches'), findsOneWidget);
   });
 
   testWidgets('hides zoom chrome when map stub replaces Mapbox', (

@@ -58,63 +58,6 @@ final class RoutesProvider
 
 String _$routesHash() => r'b86f9d40304d426df93f8ecaf59e9c07f66a1e01';
 
-/// Launch id validation supplied by the composition root via [ProviderScope]
-/// override.
-
-@ProviderFor(isKnownLaunchId)
-final isKnownLaunchIdProvider = IsKnownLaunchIdProvider._();
-
-/// Launch id validation supplied by the composition root via [ProviderScope]
-/// override.
-
-final class IsKnownLaunchIdProvider
-    extends
-        $FunctionalProvider<
-          bool Function(String launchId),
-          bool Function(String launchId),
-          bool Function(String launchId)
-        >
-    with $Provider<bool Function(String launchId)> {
-  /// Launch id validation supplied by the composition root via [ProviderScope]
-  /// override.
-  IsKnownLaunchIdProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'isKnownLaunchIdProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$isKnownLaunchIdHash();
-
-  @$internal
-  @override
-  $ProviderElement<bool Function(String launchId)> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  bool Function(String launchId) create(Ref ref) {
-    return isKnownLaunchId(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool Function(String launchId) value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<bool Function(String launchId)>(
-        value,
-      ),
-    );
-  }
-}
-
-String _$isKnownLaunchIdHash() => r'e911bd8f7e8d69e850c38bee1fdd4482c3a1ed9d';
-
 /// Navigator observers supplied by the app composition root.
 
 @ProviderFor(navigatorObservers)
@@ -258,4 +201,4 @@ final class GoRouterProvider
   }
 }
 
-String _$goRouterHash() => r'5c7fa16424747e90d5f93ab7fa0c558dad21112d';
+String _$goRouterHash() => r'74f886f2e521e6bcd178c6d83bca6a4b5c035754';

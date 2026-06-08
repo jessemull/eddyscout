@@ -1,11 +1,6 @@
 include: package:very_good_analysis/analysis_options.yaml
 
 analyzer:
-  # dart_code_linter runs via scripts/check_architecture.sh (CLI), not as an
-  # analyzer plugin — Dart allows only one plugin at a time.
-  plugins:
-    - custom_lint
-
   language:
     strict-casts: true
     strict-inference: true
@@ -118,3 +113,6 @@ linter:
     use_super_parameters: true
     use_test_throws_matchers: true
     use_to_and_as_if_applicable: true
+
+plugins:
+  riverpod_lint: ^3.1.1

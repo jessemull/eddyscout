@@ -9,14 +9,14 @@ echo "=== Architecture Check ==="
 
 ERRORS=0
 
-# Feature packages: presentation → domain only (no data/).
+# Feature packages: presentation must not import data/ (relative or package src URI).
 for pkg in packages/features/*/; do
   if [ ! -d "$pkg/lib/src/presentation" ] || [ ! -d "$pkg/lib/src/data" ]; then continue; fi
 
   pkg_name=$(basename "$pkg")
-  if grep -rE "import 'package:[^']+/src/data/" "$pkg/lib/src/presentation/" \
-    --include="*.dart" 2>/dev/null; then
-    echo "ERROR: $pkg_name/presentation/ imports from data/ via package src/ URI (use domain/ or relative ../data/ within feature)"
+  if grep -rE "import ['\"](\.\./)+data/|import 'package:[^']+/src/data/" \
+    "$pkg/lib/src/presentation/" --include="*.dart" 2>/dev/null; then
+    echo "ERROR: $pkg_name/presentation/ imports from data/ (use domain/ providers only)"
     ERRORS=$((ERRORS + 1))
   fi
 done

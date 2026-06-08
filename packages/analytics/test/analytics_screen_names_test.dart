@@ -10,10 +10,17 @@ void main() {
       );
     });
 
-    test('maps launch detail paths', () {
+    test('returns null for launch detail paths', () {
       expect(
         AnalyticsScreenNames.fromMatchedLocation('/launch/willamette-park'),
-        AnalyticsScreenNames.launchDetail,
+        isNull,
+      );
+    });
+
+    test('defines launch not-found screen name', () {
+      expect(
+        AnalyticsScreenNames.launchNotFound,
+        'screen_launch_not_found',
       );
     });
 

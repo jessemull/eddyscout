@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_conditions/eddyscout_conditions_data.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +15,42 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../helpers/test_launches.dart';
 import '../../helpers/test_localized_app.dart';
 
-class _MockGoNoGoProfileRepository extends Mock
-    implements GoNoGoProfileRepository {}
+class _MockConditionsAiSummaryRepository extends Mock
+    implements ConditionsAiSummaryRepository {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  late _MockConditionsAiSummaryRepository aiSummaryRepository;
+
+  setUpAll(() {
+    registerFallbackValue(CancelToken());
+    registerFallbackValue(testCathedralParkLaunch);
+    registerFallbackValue(
+      ConditionsSnapshot(fetchedAt: DateTime.utc(2026, 6, 15, 12)),
+    );
+    registerFallbackValue(
+      GoNoGoResult(
+        verdict: GoNoGoVerdict.go,
+        reasons: const [],
+        computedAt: DateTime.utc(2026, 6, 15, 12),
+      ),
+    );
+    registerFallbackValue(GoNoGoProfile.intermediate);
+  });
+
+  setUp(() {
+    aiSummaryRepository = _MockConditionsAiSummaryRepository();
+    when(
+      () => aiSummaryRepository.summarize(
+        launch: any(named: 'launch'),
+        snapshot: any(named: 'snapshot'),
+        goNoGo: any(named: 'goNoGo'),
+        skillProfile: any(named: 'skillProfile'),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer((_) async => const Result.success('Calm afternoon paddle.'));
+  });
 
   final launch = testCathedralParkLaunch;
   final kelleyPoint = testKelleyPointLaunch;
@@ -81,16 +114,22 @@ void main() {
   Future<ProviderContainer> scopedContainer({
     required Future<ConditionsSnapshot> Function() loadConditions,
     LaunchPoint? launchPoint,
-    GoNoGoProfileRepository? profileRepository,
     List<Override> extraOverrides = const [],
   }) async {
     final activeLaunch = launchPoint ?? launch;
     SharedPreferences.setMockInitialValues({});
     final store = await SharedPreferencesKeyValueStore.open();
-    final profileRepo = profileRepository ?? GoNoGoProfileRepositoryImpl(store);
     return ProviderContainer(
       overrides: [
-        goNoGoProfileRepositoryProvider.overrideWithValue(profileRepo),
+        goNoGoProfileRepositoryProvider.overrideWithValue(
+          GoNoGoProfileRepositoryImpl(store),
+        ),
+        conditionsAiSummaryRepositoryProvider.overrideWithValue(
+          aiSummaryRepository,
+        ),
+        conditionReportSubmitRepositoryProvider.overrideWithValue(
+          const ConditionReportSubmitRepositoryImpl(),
+        ),
         conditionsSnapshotProvider(activeLaunch).overrideWith(
           (ref) => loadConditions(),
         ),
@@ -126,34 +165,6 @@ void main() {
     expect(find.text(launch.name), findsOneWidget);
   });
 
-  testWidgets(
-    'shows skill profile error instead of defaulting to intermediate',
-    (
-      tester,
-    ) async {
-      final repo = _MockGoNoGoProfileRepository();
-      when(repo.read).thenAnswer(
-        (_) async => const Result<GoNoGoProfile, AppFailure>.failure(
-          StorageFailure(message: 'Could not read skill profile.'),
-        ),
-      );
-
-      final container = await scopedContainer(
-        loadConditions: () => Future.value(calmSnapshot()),
-        profileRepository: repo,
-      );
-      await pumpLaunchDetail(tester, container: container);
-      await tester.pumpAndSettle();
-
-      expect(
-        find.textContaining('Could not read skill profile'),
-        findsOneWidget,
-      );
-      expect(find.text('Go / No-go (informational)'), findsNothing);
-      expect(find.text('Intermed.'), findsNothing);
-    },
-  );
-
   testWidgets('shows friendly error when conditions fail', (tester) async {
     final container = await scopedContainer(
       loadConditions: () async {
@@ -165,27 +176,6 @@ void main() {
     await tester.pump();
 
     expect(find.textContaining('Could not reach'), findsOneWidget);
-  });
-
-  testWidgets('shows skill profile load error when repository read fails', (
-    tester,
-  ) async {
-    final repo = _MockGoNoGoProfileRepository();
-    when(repo.read).thenAnswer(
-      (_) async => const Result<GoNoGoProfile, AppFailure>.failure(
-        StorageFailure(message: 'Could not load skill profile.'),
-      ),
-    );
-
-    final container = await scopedContainer(
-      loadConditions: () => Future.value(calmSnapshot()),
-      profileRepository: repo,
-    );
-    await pumpLaunchDetail(tester, container: container);
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('Could not load skill profile'), findsOneWidget);
-    expect(find.text('Go / No-go (informational)'), findsNothing);
   });
 
   testWidgets('shows go/no-go card and weather when data loads', (

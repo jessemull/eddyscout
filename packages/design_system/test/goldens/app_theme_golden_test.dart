@@ -1,5 +1,9 @@
+@Tags(['golden'])
+library;
+
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 
 class _ThemeGallery extends StatelessWidget {

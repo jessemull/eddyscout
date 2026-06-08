@@ -26,7 +26,9 @@ void main() {
       ProviderScope(
         overrides: [
           hydroGeoJsonLoaderProvider.overrideWithValue(
-            () async => throw Exception('asset missing'),
+            () async {
+              throw Exception('asset missing');
+            },
           ),
           mapInteractiveProvider.overrideWithValue(true),
         ],

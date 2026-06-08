@@ -2,18 +2,18 @@ import 'dart:async' show unawaited;
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
-import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
-import 'package:eddyscout_map/src/presentation/mapbox/map_debug_log.dart';
-import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_camera_mixin.dart';
-import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller_shared.dart';
-import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_markers_mixin.dart';
-import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_route_mixin.dart';
-import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_style_mixin.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../data/launch_providers.dart';
+import '../launch_lookup.dart';
+import '../map_planning_provider.dart';
+import 'map_debug_log.dart';
+import 'mapbox_map_camera_mixin.dart';
+import 'mapbox_map_controller_shared.dart';
+import 'mapbox_map_markers_mixin.dart';
+import 'mapbox_map_route_mixin.dart';
+import 'mapbox_map_style_mixin.dart';
 
 part 'mapbox_map_controller.g.dart';
 
@@ -32,10 +32,21 @@ final class MapboxMapController extends _$MapboxMapController
   @override
   void build() {
     alive = true;
-    ref.onDispose(() {
-      alive = false;
-      tapCancelable?.cancel();
-    });
+    ref
+      ..onDispose(() {
+        alive = false;
+        tapCancelable?.cancel();
+      })
+      ..listen(riverRoutePlannerProvider, (previous, next) {
+        final planning = ref.read(routePlanningProvider);
+        if (planning.putIn == null || planning.takeOut == null) {
+          return;
+        }
+        final wasPending = previous == null || !previous.hasValue;
+        if (wasPending && next.hasValue) {
+          unawaited(_runRoute());
+        }
+      });
   }
 
   Future<void> onMapCreated(MapboxMap mapboxMap) async {
@@ -121,7 +132,7 @@ final class MapboxMapController extends _$MapboxMapController
     final planning = ref.read(routePlanningProvider);
     final put = planning.putIn;
     final take = planning.takeOut;
-    final plannerAsync = ref.read(riverRoutePlannerProvider);
+    final plannerAsync = ref.watch(riverRoutePlannerProvider);
     if (put == null || take == null) {
       return;
     }

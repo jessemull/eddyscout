@@ -20,5 +20,26 @@ void main() {
       expect(client.events, hasLength(1));
       expect(client.events.single.name, AnalyticsEvents.reportSubmitSuccess);
     });
+
+    test(
+      'records launch detail screen views and report submit events',
+      () async {
+        final client = RecordingAnalyticsClient();
+        const event = AnalyticsEvent(
+          name: AnalyticsEvents.reportSubmitSuccess,
+          parameters: {'launch_id': 'cathedral_park'},
+        );
+
+        await client.logEvent(event);
+        await client.logScreenView(
+          screenName: AnalyticsScreenNames.launchDetail,
+        );
+        await client.setUserProperty(name: 'skill', value: 'intermediate');
+        await client.flush();
+
+        expect(client.events, [event]);
+        expect(client.screenViews, [AnalyticsScreenNames.launchDetail]);
+      },
+    );
   });
 }

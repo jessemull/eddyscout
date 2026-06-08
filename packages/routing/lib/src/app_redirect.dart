@@ -25,12 +25,12 @@ String initialAppLocationFor({
 }
 
 /// Resolves redirect target from explicit route and platform inputs.
+///
+/// Unknown launch ids are handled by the launch detail route body.
 String? resolveAppRedirect({
   required String location,
   required bool isWeb,
   required bool hasMapboxToken,
-  required bool Function(String launchId) isKnownLaunchId,
-  String? launchId,
 }) {
   if (isWeb) {
     if (location != RoutePaths.web) {
@@ -47,10 +47,6 @@ String? resolveAppRedirect({
   }
 
   if (location == RoutePaths.missingToken || location == RoutePaths.web) {
-    return RoutePaths.map;
-  }
-
-  if (launchId != null && !isKnownLaunchId(launchId)) {
     return RoutePaths.map;
   }
 

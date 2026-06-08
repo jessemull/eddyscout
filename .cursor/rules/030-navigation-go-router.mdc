@@ -56,7 +56,7 @@ Each feature MUST:
 
 - **Router assembly:** `goRouterProvider` in `packages/routing/` (see `docs/NAVIGATION.md`)
 - **Typed routes:** `apps/eddyscout/lib/routing/app_routes.dart` binds paths to app screens
-- **App wiring:** `main.dart` overrides `routesProvider` and `isKnownLaunchIdProvider`
+- **App wiring:** `buildAppProviderOverrides()` supplies `routesProvider` and repository tokens; unknown launch ids → `LaunchNotFoundScreen` in route body
 - only one global route graph; features MUST NOT depend on each other’s route definitions directly
 
 ---
