@@ -5,8 +5,9 @@ import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
 import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../data/gpx_file_gateway.dart';
-import '../data/launch_points.dart';
+import '../domain/gpx_file_gateway.dart';
+import '../domain/gpx_file_gateway_provider.dart';
+import '../domain/launch_points.dart';
 
 part 'gpx_actions_provider.g.dart';
 
@@ -59,7 +60,7 @@ final class GpxActionCancelled extends GpxActionOutcome {
   const GpxActionCancelled();
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 class GpxActions extends _$GpxActions {
   @override
   FutureOr<void> build() {}

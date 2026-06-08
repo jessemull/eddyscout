@@ -1,25 +1,16 @@
 part of 'launch_detail_screen.dart';
 
-String? _launchDetailFirebaseHint(
+String _launchDetailFirebaseUnavailableMessage(
   AppLocalizations l10n,
-  FirebaseBootstrapHintKind kind,
-) => switch (kind) {
-  FirebaseBootstrapHintKind.missingNativeConfig =>
-    l10n.launchDetailFirebaseHintMissingNativeConfig,
-  FirebaseBootstrapHintKind.anonymousAuthDisabled =>
-    l10n.launchDetailFirebaseHintAnonymousAuth,
-  FirebaseBootstrapHintKind.none => null,
-};
-
-String _launchDetailFirebaseUnavailableMessage(AppLocalizations l10n) {
-  if (FirebaseBootstrap.lastError != null) {
-    final hint = _launchDetailFirebaseHint(l10n, FirebaseBootstrap.hintKind);
+  FirebaseBootstrapState bootstrap,
+) {
+  final error = bootstrap.userFacingError;
+  if (error != null) {
+    final hint = bootstrap.hintForError();
     final buf = StringBuffer()
       ..writeln(l10n.launchDetailFirebaseUnavailableIntro)
       ..writeln()
-      ..writeln(
-        l10n.launchDetailFirebaseErrorLabel(FirebaseBootstrap.lastError!),
-      )
+      ..writeln(l10n.launchDetailFirebaseErrorLabel(error))
       ..writeln();
     if (hint != null) {
       buf
@@ -46,16 +37,6 @@ String _launchDetailConditionsErrorMessage(
     return l10n.launchDetailConditionsErrorNetwork;
   }
   return l10n.launchDetailConditionsErrorGeneric;
-}
-
-String _launchDetailSkillProfileErrorMessage(
-  AppLocalizations l10n,
-  Object error,
-) {
-  if (error is AppFailure) {
-    return _launchDetailFailureMessage(error);
-  }
-  return l10n.launchDetailSkillProfileErrorGeneric;
 }
 
 String _launchDetailRiverLabel(AppLocalizations l10n, RiverSystem r) =>

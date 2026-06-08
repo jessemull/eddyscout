@@ -1,19 +1,23 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:eddyscout_conditions/src/data/condition_report_submit_provider.dart';
-import 'package:eddyscout_conditions/src/data/condition_reports_provider.dart';
-import 'package:eddyscout_conditions/src/data/conditions_ai_summary_provider.dart';
-import 'package:eddyscout_conditions/src/data/conditions_provider.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
-import 'package:eddyscout_conditions/src/domain/condition_reports_refresh_token_provider.dart';
+import 'package:eddyscout_conditions/src/domain/condition_report_submit_repository_provider.dart';
 import 'package:eddyscout_conditions/src/domain/condition_reports_repository_provider.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_ai_summary_repository_provider.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_repository_provider.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/condition_report_submit_repository.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/condition_reports_repository.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/conditions_ai_summary_repository.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/conditions_repository.dart';
+import 'package:eddyscout_conditions/src/presentation/condition_report_submit_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/condition_reports_list_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/condition_reports_refresh_token_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/conditions_ai_summary_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/conditions_snapshot_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/launch_reports_digest_provider.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -245,7 +249,10 @@ void main() {
       final ok = await notifier.submit('hello');
       expect(ok, isFalse);
       expect(container.read(provider).hasError, isTrue);
-      expect(notifier.errorMessage, 'nope');
+      expect(
+        conditionReportSubmitErrorMessage(container.read(provider)),
+        'nope',
+      );
     });
   });
 

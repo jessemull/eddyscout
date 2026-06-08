@@ -1,9 +1,10 @@
 import 'package:eddyscout_conditions/src/data/conditions_http_provider.dart';
-import 'package:eddyscout_conditions/src/data/conditions_provider.dart';
 import 'package:eddyscout_conditions/src/data/conditions_service.dart';
+import 'package:eddyscout_conditions/src/data/conditions_service_provider.dart';
 import 'package:eddyscout_conditions/src/data/firebase/conditions_summary_payload.dart';
 import 'package:eddyscout_conditions/src/data/parsing/noaa_tides_json.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_repository_provider.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go_thresholds.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -310,6 +311,9 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           conditionsHttpClientProvider.overrideWithValue(http),
+          conditionsRepositoryProvider.overrideWith(
+            (ref) => ref.watch(conditionsServiceProvider),
+          ),
         ],
       );
       addTearDown(container.dispose);

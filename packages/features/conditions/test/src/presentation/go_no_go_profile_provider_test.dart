@@ -1,4 +1,5 @@
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_conditions/eddyscout_conditions_data.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

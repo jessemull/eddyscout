@@ -64,7 +64,7 @@ The following packages are pre-approved for use across the monorepo:
 
 ### Linting
 - `very_good_analysis`
-- `custom_lint` (if configured)
+- `riverpod_lint` via `analysis_server_plugin` (see `tooling/analysis_options.base.yaml`; `custom_lint` not used)
 
 ### Theming
 - Material 3 (`useMaterial3: true`)

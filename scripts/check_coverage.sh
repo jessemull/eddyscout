@@ -77,13 +77,11 @@ while IFS= read -r line; do
         if (sf ~ /(^|\/)lib\/generated\/app_localizations(_[a-z_]+)?\.dart$/) return 1
         # Drift table definitions are schema-only (no executable logic).
         if (sf ~ /lib\/src\/database\/.*_table\.dart$/) return 1
-        # App-only UI and platform glue (hard to test deterministically in unit tests).
+        # Legacy app screen directory (unused after wave 3 migration).
         if (sf ~ /(^|\/)lib\/screens\//) return 1
         if (sf ~ /(^|\/)lib\/debug\//) return 1
-        # Map presentation + Mapbox layer (migrated from app shell; widget/integration tested).
-        if (sf ~ /(^|\/)lib\/src\/presentation\//) return 1
-        if (sf ~ /(^|\/)lib\/main\.dart$/) return 1
-        if (sf ~ /(^|\/)lib\/routing\/app_routes\.dart$/) return 1
+        # Mapbox SDK glue — covered by widget stubs + integration tests; see ROADMAP.
+        if (sf ~ /(^|\/)lib\/src\/presentation\/mapbox\//) return 1
         return 0
       }
       /^SF:/ {

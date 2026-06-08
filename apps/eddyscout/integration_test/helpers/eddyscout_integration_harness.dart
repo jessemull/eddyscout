@@ -1,20 +1,17 @@
 import 'package:dio/dio.dart';
+import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
 import 'package:eddyscout/main.dart';
-import 'package:eddyscout/preferences/key_value_store_provider.dart';
+import 'package:eddyscout/routing/saved_routes_database_override.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
-import 'package:eddyscout_routing/eddyscout_routing.dart';
-import 'package:flutter/services.dart';
+import 'package:eddyscout_saved_routes/eddyscout_saved_routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../test/routing/test_router_overrides.dart';
 
 const _mapboxAccessToken = String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
 const _integrationMapStub = bool.fromEnvironment('INTEGRATION_MAP_STUB');
@@ -81,28 +78,19 @@ Future<ProviderContainer> createIntegrationContainer({
   SharedPreferences.setMockInitialValues({});
   final store = await SharedPreferencesKeyValueStore.open();
 
-  final overrides = <Override>[
-    ...appRouterTestOverrides,
-    conditionReportsRepositoryProvider.overrideWithValue(
-      const IntegrationConditionReportsRepository(),
-    ),
-    conditionsRepositoryProvider.overrideWithValue(
-      const IntegrationConditionsRepository(),
-    ),
-    hydroGeoJsonLoaderProvider.overrideWithValue(
-      () => rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
-    ),
-    keyValueStoreProvider.overrideWith((ref) async => store),
-    goNoGoProfileRepositoryProvider.overrideWith(
-      (ref) => GoNoGoProfileRepositoryImpl(store),
-    ),
-  ];
-
-  if (_mapboxAccessToken.isNotEmpty) {
-    overrides.add(
-      mapboxAccessTokenProvider.overrideWithValue(_mapboxAccessToken),
-    );
-  }
+  final overrides =
+      buildAppProviderOverrides(
+        keyValueStore: store,
+        conditionReportsRepository:
+            const IntegrationConditionReportsRepository(),
+        conditionsRepository: const IntegrationConditionsRepository(),
+        mapboxTokenOverride: _mapboxAccessToken.isNotEmpty
+            ? _mapboxAccessToken
+            : null,
+      )..addAll([
+        savedRoutesDatabaseTestOverride(),
+        launchPointLookupProvider.overrideWithValue(findLaunchPointById),
+      ]);
   if (_integrationMapStub) {
     overrides.add(mapInteractiveProvider.overrideWithValue(true));
   }

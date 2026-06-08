@@ -6,6 +6,9 @@ abstract final class AnalyticsScreenNames {
   /// Launch detail screen.
   static const launchDetail = 'screen_launch_detail';
 
+  /// Unknown launch id on a launch detail deep link.
+  static const launchNotFound = 'screen_launch_not_found';
+
   /// Missing Mapbox token gate.
   static const missingMapboxToken = 'screen_missing_mapbox_token';
 
@@ -19,12 +22,13 @@ abstract final class AnalyticsScreenNames {
   static const savedRouteDetail = 'screen_saved_route_detail';
 
   /// Maps a go_router [matchedLocation] to a screen name, or null when unknown.
+  ///
+  /// `/launch/:id` paths return null because the matched location cannot
+  /// distinguish launch detail from launch-not-found; the app route body logs
+  /// [launchDetail] or [launchNotFound] when the async launch resolves.
   static String? fromMatchedLocation(String matchedLocation) {
     if (matchedLocation == '/') {
       return map;
-    }
-    if (matchedLocation.startsWith('/launch/')) {
-      return launchDetail;
     }
     if (matchedLocation == '/missing-token') {
       return missingMapboxToken;

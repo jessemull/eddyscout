@@ -20,14 +20,19 @@ targets:
       riverpod_generator:
         generate_for:
           include:
-            - lib/src/domain/condition_reports_refresh_token_provider.dart
+            - lib/src/data/conditions_http_provider.dart
+            - lib/src/data/conditions_service_provider.dart
+            - lib/src/domain/condition_report_submit_repository_provider.dart
             - lib/src/domain/condition_reports_repository_provider.dart
+            - lib/src/domain/conditions_ai_summary_repository_provider.dart
+            - lib/src/domain/conditions_repository_provider.dart
             - lib/src/domain/go_no_go_profile_repository_provider.dart
             - lib/src/domain/launch_go_no_go_provider.dart
-            - lib/src/data/conditions_http_provider.dart
-            - lib/src/data/conditions_provider.dart
-            - lib/src/data/condition_reports_provider.dart
-            - lib/src/data/condition_report_submit_provider.dart
-            - lib/src/data/conditions_ai_summary_provider.dart
+            - lib/src/presentation/condition_report_submit_provider.dart
+            - lib/src/presentation/condition_reports_list_provider.dart
+            - lib/src/presentation/condition_reports_refresh_token_provider.dart
+            - lib/src/presentation/conditions_ai_summary_provider.dart
+            - lib/src/presentation/conditions_snapshot_provider.dart
+            - lib/src/presentation/firebase_bootstrap_provider.dart
             - lib/src/presentation/go_no_go_profile_provider.dart
-            - lib/src/data/launch_reports_digest_provider.dart
+            - lib/src/presentation/launch_reports_digest_provider.dart
