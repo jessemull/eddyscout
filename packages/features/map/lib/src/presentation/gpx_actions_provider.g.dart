@@ -33,7 +33,7 @@ final class GpxActionsProvider
   GpxActions create() => GpxActions();
 }
 
-String _$gpxActionsHash() => r'89bf2957bf246cdee01c46eb33bf888df0ad5e6b';
+String _$gpxActionsHash() => r'66bc55f44f1fd78607daf407fbba4dd6460f4f21';
 
 abstract class _$GpxActions extends $AsyncNotifier<void> {
   FutureOr<void> build();
