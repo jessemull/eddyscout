@@ -70,7 +70,7 @@ jobs:
       - run: dart pub get
       - run: dart pub global activate melos
       - run: melos bootstrap
-      - run: melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --exclude-tags golden"
+      - run: ./scripts/run_tests.sh
 
   golden:
     name: Golden Tests
@@ -100,7 +100,7 @@ jobs:
       - run: dart pub get
       - run: dart pub global activate melos
       - run: melos bootstrap
-      - run: melos exec --fail-fast --concurrency=1 --dir-exists=test -- "flutter test --coverage --exclude-tags golden"
+      - run: ./scripts/run_coverage.sh
       - run: ./scripts/check_coverage.sh
 
   import-boundaries:
