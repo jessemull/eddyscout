@@ -77,15 +77,25 @@ class GpxActions extends _$GpxActions {
       );
     }
 
-    final route = PlannedRoute.fromRouteSuccess(
-      RouteResult.success(
-            polylineLonLat: polyline,
-            lengthMeters: (planning.routeLengthKm ?? 0) * 1000,
+    final putIn = planning.putIn;
+    final takeOut = planning.takeOut;
+    final route = PlannedRoute(
+      points: polyline
+          .map(
+            (pair) => GpxPoint(
+              latitude: pair[1],
+              longitude: pair[0],
+            ),
           )
-          as RouteSuccess,
-      putIn: planning.putIn,
-      takeOut: planning.takeOut,
-    ).copyWith(origin: planning.routeOrigin ?? RouteOrigin.planner);
+          .toList(growable: false),
+      putIn: putIn,
+      takeOut: takeOut,
+      lengthMeters: (planning.routeLengthKm ?? 0) * 1000,
+      name: putIn != null && takeOut != null
+          ? '${putIn.name} → ${takeOut.name}'
+          : null,
+      origin: planning.routeOrigin ?? RouteOrigin.planner,
+    );
 
     final serialized = GpxCodec.serialize(route);
     if (serialized.isFailure) {

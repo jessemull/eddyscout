@@ -1,17 +1,17 @@
 import 'package:eddyscout_hydro_routing/src/domain/planned_route.dart';
 
-/// Pacific Northwest bounding box for optional import warnings.
+/// Pacific Northwest bounding box for GPX import rejection.
 abstract final class GpxBounds {
-  /// Southern edge of the PNW import warning bbox (degrees latitude).
+  /// Southern edge of the PNW import rejection bbox (degrees latitude).
   static const minLatitude = 43.0;
 
-  /// Northern edge of the PNW import warning bbox (degrees latitude).
+  /// Northern edge of the PNW import rejection bbox (degrees latitude).
   static const maxLatitude = 49.5;
 
-  /// Western edge of the PNW import warning bbox (degrees longitude).
+  /// Western edge of the PNW import rejection bbox (degrees longitude).
   static const minLongitude = -125.0;
 
-  /// Eastern edge of the PNW import warning bbox (degrees longitude).
+  /// Eastern edge of the PNW import rejection bbox (degrees longitude).
   static const maxLongitude = -116.0;
 
   /// True when every [points] coordinate lies outside the PNW bbox.

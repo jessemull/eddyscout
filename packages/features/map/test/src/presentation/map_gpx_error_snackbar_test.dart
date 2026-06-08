@@ -19,6 +19,15 @@ const _outsidePnwGpx = '''
   </trkseg></trk>
 </gpx>''';
 
+const _pnwFarFromLaunchesGpx = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="test">
+  <trk><trkseg>
+    <trkpt lat="44.058" lon="-121.315"/>
+    <trkpt lat="44.060" lon="-121.310"/>
+  </trkseg></trk>
+</gpx>''';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -106,6 +115,56 @@ void main() {
       expect(find.text('Track imported.'), findsNothing);
       expect(
         find.text('This track is outside our Pacific Northwest focus area.'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'shows launch snap failure snackbar when endpoints do not match catalog',
+    (tester) async {
+      final gateway = _MockGpxFileGateway();
+      when(gateway.pickAndReadGpx).thenAnswer(
+        (_) async => const Result.success(_pnwFarFromLaunchesGpx),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            gpxFileGatewayProvider.overrideWithValue(gateway),
+            analyticsClientProvider.overrideWithValue(
+              RecordingAnalyticsClient(),
+            ),
+            mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
+            mapInteractiveProvider.overrideWithValue(true),
+            routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
+          ],
+          child: testLocalizedApp(
+            child: Builder(
+              builder: (context) => Theme(
+                data: Theme.of(context).copyWith(
+                  splashFactory: NoSplash.splashFactory,
+                ),
+                child: const MapScreen(
+                  mapSlot: SizedBox(key: Key('map_test_stub')),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      await tester.tap(find.text('Import GPX'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Track imported.'), findsNothing);
+      expect(
+        find.text(
+          'Put-in and take-out could not be matched to known launches.',
+        ),
         findsOneWidget,
       );
     },
