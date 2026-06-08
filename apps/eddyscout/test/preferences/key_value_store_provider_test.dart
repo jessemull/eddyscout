@@ -7,14 +7,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('keyValueStoreProvider opens SharedPreferencesKeyValueStore', () async {
-    SharedPreferences.setMockInitialValues(<String, Object>{});
+  test('keyValueStoreProvider opens SharedPreferences-backed store', () async {
+    SharedPreferences.setMockInitialValues({});
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
     final store = await container.read(keyValueStoreProvider.future);
     expect(store, isA<SharedPreferencesKeyValueStore>());
-    await store.setString('k', 'v');
-    expect(await store.getString('k'), 'v');
+    await store.setString('skill', 'intermediate');
+    expect(await store.getString('skill'), 'intermediate');
   });
 }

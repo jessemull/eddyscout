@@ -39,8 +39,6 @@ String? _redirectWithoutMapboxToken(
   location: state.matchedLocation,
   isWeb: kIsWeb,
   hasMapboxToken: mapboxAccessToken.isNotEmpty,
-  isKnownLaunchId: (_) => true,
-  launchId: state.pathParameters['launchId'],
 );
 
 void main() {
@@ -71,33 +69,28 @@ void main() {
           location: RoutePaths.map,
           isWeb: true,
           hasMapboxToken: true,
-          isKnownLaunchId: (_) => true,
         ),
         RoutePaths.web,
       );
     });
 
-    test('redirects unknown launch id to map when token present', () {
+    test('allows unknown launch detail route when token present', () {
       expect(
         resolveAppRedirect(
           location: RoutePaths.launchDetail,
           isWeb: false,
           hasMapboxToken: true,
-          isKnownLaunchId: (_) => false,
-          launchId: 'unknown_launch',
         ),
-        RoutePaths.map,
+        isNull,
       );
     });
 
-    test('returns null for valid launch id when token present', () {
+    test('returns null for map when token present', () {
       expect(
         resolveAppRedirect(
-          location: RoutePaths.launchDetail,
+          location: RoutePaths.map,
           isWeb: false,
           hasMapboxToken: true,
-          isKnownLaunchId: (_) => true,
-          launchId: 'cathedral_park',
         ),
         isNull,
       );

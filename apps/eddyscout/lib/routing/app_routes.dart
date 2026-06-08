@@ -1,6 +1,8 @@
 import 'dart:async' show unawaited;
 
+import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
@@ -50,12 +52,92 @@ class _LaunchDetailRouteBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final launch = ref.readLaunchPointIfExists(launchId);
-    if (launch == null) {
-      return const _LaunchNotFoundBody();
-    }
-    return LaunchDetailScreen(launch: launch);
+    final launchAsync = ref.watch(launchPointByIdProvider(launchId));
+    final l10n = context.l10n;
+    return launchAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, _) {
+        if (error is NotFoundFailure) {
+          return const _ScreenViewLogger(
+            screenName: AnalyticsScreenNames.launchNotFound,
+            child: LaunchNotFoundScreen(),
+          );
+        }
+        return _LaunchRouteErrorBody(
+          title: l10n.launchDetailUnavailable,
+          message: error is AppFailure
+              ? error.message
+              : l10n.launchDetailUnavailable,
+        );
+      },
+      data: (launch) => _ScreenViewLogger(
+        screenName: AnalyticsScreenNames.launchDetail,
+        child: LaunchDetailScreen(launch: launch),
+      ),
+    );
   }
+}
+
+/// Fallback when launch lookup fails for reasons other than an unknown id.
+class _LaunchRouteErrorBody extends StatelessWidget {
+  const _LaunchRouteErrorBody({
+    required this.title,
+    required this.message,
+  });
+
+  final String title;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(title)),
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
+    ),
+  );
+}
+
+/// Logs a screen view once when [child] is first shown.
+class _ScreenViewLogger extends ConsumerStatefulWidget {
+  const _ScreenViewLogger({
+    required this.screenName,
+    required this.child,
+  });
+
+  final String screenName;
+  final Widget child;
+
+  @override
+  ConsumerState<_ScreenViewLogger> createState() => _ScreenViewLoggerState();
+}
+
+class _ScreenViewLoggerState extends ConsumerState<_ScreenViewLogger> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      unawaited(
+        ref
+            .read(analyticsClientProvider)
+            .logScreenView(screenName: widget.screenName),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 @TypedGoRoute<MissingMapboxTokenRoute>(path: RoutePaths.missingToken)
@@ -75,27 +157,4 @@ class WebMapPlaceholderRoute extends GoRouteData with $WebMapPlaceholderRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const WebMapPlaceholderScreen();
-}
-
-/// Fallback when a deep link references an unknown launch id.
-class _LaunchNotFoundBody extends StatelessWidget {
-  const _LaunchNotFoundBody();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.launchNotFoundTitle)),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            l10n.launchNotFoundBody,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ),
-      ),
-    );
-  }
 }

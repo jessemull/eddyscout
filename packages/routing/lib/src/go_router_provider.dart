@@ -17,15 +17,6 @@ List<RouteBase> routes(Ref ref) {
   );
 }
 
-/// Launch id validation supplied by the composition root via [ProviderScope]
-/// override.
-@Riverpod(keepAlive: true)
-bool Function(String launchId) isKnownLaunchId(Ref ref) {
-  throw UnimplementedError(
-    'Override isKnownLaunchIdProvider in ProviderScope',
-  );
-}
-
 /// Navigator observers supplied by the app composition root.
 @Riverpod(keepAlive: true)
 List<NavigatorObserver> navigatorObservers(Ref ref) => const [];
@@ -38,7 +29,6 @@ String mapboxAccessToken(Ref ref) => app_redirect.mapboxAccessToken;
 @Riverpod(keepAlive: true)
 GoRouter goRouter(Ref ref) {
   final token = ref.watch(mapboxAccessTokenProvider);
-  final isKnownLaunchIdFn = ref.watch(isKnownLaunchIdProvider);
   return createRouter(
     routes: ref.watch(routesProvider),
     initialLocation: app_redirect.initialAppLocationFor(
@@ -51,8 +41,6 @@ GoRouter goRouter(Ref ref) {
       location: state.matchedLocation,
       isWeb: kIsWeb,
       hasMapboxToken: token.isNotEmpty,
-      isKnownLaunchId: isKnownLaunchIdFn,
-      launchId: state.pathParameters['launchId'],
     ),
   );
 }

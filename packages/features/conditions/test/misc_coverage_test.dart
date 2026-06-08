@@ -1,11 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/data/app_failure_mapper.dart';
 import 'package:eddyscout_conditions/src/data/conditions_http_provider.dart';
-import 'package:eddyscout_conditions/src/data/firebase/firebase_bootstrap.dart';
-import 'package:eddyscout_conditions/src/data/firebase/firebase_flags.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/firebase_flags.dart';
+import 'package:eddyscout_conditions/src/presentation/firebase_bootstrap_provider.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -73,60 +72,18 @@ void main() {
       expect(firebaseCallablesAvailable, isTrue);
     });
 
-    test('FirebaseBootstrap hintKind is none when unset', () {
-      FirebaseBootstrap.lastError = null;
-      expect(FirebaseBootstrap.hintKind, FirebaseBootstrapHintKind.none);
+    test('FirebaseBootstrapState hintForError returns null when unset', () {
+      const bootstrap = FirebaseBootstrapState();
+      expect(bootstrap.hintForError(), isNull);
     });
 
     test(
-      'FirebaseBootstrap hintKind returns anonymousAuth for known auth codes',
+      'FirebaseBootstrapState hintForError returns guidance for known auth codes',
       () {
-        FirebaseBootstrap.lastError = 'admin-restricted-operation';
-        expect(
-          FirebaseBootstrap.hintKind,
-          FirebaseBootstrapHintKind.anonymousAuthDisabled,
+        const bootstrap = FirebaseBootstrapState(
+          userFacingError: 'admin-restricted-operation',
         );
-      },
-    );
-
-    test(
-      'FirebaseBootstrap hintKind returns missingNativeConfig for values.xml',
-      () {
-        FirebaseBootstrap.lastError =
-            'Failed to load FirebaseOptions from resource.';
-        expect(
-          FirebaseBootstrap.hintKind,
-          FirebaseBootstrapHintKind.missingNativeConfig,
-        );
-      },
-    );
-
-    test('FirebaseBootstrap recordInitError keeps first line only', () {
-      FirebaseBootstrap.recordInitError(
-        Exception('Failed to init\nat some.java:1'),
-      );
-      expect(FirebaseBootstrap.lastError, 'Exception: Failed to init');
-      FirebaseBootstrap.lastError = null;
-    });
-
-    test(
-      'FirebaseBootstrap recordInitError uses PlatformException message',
-      () {
-        FirebaseBootstrap.recordInitError(
-          PlatformException(
-            code: 'firebase_core',
-            message: 'Failed to load FirebaseOptions from resource.',
-          ),
-        );
-        expect(
-          FirebaseBootstrap.lastError,
-          'Failed to load FirebaseOptions from resource.',
-        );
-        expect(
-          FirebaseBootstrap.hintKind,
-          FirebaseBootstrapHintKind.missingNativeConfig,
-        );
-        FirebaseBootstrap.lastError = null;
+        expect(bootstrap.hintForError(), isNotNull);
       },
     );
   });

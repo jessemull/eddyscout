@@ -18,7 +18,7 @@ Every pull request must pass the following checks before merge:
 |-------|---------|----------|---------|
 | **Format** | `dart format --set-exit-if-changed .` | Yes | Enforce consistent code style |
 | **Analyze** | `flutter analyze --fatal-infos` | Yes | Static analysis with zero warnings |
-| **Custom lint** | `dart run custom_lint` | Yes | Project-specific lint rules |
+| **Riverpod lint** | `riverpod_lint` via `analysis_server_plugin` in `tooling/analysis_options.base.yaml` | Yes (IDE/analyzer) | Riverpod-specific lint rules; `custom_lint` not wired (analyzer conflict) |
 | **Codegen drift** | `build_runner build` + `git diff --exit-code` | Yes | Ensure generated files are up to date |
 | **Test** | `flutter test` (all packages) | Yes | Unit and widget tests pass |
 | **Integration Test** | `flutter test integration_test/` on Linux desktop (`xvfb-run`, `-d linux`) | Yes | App token gate + map → launch detail journey |

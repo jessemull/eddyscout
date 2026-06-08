@@ -2,8 +2,6 @@ import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go_profile_repository_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../data/provider_result.dart';
-
 part 'go_no_go_profile_provider.g.dart';
 
 Duration? _goNoGoProfileRetry(int retryCount, Object error) => null;
@@ -18,7 +16,10 @@ class GoNoGoProfileNotifier extends _$GoNoGoProfileNotifier {
   @override
   Future<GoNoGoProfile> build() async {
     final result = await ref.read(goNoGoProfileRepositoryProvider).read();
-    return unwrapResultForAsyncProvider(result);
+    return result.when(
+      success: (value) => value,
+      failure: (error) => throw error,
+    );
   }
 
   /// Persists [profile] and updates the in-memory skill selection.

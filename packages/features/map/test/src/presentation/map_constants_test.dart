@@ -1,7 +1,16 @@
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 void main() {
+  test('kInitialMapViewport centers on region at zoom 9', () {
+    expect(kInitialMapViewport, isA<CameraViewportState>());
+    final viewport = kInitialMapViewport as CameraViewportState;
+    expect(viewport.zoom, 9);
+    expect(viewport.pitch, 0);
+    expect(viewport.bearing, 0);
+  });
+
   test('mapRegionCenter averages curated launch coordinates', () {
     final center = mapRegionCenter();
     expect(kLaunchPoints, isNotEmpty);

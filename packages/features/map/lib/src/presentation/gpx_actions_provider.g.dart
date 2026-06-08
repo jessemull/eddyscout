@@ -20,7 +20,7 @@ final class GpxActionsProvider
         argument: null,
         retry: null,
         name: r'gpxActionsProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -33,7 +33,7 @@ final class GpxActionsProvider
   GpxActions create() => GpxActions();
 }
 
-String _$gpxActionsHash() => r'66bc55f44f1fd78607daf407fbba4dd6460f4f21';
+String _$gpxActionsHash() => r'e8273beff2b9a50780fed17727d0c85faacf6e85';
 
 abstract class _$GpxActions extends $AsyncNotifier<void> {
   FutureOr<void> build();

@@ -62,8 +62,10 @@ The app shell is a **composition layer**: it wires feature packages together int
 
 | Path | Role |
 |------|------|
-| `main.dart` | `ProviderScope` overrides (`routesProvider`, `isKnownLaunchIdProvider`), Firebase init, `MaterialApp.router` |
-| `routing/app_routes.dart` | Typed `go_router_builder` routes bound to feature + routing presentation |
+| `main.dart` | `bootstrapApp()` then `ProviderScope` + `MaterialApp.router` |
+| `bootstrap/app_bootstrap.dart` | Platform init (prefs, Firebase, Mapbox token) before `runApp` |
+| `bootstrap/app_provider_overrides.dart` | Shared `ProviderScope` overrides (prod + integration tests) |
+| `routing/app_routes.dart` | Typed `go_router_builder` routes; unknown launch ids → `LaunchNotFoundScreen` |
 | `preferences/key_value_store_provider.dart` | `KeyValueStore` → persistence |
 
 ---
@@ -76,16 +78,17 @@ Each feature is a standalone Dart package with `presentation/domain/data` layeri
 
 | Layer | Key files |
 |-------|-----------|
-| Domain | `conditions_models.dart`, `go_no_go.dart`, `go_no_go_thresholds.dart`, `condition_reports_repository_provider.dart`, `condition_reports_refresh_token_provider.dart` |
-| Data | `conditions_service.dart`, `conditions_provider.dart`, `parsing/*.dart`, `firebase/*.dart`, `repositories/go_no_go_profile_repository.dart` |
-| Presentation | `launch_detail/launch_detail_screen.dart`, `go_no_go_profile_provider.dart`, `launch_reports_digest_provider.dart` |
+| Domain | `conditions_models.dart`, `go_no_go.dart`, `*_repository_provider.dart` (DI tokens) |
+| Data | `conditions_service.dart`, `eddyscout_conditions_data.dart` (impl barrel), `parsing/*.dart`, `firebase/*.dart`, repositories |
+| Presentation | `launch_detail/launch_detail_screen.dart`, `*_provider.dart` (UI state), `firebase_bootstrap_provider.dart` |
 
 ### `map` — launch catalog and map-related types
 
 | Layer | Key files |
 |-------|-----------|
-| Data | `launch_points.dart` (static catalog), `launch_providers.dart` |
-| Presentation | `map_screen.dart`, `map_planning_overlay.dart`, `map_planning_provider.dart`, `map_session_provider.dart`, `mapbox/mapbox_map_controller.dart` (+ mixins) |
+| Domain | `launch_points.dart` (static catalog) |
+| Data | `launch_providers.dart` |
+| Presentation | `map_screen.dart`, `map_planning_overlay.dart`, `mapbox/mapbox_map_controller.dart` (+ mixins; SDK glue — coverage excluded, see ROADMAP) |
 
 Domain models (`LaunchPoint`, `LaunchFlowBands`) live in `packages/core/lib/src/launch_models.dart`. The barrel re-exports them.
 
@@ -152,7 +155,6 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 | Tab / shell nav | `StatefulShellRoute` when multi-tab | Single-stack typed routes |
 | Golden tests | Design system + stable layouts | Design system golden tests exist (e.g. `packages/design_system/test/goldens/app_theme_golden_test.dart`) |
 | Integration tests | Critical journeys in `integration_test/` | Token gate + map → launch detail journey; CI `integration-test` job |
-| Client telemetry v1 | Router screen tracking + conversion events | `AnalyticsNavigatorObserver`, `NoOp`/`Debug` clients, `report_submit_success` |
 | Secure storage | `flutter_secure_storage` for secrets | Not in pubspecs; `persistence` uses SharedPreferences for non-sensitive prefs |
 | Remote images | Sized + cached network images | No `CachedNetworkImage` usage yet |
 | CancelToken on HTTP / callables | All new I/O in features | **Done** in conditions; extend per `docs/NETWORKING.md` when adding I/O elsewhere |
@@ -172,7 +174,7 @@ Target architecture vs. what exists today. Cursor rules and skills reference thi
 5. **Design system depends on core (for model types) and Flutter SDK.** It must not depend on networking, persistence, or routing.
 6. **Networking depends on core (for domain types) and dio.** It must not depend on Flutter SDK unless required for interceptors.
 7. **Persistence depends on core (for domain types), drift, and platform packages.** It must not depend on networking.
-8. **Feature packages must not depend on sibling features**, except the intentional **map → hydro_routing** coupling for shipped route preview (wave 3). `scripts/check_imports.sh` whitelists `eddyscout_map` importing `eddyscout_hydro_routing` so planning mode can call `riverRoutePlannerProvider` without duplicating hydro geometry. All other cross-feature communication flows through `packages/core/` types or Riverpod composition in the app shell.
+8. **Feature packages may depend on shared packages but never on other features.** Cross-feature communication flows through `packages/core/` types or Riverpod providers in the app shell.
 
 ### Dependency graph (allowed directions)
 
@@ -185,8 +187,8 @@ apps/eddyscout
   ├── packages/analytics           → core
   ├── packages/routing             → design_system, localization, flutter, flutter_riverpod, go_router
   ├── packages/localization        (standalone)
-  ├── packages/features/conditions → core, networking, persistence, analytics
-  ├── packages/features/map        → core, design_system, localization, hydro_routing
+  ├── packages/features/conditions → core, networking, persistence
+  ├── packages/features/map        → core
   └── packages/features/hydro_routing → core
 ```
 
@@ -238,7 +240,7 @@ HTTP clients live in `packages/networking/`. Feature-specific HTTP wiring (provi
 
 ### Navigation
 
-Router assembly lives in `packages/routing/` (`goRouterProvider`, `RoutePaths`, `resolveAppRedirect`). Typed routes that bind paths to app screens live in `apps/eddyscout/lib/routing/app_routes.dart`. The app wires them together in `main.dart` via `routesProvider` and `isKnownLaunchIdProvider` overrides. See `docs/NAVIGATION.md`.
+Router assembly lives in `packages/routing/` (`goRouterProvider`, `RoutePaths`, `resolveAppRedirect`, `LaunchNotFoundScreen`). Typed routes that bind paths to app screens live in `apps/eddyscout/lib/routing/app_routes.dart`. The app wires them via `buildAppProviderOverrides()` (`routesProvider` + repository tokens). Unknown launch ids render `LaunchNotFoundScreen` in the route body — not a redirect. See `docs/NAVIGATION.md`.
 
 ### Tests
 
@@ -246,9 +248,10 @@ Tests live in `test/` within each package and the app:
 
 ```
 apps/eddyscout/test/
-├── routing/             # Unit tests for route config
-├── preferences/         # Unit tests for app-level persistence wiring
-└── firebase/            # Unit tests for Firebase providers
+├── bootstrap/           # app_bootstrap + provider override wiring
+├── routing/             # Typed routes, gate screens, navigation
+├── preferences/         # App-level persistence wiring
+└── main_test.dart       # Composition-root smoke test
 
 packages/features/conditions/test/
 ├── src/presentation/    # Launch detail widget tests
@@ -330,3 +333,5 @@ Generated files **are committed** to the repository. CI verifies they are up to 
 
 - Two style rules (`prefer_constructors_over_static_methods`, `prefer_expression_function_bodies`) are suppressed in `tooling/analysis_options.feature.yaml` for feature packages.
 - `dependency_overrides: source_gen: 4.2.0` in the root `pubspec.yaml` works around a `build_runner` / `analyzer` compatibility issue. Remove when upstream deps align.
+- Mapbox mixin layer (`lib/src/presentation/mapbox/`) is excluded from line-coverage totals; device/integration coverage tracked in `docs/ROADMAP.md` § Platform follow-ups.
+- `custom_lint` is not wired (analyzer conflict with `riverpod_generator`); `riverpod_lint` runs via `analysis_server_plugin` in `tooling/analysis_options.base.yaml`.
