@@ -103,6 +103,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapPlanningDoneLabel => 'Done';
 
   @override
+  String get mapGpxExportLabel => 'Export GPX';
+
+  @override
+  String get mapGpxImportLabel => 'Import GPX';
+
+  @override
+  String get mapGpxExportSuccess => 'Route exported.';
+
+  @override
+  String get mapGpxImportSuccess => 'Track imported.';
+
+  @override
+  String get mapGpxExportNoRoute => 'Plan a route before exporting GPX.';
+
+  @override
+  String get mapGpxFailureEmptyInput => 'That GPX file is empty.';
+
+  @override
+  String get mapGpxFailureMalformed => 'Could not read that GPX file.';
+
+  @override
+  String get mapGpxFailureNoGeometry =>
+      'No track or route found in that GPX file.';
+
+  @override
+  String get mapGpxFailureTooFewPoints => 'GPX needs at least two points.';
+
+  @override
+  String get mapGpxFailureFileRead => 'Could not read the GPX file.';
+
+  @override
+  String get mapGpxFailureFileWrite =>
+      'Could not prepare the GPX file for sharing.';
+
+  @override
+  String get mapGpxFailureShare => 'Sharing is unavailable on this device.';
+
+  @override
+  String get mapGpxFailureGeneric => 'GPX action failed. Try again.';
+
+  @override
+  String get mapGpxOutsidePnwWarning =>
+      'This track is outside our Pacific Northwest focus area.';
+
+  @override
+  String get mapGpxLaunchSnapFailed =>
+      'Track loaded, but put-in and take-out could not be matched to known launches.';
+
+  @override
   String get commonDash => '—';
 
   @override

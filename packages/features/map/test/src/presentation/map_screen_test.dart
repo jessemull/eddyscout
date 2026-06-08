@@ -89,6 +89,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.textContaining('12.5 km'), findsOneWidget);
+    expect(find.text('Import GPX'), findsOneWidget);
+    expect(find.text('Export GPX'), findsOneWidget);
   });
 
   testWidgets(
@@ -133,6 +135,11 @@ class _FixedRoutePlanning extends RoutePlanning {
       putIn: putIn,
       takeOut: takeOut,
       routeLengthKm: 12.5,
+      polylineLonLat: [
+        [putIn.longitude, putIn.latitude],
+        [takeOut.longitude, takeOut.latitude],
+      ],
+      routeOrigin: RouteOrigin.planner,
     );
   }
 }

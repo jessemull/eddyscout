@@ -142,7 +142,7 @@ final class MapboxMapController extends _$MapboxMapController
         'plan FAILED ${put.id} -> ${take.id}: '
         '${result.code}(${result.riverSystemName ?? ''})',
       );
-      ref.read(routePlanningProvider.notifier).setRouteLengthKm(null);
+      ref.read(routePlanningProvider.notifier).setPlannedRoute();
       unawaited(clearRouteLine());
       ui.showSnackBar?.call(result);
       return;
@@ -157,9 +157,28 @@ final class MapboxMapController extends _$MapboxMapController
     mapDebugLogRouteSegmentMeters(ok.polylineLonLat);
     ref
         .read(routePlanningProvider.notifier)
-        .setRouteLengthKm(ok.lengthMeters / 1000.0);
+        .setPlannedRoute(
+          polylineLonLat: ok.polylineLonLat,
+          routeLengthKm: ok.lengthMeters / 1000.0,
+          routeOrigin: RouteOrigin.planner,
+          putIn: put,
+          takeOut: take,
+        );
     await drawRouteLine(ok.polylineLonLat);
     await fitCameraToRoute(ok.polylineLonLat);
+  }
+
+  /// Applies an imported GPX route to planning state and the map line.
+  Future<void> applyImportedRoute(PlannedRoute route) async {
+    if (!alive) {
+      return;
+    }
+    ref.read(routePlanningProvider.notifier).applyImportedRoute(route);
+    final polyline = route.toPolylineLonLat();
+    if (polyline.length >= 2) {
+      await drawRouteLine(polyline);
+      await fitCameraToRoute(polyline);
+    }
   }
 
   Future<void> _afterExitPlanning() async {

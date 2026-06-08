@@ -256,6 +256,96 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get mapPlanningDoneLabel;
 
+  /// No description provided for @mapGpxExportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Export GPX'**
+  String get mapGpxExportLabel;
+
+  /// No description provided for @mapGpxImportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Import GPX'**
+  String get mapGpxImportLabel;
+
+  /// No description provided for @mapGpxExportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Route exported.'**
+  String get mapGpxExportSuccess;
+
+  /// No description provided for @mapGpxImportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Track imported.'**
+  String get mapGpxImportSuccess;
+
+  /// No description provided for @mapGpxExportNoRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan a route before exporting GPX.'**
+  String get mapGpxExportNoRoute;
+
+  /// No description provided for @mapGpxFailureEmptyInput.
+  ///
+  /// In en, this message translates to:
+  /// **'That GPX file is empty.'**
+  String get mapGpxFailureEmptyInput;
+
+  /// No description provided for @mapGpxFailureMalformed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read that GPX file.'**
+  String get mapGpxFailureMalformed;
+
+  /// No description provided for @mapGpxFailureNoGeometry.
+  ///
+  /// In en, this message translates to:
+  /// **'No track or route found in that GPX file.'**
+  String get mapGpxFailureNoGeometry;
+
+  /// No description provided for @mapGpxFailureTooFewPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'GPX needs at least two points.'**
+  String get mapGpxFailureTooFewPoints;
+
+  /// No description provided for @mapGpxFailureFileRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read the GPX file.'**
+  String get mapGpxFailureFileRead;
+
+  /// No description provided for @mapGpxFailureFileWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not prepare the GPX file for sharing.'**
+  String get mapGpxFailureFileWrite;
+
+  /// No description provided for @mapGpxFailureShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing is unavailable on this device.'**
+  String get mapGpxFailureShare;
+
+  /// No description provided for @mapGpxFailureGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'GPX action failed. Try again.'**
+  String get mapGpxFailureGeneric;
+
+  /// No description provided for @mapGpxOutsidePnwWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This track is outside our Pacific Northwest focus area.'**
+  String get mapGpxOutsidePnwWarning;
+
+  /// No description provided for @mapGpxLaunchSnapFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Track loaded, but put-in and take-out could not be matched to known launches.'**
+  String get mapGpxLaunchSnapFailed;
+
   /// No description provided for @commonDash.
   ///
   /// In en, this message translates to:

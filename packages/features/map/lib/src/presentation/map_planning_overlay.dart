@@ -9,16 +9,24 @@ class MapPlanningOverlay extends StatelessWidget {
     required this.putIn,
     required this.takeOut,
     required this.routeLengthKm,
+    required this.canExportGpx,
+    required this.gpxBusy,
     required this.onClear,
     required this.onDone,
+    required this.onExportGpx,
+    required this.onImportGpx,
     super.key,
   });
 
   final LaunchPoint? putIn;
   final LaunchPoint? takeOut;
   final double? routeLengthKm;
+  final bool canExportGpx;
+  final bool gpxBusy;
   final VoidCallback onClear;
   final VoidCallback onDone;
+  final VoidCallback onExportGpx;
+  final VoidCallback onImportGpx;
 
   @override
   Widget build(BuildContext context) {
@@ -88,11 +96,21 @@ class MapPlanningOverlay extends StatelessWidget {
                       alignment: WrapAlignment.end,
                       children: [
                         TextButton(
-                          onPressed: onClear,
+                          onPressed: gpxBusy ? null : onImportGpx,
+                          child: Text(l10n.mapGpxImportLabel),
+                        ),
+                        TextButton(
+                          onPressed: canExportGpx && !gpxBusy
+                              ? onExportGpx
+                              : null,
+                          child: Text(l10n.mapGpxExportLabel),
+                        ),
+                        TextButton(
+                          onPressed: gpxBusy ? null : onClear,
                           child: Text(l10n.mapPlanningClearLabel),
                         ),
                         TextButton(
-                          onPressed: onDone,
+                          onPressed: gpxBusy ? null : onDone,
                           child: Text(l10n.mapPlanningDoneLabel),
                         ),
                       ],

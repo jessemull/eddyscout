@@ -4,6 +4,8 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_map/src/data/gpx_file_gateway.dart';
+import 'package:eddyscout_map/src/presentation/gpx_actions_provider.dart';
 import 'package:eddyscout_map/src/presentation/map_constants.dart';
 import 'package:eddyscout_map/src/presentation/map_planning_overlay.dart';
 import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
@@ -31,6 +33,7 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   bool get _usesMapStub => widget.mapSlot != null;
+  bool _gpxBusy = false;
 
   @override
   void didChangeDependencies() {
@@ -62,6 +65,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     code: code,
                     riverSystemName: riverSystemName,
                   ),
+                GpxFailure(:final code) => _localizedGpxFailure(l10n, code),
+                StorageFailure(:final message) => _localizedGpxStorageFailure(
+                  l10n,
+                  message,
+                ),
                 ParseFailure() => l10n.mapRiverDataReadFailed,
                 AssetLoadFailure() => l10n.mapRiverDataUnavailable,
                 String() => message,
@@ -96,6 +104,107 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     RouteFailureCode.takeOutTooFar => l10n.mapRouteFailureTakeOutTooFar,
     RouteFailureCode.noConnectedPath => l10n.mapRouteFailureNoConnectedPath,
   };
+
+  String _localizedGpxFailure(AppLocalizations l10n, GpxFailureCode code) =>
+      switch (code) {
+        GpxFailureCode.emptyInput => l10n.mapGpxFailureEmptyInput,
+        GpxFailureCode.malformedXml => l10n.mapGpxFailureMalformed,
+        GpxFailureCode.noGeometry => l10n.mapGpxFailureNoGeometry,
+        GpxFailureCode.tooFewPoints => l10n.mapGpxFailureTooFewPoints,
+        GpxFailureCode.noRouteToExport => l10n.mapGpxExportNoRoute,
+        GpxFailureCode.fileReadFailed => l10n.mapGpxFailureFileRead,
+        GpxFailureCode.fileWriteFailed => l10n.mapGpxFailureFileWrite,
+        GpxFailureCode.shareFailed => l10n.mapGpxFailureShare,
+      };
+
+  String _localizedGpxStorageFailure(
+    AppLocalizations l10n,
+    String message,
+  ) => _localizedGpxFailure(
+    l10n,
+    gpxFailureCodeFromAppFailure(
+      StorageFailure(message: message),
+    ),
+  );
+
+  Future<void> _handleGpxExport() async {
+    if (_gpxBusy) {
+      return;
+    }
+    setState(() => _gpxBusy = true);
+    try {
+      final outcome = await ref.read(gpxActionsProvider.notifier).exportRoute();
+      if (!mounted) {
+        return;
+      }
+      _showGpxOutcome(
+        outcome,
+        successMessage: context.l10n.mapGpxExportSuccess,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _gpxBusy = false);
+      }
+    }
+  }
+
+  Future<void> _handleGpxImport() async {
+    if (_gpxBusy) {
+      return;
+    }
+    setState(() => _gpxBusy = true);
+    try {
+      final outcome = await ref.read(gpxActionsProvider.notifier).importRoute();
+      if (!mounted) {
+        return;
+      }
+      _showGpxOutcome(
+        outcome,
+        successMessage: context.l10n.mapGpxImportSuccess,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _gpxBusy = false);
+      }
+    }
+  }
+
+  void _showGpxOutcome(
+    GpxActionOutcome outcome, {
+    required String successMessage,
+  }) {
+    switch (outcome) {
+      case GpxActionCancelled():
+        return;
+      case GpxActionSuccess(:final warnings):
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(successMessage)));
+        for (final warning in warnings) {
+          final message = switch (warning) {
+            GpxImportWarning.outsidePnw => context.l10n.mapGpxOutsidePnwWarning,
+            GpxImportWarning.launchSnapFailed =>
+              context.l10n.mapGpxLaunchSnapFailed,
+          };
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        }
+      case GpxActionFailure(:final failure):
+        final localized = switch (failure) {
+          GpxFailure(:final code) => _localizedGpxFailure(context.l10n, code),
+          StorageFailure(:final message) => _localizedGpxStorageFailure(
+            context.l10n,
+            message,
+          ),
+          AppFailure() => context.l10n.mapGpxFailureGeneric,
+          _ => context.l10n.mapGpxFailureGeneric,
+        };
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(localized)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,8 +260,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               putIn: planning.putIn,
               takeOut: planning.takeOut,
               routeLengthKm: planning.routeLengthKm,
+              canExportGpx:
+                  planning.polylineLonLat != null &&
+                  planning.polylineLonLat!.length >= 2,
+              gpxBusy: _gpxBusy,
               onClear: () => unawaited(mapController.clearPlanningSelection()),
               onDone: mapController.togglePlanningMode,
+              onExportGpx: () => unawaited(_handleGpxExport()),
+              onImportGpx: () => unawaited(_handleGpxImport()),
             ),
         ],
       ),
