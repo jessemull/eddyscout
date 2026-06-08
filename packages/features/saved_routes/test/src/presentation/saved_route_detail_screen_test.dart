@@ -350,4 +350,89 @@ void main() {
       containsAll(['training', 'family']),
     );
   });
+
+  testWidgets('toggle favorite persists immediately via repository', (
+    tester,
+  ) async {
+    final route = testSavedRoute(name: 'Favorite Route');
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+    when(
+      () => repository.setFavorite(route.id, isFavorite: true),
+    ).thenAnswer(
+      (_) async => Result.success(route.copyWith(isFavorite: true)),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+    );
+
+    await tester.tap(find.byIcon(Icons.star_border));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => repository.setFavorite(route.id, isFavorite: true),
+    ).called(1);
+    verifyNever(() => repository.upsert(any()));
+    expect(find.byIcon(Icons.star), findsOneWidget);
+  });
+
+  testWidgets('save clears geometry when a waypoint is removed', (
+    tester,
+  ) async {
+    final route = testSavedRoute(name: 'Edit me').copyWith(
+      waypoints: const [
+        RouteWaypoint(launchId: 'a', order: 0),
+        RouteWaypoint(launchId: 'b', order: 1),
+        RouteWaypoint(launchId: 'c', order: 2),
+      ],
+      geometrySnapshot: RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.6, 45.5],
+          [-122.5, 45.6],
+        ],
+        lengthMeters: 1200,
+        computedAt: DateTime.utc(2026),
+      ),
+    );
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+    when(() => repository.upsert(any())).thenAnswer(
+      (invocation) async => Result.success(
+        invocation.positionalArguments.first as SavedRoute,
+      ),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+    );
+    await tester.pump();
+
+    await tester.scrollUntilVisible(
+      find.text('Waypoints'),
+      500,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    final deleteButtons = find.byIcon(Icons.delete_outline);
+    expect(deleteButtons, findsNWidgets(3));
+    await tester.tap(deleteButtons.at(1));
+    await tester.pumpAndSettle();
+
+    await tapScrollable(tester, find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    final captured =
+        verify(() => repository.upsert(captureAny())).captured.single
+            as SavedRoute;
+    expect(captured.geometrySnapshot, isNull);
+    expect(captured.waypoints, hasLength(2));
+  });
 }

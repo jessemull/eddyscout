@@ -75,7 +75,9 @@ class IntegrationConditionsRepository implements ConditionsRepository {
 }
 
 /// Shared overrides mirroring [main] plus deterministic conditions for E2E.
-Future<ProviderContainer> createIntegrationContainer() async {
+Future<ProviderContainer> createIntegrationContainer({
+  List<Override> extraOverrides = const [],
+}) async {
   SharedPreferences.setMockInitialValues({});
   final store = await SharedPreferencesKeyValueStore.open();
 
@@ -105,7 +107,7 @@ Future<ProviderContainer> createIntegrationContainer() async {
     overrides.add(mapInteractiveProvider.overrideWithValue(true));
   }
 
-  return ProviderContainer(overrides: overrides);
+  return ProviderContainer(overrides: [...overrides, ...extraOverrides]);
 }
 
 /// Pumps [EddyScoutApp] with integration overrides; returns the container.

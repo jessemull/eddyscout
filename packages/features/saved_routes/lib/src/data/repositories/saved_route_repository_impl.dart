@@ -2,6 +2,7 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_saved_routes/src/data/mappers/saved_route_row_mapper.dart';
 import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
+import 'package:flutter/foundation.dart';
 
 /// Drift-backed local persistence for saved routes.
 class SavedRouteRepositoryImpl implements SavedRouteRepository {
@@ -10,12 +11,26 @@ class SavedRouteRepositoryImpl implements SavedRouteRepository {
 
   final SavedRoutesDatabase _database;
 
+  List<SavedRoute> _routesFromRows(List<SavedRouteRow> rows) {
+    final routes = <SavedRoute>[];
+    for (final row in rows) {
+      final route = trySavedRouteFromRow(row);
+      if (route != null) {
+        routes.add(route);
+      } else {
+        debugPrint(
+          'saved_routes: skipped corrupt row id=${row.id} name=${row.name}',
+        );
+      }
+    }
+    return routes;
+  }
+
   @override
   FutureResult<List<SavedRoute>, AppFailure> listAll() async {
     try {
       final rows = await _database.getAllRoutes();
-      final routes = rows.map(trySavedRouteFromRow).whereType<SavedRoute>();
-      return Result.success(routes.toList());
+      return Result.success(_routesFromRows(rows));
     } on Object catch (_, st) {
       return Result.failure(
         StorageFailure(message: 'Could not load saved routes.', stackTrace: st),
@@ -27,8 +42,7 @@ class SavedRouteRepositoryImpl implements SavedRouteRepository {
   FutureResult<List<SavedRoute>, AppFailure> listFavorites() async {
     try {
       final rows = await _database.getFavoriteRoutes();
-      final routes = rows.map(trySavedRouteFromRow).whereType<SavedRoute>();
-      return Result.success(routes.toList());
+      return Result.success(_routesFromRows(rows));
     } on Object catch (_, st) {
       return Result.failure(
         StorageFailure(

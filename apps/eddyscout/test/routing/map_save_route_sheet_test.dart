@@ -300,13 +300,15 @@ void main() {
 
     late ProviderContainer container;
 
+    when(() => repository.getById('sr_load_ok')).thenAnswer(
+      (_) async => Result.success(route),
+    );
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           launchPointLookupProvider.overrideWithValue(findLaunchPointById),
-          savedRouteByIdProvider(
-            'sr_load_ok',
-          ).overrideWith((ref) async => route),
+          savedRouteRepositoryProvider.overrideWithValue(repository),
         ],
         child: testLocalizedApp(
           child: Consumer(
@@ -360,13 +362,15 @@ void main() {
         updatedAt: DateTime.utc(2026),
       );
 
+      when(() => repository.getById('sr_load')).thenAnswer(
+        (_) async => Result.success(route),
+      );
+
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             launchPointLookupProvider.overrideWithValue((_) => null),
-            savedRouteByIdProvider(
-              'sr_load',
-            ).overrideWith((ref) async => route),
+            savedRouteRepositoryProvider.overrideWithValue(repository),
           ],
           child: testLocalizedApp(
             child: Consumer(
@@ -405,10 +409,14 @@ void main() {
   testWidgets('handlePendingSavedRouteLoad no-ops when route missing', (
     tester,
   ) async {
+    when(() => repository.getById('missing')).thenAnswer(
+      (_) async => const Result.success(null),
+    );
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          savedRouteByIdProvider('missing').overrideWith((ref) async => null),
+          savedRouteRepositoryProvider.overrideWithValue(repository),
         ],
         child: testLocalizedApp(
           child: Consumer(
@@ -438,5 +446,50 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SnackBar), findsNothing);
+  });
+
+  testWidgets('handlePendingSavedRouteLoad shows error when load fails', (
+    tester,
+  ) async {
+    when(() => repository.getById('broken')).thenAnswer(
+      (_) async => const Result.failure(
+        StorageFailure(message: 'db down'),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          launchPointLookupProvider.overrideWithValue(findLaunchPointById),
+          savedRouteRepositoryProvider.overrideWithValue(repository),
+        ],
+        child: testLocalizedApp(
+          child: Consumer(
+            builder: (context, ref, _) {
+              return Scaffold(
+                body: FilledButton(
+                  onPressed: () {
+                    unawaited(() async {
+                      ref
+                              .read(pendingSavedRouteLoadProvider.notifier)
+                              .pendingRouteId =
+                          'broken';
+                      await handlePendingSavedRouteLoad(context, ref);
+                    }());
+                  },
+                  child: const Text('Load pending'),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Load pending'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Could not load this route.'), findsOneWidget);
   });
 }

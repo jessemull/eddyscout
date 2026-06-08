@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_saved_routes/eddyscout_saved_routes.dart';
@@ -28,10 +29,10 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
       isScrollControlled: true,
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 16,
-          bottom: MediaQuery.viewInsetsOf(ctx).bottom + 16,
+          left: Spacing.md,
+          right: Spacing.md,
+          top: Spacing.md,
+          bottom: MediaQuery.viewInsetsOf(ctx).bottom + Spacing.md,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -41,7 +42,7 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
               l10n.savedRoutesSaveDialogTitle,
               style: Theme.of(ctx).textTheme.titleMedium,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: Spacing.md - Spacing.xs),
             TextField(
               controller: nameController,
               decoration: InputDecoration(
@@ -49,7 +50,7 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
               ),
               autofocus: true,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Spacing.sm),
             TextField(
               controller: notesController,
               decoration: InputDecoration(
@@ -57,7 +58,7 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
               ),
               maxLines: 2,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spacing.md),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(l10n.savedRoutesSaveFromMapButton),
@@ -166,7 +167,37 @@ Future<void> handlePendingSavedRouteLoad(
   if (routeId == null) {
     return;
   }
-  final route = await ref.read(savedRouteByIdProvider(routeId).future);
+
+  final SavedRoute? route;
+  try {
+    final result = await ref
+        .read(savedRouteRepositoryProvider)
+        .getById(routeId);
+    route = result.when(
+      success: (value) => value,
+      failure: (failure) => throw failure,
+    );
+    ref.invalidate(savedRouteByIdProvider(routeId));
+  } on AppFailure {
+    ref.invalidate(savedRouteByIdProvider(routeId));
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.savedRoutesDetailError)),
+    );
+    return;
+  } on Object {
+    ref.invalidate(savedRouteByIdProvider(routeId));
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.savedRoutesDetailError)),
+    );
+    return;
+  }
+
   if (route == null) {
     return;
   }
