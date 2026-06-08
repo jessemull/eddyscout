@@ -24,7 +24,6 @@ class MapScreen extends ConsumerStatefulWidget {
     this.mapSlot,
     this.onOpenLaunchDetail,
     this.onSaveRoute,
-    this.onPendingRouteLoad,
   });
 
   /// Replaces [MapWidget] in widget tests (avoids Mapbox platform views).
@@ -36,9 +35,6 @@ class MapScreen extends ConsumerStatefulWidget {
 
   /// Opens the save-route flow when planning has a valid route.
   final VoidCallback? onSaveRoute;
-
-  /// Called once after mount to consume a pending saved-route load request.
-  final void Function(BuildContext context, WidgetRef ref)? onPendingRouteLoad;
 
   @override
   ConsumerState<MapScreen> createState() => _MapScreenState();
@@ -54,7 +50,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     // Riverpod forbids modifying providers during build/initState; bind after frame.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _bindUiCallbacks();
-      widget.onPendingRouteLoad?.call(context, ref);
     });
   }
 
@@ -220,6 +215,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Start loading bundled river geometry as soon as the map tab is visible.
+    ref.watch(riverRoutePlannerProvider);
+
     final planning = ref.watch(routePlanningProvider);
     final mapInteractive = ref.watch(mapInteractiveProvider);
 

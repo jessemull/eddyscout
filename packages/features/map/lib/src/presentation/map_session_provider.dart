@@ -12,3 +12,15 @@ class MapInteractive extends _$MapInteractive {
 
   void markInteractive() => state = true;
 }
+
+/// Increments when the map tab becomes active again (bottom nav).
+///
+/// Map route chrome listens to redraw saved/planned lines after offstage tabs.
+@Riverpod(keepAlive: true)
+class MapTabResumed extends _$MapTabResumed {
+  @override
+  int build() => 0;
+
+  /// Notifies listeners that the map tab is visible again.
+  void notifyResumed() => state++;
+}

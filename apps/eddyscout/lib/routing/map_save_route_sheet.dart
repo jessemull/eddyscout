@@ -15,8 +15,11 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
   if (!planning.hasRunnableRoute || planning.activeGeometry == null) {
     return;
   }
+  final capture = RoutePlanningSaveCapture.fromState(planning);
+  final planningNotifier = ref.read(routePlanningProvider.notifier);
 
-  final nameController = TextEditingController();
+  final suggestedName = suggestedSavedRouteName(capture.waypoints) ?? '';
+  final nameController = TextEditingController(text: suggestedName);
   final notesController = TextEditingController();
 
   try {
@@ -78,24 +81,38 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
       return;
     }
 
-    final draft = ref
-        .read(routePlanningProvider.notifier)
-        .snapshotForSave(
-          name: name,
-          notes: notes.isEmpty ? null : notes,
-        );
+    final draft = planningNotifier.snapshotForSaveFromCapture(
+      capture,
+      name: name,
+      notes: notes.isEmpty ? null : notes,
+    );
     if (draft == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.savedRoutesSaveError)),
+      );
       return;
     }
 
-    final result = await ref
-        .read(savedRoutesControllerProvider.notifier)
-        .create(draft);
+    final Result<SavedRoute, AppFailure> result;
+    try {
+      result = await ref
+          .read(savedRoutesControllerProvider.notifier)
+          .create(draft);
+    } on Object {
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.savedRoutesSaveError)),
+      );
+      return;
+    }
     if (!context.mounted) {
       return;
     }
     result.when(
       success: (_) {
+        _restorePlanningAfterSave(ref, capture);
         unawaited(
           ref
               .read(analyticsClientProvider)
@@ -120,6 +137,22 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
       nameController.dispose();
       notesController.dispose();
     });
+  }
+}
+
+/// Keeps the map plan visible after save when async work cleared planning.
+void _restorePlanningAfterSave(
+  WidgetRef ref,
+  RoutePlanningSaveCapture capture,
+) {
+  ref.read(routePlanningProvider.notifier).restoreCapture(capture);
+  final polyline = capture.geometry.polylineLonLat;
+  if (polyline.length >= 2) {
+    unawaited(
+      ref
+          .read(mapboxMapControllerProvider.notifier)
+          .displayPlannedRoute(polyline),
+    );
   }
 }
 
@@ -157,5 +190,12 @@ Future<void> handlePendingSavedRouteLoad(
     return;
   }
   ref.read(routePlanningProvider.notifier).loadFromSavedRoute(route, launches);
-  await ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute();
+
+  final polyline = route.geometrySnapshot?.polylineLonLat;
+  final mapController = ref.read(mapboxMapControllerProvider.notifier);
+  if (polyline != null && polyline.length >= 2) {
+    await mapController.displayPlannedRoute(polyline);
+  } else {
+    await mapController.rerunActiveRoute();
+  }
 }

@@ -135,5 +135,78 @@ void main() {
 
       expect(container.read(routePlanningProvider).planningMode, isTrue);
     });
+
+    test('captureForSave and restoreCapture preserve route geometry', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final putIn = _launch(id: 'a', name: 'Put-in');
+      final takeOut = _launch(id: 'b', name: 'Take-out');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(takeOut);
+      final geometry = RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.6, 45.5],
+          [-122.5, 45.6],
+        ],
+        lengthMeters: 12500,
+        computedAt: DateTime.utc(2026),
+      );
+      container
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: geometry,
+            routeLengthKm: 12.5,
+          );
+
+      final capture = container
+          .read(routePlanningProvider.notifier)
+          .captureForSave();
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+
+      expect(container.read(routePlanningProvider).waypoints, isEmpty);
+
+      container.read(routePlanningProvider.notifier).restoreCapture(capture);
+
+      final restored = container.read(routePlanningProvider);
+      expect(restored.planningMode, isTrue);
+      expect(restored.waypoints, [putIn, takeOut]);
+      expect(restored.routeLengthKm, closeTo(12.5, 0.01));
+      expect(restored.activeGeometry, geometry);
+    });
+
+    test('snapshotForSaveFromCapture builds draft from frozen capture', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final putIn = _launch(id: 'a', name: 'Put-in');
+      final takeOut = _launch(id: 'b', name: 'Take-out');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(takeOut);
+      final geometry = RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.6, 45.5],
+          [-122.5, 45.6],
+        ],
+        lengthMeters: 12500,
+        computedAt: DateTime.utc(2026),
+      );
+      container
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: geometry,
+            routeLengthKm: 12.5,
+          );
+
+      final capture = container
+          .read(routePlanningProvider.notifier)
+          .captureForSave();
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+
+      final draft = container
+          .read(routePlanningProvider.notifier)
+          .snapshotForSaveFromCapture(capture, name: 'Morning paddle');
+
+      expect(draft, isNotNull);
+      expect(draft!.name, 'Morning paddle');
+      expect(draft.waypoints.map((w) => w.launchId), ['a', 'b']);
+      expect(draft.geometrySnapshot, geometry);
+    });
   });
 }

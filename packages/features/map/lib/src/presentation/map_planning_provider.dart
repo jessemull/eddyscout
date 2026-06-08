@@ -47,6 +47,44 @@ class RoutePlanningState {
   List<List<double>>? get polylineLonLat => activeGeometry?.polylineLonLat;
 }
 
+/// Frozen planning selection used while save UI is open.
+///
+/// Captures waypoints and geometry before the bottom sheet so a save still
+/// succeeds if map planning state is cleared during async work.
+class RoutePlanningSaveCapture {
+  const RoutePlanningSaveCapture({
+    required this.planningMode,
+    required this.waypoints,
+    required this.geometry,
+    required this.routeLengthKm,
+    required this.routeOrigin,
+    required this.loadedSavedRouteId,
+  });
+
+  /// Captures the current [RoutePlanningState] when a route is ready to save.
+  factory RoutePlanningSaveCapture.fromState(RoutePlanningState state) {
+    final geometry = state.activeGeometry;
+    if (!state.hasRunnableRoute || geometry == null) {
+      throw StateError('Route planning is not ready to save.');
+    }
+    return RoutePlanningSaveCapture(
+      planningMode: state.planningMode,
+      waypoints: List<LaunchPoint>.of(state.waypoints),
+      geometry: geometry,
+      routeLengthKm: state.routeLengthKm,
+      routeOrigin: state.routeOrigin,
+      loadedSavedRouteId: state.loadedSavedRouteId,
+    );
+  }
+
+  final bool planningMode;
+  final List<LaunchPoint> waypoints;
+  final RouteGeometrySnapshot geometry;
+  final double? routeLengthKm;
+  final RouteOrigin? routeOrigin;
+  final String? loadedSavedRouteId;
+}
+
 @Riverpod(keepAlive: true)
 class RoutePlanning extends _$RoutePlanning {
   @override
@@ -182,6 +220,22 @@ class RoutePlanning extends _$RoutePlanning {
     );
   }
 
+  /// Captures planning state before opening save UI.
+  RoutePlanningSaveCapture captureForSave() =>
+      RoutePlanningSaveCapture.fromState(state);
+
+  /// Restores a prior capture when planning state was cleared unexpectedly.
+  void restoreCapture(RoutePlanningSaveCapture capture) {
+    state = RoutePlanningState(
+      planningMode: capture.planningMode,
+      waypoints: List<LaunchPoint>.of(capture.waypoints),
+      routeLengthKm: capture.routeLengthKm,
+      activeGeometry: capture.geometry,
+      loadedSavedRouteId: capture.loadedSavedRouteId,
+      routeOrigin: capture.routeOrigin,
+    );
+  }
+
   /// Builds a draft [SavedRoute] from the current planning selection.
   SavedRoute? snapshotForSave({
     required String name,
@@ -196,11 +250,39 @@ class RoutePlanning extends _$RoutePlanning {
     if (!state.hasRunnableRoute || state.activeGeometry == null) {
       return null;
     }
+    return snapshotForSaveFromCapture(
+      RoutePlanningSaveCapture.fromState(state),
+      name: name,
+      description: description,
+      notes: notes,
+      difficulty: difficulty,
+      recommendedSkillLevel: recommendedSkillLevel,
+      estimatedDurationMinutes: estimatedDurationMinutes,
+      existingId: existingId,
+      existingCreatedAt: existingCreatedAt,
+    );
+  }
+
+  /// Builds a draft [SavedRoute] from a frozen planning capture.
+  SavedRoute? snapshotForSaveFromCapture(
+    RoutePlanningSaveCapture capture, {
+    required String name,
+    String? description,
+    String? notes,
+    RouteDifficulty? difficulty,
+    RecommendedSkillLevel? recommendedSkillLevel,
+    int? estimatedDurationMinutes,
+    String? existingId,
+    DateTime? existingCreatedAt,
+  }) {
+    if (capture.waypoints.length < 2) {
+      return null;
+    }
     final now = DateTime.now();
     final metadata =
         computeSavedRouteMetadata(
-          launches: state.waypoints,
-          distanceMeters: state.activeGeometry!.lengthMeters,
+          launches: capture.waypoints,
+          distanceMeters: capture.geometry.lengthMeters,
         ).copyWith(
           difficulty: difficulty,
           recommendedSkillLevel: recommendedSkillLevel,
@@ -212,11 +294,11 @@ class RoutePlanning extends _$RoutePlanning {
       description: description,
       notes: notes ?? '',
       waypoints: [
-        for (var i = 0; i < state.waypoints.length; i++)
-          RouteWaypoint(launchId: state.waypoints[i].id, order: i),
+        for (var i = 0; i < capture.waypoints.length; i++)
+          RouteWaypoint(launchId: capture.waypoints[i].id, order: i),
       ],
       metadata: metadata,
-      geometrySnapshot: state.activeGeometry,
+      geometrySnapshot: capture.geometry,
       createdAt: existingCreatedAt ?? now,
       updatedAt: now,
     );

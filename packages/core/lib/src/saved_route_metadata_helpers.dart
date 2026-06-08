@@ -1,6 +1,18 @@
 import 'package:eddyscout_core/src/launch_models.dart';
 import 'package:eddyscout_core/src/saved_route_models.dart';
 
+/// Default display name from ordered launch waypoints (matches GPX naming).
+String? suggestedSavedRouteName(Iterable<LaunchPoint> waypoints) {
+  final names = [for (final launch in waypoints) launch.name];
+  if (names.isEmpty) {
+    return null;
+  }
+  if (names.length == 1) {
+    return names.first;
+  }
+  return names.join(' → ');
+}
+
 /// Aggregates metadata fields from resolved launch points.
 SavedRouteMetadata computeSavedRouteMetadata({
   required Iterable<LaunchPoint> launches,

@@ -17,7 +17,7 @@ import '../../data/launch_providers.dart';
 part 'mapbox_map_controller.g.dart';
 
 /// Owns Mapbox map lifecycle: markers, route line, camera, and launch taps.
-@riverpod
+@Riverpod(keepAlive: true)
 final class MapboxMapController extends _$MapboxMapController
     with
         MapboxMapControllerBase,
@@ -112,24 +112,14 @@ final class MapboxMapController extends _$MapboxMapController
   Future<void> _runRoute() async {
     final planning = ref.read(routePlanningProvider);
     final waypoints = planning.waypoints;
-    final plannerAsync = ref.read(riverRoutePlannerProvider);
     if (waypoints.length < 2) {
       return;
     }
-    if (plannerAsync.hasError) {
-      if (alive) {
-        final failure = hydroAppFailureFrom(plannerAsync.error);
-        ui.showSnackBar?.call(failure ?? ui.riverDataLoadFailedMessage);
-      }
+
+    final planner = await _resolveRoutePlanner();
+    if (planner == null || !alive) {
       return;
     }
-    if (!plannerAsync.hasValue) {
-      if (alive) {
-        ui.showSnackBar?.call(ui.riverDataLoadingMessage);
-      }
-      return;
-    }
-    final planner = plannerAsync.requireValue;
 
     final planResult = planMultiSegmentRoute(planner, waypoints);
     if (!alive) {
@@ -194,4 +184,42 @@ final class MapboxMapController extends _$MapboxMapController
 
   /// Recomputes and draws the route for the current planning waypoints.
   Future<void> rerunActiveRoute() => _runRoute();
+
+  /// Draws a saved or imported route polyline and fits the camera.
+  Future<void> displayPlannedRoute(List<List<double>> polyline) async {
+    if (!alive || polyline.length < 2) {
+      return;
+    }
+    await drawRouteLine(polyline);
+    if (mapboxMap == null) {
+      // Map tab may have just become visible after shell branch switch.
+      await Future<void>.delayed(Duration.zero);
+      await drawRouteLine(polyline);
+    }
+    await fitCameraToRoute(polyline);
+  }
+
+  /// Waits for bundled hydro graphs when still loading; surfaces load errors.
+  Future<RiverRoutePlanner?> _resolveRoutePlanner() async {
+    final plannerAsync = ref.read(riverRoutePlannerProvider);
+    if (plannerAsync.hasValue) {
+      return plannerAsync.requireValue;
+    }
+    if (plannerAsync.hasError) {
+      if (alive) {
+        final failure = hydroAppFailureFrom(plannerAsync.error);
+        ui.showSnackBar?.call(failure ?? ui.riverDataLoadFailedMessage);
+      }
+      return null;
+    }
+    try {
+      return await ref.read(riverRoutePlannerProvider.future);
+    } on Object catch (error) {
+      if (alive) {
+        final failure = hydroAppFailureFrom(error);
+        ui.showSnackBar?.call(failure ?? ui.riverDataLoadFailedMessage);
+      }
+      return null;
+    }
+  }
 }

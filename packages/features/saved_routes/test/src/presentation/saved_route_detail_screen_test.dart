@@ -104,6 +104,63 @@ void main() {
     expect(find.text('Load on map'), findsOneWidget);
   });
 
+  testWidgets('binds route fields when reopening with cached provider', (
+    tester,
+  ) async {
+    final route = testSavedRoute(name: 'Cached Route');
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+
+    final container = ProviderContainer(
+      overrides: [
+        analyticsClientProvider.overrideWithValue(
+          const NoOpAnalyticsClient(),
+        ),
+        launchPointLookupProvider.overrideWithValue((_) => null),
+        savedRouteRepositoryProvider.overrideWithValue(repository),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    Future<void> pumpDetailHost() async {
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: testLocalizedApp(
+            child: SavedRouteDetailScreen(
+              routeId: route.id,
+              onLoadOnMap: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+    }
+
+    await pumpDetailHost();
+    await tester.pumpAndSettle();
+    expect(
+      find.widgetWithText(TextField, 'Cached Route'),
+      findsOneWidget,
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: testLocalizedApp(child: const SizedBox.shrink()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await pumpDetailHost();
+
+    expect(
+      find.widgetWithText(TextField, 'Cached Route'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('invokes onLoadOnMap when load button pressed', (tester) async {
     final route = testSavedRoute();
     SavedRoute? loadedRoute;

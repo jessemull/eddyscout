@@ -72,6 +72,32 @@ class _MapRouteHost extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref
+      ..listen(pendingSavedRouteLoadProvider, (previous, next) {
+        if (next != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) {
+              return;
+            }
+            unawaited(handlePendingSavedRouteLoad(context, ref));
+          });
+        }
+      })
+      ..listen(mapTabResumedProvider, (previous, next) {
+        if (next == 0) {
+          return;
+        }
+        final planning = ref.read(routePlanningProvider);
+        final polyline = planning.polylineLonLat;
+        if (planning.planningMode && polyline != null && polyline.length >= 2) {
+          unawaited(
+            ref
+                .read(mapboxMapControllerProvider.notifier)
+                .displayPlannedRoute(polyline),
+          );
+        }
+      });
+
     void onOpenLaunchDetail(LaunchPoint launch) {
       unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(context));
     }
@@ -81,17 +107,11 @@ class _MapRouteHost extends ConsumerWidget {
         mapSlot: const SizedBox(key: Key('integration_map_stub')),
         onOpenLaunchDetail: onOpenLaunchDetail,
         onSaveRoute: () => unawaited(showMapSaveRouteSheet(context, ref)),
-        onPendingRouteLoad: (ctx, mapRef) {
-          unawaited(handlePendingSavedRouteLoad(ctx, mapRef));
-        },
       );
     }
     return MapScreen(
       onOpenLaunchDetail: onOpenLaunchDetail,
       onSaveRoute: () => unawaited(showMapSaveRouteSheet(context, ref)),
-      onPendingRouteLoad: (ctx, mapRef) {
-        unawaited(handlePendingSavedRouteLoad(ctx, mapRef));
-      },
     );
   }
 }

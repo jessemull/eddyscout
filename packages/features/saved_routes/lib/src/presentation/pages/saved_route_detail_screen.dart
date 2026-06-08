@@ -129,24 +129,6 @@ class _SavedRouteDetailScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-
-    ref.listen(savedRouteByIdProvider(widget.routeId), (previous, next) {
-      next.whenData((route) {
-        if (route == null || _dirty) {
-          return;
-        }
-        if (_boundRouteId != route.id) {
-          _bindFromRoute(route);
-          _boundRouteId = route.id;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              setState(() {});
-            }
-          });
-        }
-      });
-    });
-
     final routeAsync = ref.watch(savedRouteByIdProvider(widget.routeId));
 
     return routeAsync.when(
@@ -164,6 +146,13 @@ class _SavedRouteDetailScreenState
             appBar: AppBar(title: Text(l10n.savedRoutesDetailTitle)),
             body: Center(child: Text(l10n.savedRoutesNotFound)),
           );
+        }
+
+        // ref.listen does not fire when cached provider data is already
+        // available (e.g. after back then reopen), so bind synchronously.
+        if (!_dirty && _boundRouteId != route.id) {
+          _bindFromRoute(route);
+          _boundRouteId = route.id;
         }
 
         return Scaffold(

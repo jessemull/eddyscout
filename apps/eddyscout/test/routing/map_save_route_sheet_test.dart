@@ -24,6 +24,7 @@ class _RunnableRoutePlanning extends RoutePlanning {
     return RoutePlanningState(
       planningMode: true,
       waypoints: [putIn!, takeOut!],
+      routeLengthKm: 5.2,
       activeGeometry: RouteGeometrySnapshot(
         polylineLonLat: const [
           [-122.73, 45.56],
@@ -65,6 +66,12 @@ void main() {
 
   setUp(() {
     repository = _MockSavedRouteRepository();
+    when(() => repository.listAll()).thenAnswer(
+      (_) async => const Result.success([]),
+    );
+    when(() => repository.listFavorites()).thenAnswer(
+      (_) async => const Result.success([]),
+    );
     sheetFuture = null;
   });
 
@@ -128,12 +135,32 @@ void main() {
     await tester.tap(find.text('Open sheet'));
     await tester.pumpAndSettle();
 
+    await tester.enterText(find.byType(TextField).first, '');
     await tester.tap(find.text('Save'));
     await sheetFuture;
     await tester.pumpAndSettle();
 
     expect(find.text('Enter a route name.'), findsOneWidget);
     verifyNever(() => repository.upsert(any()));
+  });
+
+  testWidgets('showMapSaveRouteSheet pre-fills name from waypoints', (
+    tester,
+  ) async {
+    await pumpHost(
+      tester,
+      overrides: [
+        routePlanningProvider.overrideWith(_RunnableRoutePlanning.new),
+      ],
+    );
+
+    await tester.tap(find.text('Open sheet'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Cathedral Park Boat Ramp → Sellwood Riverfront Park'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('showMapSaveRouteSheet saves route on success', (tester) async {
@@ -162,6 +189,63 @@ void main() {
     verify(() => repository.upsert(any(that: isA<SavedRoute>()))).called(1);
   });
 
+  testWidgets(
+    'showMapSaveRouteSheet keeps planning state when cleared during save',
+    (tester) async {
+      late ProviderContainer container;
+
+      when(() => repository.upsert(any())).thenAnswer((invocation) async {
+        container.read(routePlanningProvider.notifier).togglePlanningMode();
+        return Result.success(
+          invocation.positionalArguments.first as SavedRoute,
+        );
+      });
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            analyticsClientProvider.overrideWithValue(
+              RecordingAnalyticsClient(),
+            ),
+            launchPointLookupProvider.overrideWithValue(findLaunchPointById),
+            savedRouteRepositoryProvider.overrideWithValue(repository),
+            routePlanningProvider.overrideWith(_RunnableRoutePlanning.new),
+          ],
+          child: testLocalizedApp(
+            child: Consumer(
+              builder: (context, ref, _) {
+                container = ProviderScope.containerOf(context);
+                return Scaffold(
+                  body: FilledButton(
+                    onPressed: () {
+                      sheetFuture = showMapSaveRouteSheet(context, ref);
+                    },
+                    child: const Text('Open sheet'),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Open sheet'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).first, 'Morning paddle');
+      await tester.tap(find.text('Save'));
+      await sheetFuture;
+      await tester.pumpAndSettle();
+
+      final planning = container.read(routePlanningProvider);
+      expect(planning.planningMode, isTrue);
+      expect(planning.waypoints.length, 2);
+      expect(planning.activeGeometry, isNotNull);
+      expect(planning.routeLengthKm, closeTo(5.2, 0.01));
+    },
+  );
+
   testWidgets('showMapSaveRouteSheet shows error when save fails', (
     tester,
   ) async {
@@ -187,6 +271,76 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Could not save route.'), findsOneWidget);
+  });
+
+  testWidgets('handlePendingSavedRouteLoad loads planning state and geometry', (
+    tester,
+  ) async {
+    final putIn = findLaunchPointById('cathedral_park')!;
+    final takeOut = findLaunchPointById('sellwood_riverfront')!;
+    final route = SavedRoute(
+      id: 'sr_load_ok',
+      name: 'Load me',
+      waypoints: const [
+        RouteWaypoint(launchId: 'cathedral_park', order: 0),
+        RouteWaypoint(launchId: 'sellwood_riverfront', order: 1),
+      ],
+      metadata: const SavedRouteMetadata(distanceMeters: 5200),
+      geometrySnapshot: RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.73, 45.56],
+          [-122.66, 45.47],
+        ],
+        lengthMeters: 5200,
+        computedAt: DateTime.utc(2026),
+      ),
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
+    );
+
+    late ProviderContainer container;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          launchPointLookupProvider.overrideWithValue(findLaunchPointById),
+          savedRouteByIdProvider(
+            'sr_load_ok',
+          ).overrideWith((ref) async => route),
+        ],
+        child: testLocalizedApp(
+          child: Consumer(
+            builder: (context, ref, _) {
+              container = ProviderScope.containerOf(context);
+              return Scaffold(
+                body: FilledButton(
+                  onPressed: () {
+                    unawaited(() async {
+                      container
+                              .read(pendingSavedRouteLoadProvider.notifier)
+                              .pendingRouteId =
+                          'sr_load_ok';
+                      await handlePendingSavedRouteLoad(context, ref);
+                    }());
+                  },
+                  child: const Text('Load pending'),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Load pending'));
+    await tester.pumpAndSettle();
+
+    final planning = container.read(routePlanningProvider);
+    expect(planning.planningMode, isTrue);
+    expect(planning.waypoints, [putIn, takeOut]);
+    expect(planning.routeLengthKm, closeTo(5.2, 0.01));
+    expect(planning.polylineLonLat, route.geometrySnapshot!.polylineLonLat);
   });
 
   testWidgets(

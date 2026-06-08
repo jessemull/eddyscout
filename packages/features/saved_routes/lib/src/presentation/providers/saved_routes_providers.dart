@@ -1,11 +1,10 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 // Relative import required: package src/data/ URIs are blocked in presentation/.
 // ignore: always_use_package_imports
-import '../../data/repositories/saved_route_repository_impl.dart';
+import '../../data/repositories/lazy_saved_route_repository.dart';
 
 part 'saved_routes_providers.g.dart';
 
@@ -21,8 +20,7 @@ LaunchPointLookup launchPointLookup(Ref ref) {
 /// Local [SavedRouteRepository] backed by Drift.
 @Riverpod(keepAlive: true)
 SavedRouteRepository savedRouteRepository(Ref ref) {
-  final db = ref.watch(savedRoutesDatabaseProvider).requireValue;
-  return SavedRouteRepositoryImpl(db);
+  return LazySavedRouteRepository(ref);
 }
 
 /// All saved routes from local storage.
@@ -76,7 +74,8 @@ class SavedRoutesController extends _$SavedRoutesController {
     if (result.isSuccess) {
       ref
         ..invalidate(savedRoutesListProvider)
-        ..invalidate(savedRoutesFavoritesProvider);
+        ..invalidate(savedRoutesFavoritesProvider)
+        ..invalidate(savedRouteByIdProvider(route.id));
     }
     return result;
   }
