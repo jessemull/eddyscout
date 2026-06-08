@@ -163,30 +163,30 @@ Future<void> handlePendingSavedRouteLoad(
   WidgetRef ref,
 ) async {
   final l10n = context.l10n;
-  final routeId = ref.read(pendingSavedRouteLoadProvider.notifier).take();
-  if (routeId == null) {
+  final draft = ref.read(pendingSavedRouteLoadProvider.notifier).take();
+  if (draft == null) {
     return;
   }
 
-  final SavedRoute? route;
+  final routeId = draft.id;
   try {
     final result = await ref
         .read(savedRouteRepositoryProvider)
         .getById(routeId);
-    route = result.when(
+    final persisted = result.when(
       success: (value) => value,
       failure: (failure) => throw failure,
     );
     ref.invalidate(savedRouteByIdProvider(routeId));
-  } on AppFailure {
-    ref.invalidate(savedRouteByIdProvider(routeId));
-    if (!context.mounted) {
+    if (persisted == null) {
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.savedRoutesNotFound)),
+      );
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.savedRoutesDetailError)),
-    );
-    return;
   } on Object {
     ref.invalidate(savedRouteByIdProvider(routeId));
     if (!context.mounted) {
@@ -198,9 +198,7 @@ Future<void> handlePendingSavedRouteLoad(
     return;
   }
 
-  if (route == null) {
-    return;
-  }
+  final route = draft;
   final lookup = ref.read(launchPointLookupProvider);
   final launches = <LaunchPoint>[];
   final sorted = List<RouteWaypoint>.of(route.waypoints)

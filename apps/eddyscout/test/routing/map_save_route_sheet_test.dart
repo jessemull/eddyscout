@@ -320,8 +320,8 @@ void main() {
                     unawaited(() async {
                       container
                               .read(pendingSavedRouteLoadProvider.notifier)
-                              .pendingRouteId =
-                          'sr_load_ok';
+                              .draftRoute =
+                          route;
                       await handlePendingSavedRouteLoad(context, ref);
                     }());
                   },
@@ -381,8 +381,8 @@ void main() {
                       unawaited(() async {
                         ref
                                 .read(pendingSavedRouteLoadProvider.notifier)
-                                .pendingRouteId =
-                            'sr_load';
+                                .draftRoute =
+                            route;
                         await handlePendingSavedRouteLoad(context, ref);
                       }());
                     },
@@ -406,13 +406,144 @@ void main() {
     },
   );
 
-  testWidgets('handlePendingSavedRouteLoad no-ops when route missing', (
+  testWidgets(
+    'handlePendingSavedRouteLoad shows not found when route was deleted',
+    (
+      tester,
+    ) async {
+      final draft = SavedRoute(
+        id: 'missing',
+        name: 'Ghost route',
+        waypoints: const [
+          RouteWaypoint(launchId: 'cathedral_park', order: 0),
+          RouteWaypoint(launchId: 'sellwood_riverfront', order: 1),
+        ],
+        metadata: const SavedRouteMetadata(),
+        createdAt: DateTime.utc(2026),
+        updatedAt: DateTime.utc(2026),
+      );
+      when(() => repository.getById('missing')).thenAnswer(
+        (_) async => const Result.success(null),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            launchPointLookupProvider.overrideWithValue(findLaunchPointById),
+            savedRouteRepositoryProvider.overrideWithValue(repository),
+          ],
+          child: testLocalizedApp(
+            child: Consumer(
+              builder: (context, ref, _) {
+                return Scaffold(
+                  body: FilledButton(
+                    onPressed: () {
+                      unawaited(() async {
+                        ref
+                                .read(pendingSavedRouteLoadProvider.notifier)
+                                .draftRoute =
+                            draft;
+                        await handlePendingSavedRouteLoad(context, ref);
+                      }());
+                    },
+                    child: const Text('Load pending'),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Load pending'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Route not found.'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'handlePendingSavedRouteLoad uses draft waypoints over persisted route',
+    (tester) async {
+      final putIn = findLaunchPointById('cathedral_park')!;
+      final takeOut = findLaunchPointById('sellwood_riverfront')!;
+      final persisted = SavedRoute(
+        id: 'sr_draft',
+        name: 'Persisted',
+        waypoints: const [
+          RouteWaypoint(launchId: 'cathedral_park', order: 0),
+          RouteWaypoint(launchId: 'sellwood_riverfront', order: 1),
+        ],
+        metadata: const SavedRouteMetadata(distanceMeters: 5200),
+        geometrySnapshot: RouteGeometrySnapshot(
+          polylineLonLat: const [
+            [-122.73, 45.56],
+            [-122.66, 45.47],
+          ],
+          lengthMeters: 5200,
+          computedAt: DateTime.utc(2026),
+        ),
+        createdAt: DateTime.utc(2026),
+        updatedAt: DateTime.utc(2026),
+      );
+      final draft = persisted.copyWith(
+        waypoints: const [
+          RouteWaypoint(launchId: 'sellwood_riverfront', order: 0),
+          RouteWaypoint(launchId: 'cathedral_park', order: 1),
+        ],
+        geometrySnapshot: null,
+      );
+
+      late ProviderContainer container;
+
+      when(() => repository.getById('sr_draft')).thenAnswer(
+        (_) async => Result.success(persisted),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            launchPointLookupProvider.overrideWithValue(findLaunchPointById),
+            savedRouteRepositoryProvider.overrideWithValue(repository),
+          ],
+          child: testLocalizedApp(
+            child: Consumer(
+              builder: (context, ref, _) {
+                container = ProviderScope.containerOf(context);
+                return Scaffold(
+                  body: FilledButton(
+                    onPressed: () {
+                      unawaited(() async {
+                        ref
+                                .read(pendingSavedRouteLoadProvider.notifier)
+                                .draftRoute =
+                            draft;
+                        await handlePendingSavedRouteLoad(context, ref);
+                      }());
+                    },
+                    child: const Text('Load pending'),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Load pending'));
+      await tester.pumpAndSettle();
+
+      final planning = container.read(routePlanningProvider);
+      expect(planning.waypoints, [takeOut, putIn]);
+      expect(planning.activeGeometry, isNull);
+    },
+  );
+
+  testWidgets('handlePendingSavedRouteLoad no-ops when queue is empty', (
     tester,
   ) async {
-    when(() => repository.getById('missing')).thenAnswer(
-      (_) async => const Result.success(null),
-    );
-
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -425,10 +556,6 @@ void main() {
                 body: FilledButton(
                   onPressed: () {
                     unawaited(() async {
-                      ref
-                              .read(pendingSavedRouteLoadProvider.notifier)
-                              .pendingRouteId =
-                          'missing';
                       await handlePendingSavedRouteLoad(context, ref);
                     }());
                   },
@@ -446,11 +573,23 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SnackBar), findsNothing);
+    verifyNever(() => repository.getById(any()));
   });
 
   testWidgets('handlePendingSavedRouteLoad shows error when load fails', (
     tester,
   ) async {
+    final draft = SavedRoute(
+      id: 'broken',
+      name: 'Broken',
+      waypoints: const [
+        RouteWaypoint(launchId: 'cathedral_park', order: 0),
+        RouteWaypoint(launchId: 'sellwood_riverfront', order: 1),
+      ],
+      metadata: const SavedRouteMetadata(),
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
+    );
     when(() => repository.getById('broken')).thenAnswer(
       (_) async => const Result.failure(
         StorageFailure(message: 'db down'),
@@ -472,8 +611,8 @@ void main() {
                     unawaited(() async {
                       ref
                               .read(pendingSavedRouteLoadProvider.notifier)
-                              .pendingRouteId =
-                          'broken';
+                              .draftRoute =
+                          draft;
                       await handlePendingSavedRouteLoad(context, ref);
                     }());
                   },

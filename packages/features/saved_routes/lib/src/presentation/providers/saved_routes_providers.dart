@@ -122,22 +122,22 @@ class SavedRoutesController extends _$SavedRoutesController {
   }
 }
 
-/// Route id to load on the map tab on next visit.
+/// Draft saved route to load on the map tab on next visit.
 @Riverpod(keepAlive: true)
 class PendingSavedRouteLoad extends _$PendingSavedRouteLoad {
   @override
-  String? build() => null;
+  SavedRoute? build() => null;
 
-  /// Pending saved route id awaiting map load.
-  String? get pendingRouteId => state;
+  /// Draft awaiting map load, if any.
+  SavedRoute? get draftRoute => state;
 
-  /// Queues a saved route for load on the map tab.
-  set pendingRouteId(String? value) => state = value;
+  /// Queues [route] (including unsaved edits) for load on the map tab.
+  set draftRoute(SavedRoute route) => state = route;
 
-  /// Returns and clears the pending route id.
-  String? take() {
-    final id = state;
+  /// Returns and clears the pending route draft.
+  SavedRoute? take() {
+    final draft = state;
     state = null;
-    return id;
+    return draft;
   }
 }

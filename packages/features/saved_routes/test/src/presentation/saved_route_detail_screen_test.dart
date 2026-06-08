@@ -1,7 +1,10 @@
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
+import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_form_helpers.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_screen.dart';
+import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_waypoints_section.dart';
 import 'package:eddyscout_saved_routes/src/presentation/providers/saved_routes_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -435,4 +438,137 @@ void main() {
     expect(captured.geometrySnapshot, isNull);
     expect(captured.waypoints, hasLength(2));
   });
+
+  testWidgets('save clears geometry when waypoints are reordered', (
+    tester,
+  ) async {
+    final existing = testSavedRoute(name: 'Reorder me').copyWith(
+      waypoints: const [
+        RouteWaypoint(launchId: 'a', order: 0),
+        RouteWaypoint(launchId: 'b', order: 1),
+        RouteWaypoint(launchId: 'c', order: 2),
+      ],
+      geometrySnapshot: RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.6, 45.5],
+          [-122.5, 45.6],
+        ],
+        lengthMeters: 1200,
+        computedAt: DateTime.utc(2026),
+      ),
+    );
+    SavedRoute? captured;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          launchPointLookupProvider.overrideWithValue((_) => null),
+        ],
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: _WaypointReorderHarness(
+              existing: existing,
+              onSaved: (route) => captured = route,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    tester
+        .state<_WaypointReorderHarnessState>(
+          find.byType(_WaypointReorderHarness),
+        )
+        .applyReorder(1, 0);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(captured, isNotNull);
+    expect(captured!.geometrySnapshot, isNull);
+    expect(captured!.waypoints.map((wp) => wp.launchId), ['b', 'a', 'c']);
+  });
+}
+
+class _WaypointReorderHarness extends StatefulWidget {
+  const _WaypointReorderHarness({
+    required this.existing,
+    required this.onSaved,
+  });
+
+  final SavedRoute existing;
+  final ValueChanged<SavedRoute> onSaved;
+
+  @override
+  State<_WaypointReorderHarness> createState() =>
+      _WaypointReorderHarnessState();
+}
+
+class _WaypointReorderHarnessState extends State<_WaypointReorderHarness> {
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _notesController = TextEditingController();
+  final _durationController = TextEditingController();
+  late List<RouteWaypoint> _waypoints;
+
+  void applyReorder(int oldIndex, int newIndex) {
+    setState(() {
+      var targetIndex = newIndex;
+      if (targetIndex > oldIndex) {
+        targetIndex -= 1;
+      }
+      final item = _waypoints.removeAt(oldIndex);
+      _waypoints.insert(targetIndex, item);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.existing.name;
+    _waypoints = List.of(widget.existing.waypoints);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _notesController.dispose();
+    _durationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Column(
+      children: [
+        SavedRouteDetailWaypointsSection(
+          waypoints: _waypoints,
+          onReorder: applyReorder,
+          onDeleteWaypoint: (_) {},
+        ),
+        FilledButton(
+          onPressed: () => widget.onSaved(
+            buildSavedRouteDetailUpdate(
+              existing: widget.existing,
+              nameController: _nameController,
+              descriptionController: _descriptionController,
+              notesController: _notesController,
+              durationController: _durationController,
+              waypoints: _waypoints,
+              difficulty: widget.existing.metadata.difficulty,
+              skillLevel: widget.existing.metadata.recommendedSkillLevel,
+              selectedCategories: const {},
+              customTags: const [],
+              isFavorite: widget.existing.isFavorite,
+            ),
+          ),
+          child: Text(l10n.savedRoutesSaveButton),
+        ),
+      ],
+    );
+  }
 }

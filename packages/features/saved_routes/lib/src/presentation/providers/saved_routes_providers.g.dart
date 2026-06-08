@@ -111,7 +111,7 @@ final class SavedRouteRepositoryProvider
 }
 
 String _$savedRouteRepositoryHash() =>
-    r'd1a5ec083bcf2477b0811728a8c7a0d0d9b0315f';
+    r'23e5630d18a116b205065354cb1109482b06adb1';
 
 /// All saved routes from local storage.
 
@@ -330,7 +330,7 @@ final class SavedRoutesControllerProvider
 }
 
 String _$savedRoutesControllerHash() =>
-    r'34102f32655bfe569ce4fd81d63f693652fdc8d2';
+    r'97924eb3a12647d7c24312bb21409802e147598f';
 
 /// Write operations for saved routes.
 
@@ -352,15 +352,15 @@ abstract class _$SavedRoutesController extends $Notifier<void> {
   }
 }
 
-/// Route id to load on the map tab on next visit.
+/// Draft saved route to load on the map tab on next visit.
 
 @ProviderFor(PendingSavedRouteLoad)
 final pendingSavedRouteLoadProvider = PendingSavedRouteLoadProvider._();
 
-/// Route id to load on the map tab on next visit.
+/// Draft saved route to load on the map tab on next visit.
 final class PendingSavedRouteLoadProvider
-    extends $NotifierProvider<PendingSavedRouteLoad, String?> {
-  /// Route id to load on the map tab on next visit.
+    extends $NotifierProvider<PendingSavedRouteLoad, SavedRoute?> {
+  /// Draft saved route to load on the map tab on next visit.
   PendingSavedRouteLoadProvider._()
     : super(
         from: null,
@@ -380,30 +380,30 @@ final class PendingSavedRouteLoadProvider
   PendingSavedRouteLoad create() => PendingSavedRouteLoad();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(String? value) {
+  Override overrideWithValue(SavedRoute? value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<String?>(value),
+      providerOverride: $SyncValueProvider<SavedRoute?>(value),
     );
   }
 }
 
 String _$pendingSavedRouteLoadHash() =>
-    r'd598dafc7488c0704a0fdde56588b4485ee4183b';
+    r'0072dfae3eb34a306a61c5dc2c68bc431236de06';
 
-/// Route id to load on the map tab on next visit.
+/// Draft saved route to load on the map tab on next visit.
 
-abstract class _$PendingSavedRouteLoad extends $Notifier<String?> {
-  String? build();
+abstract class _$PendingSavedRouteLoad extends $Notifier<SavedRoute?> {
+  SavedRoute? build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<String?, String?>;
+    final ref = this.ref as $Ref<SavedRoute?, SavedRoute?>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<String?, String?>,
-              String?,
+              AnyNotifier<SavedRoute?, SavedRoute?>,
+              SavedRoute?,
               Object?,
               Object?
             >;

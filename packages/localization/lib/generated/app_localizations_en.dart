@@ -636,6 +636,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedRoutesWaypointsTitle => 'Waypoints';
 
   @override
+  String savedRoutesWaypointSemantics(int position, String name) {
+    return 'Waypoint $position, $name';
+  }
+
+  @override
+  String get savedRoutesReorderWaypointHint => 'Drag to reorder';
+
+  @override
+  String savedRoutesDeleteWaypointSemantics(int position) {
+    return 'Delete waypoint $position';
+  }
+
+  @override
   String get savedRoutesUnknownLaunch => 'Unknown launch';
 
   @override

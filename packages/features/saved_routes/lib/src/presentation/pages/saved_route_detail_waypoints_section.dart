@@ -45,14 +45,26 @@ class SavedRouteDetailWaypointsSection extends ConsumerWidget {
             final wp = waypoints[index];
             final launch = ref.read(launchPointLookupProvider)(wp.launchId);
             final label = launch?.name ?? l10n.savedRoutesUnknownLaunch;
-            return ListTile(
+            return Semantics(
               key: ValueKey('${wp.launchId}_$index'),
-              title: Text('${index + 1}. $label'),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete_outline),
-                onPressed: waypoints.length <= 2
-                    ? null
-                    : () => onDeleteWaypoint(index),
+              label: l10n.savedRoutesWaypointSemantics(index + 1, label),
+              hint: l10n.savedRoutesReorderWaypointHint,
+              child: ListTile(
+                title: Text('${index + 1}. $label'),
+                trailing: Semantics(
+                  button: true,
+                  enabled: waypoints.length > 2,
+                  label: l10n.savedRoutesDeleteWaypointSemantics(index + 1),
+                  child: IconButton(
+                    tooltip: l10n.savedRoutesDeleteWaypointSemantics(
+                      index + 1,
+                    ),
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: waypoints.length <= 2
+                        ? null
+                        : () => onDeleteWaypoint(index),
+                  ),
+                ),
               ),
             );
           },

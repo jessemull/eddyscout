@@ -1162,6 +1162,24 @@ abstract class AppLocalizations {
   /// **'Waypoints'**
   String get savedRoutesWaypointsTitle;
 
+  /// No description provided for @savedRoutesWaypointSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Waypoint {position}, {name}'**
+  String savedRoutesWaypointSemantics(int position, String name);
+
+  /// No description provided for @savedRoutesReorderWaypointHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder'**
+  String get savedRoutesReorderWaypointHint;
+
+  /// No description provided for @savedRoutesDeleteWaypointSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete waypoint {position}'**
+  String savedRoutesDeleteWaypointSemantics(int position);
+
   /// No description provided for @savedRoutesUnknownLaunch.
   ///
   /// In en, this message translates to:

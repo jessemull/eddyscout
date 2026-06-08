@@ -325,6 +325,20 @@
   "savedRoutesFavoriteError": "Could not update favorite.",
   "savedRoutesLoadOnMapInsufficientWaypoints": "Could not load route — too few known launch points.",
   "savedRoutesWaypointsTitle": "Waypoints",
+  "savedRoutesWaypointSemantics": "Waypoint {position}, {name}",
+  "@savedRoutesWaypointSemantics": {
+    "placeholders": {
+      "position": {"type": "int"},
+      "name": {"type": "String"}
+    }
+  },
+  "savedRoutesReorderWaypointHint": "Drag to reorder",
+  "savedRoutesDeleteWaypointSemantics": "Delete waypoint {position}",
+  "@savedRoutesDeleteWaypointSemantics": {
+    "placeholders": {
+      "position": {"type": "int"}
+    }
+  },
   "savedRoutesUnknownLaunch": "Unknown launch",
   "savedRoutesSaveButton": "Save changes",
   "savedRoutesLoadOnMapButton": "Load on map",
