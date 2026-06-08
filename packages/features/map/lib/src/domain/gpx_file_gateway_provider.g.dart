@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'gpx_file_gateway.dart';
+part of 'gpx_file_gateway_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -8,17 +8,17 @@ part of 'gpx_file_gateway.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Default platform [GpxFileGateway] for GPX pick/share flows.
+/// Injectable GPX file gateway for presentation and tests.
 
 @ProviderFor(gpxFileGateway)
 final gpxFileGatewayProvider = GpxFileGatewayProvider._();
 
-/// Default platform [GpxFileGateway] for GPX pick/share flows.
+/// Injectable GPX file gateway for presentation and tests.
 
 final class GpxFileGatewayProvider
     extends $FunctionalProvider<GpxFileGateway, GpxFileGateway, GpxFileGateway>
     with $Provider<GpxFileGateway> {
-  /// Default platform [GpxFileGateway] for GPX pick/share flows.
+  /// Injectable GPX file gateway for presentation and tests.
   GpxFileGatewayProvider._()
     : super(
         from: null,
@@ -52,4 +52,4 @@ final class GpxFileGatewayProvider
   }
 }
 
-String _$gpxFileGatewayHash() => r'0cab3b74de0ad2d4dbd3d3906a804c79cf5a76e3';
+String _$gpxFileGatewayHash() => r'92ab01e59de89aab876692360645aaeb0e28cca8';

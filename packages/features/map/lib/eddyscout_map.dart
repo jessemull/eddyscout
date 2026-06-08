@@ -16,8 +16,9 @@ export 'package:eddyscout_core/eddyscout_core.dart'
         kFlowBandsUsgs14211720WillamettePortland;
 export 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart'
     show GpxFailure, GpxFailureCode, GpxPoint, PlannedRoute, RouteOrigin;
-export 'src/data/gpx_file_gateway.dart';
 export 'src/data/launch_providers.dart';
+export 'src/domain/gpx_file_gateway.dart';
+export 'src/domain/gpx_file_gateway_provider.dart';
 export 'src/domain/launch_points.dart';
 export 'src/presentation/gpx_actions_provider.dart';
 export 'src/presentation/launch_lookup.dart';

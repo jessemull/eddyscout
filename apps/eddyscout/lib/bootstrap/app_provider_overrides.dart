@@ -4,6 +4,7 @@ import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions_data.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_map/eddyscout_map_data.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:flutter/services.dart';
@@ -39,6 +40,7 @@ List<Override> buildAppProviderOverrides({
     hydroGeoJsonLoaderProvider.overrideWithValue(
       () => rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
     ),
+    gpxFileGatewayProvider.overrideWithValue(const GpxFileGatewayImpl()),
   ];
 
   if (mapboxTokenOverride != null) {
