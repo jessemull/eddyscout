@@ -132,6 +132,27 @@ void main() {
       expect(state.plannedRoute, planned);
     });
 
+    test(
+      'revertFromComputingRoute returns to pickTakeOut with selections kept',
+      () {
+        container.read(routePlanningProvider.notifier).togglePlanningMode();
+        final putIn = _launch(id: 'a');
+        final takeOut = _launch(id: 'b');
+        container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
+        container.read(routePlanningProvider.notifier).handleLaunchTap(takeOut);
+        container.read(routePlanningProvider.notifier).setComputingRoute();
+
+        container
+            .read(routePlanningProvider.notifier)
+            .revertFromComputingRoute();
+
+        final state = container.read(routePlanningProvider);
+        expect(state.phase, RoutePlanningPhase.pickTakeOut);
+        expect(state.putIn, putIn);
+        expect(state.takeOut, takeOut);
+      },
+    );
+
     test('setRouteResult stores failure code on error', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final putIn = _launch(id: 'a');

@@ -214,6 +214,15 @@ abstract class AppLocalizations {
   /// **'Put-in and take-out are on different river segments in our bundled data. Try launches on the same reach.'**
   String get mapRouteFailureDisconnectedReach;
 
+  /// No description provided for @mapRouteFailureDisconnectedReachNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Put-in ({putInReach}) and take-out ({takeOutReach}) are on different bundled segments. Try launches on the same reach.'**
+  String mapRouteFailureDisconnectedReachNamed(
+    String putInReach,
+    String takeOutReach,
+  );
+
   /// No description provided for @mapPlanningStepPickPutIn.
   ///
   /// In en, this message translates to:

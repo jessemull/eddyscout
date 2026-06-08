@@ -104,7 +104,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     RouteFailureCode.putInTooFar => l10n.mapRouteFailurePutInTooFar,
     RouteFailureCode.takeOutTooFar => l10n.mapRouteFailureTakeOutTooFar,
     RouteFailureCode.noConnectedPath => l10n.mapRouteFailureNoConnectedPath,
-    RouteFailureCode.disconnectedReach => l10n.mapRouteFailureDisconnectedReach,
+    RouteFailureCode.disconnectedReach =>
+      putInReachId != null &&
+              takeOutReachId != null &&
+              putInReachId.isNotEmpty &&
+              takeOutReachId.isNotEmpty
+          ? l10n.mapRouteFailureDisconnectedReachNamed(
+              putInReachId,
+              takeOutReachId,
+            )
+          : l10n.mapRouteFailureDisconnectedReach,
   };
 
   @override

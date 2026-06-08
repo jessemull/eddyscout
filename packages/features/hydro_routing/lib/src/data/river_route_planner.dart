@@ -73,9 +73,28 @@ class RiverRoutePlanner {
     );
   }
 
+  /// Plans once and returns both [RouteResult] and optional [PlannedRoute].
+  ({RouteResult result, PlannedRoute? planned}) planLaunches(
+    LaunchPoint putIn,
+    LaunchPoint takeOut,
+  ) {
+    final result = plan(putIn, takeOut);
+    return (
+      result: result,
+      planned: _plannedRouteFromSuccess(result, putIn, takeOut),
+    );
+  }
+
   /// Returns a stable [PlannedRoute] on success, or null on routing failure.
   PlannedRoute? planRoute(LaunchPoint putIn, LaunchPoint takeOut) {
-    final result = plan(putIn, takeOut);
+    return planLaunches(putIn, takeOut).planned;
+  }
+
+  PlannedRoute? _plannedRouteFromSuccess(
+    RouteResult result,
+    LaunchPoint putIn,
+    LaunchPoint takeOut,
+  ) {
     if (result is! RouteSuccess) {
       return null;
     }

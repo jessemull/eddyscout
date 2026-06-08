@@ -63,6 +63,16 @@ class RoutePlanning extends _$RoutePlanning {
     );
   }
 
+  /// Leaves put-in / take-out selected after planner data is unavailable.
+  void revertFromComputingRoute() {
+    state = RoutePlanningState(
+      planningMode: state.planningMode,
+      phase: RoutePlanningPhase.pickTakeOut,
+      putIn: state.putIn,
+      takeOut: state.takeOut,
+    );
+  }
+
   void setRouteResult({
     required LaunchPoint putIn,
     required LaunchPoint takeOut,

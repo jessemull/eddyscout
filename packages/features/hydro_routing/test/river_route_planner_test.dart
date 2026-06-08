@@ -135,6 +135,28 @@ void main() {
     });
   });
 
+  group('RiverRoutePlanner.planLaunches', () {
+    test('returns result and planned route together on success', () async {
+      final planner = await _plannerFromFixtures();
+      final putIn = _launch(
+        id: 'port_of_camas',
+        river: RiverSystem.columbia,
+        lat: 45.5856,
+        lon: -122.4244,
+      );
+      final takeOut = _launch(
+        id: 'washougal',
+        river: RiverSystem.columbia,
+        lat: 45.5791,
+        lon: -122.3870,
+      );
+      final (:result, :planned) = planner.planLaunches(putIn, takeOut);
+      expect(result, isA<RouteSuccess>());
+      expect(planned, isNotNull);
+      expect(planned!.putInLaunchId, 'port_of_camas');
+    });
+  });
+
   group('RiverRoutePlanner.planRoute', () {
     test('returns PlannedRoute on success and null on failure', () async {
       final planner = await _plannerFromFixtures();

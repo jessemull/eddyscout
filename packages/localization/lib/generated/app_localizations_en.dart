@@ -76,6 +76,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Put-in and take-out are on different river segments in our bundled data. Try launches on the same reach.';
 
   @override
+  String mapRouteFailureDisconnectedReachNamed(
+    String putInReach,
+    String takeOutReach,
+  ) {
+    return 'Put-in ($putInReach) and take-out ($takeOutReach) are on different bundled segments. Try launches on the same reach.';
+  }
+
+  @override
   String get mapPlanningStepPickPutIn => 'Step 1: Tap a launch for put-in.';
 
   @override

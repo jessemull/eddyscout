@@ -119,6 +119,7 @@ final class MapboxMapController extends _$MapboxMapController
     }
     ref.read(routePlanningProvider.notifier).setComputingRoute();
     if (plannerAsync.hasError) {
+      ref.read(routePlanningProvider.notifier).revertFromComputingRoute();
       if (alive) {
         final failure = hydroAppFailureFrom(plannerAsync.error);
         ui.showSnackBar?.call(failure ?? ui.riverDataLoadFailedMessage);
@@ -126,6 +127,7 @@ final class MapboxMapController extends _$MapboxMapController
       return;
     }
     if (!plannerAsync.hasValue) {
+      ref.read(routePlanningProvider.notifier).revertFromComputingRoute();
       if (alive) {
         ui.showSnackBar?.call(ui.riverDataLoadingMessage);
       }
@@ -133,12 +135,10 @@ final class MapboxMapController extends _$MapboxMapController
     }
     final planner = plannerAsync.requireValue;
 
-    final result = planner.plan(put, take);
+    final (:result, :planned) = planner.planLaunches(put, take);
     if (!alive) {
       return;
     }
-
-    final plannedRoute = planner.planRoute(put, take);
 
     if (result is RouteFailure) {
       mapDebugLog(
@@ -170,7 +170,7 @@ final class MapboxMapController extends _$MapboxMapController
           putIn: put,
           takeOut: take,
           result: ok,
-          plannedRoute: plannedRoute,
+          plannedRoute: planned,
         );
     await drawRouteLine(ok.polylineLonLat);
     await fitCameraToRoute(ok.polylineLonLat);
