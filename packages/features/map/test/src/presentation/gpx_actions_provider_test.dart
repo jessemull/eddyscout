@@ -210,7 +210,7 @@ void main() {
   );
 
   test(
-    'importRoute warns outsidePnw when all points are outside bbox',
+    'importRoute fails outsidePnw when all points are outside bbox',
     () async {
       when(() => gateway.pickAndReadGpx()).thenAnswer(
         (_) async => const Result.success(_outsidePnwGpx),
@@ -223,16 +223,23 @@ void main() {
           .read(gpxActionsProvider.notifier)
           .importRoute();
 
-      expect(outcome, isA<GpxActionSuccess>());
+      expect(outcome, isA<GpxActionFailure>());
+      final failure = (outcome as GpxActionFailure).failure;
+      expect(failure, isA<GpxCodecActionFailure>());
       expect(
-        (outcome as GpxActionSuccess).warnings,
-        contains(GpxImportWarning.outsidePnw),
+        (failure as GpxCodecActionFailure).failure.code,
+        GpxFailureCode.outsidePnw,
+      );
+      expect(analytics.events.single.name, AnalyticsEvents.gpxImportFailure);
+      expect(
+        container.read(routePlanningProvider).polylineLonLat,
+        isNull,
       );
     },
   );
 
   test(
-    'importRoute warns launchSnapFailed when endpoints exceed snap threshold',
+    'importRoute fails launchSnapFailed when endpoints exceed snap threshold',
     () async {
       when(() => gateway.pickAndReadGpx()).thenAnswer(
         (_) async => const Result.success(_pnwFarFromLaunchesGpx),
@@ -245,10 +252,18 @@ void main() {
           .read(gpxActionsProvider.notifier)
           .importRoute();
 
-      expect(outcome, isA<GpxActionSuccess>());
-      final success = outcome as GpxActionSuccess;
-      expect(success.warnings, contains(GpxImportWarning.launchSnapFailed));
-      expect(success.warnings, isNot(contains(GpxImportWarning.outsidePnw)));
+      expect(outcome, isA<GpxActionFailure>());
+      final failure = (outcome as GpxActionFailure).failure;
+      expect(failure, isA<GpxCodecActionFailure>());
+      expect(
+        (failure as GpxCodecActionFailure).failure.code,
+        GpxFailureCode.launchSnapFailed,
+      );
+      expect(analytics.events.single.name, AnalyticsEvents.gpxImportFailure);
+      expect(
+        container.read(routePlanningProvider).polylineLonLat,
+        isNull,
+      );
     },
   );
 

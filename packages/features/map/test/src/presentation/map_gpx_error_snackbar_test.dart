@@ -64,7 +64,7 @@ void main() {
   });
 
   testWidgets(
-    'shows PNW warning snackbar after success when track is outside bbox',
+    'shows PNW failure snackbar when track is outside bbox',
     (tester) async {
       final gateway = _MockGpxFileGateway();
       when(gateway.pickAndReadGpx).thenAnswer(
@@ -99,26 +99,15 @@ void main() {
       await tester.pump();
       await tester.pump();
 
-      const pnwWarning =
-          'This track is outside our Pacific Northwest focus area.';
-
       await tester.tap(find.text('Import GPX'));
       await tester.pump();
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('Track imported.'), findsOneWidget);
-
-      var sawPnwWarning = false;
-      for (var frame = 0; frame < 50; frame++) {
-        await tester.pump(const Duration(milliseconds: 100));
-        if (find.text(pnwWarning).evaluate().isNotEmpty) {
-          sawPnwWarning = true;
-          break;
-        }
-      }
-
-      expect(sawPnwWarning, isTrue, reason: 'Expected PNW warning snackbar');
-      expect(find.text(pnwWarning), findsOneWidget);
+      expect(find.text('Track imported.'), findsNothing);
+      expect(
+        find.text('This track is outside our Pacific Northwest focus area.'),
+        findsOneWidget,
+      );
     },
   );
 }

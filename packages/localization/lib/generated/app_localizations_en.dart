@@ -144,12 +144,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapGpxFailureGeneric => 'GPX action failed. Try again.';
 
   @override
-  String get mapGpxOutsidePnwWarning =>
+  String get mapGpxFailureOutsidePnw =>
       'This track is outside our Pacific Northwest focus area.';
 
   @override
-  String get mapGpxLaunchSnapFailed =>
-      'Track loaded, but put-in and take-out could not be matched to known launches.';
+  String get mapGpxFailureLaunchSnapFailed =>
+      'Put-in and take-out could not be matched to known launches.';
 
   @override
   String get commonDash => '—';

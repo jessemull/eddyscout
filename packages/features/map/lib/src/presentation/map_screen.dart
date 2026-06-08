@@ -116,6 +116,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         GpxFailureCode.fileReadFailed => l10n.mapGpxFailureFileRead,
         GpxFailureCode.fileWriteFailed => l10n.mapGpxFailureFileWrite,
         GpxFailureCode.shareFailed => l10n.mapGpxFailureShare,
+        GpxFailureCode.outsidePnw => l10n.mapGpxFailureOutsidePnw,
+        GpxFailureCode.launchSnapFailed => l10n.mapGpxFailureLaunchSnapFailed,
       };
 
   String _localizedGpxStorageFailure(
@@ -177,20 +179,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     switch (outcome) {
       case GpxActionCancelled():
         return;
-      case GpxActionSuccess(:final warnings):
+      case GpxActionSuccess():
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(successMessage)));
-        for (final warning in warnings) {
-          final message = switch (warning) {
-            GpxImportWarning.outsidePnw => context.l10n.mapGpxOutsidePnwWarning,
-            GpxImportWarning.launchSnapFailed =>
-              context.l10n.mapGpxLaunchSnapFailed,
-          };
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
-        }
       case GpxActionFailure(:final failure):
         final localized = switch (failure) {
           GpxCodecActionFailure(:final failure) => _localizedGpxFailure(

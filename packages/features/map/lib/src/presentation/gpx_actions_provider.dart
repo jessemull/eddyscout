@@ -10,15 +10,6 @@ import '../data/launch_points.dart';
 
 part 'gpx_actions_provider.g.dart';
 
-/// Non-blocking warnings after a successful GPX import.
-enum GpxImportWarning {
-  /// Every point lies outside the PNW bounding box.
-  outsidePnw,
-
-  /// Endpoints could not be matched to catalog launches.
-  launchSnapFailed,
-}
-
 /// Domain or platform failure surfaced from GPX export/import.
 sealed class GpxActionFailureValue {
   const GpxActionFailureValue();
@@ -49,11 +40,8 @@ sealed class GpxActionOutcome {
 
 /// Export or import completed successfully.
 final class GpxActionSuccess extends GpxActionOutcome {
-  /// Creates a [GpxActionSuccess] with optional [warnings].
-  const GpxActionSuccess({this.warnings = const []});
-
-  /// Non-blocking warnings (e.g. PNW bounds or launch snap).
-  final List<GpxImportWarning> warnings;
+  /// Creates a [GpxActionSuccess].
+  const GpxActionSuccess();
 }
 
 /// Export or import failed with a localized message key or failure object.
@@ -174,12 +162,21 @@ class GpxActions extends _$GpxActions {
       catalog: kLaunchPoints,
     );
 
-    final warnings = <GpxImportWarning>[];
     if (GpxBounds.isEntirelyOutsidePnw(route.points)) {
-      warnings.add(GpxImportWarning.outsidePnw);
+      await _logImportFailure(GpxFailureCode.outsidePnw);
+      return const GpxActionFailure(
+        GpxCodecActionFailure(
+          GpxFailure(code: GpxFailureCode.outsidePnw),
+        ),
+      );
     }
     if (route.putIn == null || route.takeOut == null) {
-      warnings.add(GpxImportWarning.launchSnapFailed);
+      await _logImportFailure(GpxFailureCode.launchSnapFailed);
+      return const GpxActionFailure(
+        GpxCodecActionFailure(
+          GpxFailure(code: GpxFailureCode.launchSnapFailed),
+        ),
+      );
     }
 
     await ref
@@ -200,7 +197,7 @@ class GpxActions extends _$GpxActions {
           ),
         );
 
-    return GpxActionSuccess(warnings: warnings);
+    return const GpxActionSuccess();
   }
 
   Future<void> _logExportFailure(GpxFailureCode code) {

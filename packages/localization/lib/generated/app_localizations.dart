@@ -334,17 +334,17 @@ abstract class AppLocalizations {
   /// **'GPX action failed. Try again.'**
   String get mapGpxFailureGeneric;
 
-  /// No description provided for @mapGpxOutsidePnwWarning.
+  /// No description provided for @mapGpxFailureOutsidePnw.
   ///
   /// In en, this message translates to:
   /// **'This track is outside our Pacific Northwest focus area.'**
-  String get mapGpxOutsidePnwWarning;
+  String get mapGpxFailureOutsidePnw;
 
-  /// No description provided for @mapGpxLaunchSnapFailed.
+  /// No description provided for @mapGpxFailureLaunchSnapFailed.
   ///
   /// In en, this message translates to:
-  /// **'Track loaded, but put-in and take-out could not be matched to known launches.'**
-  String get mapGpxLaunchSnapFailed;
+  /// **'Put-in and take-out could not be matched to known launches.'**
+  String get mapGpxFailureLaunchSnapFailed;
 
   /// No description provided for @commonDash.
   ///

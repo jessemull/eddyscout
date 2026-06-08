@@ -25,6 +25,12 @@ enum GpxFailureCode {
 
   /// System share sheet failed.
   shareFailed,
+
+  /// Every track point lies outside the Pacific Northwest import bounds.
+  outsidePnw,
+
+  /// Endpoints could not be matched to catalog launches within snap threshold.
+  launchSnapFailed,
 }
 
 /// Typed GPX failure for result boundaries.
