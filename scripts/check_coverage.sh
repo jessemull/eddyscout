@@ -57,6 +57,7 @@ while IFS= read -r line; do
     eddyscout_conditions) dir="$REPO_ROOT/packages/features/conditions" ;;
     eddyscout_map) dir="$REPO_ROOT/packages/features/map" ;;
     eddyscout_hydro_routing) dir="$REPO_ROOT/packages/features/hydro_routing" ;;
+    eddyscout_saved_routes) dir="$REPO_ROOT/packages/features/saved_routes" ;;
     *) continue ;;
   esac
 
@@ -74,6 +75,8 @@ while IFS= read -r line; do
         if (sf ~ /\.(g|freezed|gr)\.dart$/) return 1
         # Flutter gen-l10n outputs.
         if (sf ~ /(^|\/)lib\/generated\/app_localizations(_[a-z_]+)?\.dart$/) return 1
+        # Drift table definitions are schema-only (no executable logic).
+        if (sf ~ /lib\/src\/database\/.*_table\.dart$/) return 1
         # App-only UI and platform glue (hard to test deterministically in unit tests).
         if (sf ~ /(^|\/)lib\/screens\//) return 1
         if (sf ~ /(^|\/)lib\/debug\//) return 1

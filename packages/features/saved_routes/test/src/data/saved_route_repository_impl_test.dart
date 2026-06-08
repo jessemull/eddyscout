@@ -97,4 +97,19 @@ void main() {
     expect(result.isFailure, isTrue);
     expect(result.errorOrNull, isA<ParseFailure>());
   });
+
+  test('delete returns NotFoundFailure when missing', () async {
+    final result = await repository.delete('missing');
+    expect(result.isFailure, isTrue);
+    expect(result.errorOrNull, isA<NotFoundFailure>());
+  });
+
+  test('setFavorite returns NotFoundFailure when missing', () async {
+    final result = await repository.setFavorite(
+      'missing',
+      isFavorite: true,
+    );
+    expect(result.isFailure, isTrue);
+    expect(result.errorOrNull, isA<NotFoundFailure>());
+  });
 }

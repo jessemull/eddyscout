@@ -116,8 +116,10 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
       },
     );
   } finally {
-    nameController.dispose();
-    notesController.dispose();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      nameController.dispose();
+      notesController.dispose();
+    });
   }
 }
 
