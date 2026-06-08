@@ -302,6 +302,16 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
       );
       return;
     }
+    unawaited(
+      ref
+          .read(analyticsClientProvider)
+          .logEvent(
+            AnalyticsEvent(
+              name: AnalyticsEvents.reportSubmitSuccess,
+              parameters: {'launch_id': widget.launch.id},
+            ),
+          ),
+    );
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _submittedClosing = true);
     WidgetsBinding.instance.addPostFrameCallback((_) {

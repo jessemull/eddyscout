@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 
+import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/firebase_flags.dart';
