@@ -38,10 +38,13 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
   }
 
-  testWidgets('shows app bar and map stub', (tester) async {
+  testWidgets('shows floating search and map stub without app bar', (
+    tester,
+  ) async {
     await pumpMap(tester, overrides: []);
 
-    expect(find.text('EddyScout'), findsOneWidget);
+    expect(find.text('EddyScout'), findsNothing);
+    expect(find.text('Search rivers, launches, places…'), findsOneWidget);
     expect(find.byKey(const Key('map_test_stub')), findsOneWidget);
   });
 
@@ -70,22 +73,9 @@ void main() {
     );
 
     expect(find.byTooltip('Zoom in'), findsNothing);
-    expect(find.byTooltip('Zoom out'), findsNothing);
-    expect(find.byTooltip('Show all launches'), findsNothing);
   });
 
-  testWidgets('hides zoom chrome while map is not interactive', (tester) async {
-    await pumpMap(
-      tester,
-      overrides: [
-        mapInteractiveProvider.overrideWithValue(false),
-      ],
-    );
-
-    expect(find.byTooltip('Zoom in'), findsNothing);
-  });
-
-  testWidgets('shows route planning overlay when planning mode is on', (
+  testWidgets('shows route planning sheet when planning expanded', (
     tester,
   ) async {
     await pumpMap(
@@ -93,53 +83,38 @@ void main() {
       overrides: [
         mapInteractiveProvider.overrideWithValue(true),
         routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
+        mapSheetVisibilityStateProvider.overrideWith(_ExpandedSheet.new),
       ],
     );
 
-    expect(find.text('River route (beta)'), findsOneWidget);
+    expect(find.text('Plan paddle'), findsWidgets);
     expect(
-      find.textContaining('Put-in: ${kLaunchPoints.first.name}'),
-      findsOneWidget,
-    );
-    expect(
-      find.textContaining('Take-out: ${kLaunchPoints[1].name}'),
+      find.textContaining(kLaunchPoints.first.name),
       findsOneWidget,
     );
     expect(find.textContaining('12.5 km'), findsOneWidget);
-    expect(find.text('Import GPX'), findsOneWidget);
-    expect(find.text('Export GPX'), findsOneWidget);
   });
 
-  testWidgets(
-    'invokes onOpenLaunchDetail when launch pin tapped outside planning',
-    (tester) async {
-      LaunchPoint? openedLaunch;
+  testWidgets('shows place sheet when launch pin tapped', (tester) async {
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+      ],
+    );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          child: testLocalizedApp(
-            child: MapScreen(
-              mapSlot: const SizedBox(key: Key('map_test_stub')),
-              onOpenLaunchDetail: (launch) => openedLaunch = launch,
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
-      await tester.pump();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MapScreen)),
+    );
+    container
+        .read(mapboxMapControllerProvider.notifier)
+        .onLaunchCircleTap(_launchAnnotation('cathedral_park'));
+    await tester.pump();
 
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(MapScreen)),
-      );
-      container
-          .read(mapboxMapControllerProvider.notifier)
-          .onLaunchCircleTap(_launchAnnotation('cathedral_park'));
-      await tester.pump();
-
-      expect(openedLaunch, isNotNull);
-      expect(openedLaunch!.id, 'cathedral_park');
-    },
-  );
+    expect(find.text('Plan paddle'), findsOneWidget);
+    expect(find.text('View conditions'), findsOneWidget);
+    expect(find.text('Cathedral Park Boat Ramp'), findsOneWidget);
+  });
 }
 
 class _FixedRoutePlanning extends RoutePlanning {
@@ -148,7 +123,7 @@ class _FixedRoutePlanning extends RoutePlanning {
     final putIn = kLaunchPoints.first;
     final takeOut = kLaunchPoints[1];
     return RoutePlanningState(
-      planningMode: true,
+      phase: MapPlanningPhase.routeReady,
       waypoints: [putIn, takeOut],
       routeLengthKm: 12.5,
       activeGeometry: RouteGeometrySnapshot(
@@ -162,4 +137,9 @@ class _FixedRoutePlanning extends RoutePlanning {
       routeOrigin: RouteOrigin.planner,
     );
   }
+}
+
+class _ExpandedSheet extends MapSheetVisibilityState {
+  @override
+  MapSheetVisibility build() => MapSheetVisibility.planningExpanded;
 }

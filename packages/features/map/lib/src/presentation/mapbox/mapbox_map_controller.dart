@@ -78,19 +78,16 @@ final class MapboxMapController extends _$MapboxMapController
 
     final planning = ref.read(routePlanningProvider);
     if (!planning.planningMode) {
-      ui.openLaunchDetail?.call(launch);
+      ui.onLaunchPlaceSelected?.call(launch);
       return;
     }
 
     _handlePlanningTap(launch);
   }
 
-  void togglePlanningMode() {
-    final wasPlanning = ref.read(routePlanningProvider).planningMode;
-    ref.read(routePlanningProvider.notifier).togglePlanningMode();
-    if (wasPlanning) {
-      unawaited(_afterExitPlanning());
-    }
+  Future<void> dismissPlanningSession() async {
+    ref.read(routePlanningProvider.notifier).resetToBrowse();
+    await _afterExitPlanning();
   }
 
   Future<void> clearPlanningSelection() async {

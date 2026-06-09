@@ -52,6 +52,20 @@ void main() {
       );
     });
 
+    test('maps home tab', () {
+      expect(
+        AnalyticsScreenNames.fromMatchedLocation('/home'),
+        AnalyticsScreenNames.home,
+      );
+    });
+
+    test('maps menu tab', () {
+      expect(
+        AnalyticsScreenNames.fromMatchedLocation('/menu'),
+        AnalyticsScreenNames.menu,
+      );
+    });
+
     test('returns null for unknown locations', () {
       expect(AnalyticsScreenNames.fromMatchedLocation('/unknown'), isNull);
     });

@@ -145,10 +145,6 @@ class GpxActions extends _$GpxActions {
 
   /// Imports a GPX file, snaps endpoints, and draws the route on the map.
   Future<GpxActionOutcome> importRoute() async {
-    if (!ref.read(routePlanningProvider).planningMode) {
-      ref.read(routePlanningProvider.notifier).togglePlanningMode();
-    }
-
     final picked = await ref.read(gpxFileGatewayProvider).pickAndReadGpx();
     if (picked.isFailure) {
       final error = picked.errorOrNull!;

@@ -519,6 +519,92 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellTabSavedRoutes => 'Saved routes';
 
   @override
+  String get shellTabHome => 'Home';
+
+  @override
+  String get shellTabMenu => 'Menu';
+
+  @override
+  String get mapSearchPlaceholder => 'Search rivers, launches, places…';
+
+  @override
+  String get mapSearchLaunchesSection => 'Launches';
+
+  @override
+  String get mapSearchPlacesSection => 'Places';
+
+  @override
+  String get mapSearchNoResults => 'No results found.';
+
+  @override
+  String get mapPlanPaddleButton => 'Plan paddle';
+
+  @override
+  String get mapViewConditionsButton => 'View conditions';
+
+  @override
+  String get mapRoutePlanningTitle => 'Plan paddle';
+
+  @override
+  String get mapRouteStopStart => 'Start';
+
+  @override
+  String get mapRouteStopDestination => 'Destination';
+
+  @override
+  String mapRouteStopMiddle(int number) {
+    return 'Stop $number';
+  }
+
+  @override
+  String get mapRouteAddStop => 'Add stop';
+
+  @override
+  String get mapRouteChooseDestination => 'Choose destination';
+
+  @override
+  String get mapRouteAddStopHint =>
+      'Tap another launch on the map to set your destination or add a stop.';
+
+  @override
+  String get mapLocateMeLabel => 'Locate me';
+
+  @override
+  String get mapCloseSheetLabel => 'Close';
+
+  @override
+  String get homePlaceholderTitle => 'Home';
+
+  @override
+  String get homePlaceholderBody =>
+      'Featured paddles and discovery experiences are coming soon.';
+
+  @override
+  String get homeExploreMapButton => 'Explore map';
+
+  @override
+  String get menuScreenTitle => 'Menu';
+
+  @override
+  String get menuImportGpx => 'Import GPX';
+
+  @override
+  String get menuExportGpx => 'Export GPX';
+
+  @override
+  String get menuSettings => 'Settings';
+
+  @override
+  String get menuAbout => 'About';
+
+  @override
+  String get menuSettingsComingSoon => 'Settings coming soon.';
+
+  @override
+  String get menuAboutBody =>
+      'EddyScout — your Pacific Northwest paddling companion.';
+
+  @override
   String get savedRoutesListTitle => 'Saved routes';
 
   @override

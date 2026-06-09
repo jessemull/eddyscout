@@ -8,6 +8,7 @@ class MapUiCallbacks {
     required this.riverDataLoadFailedMessage,
     this.showSnackBar,
     this.openLaunchDetail,
+    this.onLaunchPlaceSelected,
   });
 
   /// Either a localized `String` or a typed domain object
@@ -15,6 +16,9 @@ class MapUiCallbacks {
   /// Widgets should localize domain objects via `AppLocalizations`.
   final void Function(Object message)? showSnackBar;
   final void Function(LaunchPoint launch)? openLaunchDetail;
+
+  /// Place-first flow: user tapped a launch pin while browsing the map.
+  final void Function(LaunchPoint launch)? onLaunchPlaceSelected;
 
   /// Localized snack bar when take-out equals put-in.
   final String pickDifferentTakeOutMessage;

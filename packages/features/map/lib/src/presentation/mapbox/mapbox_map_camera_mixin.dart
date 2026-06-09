@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
@@ -201,6 +202,30 @@ mixin MapboxMapCameraMixin on MapboxMapControllerBase, MapboxMapStyleMixin {
       mapDebugLog('_fitViewportToAllLaunches OK');
     } on Object catch (e, st) {
       mapDebugLog('_fitViewportToAllLaunches failed: $e\n$st');
+    }
+  }
+
+  /// Eases the camera to a single curated launch.
+  Future<void> flyToLaunch(LaunchPoint launch) async {
+    final map = mapboxMap;
+    if (map == null || !mapControllerRef.read(mapInteractiveProvider)) {
+      return;
+    }
+    try {
+      await instantEaseToCamera(
+        map,
+        CameraOptions(
+          center: Point(
+            coordinates: Position(launch.longitude, launch.latitude),
+          ),
+          zoom: 12.5,
+          bearing: 0,
+          pitch: 0,
+        ),
+        debugTag: 'flyToLaunch',
+      );
+    } on Object catch (e, st) {
+      mapDebugLog('flyToLaunch failed: $e\n$st');
     }
   }
 

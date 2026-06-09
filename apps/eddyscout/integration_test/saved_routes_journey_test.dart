@@ -24,7 +24,7 @@ class _IntegrationRunnableRoutePlanning extends RoutePlanning {
     final putIn = findLaunchPointById('cathedral_park')!;
     final takeOut = findLaunchPointById('sellwood_riverfront')!;
     return RoutePlanningState(
-      planningMode: true,
+      phase: MapPlanningPhase.routeReady,
       waypoints: [putIn, takeOut],
       routeLengthKm: 5.2,
       activeGeometry: RouteGeometrySnapshot(
@@ -50,13 +50,19 @@ void main() {
           routePlanningProvider.overrideWith(
             _IntegrationRunnableRoutePlanning.new,
           ),
+          mapSheetVisibilityStateProvider.overrideWith(
+            _IntegrationExpandedSheet.new,
+          ),
         ],
       );
       await pumpEddyScoutApp(tester, container: container);
       await integrationPumpFrames(tester, count: 5);
 
       final l10n = integrationL10n(tester);
-      await integrationWaitFor(tester, find.text(l10n.mapScreenTitle));
+      await integrationWaitFor(
+        tester,
+        find.text(l10n.mapSearchPlaceholder),
+      );
       expect(find.text(l10n.mapPlanningSaveLabel), findsOneWidget);
 
       await tester.tap(find.text(l10n.mapPlanningSaveLabel));
@@ -89,10 +95,18 @@ void main() {
       await tester.tap(find.text(l10n.savedRoutesLoadOnMapButton));
       await integrationPumpFrames(tester);
 
-      await integrationWaitFor(tester, find.text(l10n.mapScreenTitle));
+      await integrationWaitFor(
+        tester,
+        find.text(l10n.mapSearchPlaceholder),
+      );
       expect(find.text(l10n.mapPlanningSaveLabel), findsOneWidget);
       expect(find.textContaining('Cathedral Park Boat Ramp'), findsWidgets);
     },
     skip: _skipJourneyTest,
   );
+}
+
+class _IntegrationExpandedSheet extends MapSheetVisibilityState {
+  @override
+  MapSheetVisibility build() => MapSheetVisibility.planningExpanded;
 }

@@ -43,7 +43,7 @@ void main() {
     final container = await pumpMap(tester);
     final map = container.read(mapboxMapControllerProvider.notifier);
 
-    await tester.tap(find.byTooltip('Plan river route'));
+    container.read(routePlanningProvider.notifier).togglePlanningMode();
     await tester.pump();
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
@@ -61,7 +61,7 @@ void main() {
     final container = await pumpMap(tester);
     final map = container.read(mapboxMapControllerProvider.notifier);
 
-    await tester.tap(find.byTooltip('Plan river route'));
+    container.read(routePlanningProvider.notifier).togglePlanningMode();
     await tester.pump();
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
@@ -82,7 +82,7 @@ void main() {
     final container = await pumpMap(tester);
     final map = container.read(mapboxMapControllerProvider.notifier);
 
-    await tester.tap(find.byTooltip('Plan river route'));
+    container.read(routePlanningProvider.notifier).togglePlanningMode();
     await tester.pump();
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
@@ -97,11 +97,15 @@ void main() {
     );
   });
 
-  testWidgets('toggle planning mode via app bar action', (tester) async {
+  testWidgets('closes route planning sheet and exits planning mode', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           mapInteractiveProvider.overrideWithValue(true),
+          routePlanningProvider.overrideWith(_PlanningWithRoute.new),
+          mapSheetVisibilityStateProvider.overrideWith(_ExpandedSheet.new),
         ],
         child: testLocalizedApp(
           child: const MapScreen(
@@ -113,12 +117,34 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    await tester.tap(find.byTooltip('Plan river route'));
-    await tester.pump();
-    expect(find.text('River route (beta)'), findsOneWidget);
+    expect(find.text('Plan paddle'), findsWidgets);
 
-    await tester.tap(find.byTooltip('Exit route planning'));
+    await tester.tap(find.byTooltip('Close'));
     await tester.pump();
-    expect(find.text('River route (beta)'), findsNothing);
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Plan paddle'), findsNothing);
+    expect(
+      ProviderScope.containerOf(
+        tester.element(find.byType(MapScreen)),
+      ).read(routePlanningProvider).planningMode,
+      isFalse,
+    );
   });
+}
+
+class _PlanningWithRoute extends RoutePlanning {
+  @override
+  RoutePlanningState build() {
+    final putIn = kLaunchPoints.first;
+    return RoutePlanningState(
+      phase: MapPlanningPhase.planning,
+      waypoints: [putIn],
+    );
+  }
+}
+
+class _ExpandedSheet extends MapSheetVisibilityState {
+  @override
+  MapSheetVisibility build() => MapSheetVisibility.planningExpanded;
 }

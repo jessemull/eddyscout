@@ -72,11 +72,13 @@ void main() {
       expect(container.read(routePlanningProvider).takeOut, isNull);
     });
 
-    test('clearSelection resets picks but keeps planning mode', () {
+    test('clearSelection clears route geometry but keeps start waypoint', () {
+      final putIn = _launch(id: 'a');
       container.read(routePlanningProvider.notifier).togglePlanningMode();
+      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
       container
           .read(routePlanningProvider.notifier)
-          .handleLaunchTap(_launch(id: 'a'));
+          .handleLaunchTap(_launch(id: 'b'));
       container
           .read(routePlanningProvider.notifier)
           .setActiveGeometry(
@@ -95,7 +97,7 @@ void main() {
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
-      expect(state.waypoints, isEmpty);
+      expect(state.waypoints, [putIn]);
       expect(state.routeLengthKm, isNull);
       expect(state.polylineLonLat, isNull);
     });

@@ -940,6 +940,168 @@ abstract class AppLocalizations {
   /// **'Saved routes'**
   String get shellTabSavedRoutes;
 
+  /// No description provided for @shellTabHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get shellTabHome;
+
+  /// No description provided for @shellTabMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get shellTabMenu;
+
+  /// No description provided for @mapSearchPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Search rivers, launches, places…'**
+  String get mapSearchPlaceholder;
+
+  /// No description provided for @mapSearchLaunchesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Launches'**
+  String get mapSearchLaunchesSection;
+
+  /// No description provided for @mapSearchPlacesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Places'**
+  String get mapSearchPlacesSection;
+
+  /// No description provided for @mapSearchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found.'**
+  String get mapSearchNoResults;
+
+  /// No description provided for @mapPlanPaddleButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan paddle'**
+  String get mapPlanPaddleButton;
+
+  /// No description provided for @mapViewConditionsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'View conditions'**
+  String get mapViewConditionsButton;
+
+  /// No description provided for @mapRoutePlanningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan paddle'**
+  String get mapRoutePlanningTitle;
+
+  /// No description provided for @mapRouteStopStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get mapRouteStopStart;
+
+  /// No description provided for @mapRouteStopDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination'**
+  String get mapRouteStopDestination;
+
+  /// No description provided for @mapRouteStopMiddle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {number}'**
+  String mapRouteStopMiddle(int number);
+
+  /// No description provided for @mapRouteAddStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Add stop'**
+  String get mapRouteAddStop;
+
+  /// No description provided for @mapRouteChooseDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose destination'**
+  String get mapRouteChooseDestination;
+
+  /// No description provided for @mapRouteAddStopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap another launch on the map to set your destination or add a stop.'**
+  String get mapRouteAddStopHint;
+
+  /// No description provided for @mapLocateMeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Locate me'**
+  String get mapLocateMeLabel;
+
+  /// No description provided for @mapCloseSheetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get mapCloseSheetLabel;
+
+  /// No description provided for @homePlaceholderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homePlaceholderTitle;
+
+  /// No description provided for @homePlaceholderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured paddles and discovery experiences are coming soon.'**
+  String get homePlaceholderBody;
+
+  /// No description provided for @homeExploreMapButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore map'**
+  String get homeExploreMapButton;
+
+  /// No description provided for @menuScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menuScreenTitle;
+
+  /// No description provided for @menuImportGpx.
+  ///
+  /// In en, this message translates to:
+  /// **'Import GPX'**
+  String get menuImportGpx;
+
+  /// No description provided for @menuExportGpx.
+  ///
+  /// In en, this message translates to:
+  /// **'Export GPX'**
+  String get menuExportGpx;
+
+  /// No description provided for @menuSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get menuSettings;
+
+  /// No description provided for @menuAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get menuAbout;
+
+  /// No description provided for @menuSettingsComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings coming soon.'**
+  String get menuSettingsComingSoon;
+
+  /// No description provided for @menuAboutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'EddyScout — your Pacific Northwest paddling companion.'**
+  String get menuAboutBody;
+
   /// No description provided for @savedRoutesListTitle.
   ///
   /// In en, this message translates to:

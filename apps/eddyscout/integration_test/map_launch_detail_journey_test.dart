@@ -3,12 +3,10 @@
 //   --dart-define=MAPBOX_ACCESS_TOKEN=pk.integration_test \
 //   --dart-define=INTEGRATION_MAP_STUB=true
 
-import 'dart:async' show unawaited;
-
-import 'package:eddyscout/routing/app_routes.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import 'helpers/eddyscout_integration_harness.dart';
 import 'helpers/integration_localizations.dart';
@@ -20,24 +18,37 @@ const _usesIntegrationMapStub = bool.fromEnvironment('INTEGRATION_MAP_STUB');
 final bool _hasMapboxToken = _mapboxAccessToken.isNotEmpty;
 final bool _skipJourneyTest = !_hasMapboxToken || !_usesIntegrationMapStub;
 
+CircleAnnotation _launchAnnotation(String launchId) => CircleAnnotation(
+  id: launchId,
+  geometry: Point(coordinates: Position(0, 0)),
+  customData: <String, Object>{'launchId': launchId},
+);
+
 void main() {
   ensureIntegrationTestInitialized();
 
   final launch = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
 
   testWidgets(
-    'map to launch detail and back',
+    'map place sheet to launch detail and back',
     (tester) async {
-      await pumpEddyScoutApp(tester);
+      final container = await pumpEddyScoutApp(tester);
       await integrationPumpFrames(tester, count: 5);
 
       final l10n = integrationL10n(tester);
-      await integrationWaitFor(tester, find.text(l10n.mapScreenTitle));
+      await integrationWaitFor(
+        tester,
+        find.text(l10n.mapSearchPlaceholder),
+      );
       expect(find.byKey(const Key('integration_map_stub')), findsOneWidget);
 
-      final mapContext = tester.element(find.text(l10n.mapScreenTitle));
-      // go_router push completes when the route is popped — do not await here.
-      unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(mapContext));
+      container
+          .read(mapboxMapControllerProvider.notifier)
+          .onLaunchCircleTap(_launchAnnotation('cathedral_park'));
+      await integrationPumpFrames(tester);
+
+      await integrationWaitFor(tester, find.text(l10n.mapViewConditionsButton));
+      await tester.tap(find.text(l10n.mapViewConditionsButton));
       await integrationPumpFrames(tester);
 
       await integrationWaitFor(tester, find.text(launch.name));
@@ -46,7 +57,10 @@ void main() {
       await tester.tap(find.byType(BackButton));
       await integrationPumpFrames(tester);
 
-      await integrationWaitFor(tester, find.text(l10n.mapScreenTitle));
+      await integrationWaitFor(
+        tester,
+        find.text(l10n.mapSearchPlaceholder),
+      );
       expect(find.byKey(const Key('integration_map_stub')), findsOneWidget);
     },
     skip: _skipJourneyTest,

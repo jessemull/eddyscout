@@ -1,7 +1,6 @@
 import 'dart:async' show unawaited;
 
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -9,12 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import 'gpx_actions_provider.dart';
+import 'map_bottom_sheet_host.dart';
 import 'map_constants.dart';
-import 'map_planning_overlay.dart';
+import 'map_floating_controls.dart';
 import 'map_planning_provider.dart';
 import 'map_route_failure_l10n.dart';
+import 'map_search_field.dart';
+import 'map_search_overlay.dart';
+import 'map_search_provider.dart';
 import 'map_session_provider.dart';
+import 'map_sheet_provider.dart';
 import 'map_ui_callbacks.dart';
 import 'mapbox/mapbox_map_controller.dart';
 
@@ -35,7 +38,7 @@ class MapScreen extends ConsumerStatefulWidget {
   @visibleForTesting
   final bool forceZoomChromeForTest;
 
-  /// Opens launch detail for a tapped pin when not in route-planning mode.
+  /// Opens launch detail from the place sheet.
   final void Function(LaunchPoint launch)? onOpenLaunchDetail;
 
   /// Opens the save-route flow when planning has a valid route.
@@ -47,12 +50,10 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   bool get _usesMapStub => widget.mapSlot != null;
-  bool _gpxBusy = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Riverpod forbids modifying providers during build/initState; bind after frame.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _bindUiCallbacks();
     });
@@ -88,110 +89,79 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               }
               widget.onOpenLaunchDetail?.call(launch);
             },
+            onLaunchPlaceSelected: _handleLaunchPlaceSelected,
           ),
         );
   }
 
-  Future<void> _handleGpxExport() async {
-    if (_gpxBusy) {
-      return;
-    }
-    setState(() => _gpxBusy = true);
-    try {
-      final outcome = await ref.read(gpxActionsProvider.notifier).exportRoute();
-      if (!mounted) {
-        return;
-      }
-      _showGpxOutcome(
-        outcome,
-        successMessage: context.l10n.mapGpxExportSuccess,
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _gpxBusy = false);
-      }
+  void _handleLaunchPlaceSelected(LaunchPoint launch) {
+    ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(launch);
+    ref.read(routePlanningProvider.notifier).selectPlace(launch);
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlacePeek();
+    unawaited(
+      ref.read(mapboxMapControllerProvider.notifier).flyToLaunch(launch),
+    );
+  }
+
+  void _handleSearchLaunchSelected(LaunchPoint launch) {
+    _handleLaunchPlaceSelected(launch);
+  }
+
+  void _startPlanPaddle(LaunchPoint launch) {
+    ref.read(routePlanningProvider.notifier).startPlanPaddle(launch);
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningExpanded();
+  }
+
+  Future<void> _closeSheet() async {
+    ref.read(mapSheetVisibilityStateProvider.notifier).hide();
+    ref.read(mapPlaceSelectionProvider.notifier).clear();
+    await ref
+        .read(mapboxMapControllerProvider.notifier)
+        .dismissPlanningSession();
+  }
+
+  Future<void> _clearRoute() async {
+    await ref
+        .read(mapboxMapControllerProvider.notifier)
+        .clearPlanningSelection();
+    final start = ref.read(routePlanningProvider).putIn;
+    if (start != null) {
+      ref.read(routePlanningProvider.notifier).startPlanPaddle(start);
+      ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningExpanded();
+    } else {
+      await _closeSheet();
     }
   }
 
-  Future<void> _handleGpxImport() async {
-    if (_gpxBusy) {
-      return;
-    }
-    setState(() => _gpxBusy = true);
-    try {
-      final outcome = await ref.read(gpxActionsProvider.notifier).importRoute();
-      if (!mounted) {
-        return;
-      }
-      _showGpxOutcome(
-        outcome,
-        successMessage: context.l10n.mapGpxImportSuccess,
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _gpxBusy = false);
-      }
-    }
-  }
-
-  void _showGpxOutcome(
-    GpxActionOutcome outcome, {
-    required String successMessage,
-  }) {
-    switch (outcome) {
-      case GpxActionCancelled():
-        return;
-      case GpxActionSuccess():
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(successMessage)));
-      case GpxActionFailure(:final failure):
-        final localized = localizeGpxActionFailure(
-          l10n: context.l10n,
-          failure: failure,
-        );
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(localized)));
-    }
+  void _showAddStopHint() {
+    final l10n = context.l10n;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.mapRouteAddStopHint)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Start loading bundled river geometry as soon as the map tab is visible.
     ref.watch(riverRoutePlannerProvider);
 
     final planning = ref.watch(routePlanningProvider);
     final mapInteractive = ref.watch(mapInteractiveProvider);
+    final sheetVisibility = ref.watch(mapSheetVisibilityStateProvider);
+    final selectedLaunch = ref.watch(mapPlaceSelectionProvider);
+    final searchOpen = ref.watch(mapSearchOverlayVisibleProvider);
 
-    // Keep controller alive while this screen is mounted; autoDispose was
-    // disposing it before async launch-marker install finished.
     ref.watch(mapboxMapControllerProvider);
     final mapController = ref.read(mapboxMapControllerProvider.notifier);
 
-    final l10n = context.l10n;
     final mapChild = _usesMapStub
         ? widget.mapSlot!
         : _liveMapWidget(mapController);
+
+    final sheetPadding = sheetVisibility == MapSheetVisibility.hidden
+        ? MediaQuery.viewPaddingOf(context).bottom + 72
+        : MediaQuery.sizeOf(context).height * 0.28;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.mapScreenTitle),
-        actions: [
-          Semantics(
-            button: true,
-            label: planning.planningMode
-                ? l10n.mapExitPlanningTooltip
-                : l10n.mapPlanRouteTooltip,
-            child: IconButton(
-              tooltip: planning.planningMode
-                  ? l10n.mapExitPlanningTooltip
-                  : l10n.mapPlanRouteTooltip,
-              onPressed: mapController.togglePlanningMode,
-              icon: Icon(planning.planningMode ? Icons.close : Icons.alt_route),
-            ),
-          ),
-        ],
-      ),
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -199,31 +169,46 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ignoring: !mapInteractive,
             child: mapChild,
           ),
+          MapSearchField(
+            onTap: () {
+              ref.read(mapSearchOverlayVisibleProvider.notifier).show();
+            },
+          ),
           if (mapInteractive &&
               (!_usesMapStub || widget.forceZoomChromeForTest))
-            _MapZoomChrome(
-              bottomPadding: MediaQuery.viewPaddingOf(context).bottom + 120,
+            MapFloatingControls(
+              bottomPadding: sheetPadding,
               controller: mapController,
-              semanticsLabel: l10n.mapZoomControlsSemantics,
-              zoomInLabel: l10n.mapZoomInLabel,
-              zoomOutLabel: l10n.mapZoomOutLabel,
-              showAllLaunchesLabel: l10n.mapShowAllLaunchesLabel,
+              showZoomChrome: true,
             ),
-          if (planning.planningMode)
-            MapPlanningOverlay(
+          if (sheetVisibility != MapSheetVisibility.hidden && !searchOpen)
+            MapBottomSheetHost(
+              visibility: sheetVisibility,
+              selectedLaunch: selectedLaunch,
               waypoints: planning.waypoints,
               routeLengthKm: planning.routeLengthKm,
               canSave:
                   planning.hasRunnableRoute && planning.activeGeometry != null,
-              canExportGpx:
-                  planning.polylineLonLat != null &&
-                  planning.polylineLonLat!.length >= 2,
-              gpxBusy: _gpxBusy,
-              onClear: () => unawaited(mapController.clearPlanningSelection()),
-              onDone: mapController.togglePlanningMode,
+              onPlanPaddle: () {
+                final launch = selectedLaunch;
+                if (launch != null) {
+                  _startPlanPaddle(launch);
+                }
+              },
+              onViewConditions: () {
+                final launch = selectedLaunch;
+                if (launch != null) {
+                  widget.onOpenLaunchDetail?.call(launch);
+                }
+              },
+              onClose: () => unawaited(_closeSheet()),
+              onClear: () => unawaited(_clearRoute()),
               onSave: () => widget.onSaveRoute?.call(),
-              onExportGpx: () => unawaited(_handleGpxExport()),
-              onImportGpx: () => unawaited(_handleGpxImport()),
+              onAddStopHint: _showAddStopHint,
+            ),
+          if (searchOpen)
+            MapSearchOverlay(
+              onLaunchSelected: _handleSearchLaunchSelected,
             ),
         ],
       ),
@@ -232,7 +217,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Widget _liveMapWidget(MapboxMapController controller) => MapWidget(
     key: const ValueKey<String>('eddyscout_map'),
-    // TLHC_HC avoids Android texture/surface bugs with Mapbox (experimental).
+    // Mapbox Android texture hosting — see mapbox_maps_flutter docs.
     // ignore: experimental_member_use
     androidHostingMode: AndroidPlatformViewHostingMode.TLHC_HC,
     viewport: kInitialMapViewport,
@@ -243,62 +228,5 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     onStyleLoadedListener: (_) => controller.onStyleLoaded(),
     onCameraChangeListener: kDebugMode ? controller.onDebugCameraChanged : null,
     onZoomListener: kDebugMode ? controller.onDebugMapZoomEnded : null,
-  );
-}
-
-class _MapZoomChrome extends StatelessWidget {
-  const _MapZoomChrome({
-    required this.bottomPadding,
-    required this.controller,
-    required this.semanticsLabel,
-    required this.zoomInLabel,
-    required this.zoomOutLabel,
-    required this.showAllLaunchesLabel,
-  });
-
-  final double bottomPadding;
-  final MapboxMapController controller;
-  final String semanticsLabel;
-  final String zoomInLabel;
-  final String zoomOutLabel;
-  final String showAllLaunchesLabel;
-
-  @override
-  Widget build(BuildContext context) => Positioned(
-    left: Spacing.sm,
-    bottom: bottomPadding,
-    child: Semantics(
-      container: true,
-      label: semanticsLabel,
-      child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              tooltip: zoomInLabel,
-              icon: const Icon(Icons.add),
-              onPressed: () =>
-                  unawaited(controller.nudgeZoomBy(kMapChromeZoomStep)),
-            ),
-            const Divider(height: 1),
-            IconButton(
-              tooltip: zoomOutLabel,
-              icon: const Icon(Icons.remove),
-              onPressed: () =>
-                  unawaited(controller.nudgeZoomBy(-kMapChromeZoomStep)),
-            ),
-            const Divider(height: 1),
-            IconButton(
-              tooltip: showAllLaunchesLabel,
-              icon: const Icon(Icons.zoom_out_map),
-              onPressed: () => unawaited(controller.fitRegionFromChrome()),
-            ),
-          ],
-        ),
-      ),
-    ),
   );
 }
