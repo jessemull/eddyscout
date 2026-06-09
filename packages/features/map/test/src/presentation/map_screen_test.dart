@@ -1,3 +1,4 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
@@ -184,13 +185,16 @@ class _FixedRoutePlanning extends RoutePlanning {
     return RoutePlanningState(
       planningMode: true,
       phase: RoutePlanningPhase.routeReady,
-      putIn: putIn,
-      takeOut: takeOut,
+      waypoints: [putIn, takeOut],
       routeLengthKm: 12.5,
-      polylineLonLat: [
-        [putIn.longitude, putIn.latitude],
-        [takeOut.longitude, takeOut.latitude],
-      ],
+      activeGeometry: RouteGeometrySnapshot(
+        polylineLonLat: [
+          [putIn.longitude, putIn.latitude],
+          [takeOut.longitude, takeOut.latitude],
+        ],
+        lengthMeters: 12500,
+        computedAt: DateTime.utc(2026),
+      ),
       routeOrigin: RouteOrigin.planner,
     );
   }

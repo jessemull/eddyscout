@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class MapScreen extends ConsumerStatefulWidget {
     super.key,
     this.mapSlot,
     this.onOpenLaunchDetail,
+    this.onSaveRoute,
     @visibleForTesting this.forceZoomChromeForTest = false,
   });
 
@@ -36,6 +38,9 @@ class MapScreen extends ConsumerStatefulWidget {
   /// Opens launch detail for a tapped pin when not in route-planning mode.
   final void Function(LaunchPoint launch)? onOpenLaunchDetail;
 
+  /// Opens the save-route flow when planning has a valid route.
+  final VoidCallback? onSaveRoute;
+
   @override
   ConsumerState<MapScreen> createState() => _MapScreenState();
 }
@@ -48,7 +53,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Riverpod forbids modifying providers during build/initState; bind after frame.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _bindUiCallbacks());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _bindUiCallbacks();
+    });
   }
 
   void _bindUiCallbacks() {
@@ -151,6 +158,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Start loading bundled river geometry as soon as the map tab is visible.
+    ref.watch(riverRoutePlannerProvider);
+
     final planning = ref.watch(routePlanningProvider);
     final mapInteractive = ref.watch(mapInteractiveProvider);
 
@@ -202,10 +212,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           if (planning.planningMode)
             MapPlanningOverlay(
               phase: planning.phase,
-              putIn: planning.putIn,
-              takeOut: planning.takeOut,
+              waypoints: planning.waypoints,
               routeLengthKm: planning.routeLengthKm,
-              riverSystem: planning.putIn?.riverSystem,
+              canSave:
+                  planning.hasRunnableRoute && planning.activeGeometry != null,
               lastFailureCode: planning.lastFailureCode,
               lastFailureRiverSystemName: planning.lastFailureRiverSystemName,
               lastFailurePutInReachId: planning.lastFailurePutInReachId,
@@ -217,6 +227,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               gpxBusy: _gpxBusy,
               onClear: () => unawaited(mapController.clearPlanningSelection()),
               onDone: mapController.togglePlanningMode,
+              onSave: () => widget.onSaveRoute?.call(),
               onExportGpx: () => unawaited(_handleGpxExport()),
               onImportGpx: () => unawaited(_handleGpxImport()),
             ),

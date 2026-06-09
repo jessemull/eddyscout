@@ -299,10 +299,13 @@ class _PlannedRoutePlanning extends RoutePlanning {
   @override
   RoutePlanningState build() => RoutePlanningState(
     planningMode: true,
-    putIn: kLaunchPoints.first,
-    takeOut: kLaunchPoints[1],
+    waypoints: [kLaunchPoints.first, kLaunchPoints[1]],
     routeLengthKm: 10,
-    polylineLonLat: polyline,
+    activeGeometry: RouteGeometrySnapshot(
+      polylineLonLat: polyline,
+      lengthMeters: 10000,
+      computedAt: DateTime.utc(2026),
+    ),
     routeOrigin: RouteOrigin.planner,
   );
 }

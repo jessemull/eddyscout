@@ -15,6 +15,12 @@ abstract final class AnalyticsScreenNames {
   /// Web map placeholder.
   static const webPlaceholder = 'screen_web_placeholder';
 
+  /// Saved routes list tab.
+  static const savedRoutesList = 'screen_saved_routes_list';
+
+  /// Saved route detail screen.
+  static const savedRouteDetail = 'screen_saved_route_detail';
+
   /// Maps a go_router [matchedLocation] to a screen name, or null when unknown.
   ///
   /// `/launch/:id` paths return null because the matched location cannot
@@ -29,6 +35,12 @@ abstract final class AnalyticsScreenNames {
     }
     if (matchedLocation == '/web') {
       return webPlaceholder;
+    }
+    if (matchedLocation == '/saved-routes') {
+      return savedRoutesList;
+    }
+    if (matchedLocation.startsWith('/saved-routes/')) {
+      return savedRouteDetail;
     }
     return null;
   }

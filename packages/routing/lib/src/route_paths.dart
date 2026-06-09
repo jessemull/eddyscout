@@ -14,4 +14,10 @@ abstract final class RoutePaths {
 
   /// Web placeholder when the map is unavailable on web.
   static const web = '/web';
+
+  /// Saved routes list (tab branch).
+  static const savedRoutes = '/saved-routes';
+
+  /// Saved route detail with `:routeId` path parameter.
+  static const savedRouteDetail = '/saved-routes/:routeId';
 }

@@ -972,6 +972,360 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use the Android or iOS app for the interactive map.'**
   String get webMapPlaceholderBody;
+
+  /// No description provided for @shellTabMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get shellTabMap;
+
+  /// No description provided for @shellTabSavedRoutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved routes'**
+  String get shellTabSavedRoutes;
+
+  /// No description provided for @savedRoutesListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved routes'**
+  String get savedRoutesListTitle;
+
+  /// No description provided for @savedRoutesAllTab.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get savedRoutesAllTab;
+
+  /// No description provided for @savedRoutesFavoritesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get savedRoutesFavoritesTab;
+
+  /// No description provided for @savedRoutesListEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved routes yet. Plan a route on the Map tab and tap Save.'**
+  String get savedRoutesListEmpty;
+
+  /// No description provided for @savedRoutesFavoritesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorite routes yet.'**
+  String get savedRoutesFavoritesEmpty;
+
+  /// No description provided for @savedRoutesListError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load saved routes.'**
+  String get savedRoutesListError;
+
+  /// No description provided for @savedRoutesDistanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String savedRoutesDistanceKm(String km);
+
+  /// No description provided for @savedRoutesWaypointCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} stops'**
+  String savedRoutesWaypointCount(int count);
+
+  /// No description provided for @savedRoutesFavoriteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get savedRoutesFavoriteTooltip;
+
+  /// No description provided for @savedRoutesUnfavoriteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get savedRoutesUnfavoriteTooltip;
+
+  /// No description provided for @savedRoutesDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Route details'**
+  String get savedRoutesDetailTitle;
+
+  /// No description provided for @savedRoutesDetailError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this route.'**
+  String get savedRoutesDetailError;
+
+  /// No description provided for @savedRoutesNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Route not found.'**
+  String get savedRoutesNotFound;
+
+  /// No description provided for @savedRoutesNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get savedRoutesNameLabel;
+
+  /// No description provided for @savedRoutesDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get savedRoutesDescriptionLabel;
+
+  /// No description provided for @savedRoutesNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get savedRoutesNotesLabel;
+
+  /// No description provided for @savedRoutesDurationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated duration (minutes)'**
+  String get savedRoutesDurationLabel;
+
+  /// No description provided for @savedRoutesDurationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — e.g. distance ÷ 4 km/h'**
+  String get savedRoutesDurationHint;
+
+  /// No description provided for @savedRoutesDifficultyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get savedRoutesDifficultyLabel;
+
+  /// No description provided for @savedRoutesDifficultyNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get savedRoutesDifficultyNone;
+
+  /// No description provided for @savedRoutesDifficultyEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get savedRoutesDifficultyEasy;
+
+  /// No description provided for @savedRoutesDifficultyModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get savedRoutesDifficultyModerate;
+
+  /// No description provided for @savedRoutesDifficultyHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get savedRoutesDifficultyHard;
+
+  /// No description provided for @savedRoutesDifficultyExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Expert'**
+  String get savedRoutesDifficultyExpert;
+
+  /// No description provided for @savedRoutesSkillLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended skill'**
+  String get savedRoutesSkillLabel;
+
+  /// No description provided for @savedRoutesSkillNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get savedRoutesSkillNone;
+
+  /// No description provided for @savedRoutesCategoriesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get savedRoutesCategoriesLabel;
+
+  /// No description provided for @savedRoutesCategoryScenic.
+  ///
+  /// In en, this message translates to:
+  /// **'Scenic'**
+  String get savedRoutesCategoryScenic;
+
+  /// No description provided for @savedRoutesCategoryTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get savedRoutesCategoryTraining;
+
+  /// No description provided for @savedRoutesCategoryCommute.
+  ///
+  /// In en, this message translates to:
+  /// **'Commute'**
+  String get savedRoutesCategoryCommute;
+
+  /// No description provided for @savedRoutesCategoryOvernight.
+  ///
+  /// In en, this message translates to:
+  /// **'Overnight'**
+  String get savedRoutesCategoryOvernight;
+
+  /// No description provided for @savedRoutesCustomTagsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom tags'**
+  String get savedRoutesCustomTagsLabel;
+
+  /// No description provided for @savedRoutesCustomTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tag'**
+  String get savedRoutesCustomTagHint;
+
+  /// No description provided for @savedRoutesCustomTagAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tag'**
+  String get savedRoutesCustomTagAdd;
+
+  /// No description provided for @savedRoutesFavoriteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update favorite.'**
+  String get savedRoutesFavoriteError;
+
+  /// No description provided for @savedRoutesLoadOnMapInsufficientWaypoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load route — too few known launch points.'**
+  String get savedRoutesLoadOnMapInsufficientWaypoints;
+
+  /// No description provided for @savedRoutesLoadOnMapDrawError.
+  ///
+  /// In en, this message translates to:
+  /// **'Route loaded, but the map could not draw the line.'**
+  String get savedRoutesLoadOnMapDrawError;
+
+  /// No description provided for @savedRoutesWaypointsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waypoints'**
+  String get savedRoutesWaypointsTitle;
+
+  /// No description provided for @savedRoutesWaypointSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Waypoint {position}, {name}'**
+  String savedRoutesWaypointSemantics(int position, String name);
+
+  /// No description provided for @savedRoutesReorderWaypointHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder'**
+  String get savedRoutesReorderWaypointHint;
+
+  /// No description provided for @savedRoutesDeleteWaypointSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete waypoint {position}'**
+  String savedRoutesDeleteWaypointSemantics(int position);
+
+  /// No description provided for @savedRoutesUnknownLaunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown launch'**
+  String get savedRoutesUnknownLaunch;
+
+  /// No description provided for @savedRoutesSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get savedRoutesSaveButton;
+
+  /// No description provided for @savedRoutesLoadOnMapButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Load on map'**
+  String get savedRoutesLoadOnMapButton;
+
+  /// No description provided for @savedRoutesDeleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete route'**
+  String get savedRoutesDeleteButton;
+
+  /// No description provided for @savedRoutesNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a route name.'**
+  String get savedRoutesNameRequired;
+
+  /// No description provided for @savedRoutesSaveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Route saved.'**
+  String get savedRoutesSaveSuccess;
+
+  /// No description provided for @savedRoutesSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save route.'**
+  String get savedRoutesSaveError;
+
+  /// No description provided for @savedRoutesDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete route?'**
+  String get savedRoutesDeleteConfirmTitle;
+
+  /// No description provided for @savedRoutesDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the route from your device. This cannot be undone.'**
+  String get savedRoutesDeleteConfirmBody;
+
+  /// No description provided for @savedRoutesDeleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete route.'**
+  String get savedRoutesDeleteError;
+
+  /// No description provided for @savedRoutesSaveDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save route'**
+  String get savedRoutesSaveDialogTitle;
+
+  /// No description provided for @savedRoutesSaveFromMapButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get savedRoutesSaveFromMapButton;
+
+  /// No description provided for @mapPlanningSaveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Save route'**
+  String get mapPlanningSaveLabel;
+
+  /// No description provided for @mapPlanningWaypointCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} stops'**
+  String mapPlanningWaypointCount(int count);
+
+  /// No description provided for @commonRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get commonRetry;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
 }
 
 class _AppLocalizationsDelegate

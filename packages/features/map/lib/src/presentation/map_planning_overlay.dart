@@ -6,21 +6,21 @@ import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
 import 'package:eddyscout_map/src/presentation/map_route_failure_l10n.dart';
 import 'package:flutter/material.dart';
 
-/// Route-planning instructions and put-in / take-out summary over the map.
+/// Route-planning instructions and waypoint summary over the map.
 class MapPlanningOverlay extends StatelessWidget {
   const MapPlanningOverlay({
     required this.phase,
-    required this.putIn,
-    required this.takeOut,
+    required this.waypoints,
     required this.routeLengthKm,
-    required this.riverSystem,
-    required this.lastFailureCode,
+    required this.canSave,
     required this.canExportGpx,
     required this.gpxBusy,
     required this.onClear,
     required this.onDone,
+    required this.onSave,
     required this.onExportGpx,
     required this.onImportGpx,
+    this.lastFailureCode,
     this.lastFailureRiverSystemName,
     this.lastFailurePutInReachId,
     this.lastFailureTakeOutReachId,
@@ -29,26 +29,30 @@ class MapPlanningOverlay extends StatelessWidget {
   });
 
   final RoutePlanningPhase phase;
-  final LaunchPoint? putIn;
-  final LaunchPoint? takeOut;
+  final List<LaunchPoint> waypoints;
   final double? routeLengthKm;
-  final RiverSystem? riverSystem;
+  final bool canSave;
+  final bool canExportGpx;
+  final bool gpxBusy;
+  final VoidCallback onClear;
+  final VoidCallback onDone;
+  final VoidCallback onSave;
+  final VoidCallback onExportGpx;
+  final VoidCallback onImportGpx;
   final RouteFailureCode? lastFailureCode;
   final String? lastFailureRiverSystemName;
   final String? lastFailurePutInReachId;
   final String? lastFailureTakeOutReachId;
   final String? routeReachId;
-  final bool canExportGpx;
-  final bool gpxBusy;
-  final VoidCallback onClear;
-  final VoidCallback onDone;
-  final VoidCallback onExportGpx;
-  final VoidCallback onImportGpx;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
+    final putIn = waypoints.isNotEmpty ? waypoints.first : null;
+    final takeOut = waypoints.length >= 2 ? waypoints.last : null;
+    final riverSystem = putIn?.riverSystem;
+
     return SafeArea(
       child: Align(
         alignment: Alignment.topCenter,
@@ -105,17 +109,24 @@ class MapPlanningOverlay extends StatelessWidget {
                         ],
                       ),
                     ],
+                    if (waypoints.isNotEmpty) ...[
+                      const SizedBox(height: Spacing.sm),
+                      Text(
+                        l10n.mapPlanningWaypointCount(waypoints.length),
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ],
                     if (putIn != null) ...[
                       const SizedBox(height: Spacing.sm),
                       Text(
-                        l10n.mapPlanningPutInName(putIn!.name),
+                        l10n.mapPlanningPutInName(putIn.name),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
-                    if (takeOut != null) ...[
+                    if (takeOut != null && waypoints.length == 2) ...[
                       const SizedBox(height: Spacing.xs),
                       Text(
-                        l10n.mapPlanningTakeOutName(takeOut!.name),
+                        l10n.mapPlanningTakeOutName(takeOut.name),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
@@ -123,7 +134,7 @@ class MapPlanningOverlay extends StatelessWidget {
                         riverSystem != null) ...[
                       const SizedBox(height: Spacing.xs),
                       Text(
-                        l10n.mapPlanningRiverSystem(riverSystem!.name),
+                        l10n.mapPlanningRiverSystem(riverSystem.name),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
@@ -195,6 +206,11 @@ class MapPlanningOverlay extends StatelessWidget {
                           onPressed: gpxBusy ? null : onClear,
                           child: Text(l10n.mapPlanningClearLabel),
                         ),
+                        if (canSave)
+                          TextButton(
+                            onPressed: onSave,
+                            child: Text(l10n.mapPlanningSaveLabel),
+                          ),
                         TextButton(
                           onPressed: gpxBusy ? null : onDone,
                           child: Text(l10n.mapPlanningDoneLabel),
@@ -211,11 +227,16 @@ class MapPlanningOverlay extends StatelessWidget {
     );
   }
 
-  String _stepHint(AppLocalizations l10n) => switch (phase) {
-    RoutePlanningPhase.pickPutIn => l10n.mapPlanningStepPickPutIn,
-    RoutePlanningPhase.pickTakeOut => l10n.mapPlanningStepPickTakeOut,
-    RoutePlanningPhase.computingRoute => l10n.mapPlanningInstructions,
-    RoutePlanningPhase.routeReady => l10n.mapPlanningInstructions,
-    RoutePlanningPhase.routeError => l10n.mapPlanningInstructions,
-  };
+  String _stepHint(AppLocalizations l10n) {
+    if (waypoints.length > 2) {
+      return l10n.mapPlanningInstructions;
+    }
+    return switch (phase) {
+      RoutePlanningPhase.pickPutIn => l10n.mapPlanningStepPickPutIn,
+      RoutePlanningPhase.pickTakeOut => l10n.mapPlanningStepPickTakeOut,
+      RoutePlanningPhase.computingRoute => l10n.mapPlanningInstructions,
+      RoutePlanningPhase.routeReady => l10n.mapPlanningInstructions,
+      RoutePlanningPhase.routeError => l10n.mapPlanningInstructions,
+    };
+  }
 }

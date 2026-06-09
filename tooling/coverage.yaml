@@ -13,4 +13,5 @@ thresholds:
   eddyscout_conditions: 85
   eddyscout_map: 85
   eddyscout_hydro_routing: 85
+  eddyscout_saved_routes: 85
   eddyscout: 85

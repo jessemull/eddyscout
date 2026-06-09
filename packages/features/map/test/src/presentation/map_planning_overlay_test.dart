@@ -7,23 +7,21 @@ import '../../helpers/test_localized_app.dart';
 
 MapPlanningOverlay _overlay({
   required RoutePlanningPhase phase,
-  LaunchPoint? putIn,
-  LaunchPoint? takeOut,
+  List<LaunchPoint> waypoints = const [],
   double? routeLengthKm,
-  RiverSystem? riverSystem,
   RouteFailureCode? lastFailureCode,
   String? lastFailureRiverSystemName,
   String? lastFailurePutInReachId,
   String? lastFailureTakeOutReachId,
   String? routeReachId,
+  bool canSave = false,
   bool canExportGpx = false,
 }) {
   return MapPlanningOverlay(
     phase: phase,
-    putIn: putIn,
-    takeOut: takeOut,
+    waypoints: waypoints,
     routeLengthKm: routeLengthKm,
-    riverSystem: riverSystem,
+    canSave: canSave,
     lastFailureCode: lastFailureCode,
     lastFailureRiverSystemName: lastFailureRiverSystemName,
     lastFailurePutInReachId: lastFailurePutInReachId,
@@ -33,6 +31,7 @@ MapPlanningOverlay _overlay({
     gpxBusy: false,
     onClear: () {},
     onDone: () {},
+    onSave: () {},
     onExportGpx: () {},
     onImportGpx: () {},
   );
@@ -59,10 +58,8 @@ void main() {
       testLocalizedApp(
         child: _overlay(
           phase: RoutePlanningPhase.routeReady,
-          putIn: putIn,
-          takeOut: takeOut,
+          waypoints: [putIn, takeOut],
           routeLengthKm: 8.2,
-          riverSystem: RiverSystem.willamette,
           canExportGpx: true,
         ),
       ),
@@ -79,8 +76,7 @@ void main() {
       testLocalizedApp(
         child: _overlay(
           phase: RoutePlanningPhase.routeError,
-          putIn: kLaunchPoints.first,
-          takeOut: kLaunchPoints[1],
+          waypoints: [kLaunchPoints.first, kLaunchPoints[1]],
           lastFailureCode: RouteFailureCode.disconnectedReach,
         ),
       ),
@@ -99,8 +95,7 @@ void main() {
       testLocalizedApp(
         child: _overlay(
           phase: RoutePlanningPhase.routeError,
-          putIn: kLaunchPoints.first,
-          takeOut: kLaunchPoints[1],
+          waypoints: [kLaunchPoints.first, kLaunchPoints[1]],
           lastFailureCode: RouteFailureCode.disconnectedReach,
           lastFailurePutInReachId: 'willamette_portland',
           lastFailureTakeOutReachId: 'columbia_gorge',
@@ -127,8 +122,7 @@ void main() {
       testLocalizedApp(
         child: _overlay(
           phase: RoutePlanningPhase.computingRoute,
-          putIn: kLaunchPoints.first,
-          takeOut: kLaunchPoints[1],
+          waypoints: [kLaunchPoints.first, kLaunchPoints[1]],
         ),
       ),
     );
@@ -142,10 +136,8 @@ void main() {
       testLocalizedApp(
         child: _overlay(
           phase: RoutePlanningPhase.routeReady,
-          putIn: kLaunchPoints.first,
-          takeOut: kLaunchPoints[1],
+          waypoints: [kLaunchPoints.first, kLaunchPoints[1]],
           routeLengthKm: 8.2,
-          riverSystem: RiverSystem.columbia,
           routeReachId: 'columbia_gorge',
         ),
       ),
@@ -162,8 +154,7 @@ void main() {
       testLocalizedApp(
         child: _overlay(
           phase: RoutePlanningPhase.routeError,
-          putIn: kLaunchPoints.first,
-          takeOut: kLaunchPoints[1],
+          waypoints: [kLaunchPoints.first, kLaunchPoints[1]],
           lastFailureCode: RouteFailureCode.noBundledLine,
           lastFailureRiverSystemName: 'slough',
         ),
