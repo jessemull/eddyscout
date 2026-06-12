@@ -1,0 +1,20 @@
+import 'package:eddyscout_map/src/presentation/map_constants.dart';
+
+/// Estimates paddling duration from distance at a constant speed.
+int? estimateTripDurationMinutes({
+  required double? distanceKm,
+  double speedKmh = kDefaultKayakSpeedKmh,
+}) {
+  if (distanceKm == null || distanceKm <= 0 || speedKmh <= 0) {
+    return null;
+  }
+  return (distanceKm / speedKmh * 60).round();
+}
+
+/// Converts route distance to miles for display (one decimal place).
+String? formatDistanceMiles(double? distanceKm) {
+  if (distanceKm == null || distanceKm <= 0) {
+    return null;
+  }
+  return (distanceKm * 0.621371).toStringAsFixed(1);
+}

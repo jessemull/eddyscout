@@ -1030,6 +1030,78 @@ abstract class AppLocalizations {
   /// **'Tap another launch on the map to set your destination or add a stop.'**
   String get mapRouteAddStopHint;
 
+  /// No description provided for @mapRouteEditStopsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit stops'**
+  String get mapRouteEditStopsTitle;
+
+  /// No description provided for @mapRoutePreviewStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get mapRoutePreviewStart;
+
+  /// No description provided for @mapRoutePreviewAddStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Add stops'**
+  String get mapRoutePreviewAddStops;
+
+  /// No description provided for @mapRouteSummaryComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Route conditions summary coming soon.'**
+  String get mapRouteSummaryComingSoon;
+
+  /// No description provided for @mapRouteTripTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String mapRouteTripTime(int minutes);
+
+  /// No description provided for @mapRouteTotalTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Total trip: {minutes} min ({miles} mi)'**
+  String mapRouteTotalTrip(int minutes, String miles);
+
+  /// No description provided for @mapRouteReorderStopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder stop'**
+  String get mapRouteReorderStopHint;
+
+  /// No description provided for @mapRouteDeleteStopSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove stop {name}'**
+  String mapRouteDeleteStopSemantics(String name);
+
+  /// No description provided for @mapRouteOriginStopSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting location, {name}'**
+  String mapRouteOriginStopSemantics(String name);
+
+  /// No description provided for @mapRouteDestinationStopSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination, {name}'**
+  String mapRouteDestinationStopSemantics(String name);
+
+  /// No description provided for @mapRouteMiddleStopSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {letter}, {name}'**
+  String mapRouteMiddleStopSemantics(String letter, String name);
+
+  /// No description provided for @mapRouteStartComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'On-water navigation is coming soon.'**
+  String get mapRouteStartComingSoon;
+
   /// No description provided for @mapLocateMeLabel.
   ///
   /// In en, this message translates to:

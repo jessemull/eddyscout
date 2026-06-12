@@ -24,6 +24,8 @@ final ViewportState kInitialMapViewport = CameraViewportState(
 
 const int kMapMarkerColor = 0xFF0077B6;
 const int kMapMarkerStroke = 0xFFFFFFFF;
+const int kMapSelectedMarkerFill = 0x330077B6;
+const int kMapSelectedMarkerStroke = 0xFF0077B6;
 const int kMapRouteLineColor = 0xFFE63946;
 
 const String kMapRouteSourceId = 'eddyscout-route-source';
@@ -36,3 +38,8 @@ const double kMapMaxZoom = 25.5;
 const double kMapMinPitch = 0;
 const double kMapMaxPitch = 85;
 const double kMapChromeZoomStep = 1.25;
+
+/// Default recreational kayak speed for trip-time estimates (km/h).
+///
+/// River current is not modeled; personalized speed is planned for auth/profile.
+const double kDefaultKayakSpeedKmh = 4;

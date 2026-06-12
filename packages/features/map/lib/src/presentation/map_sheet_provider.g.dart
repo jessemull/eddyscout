@@ -8,15 +8,15 @@ part of 'map_sheet_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Currently selected launch for the place / planning sheets.
+/// Currently selected launch for the place peek sheet.
 
 @ProviderFor(MapPlaceSelection)
 final mapPlaceSelectionProvider = MapPlaceSelectionProvider._();
 
-/// Currently selected launch for the place / planning sheets.
+/// Currently selected launch for the place peek sheet.
 final class MapPlaceSelectionProvider
     extends $NotifierProvider<MapPlaceSelection, LaunchPoint?> {
-  /// Currently selected launch for the place / planning sheets.
+  /// Currently selected launch for the place peek sheet.
   MapPlaceSelectionProvider._()
     : super(
         from: null,
@@ -46,7 +46,7 @@ final class MapPlaceSelectionProvider
 
 String _$mapPlaceSelectionHash() => r'c540c482c1137f6744ca19eed5fc1f78116953f1';
 
-/// Currently selected launch for the place / planning sheets.
+/// Currently selected launch for the place peek sheet.
 
 abstract class _$MapPlaceSelection extends $Notifier<LaunchPoint?> {
   LaunchPoint? build();
@@ -66,15 +66,15 @@ abstract class _$MapPlaceSelection extends $Notifier<LaunchPoint?> {
   }
 }
 
-/// Controls which bottom sheet variant is shown on the map.
+/// Controls which map chrome variant is shown.
 
 @ProviderFor(MapSheetVisibilityState)
 final mapSheetVisibilityStateProvider = MapSheetVisibilityStateProvider._();
 
-/// Controls which bottom sheet variant is shown on the map.
+/// Controls which map chrome variant is shown.
 final class MapSheetVisibilityStateProvider
     extends $NotifierProvider<MapSheetVisibilityState, MapSheetVisibility> {
-  /// Controls which bottom sheet variant is shown on the map.
+  /// Controls which map chrome variant is shown.
   MapSheetVisibilityStateProvider._()
     : super(
         from: null,
@@ -103,9 +103,9 @@ final class MapSheetVisibilityStateProvider
 }
 
 String _$mapSheetVisibilityStateHash() =>
-    r'5305bd51ec779a963aa2a84be9b938bc3619d394';
+    r'b6bfd56778f91da05708cd90c9844020e44c54c2';
 
-/// Controls which bottom sheet variant is shown on the map.
+/// Controls which map chrome variant is shown.
 
 abstract class _$MapSheetVisibilityState extends $Notifier<MapSheetVisibility> {
   MapSheetVisibility build();

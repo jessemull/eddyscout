@@ -27,6 +27,9 @@ mixin MapboxMapControllerBase {
 
   MapboxMap? _mapboxMap;
   Cancelable? _tapCancelable;
+  Cancelable? _selectionTapCancelable;
+  CircleAnnotationManager? _selectionManager;
+  CircleAnnotation? _selectionAnnotation;
   bool _markersInstalled = false;
   bool _mapDiagnosticsLogged = false;
 
@@ -46,6 +49,27 @@ mixin MapboxMapControllerBase {
 
   @protected
   set tapCancelable(Cancelable? value) => _tapCancelable = value;
+
+  @protected
+  Cancelable? get selectionTapCancelable => _selectionTapCancelable;
+
+  @protected
+  set selectionTapCancelable(Cancelable? value) =>
+      _selectionTapCancelable = value;
+
+  @protected
+  CircleAnnotationManager? get selectionManager => _selectionManager;
+
+  @protected
+  set selectionManager(CircleAnnotationManager? value) =>
+      _selectionManager = value;
+
+  @protected
+  CircleAnnotation? get selectionAnnotation => _selectionAnnotation;
+
+  @protected
+  set selectionAnnotation(CircleAnnotation? value) =>
+      _selectionAnnotation = value;
 
   @protected
   bool get markersInstalled => _markersInstalled;

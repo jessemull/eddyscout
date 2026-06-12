@@ -108,5 +108,5 @@ void main() {
 
 class _IntegrationExpandedSheet extends MapSheetVisibilityState {
   @override
-  MapSheetVisibility build() => MapSheetVisibility.planningExpanded;
+  MapSheetVisibility build() => MapSheetVisibility.planningPreview;
 }

@@ -567,6 +567,55 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tap another launch on the map to set your destination or add a stop.';
 
   @override
+  String get mapRouteEditStopsTitle => 'Edit stops';
+
+  @override
+  String get mapRoutePreviewStart => 'Start';
+
+  @override
+  String get mapRoutePreviewAddStops => 'Add stops';
+
+  @override
+  String get mapRouteSummaryComingSoon =>
+      'Route conditions summary coming soon.';
+
+  @override
+  String mapRouteTripTime(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String mapRouteTotalTrip(int minutes, String miles) {
+    return 'Total trip: $minutes min ($miles mi)';
+  }
+
+  @override
+  String get mapRouteReorderStopHint => 'Drag to reorder stop';
+
+  @override
+  String mapRouteDeleteStopSemantics(String name) {
+    return 'Remove stop $name';
+  }
+
+  @override
+  String mapRouteOriginStopSemantics(String name) {
+    return 'Starting location, $name';
+  }
+
+  @override
+  String mapRouteDestinationStopSemantics(String name) {
+    return 'Destination, $name';
+  }
+
+  @override
+  String mapRouteMiddleStopSemantics(String letter, String name) {
+    return 'Stop $letter, $name';
+  }
+
+  @override
+  String get mapRouteStartComingSoon => 'On-water navigation is coming soon.';
+
+  @override
   String get mapLocateMeLabel => 'Locate me';
 
   @override

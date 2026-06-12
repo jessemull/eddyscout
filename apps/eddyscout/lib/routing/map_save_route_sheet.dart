@@ -213,7 +213,7 @@ Future<void> handlePendingSavedRouteLoad(
     return;
   }
   ref.read(routePlanningProvider.notifier).loadFromSavedRoute(route, launches);
-  ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningExpanded();
+  ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningPreview();
   if (launches.isNotEmpty) {
     ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(launches.first);
   }

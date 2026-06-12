@@ -7,15 +7,24 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/test_localized_app.dart';
 
 void main() {
-  testWidgets('shows route planning sheet with save when route ready', (
+  testWidgets('shows route preview bar with save when route ready', (
     tester,
   ) async {
-    await pumpMapWithPlanning(tester);
-    expect(find.text('Plan paddle'), findsWidgets);
+    await pumpMapWithPreview(tester);
     expect(find.text('Save route'), findsOneWidget);
+    expect(find.text('Add stops'), findsOneWidget);
+    expect(find.text('188 min'), findsOneWidget);
   });
 
-  testWidgets('shows place sheet actions when launch selected', (
+  testWidgets('shows planning edit chrome with edit stops title', (
+    tester,
+  ) async {
+    await pumpMapWithPlanningEdit(tester);
+    expect(find.text('Edit stops'), findsOneWidget);
+    expect(find.text('Done'), findsOneWidget);
+  });
+
+  testWidgets('shows place peek actions when launch selected', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -48,15 +57,13 @@ void main() {
   });
 }
 
-Future<void> pumpMapWithPlanning(WidgetTester tester) async {
+Future<void> pumpMapWithPreview(WidgetTester tester) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         mapInteractiveProvider.overrideWithValue(true),
         routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
-        mapSheetVisibilityStateProvider.overrideWith(
-          _ExpandedSheet.new,
-        ),
+        mapSheetVisibilityStateProvider.overrideWith(_PreviewSheet.new),
       ],
       child: testLocalizedApp(
         child: MapScreen(
@@ -68,6 +75,24 @@ Future<void> pumpMapWithPlanning(WidgetTester tester) async {
   );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 50));
+}
+
+Future<void> pumpMapWithPlanningEdit(WidgetTester tester) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+        routePlanningProvider.overrideWith(_PlanningWithStart.new),
+        mapSheetVisibilityStateProvider.overrideWith(_EditSheet.new),
+      ],
+      child: testLocalizedApp(
+        child: const MapScreen(
+          mapSlot: SizedBox(key: Key('map_test_stub')),
+        ),
+      ),
+    ),
+  );
+  await tester.pump();
 }
 
 class _FixedRoutePlanning extends RoutePlanning {
@@ -92,9 +117,24 @@ class _FixedRoutePlanning extends RoutePlanning {
   }
 }
 
-class _ExpandedSheet extends MapSheetVisibilityState {
+class _PlanningWithStart extends RoutePlanning {
   @override
-  MapSheetVisibility build() => MapSheetVisibility.planningExpanded;
+  RoutePlanningState build() {
+    return RoutePlanningState(
+      phase: MapPlanningPhase.planning,
+      waypoints: [kLaunchPoints.first],
+    );
+  }
+}
+
+class _PreviewSheet extends MapSheetVisibilityState {
+  @override
+  MapSheetVisibility build() => MapSheetVisibility.planningPreview;
+}
+
+class _EditSheet extends MapSheetVisibilityState {
+  @override
+  MapSheetVisibility build() => MapSheetVisibility.planningEdit;
 }
 
 class _PlacePeekSheet extends MapSheetVisibilityState {

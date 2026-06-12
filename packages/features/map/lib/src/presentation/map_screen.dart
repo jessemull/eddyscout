@@ -1,6 +1,7 @@
 import 'dart:async' show unawaited;
 
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -8,13 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import 'map_bottom_sheet_host.dart';
+import '../domain/map_trip_duration.dart';
 import 'map_constants.dart';
 import 'map_floating_controls.dart';
+import 'map_place_peek_bar.dart';
 import 'map_planning_provider.dart';
 import 'map_route_failure_l10n.dart';
+import 'map_route_planning_chrome.dart';
+import 'map_route_preview_bar.dart';
 import 'map_search_field.dart';
-import 'map_search_overlay.dart';
 import 'map_search_provider.dart';
 import 'map_session_provider.dart';
 import 'map_sheet_provider.dart';
@@ -95,49 +98,106 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   void _handleLaunchPlaceSelected(LaunchPoint launch) {
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
     ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(launch);
     ref.read(routePlanningProvider.notifier).selectPlace(launch);
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlacePeek();
-    unawaited(
-      ref.read(mapboxMapControllerProvider.notifier).flyToLaunch(launch),
-    );
+    unawaited(_focusLaunchOnMap(launch));
+  }
+
+  Future<void> _focusLaunchOnMap(LaunchPoint launch) async {
+    await ref.read(mapboxMapControllerProvider.notifier).focusLaunch(launch);
   }
 
   void _handleSearchLaunchSelected(LaunchPoint launch) {
+    final context = ref.read(mapSearchContextStateProvider);
+    if (context == MapSearchContext.addStop) {
+      _addStopFromSearch(launch);
+      return;
+    }
     _handleLaunchPlaceSelected(launch);
+  }
+
+  void _addStopFromSearch(LaunchPoint launch) {
+    final result = ref
+        .read(routePlanningProvider.notifier)
+        .handleLaunchTap(
+          launch,
+        );
+    if (result == RoutePlanningTapResult.takeOutSelected) {
+      unawaited(
+        ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute(),
+      );
+    }
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
+    unawaited(_focusLaunchOnMap(launch));
   }
 
   void _startPlanPaddle(LaunchPoint launch) {
     ref.read(routePlanningProvider.notifier).startPlanPaddle(launch);
-    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningExpanded();
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+    unawaited(_focusLaunchOnMap(launch));
   }
 
-  Future<void> _closeSheet() async {
+  Future<void> _closePlacePeek() async {
     ref.read(mapSheetVisibilityStateProvider.notifier).hide();
     ref.read(mapPlaceSelectionProvider.notifier).clear();
-    await ref
-        .read(mapboxMapControllerProvider.notifier)
-        .dismissPlanningSession();
+    ref.read(routePlanningProvider.notifier).resetToBrowse();
+    await ref.read(mapboxMapControllerProvider.notifier).clearLaunchHighlight();
   }
 
-  Future<void> _clearRoute() async {
-    await ref
-        .read(mapboxMapControllerProvider.notifier)
-        .clearPlanningSelection();
-    final start = ref.read(routePlanningProvider).putIn;
-    if (start != null) {
-      ref.read(routePlanningProvider.notifier).startPlanPaddle(start);
-      ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningExpanded();
-    } else {
-      await _closeSheet();
+  Future<void> _backFromPlanningEdit() async {
+    ref.read(mapPlanningInlineAddStopProvider.notifier).hide();
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
+    final putIn = ref.read(routePlanningProvider).putIn;
+    if (putIn != null) {
+      ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(putIn);
+    }
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlacePeek();
+  }
+
+  Future<void> _reorderStop(int oldIndex, int newIndex) async {
+    ref
+        .read(routePlanningProvider.notifier)
+        .reorderWaypoints(oldIndex, newIndex);
+    if (ref.read(routePlanningProvider).hasRunnableRoute) {
+      await ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute();
     }
   }
 
-  void _showAddStopHint() {
-    final l10n = context.l10n;
+  Future<void> _finishPlanningEdit() async {
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningPreview();
+    final polyline = ref.read(routePlanningProvider).polylineLonLat;
+    if (polyline != null && polyline.length >= 2) {
+      await ref
+          .read(mapboxMapControllerProvider.notifier)
+          .fitCameraToRoute(polyline);
+    }
+  }
+
+  Future<void> _removeStop(int index) async {
+    ref.read(routePlanningProvider.notifier).removeWaypoint(index);
+    final planning = ref.read(routePlanningProvider);
+    if (planning.waypoints.length >= 2) {
+      await ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute();
+    } else {
+      await ref.read(mapboxMapControllerProvider.notifier).clearRouteLine();
+    }
+  }
+
+  void _showStartComingSoon() {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.mapRouteAddStopHint)),
+      SnackBar(content: Text(context.l10n.mapRouteStartComingSoon)),
     );
+  }
+
+  String? _tripTimeLabel(AppLocalizations l10n, double? routeLengthKm) {
+    final minutes = estimateTripDurationMinutes(distanceKm: routeLengthKm);
+    if (minutes == null) {
+      return null;
+    }
+    return l10n.mapRouteTripTime(minutes);
   }
 
   @override
@@ -148,68 +208,123 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final mapInteractive = ref.watch(mapInteractiveProvider);
     final sheetVisibility = ref.watch(mapSheetVisibilityStateProvider);
     final selectedLaunch = ref.watch(mapPlaceSelectionProvider);
-    final searchOpen = ref.watch(mapSearchOverlayVisibleProvider);
-
-    ref.watch(mapboxMapControllerProvider);
+    final searchExpanded = ref.watch(mapSearchExpandedProvider);
+    final searchQuery = ref.watch(mapSearchQueryProvider);
+    ref
+      ..watch(mapSearchLaunchHitsProvider)
+      ..watch(mapSearchPlaceHitsProvider(searchQuery.trim()))
+      ..watch(mapboxMapControllerProvider);
     final mapController = ref.read(mapboxMapControllerProvider.notifier);
+    final l10n = context.l10n;
+
+    final trimmedSearchQuery = searchQuery.trim();
+    final showBrowseFullScreenSearch = ref.watch(
+      mapBrowseSearchFullScreenProvider,
+    );
+    final showPlanningFullScreenSearch =
+        searchExpanded && trimmedSearchQuery.isNotEmpty;
+    final showFullScreenSearch =
+        showBrowseFullScreenSearch || showPlanningFullScreenSearch;
 
     final mapChild = _usesMapStub
         ? widget.mapSlot!
         : _liveMapWidget(mapController);
 
-    final sheetPadding = sheetVisibility == MapSheetVisibility.hidden
-        ? MediaQuery.viewPaddingOf(context).bottom + 72
-        : MediaQuery.sizeOf(context).height * 0.28;
+    final controlsBottomPadding = switch (sheetVisibility) {
+      MapSheetVisibility.planningPreview => 200.0,
+      MapSheetVisibility.placePeek => 160.0,
+      _ => MediaQuery.viewPaddingOf(context).bottom + 72,
+    };
+
+    final showBrowseSearchField =
+        sheetVisibility == MapSheetVisibility.hidden && !showFullScreenSearch;
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          IgnorePointer(
-            ignoring: !mapInteractive,
-            child: mapChild,
-          ),
-          MapSearchField(
-            onTap: () {
-              ref.read(mapSearchOverlayVisibleProvider.notifier).show();
-            },
-          ),
+          mapChild,
+          if (sheetVisibility == MapSheetVisibility.planningEdit &&
+              !showFullScreenSearch)
+            Positioned(
+              top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
+              left: Spacing.sm,
+              right: Spacing.sm,
+              child: MapRoutePlanningChrome(
+                waypoints: planning.waypoints,
+                routeLengthKm: planning.routeLengthKm,
+                onBack: () => unawaited(_backFromPlanningEdit()),
+                onDone: () => unawaited(_finishPlanningEdit()),
+                onRemoveStop: (index) => unawaited(_removeStop(index)),
+                onReorderStop: (oldIndex, newIndex) =>
+                    unawaited(_reorderStop(oldIndex, newIndex)),
+              ),
+            ),
+          if (sheetVisibility == MapSheetVisibility.placePeek &&
+              selectedLaunch != null &&
+              !showFullScreenSearch)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: MapPlacePeekBar(
+                launch: selectedLaunch,
+                onPlanPaddle: () => _startPlanPaddle(selectedLaunch),
+                onViewConditions: () =>
+                    widget.onOpenLaunchDetail?.call(selectedLaunch),
+                onDismiss: () => unawaited(_closePlacePeek()),
+              ),
+            ),
+          if (sheetVisibility == MapSheetVisibility.planningPreview &&
+              !showFullScreenSearch)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: MapRoutePreviewBar(
+                tripTimeLabel: _tripTimeLabel(l10n, planning.routeLengthKm),
+                routeLengthKm: planning.routeLengthKm,
+                canSave:
+                    planning.hasRunnableRoute &&
+                    planning.activeGeometry != null,
+                onStart: _showStartComingSoon,
+                onSave: () => widget.onSaveRoute?.call(),
+                onAddStops: () {
+                  ref
+                      .read(mapSheetVisibilityStateProvider.notifier)
+                      .showPlanningEdit();
+                },
+              ),
+            ),
+          if (showFullScreenSearch)
+            Positioned.fill(
+              child: MapFullScreenSearchOverlay(
+                onLaunchSelected: _handleSearchLaunchSelected,
+              ),
+            ),
+          if (showBrowseSearchField)
+            Positioned(
+              top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
+              left: Spacing.md,
+              right: Spacing.md,
+              child: const MapBrowseSearchField(),
+            ),
           if (mapInteractive &&
-              (!_usesMapStub || widget.forceZoomChromeForTest))
-            MapFloatingControls(
-              bottomPadding: sheetPadding,
-              controller: mapController,
-              showZoomChrome: true,
+              (!_usesMapStub || widget.forceZoomChromeForTest)) ...[
+            if (!_usesMapStub || widget.forceZoomChromeForTest)
+              Positioned(
+                left: Spacing.sm,
+                bottom: controlsBottomPadding,
+                child: MapZoomControls(controller: mapController),
+              ),
+            Positioned(
+              right: Spacing.sm,
+              bottom: controlsBottomPadding,
+              child: const MapLocateControl(),
             ),
-          if (sheetVisibility != MapSheetVisibility.hidden && !searchOpen)
-            MapBottomSheetHost(
-              visibility: sheetVisibility,
-              selectedLaunch: selectedLaunch,
-              waypoints: planning.waypoints,
-              routeLengthKm: planning.routeLengthKm,
-              canSave:
-                  planning.hasRunnableRoute && planning.activeGeometry != null,
-              onPlanPaddle: () {
-                final launch = selectedLaunch;
-                if (launch != null) {
-                  _startPlanPaddle(launch);
-                }
-              },
-              onViewConditions: () {
-                final launch = selectedLaunch;
-                if (launch != null) {
-                  widget.onOpenLaunchDetail?.call(launch);
-                }
-              },
-              onClose: () => unawaited(_closeSheet()),
-              onClear: () => unawaited(_clearRoute()),
-              onSave: () => widget.onSaveRoute?.call(),
-              onAddStopHint: _showAddStopHint,
-            ),
-          if (searchOpen)
-            MapSearchOverlay(
-              onLaunchSelected: _handleSearchLaunchSelected,
-            ),
+          ],
         ],
       ),
     );
@@ -226,6 +341,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     ),
     onMapCreated: controller.onMapCreated,
     onStyleLoadedListener: (_) => controller.onStyleLoaded(),
+    // ignore: deprecated_member_use — Mapbox addInteraction migration tracked separately
+    onTapListener: controller.onMapContentTap,
     onCameraChangeListener: kDebugMode ? controller.onDebugCameraChanged : null,
     onZoomListener: kDebugMode ? controller.onDebugMapZoomEnded : null,
   );

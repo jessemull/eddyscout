@@ -7,6 +7,74 @@ import 'package:flutter/material.dart';
 import 'map_constants.dart';
 import 'mapbox/mapbox_map_controller.dart';
 
+/// Zoom controls anchored to the bottom-left of the map.
+class MapZoomControls extends StatelessWidget {
+  const MapZoomControls({
+    required this.controller,
+    super.key,
+  });
+
+  final MapboxMapController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Semantics(
+      container: true,
+      label: l10n.mapZoomControlsSemantics,
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: l10n.mapZoomInLabel,
+              icon: const Icon(Icons.add),
+              onPressed: () =>
+                  unawaited(controller.nudgeZoomBy(kMapChromeZoomStep)),
+            ),
+            const Divider(height: 1),
+            IconButton(
+              tooltip: l10n.mapZoomOutLabel,
+              icon: const Icon(Icons.remove),
+              onPressed: () =>
+                  unawaited(controller.nudgeZoomBy(-kMapChromeZoomStep)),
+            ),
+            const Divider(height: 1),
+            IconButton(
+              tooltip: l10n.mapShowAllLaunchesLabel,
+              icon: const Icon(Icons.zoom_out_map),
+              onPressed: () => unawaited(controller.fitRegionFromChrome()),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Locate-me control anchored to the bottom-right of the map.
+class MapLocateControl extends StatelessWidget {
+  const MapLocateControl({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Material(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(10),
+      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+      child: IconButton(
+        tooltip: l10n.mapLocateMeLabel,
+        onPressed: () {},
+        icon: const Icon(Icons.my_location),
+      ),
+    );
+  }
+}
+
 /// Floating zoom and locate controls on the map canvas.
 class MapFloatingControls extends StatelessWidget {
   const MapFloatingControls({
@@ -22,87 +90,20 @@ class MapFloatingControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     return Stack(
       children: [
         if (showZoomChrome)
           Positioned(
             left: Spacing.sm,
             bottom: bottomPadding,
-            child: _ZoomStack(
-              controller: controller,
-              semanticsLabel: l10n.mapZoomControlsSemantics,
-              zoomInLabel: l10n.mapZoomInLabel,
-              zoomOutLabel: l10n.mapZoomOutLabel,
-              showAllLaunchesLabel: l10n.mapShowAllLaunchesLabel,
-            ),
+            child: MapZoomControls(controller: controller),
           ),
         Positioned(
           right: Spacing.sm,
           bottom: bottomPadding,
-          child: Material(
-            elevation: 4,
-            borderRadius: BorderRadius.circular(10),
-            color: Theme.of(context).colorScheme.surfaceContainerHigh,
-            child: IconButton(
-              tooltip: l10n.mapLocateMeLabel,
-              onPressed: () {},
-              icon: const Icon(Icons.my_location),
-            ),
-          ),
+          child: const MapLocateControl(),
         ),
       ],
     );
   }
-}
-
-class _ZoomStack extends StatelessWidget {
-  const _ZoomStack({
-    required this.controller,
-    required this.semanticsLabel,
-    required this.zoomInLabel,
-    required this.zoomOutLabel,
-    required this.showAllLaunchesLabel,
-  });
-
-  final MapboxMapController controller;
-  final String semanticsLabel;
-  final String zoomInLabel;
-  final String zoomOutLabel;
-  final String showAllLaunchesLabel;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    container: true,
-    label: semanticsLabel,
-    child: Material(
-      elevation: 4,
-      borderRadius: BorderRadius.circular(10),
-      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            tooltip: zoomInLabel,
-            icon: const Icon(Icons.add),
-            onPressed: () =>
-                unawaited(controller.nudgeZoomBy(kMapChromeZoomStep)),
-          ),
-          const Divider(height: 1),
-          IconButton(
-            tooltip: zoomOutLabel,
-            icon: const Icon(Icons.remove),
-            onPressed: () =>
-                unawaited(controller.nudgeZoomBy(-kMapChromeZoomStep)),
-          ),
-          const Divider(height: 1),
-          IconButton(
-            tooltip: showAllLaunchesLabel,
-            icon: const Icon(Icons.zoom_out_map),
-            onPressed: () => unawaited(controller.fitRegionFromChrome()),
-          ),
-        ],
-      ),
-    ),
-  );
 }

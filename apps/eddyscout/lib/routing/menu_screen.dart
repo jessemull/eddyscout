@@ -57,7 +57,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
       if (outcome is GpxActionSuccess) {
         ref
             .read(mapSheetVisibilityStateProvider.notifier)
-            .showPlanningExpanded();
+            .showPlanningPreview();
         const MapRoute().go(context);
         StatefulNavigationShell.maybeOf(context)?.goBranch(
           AppShellBranches.map,

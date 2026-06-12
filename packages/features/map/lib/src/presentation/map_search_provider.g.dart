@@ -8,32 +8,32 @@ part of 'map_search_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Whether the full-screen search overlay is visible.
+/// Whether inline map search is expanded at the top of the map.
 
-@ProviderFor(MapSearchOverlayVisible)
-final mapSearchOverlayVisibleProvider = MapSearchOverlayVisibleProvider._();
+@ProviderFor(MapSearchExpanded)
+final mapSearchExpandedProvider = MapSearchExpandedProvider._();
 
-/// Whether the full-screen search overlay is visible.
-final class MapSearchOverlayVisibleProvider
-    extends $NotifierProvider<MapSearchOverlayVisible, bool> {
-  /// Whether the full-screen search overlay is visible.
-  MapSearchOverlayVisibleProvider._()
+/// Whether inline map search is expanded at the top of the map.
+final class MapSearchExpandedProvider
+    extends $NotifierProvider<MapSearchExpanded, bool> {
+  /// Whether inline map search is expanded at the top of the map.
+  MapSearchExpandedProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'mapSearchOverlayVisibleProvider',
+        name: r'mapSearchExpandedProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$mapSearchOverlayVisibleHash();
+  String debugGetCreateSourceHash() => _$mapSearchExpandedHash();
 
   @$internal
   @override
-  MapSearchOverlayVisible create() => MapSearchOverlayVisible();
+  MapSearchExpanded create() => MapSearchExpanded();
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(bool value) {
@@ -44,12 +44,11 @@ final class MapSearchOverlayVisibleProvider
   }
 }
 
-String _$mapSearchOverlayVisibleHash() =>
-    r'c3004f76eed6f4e8e67ae2136ab84aec5fd6df2c';
+String _$mapSearchExpandedHash() => r'9e1ba373b186462bd3547fb049e1387432f4ce15';
 
-/// Whether the full-screen search overlay is visible.
+/// Whether inline map search is expanded at the top of the map.
 
-abstract class _$MapSearchOverlayVisible extends $Notifier<bool> {
+abstract class _$MapSearchExpanded extends $Notifier<bool> {
   bool build();
   @$mustCallSuper
   @override
@@ -67,15 +66,180 @@ abstract class _$MapSearchOverlayVisible extends $Notifier<bool> {
   }
 }
 
-/// Search query text from the floating field.
+/// Whether the edit-stops panel shows an inline add-stop search row (2+ stops).
+
+@ProviderFor(MapPlanningInlineAddStop)
+final mapPlanningInlineAddStopProvider = MapPlanningInlineAddStopProvider._();
+
+/// Whether the edit-stops panel shows an inline add-stop search row (2+ stops).
+final class MapPlanningInlineAddStopProvider
+    extends $NotifierProvider<MapPlanningInlineAddStop, bool> {
+  /// Whether the edit-stops panel shows an inline add-stop search row (2+ stops).
+  MapPlanningInlineAddStopProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'mapPlanningInlineAddStopProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$mapPlanningInlineAddStopHash();
+
+  @$internal
+  @override
+  MapPlanningInlineAddStop create() => MapPlanningInlineAddStop();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$mapPlanningInlineAddStopHash() =>
+    r'11d6b33131a06a69cc7399b34cccef5fb1f261cf';
+
+/// Whether the edit-stops panel shows an inline add-stop search row (2+ stops).
+
+abstract class _$MapPlanningInlineAddStop extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
+/// Whether browse search should cover the map with full-screen results.
+
+@ProviderFor(mapBrowseSearchFullScreen)
+final mapBrowseSearchFullScreenProvider = MapBrowseSearchFullScreenProvider._();
+
+/// Whether browse search should cover the map with full-screen results.
+
+final class MapBrowseSearchFullScreenProvider
+    extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  /// Whether browse search should cover the map with full-screen results.
+  MapBrowseSearchFullScreenProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'mapBrowseSearchFullScreenProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$mapBrowseSearchFullScreenHash();
+
+  @$internal
+  @override
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    return mapBrowseSearchFullScreen(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$mapBrowseSearchFullScreenHash() =>
+    r'cdcb66bc428b03b99076407b9140e64aaffe37c1';
+
+/// Selection context for the active search session.
+
+@ProviderFor(MapSearchContextState)
+final mapSearchContextStateProvider = MapSearchContextStateProvider._();
+
+/// Selection context for the active search session.
+final class MapSearchContextStateProvider
+    extends $NotifierProvider<MapSearchContextState, MapSearchContext> {
+  /// Selection context for the active search session.
+  MapSearchContextStateProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'mapSearchContextStateProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$mapSearchContextStateHash();
+
+  @$internal
+  @override
+  MapSearchContextState create() => MapSearchContextState();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(MapSearchContext value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<MapSearchContext>(value),
+    );
+  }
+}
+
+String _$mapSearchContextStateHash() =>
+    r'f933c16a5b95c7bcd50b0650194d1ff484390306';
+
+/// Selection context for the active search session.
+
+abstract class _$MapSearchContextState extends $Notifier<MapSearchContext> {
+  MapSearchContext build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<MapSearchContext, MapSearchContext>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<MapSearchContext, MapSearchContext>,
+              MapSearchContext,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
+/// Search query text from the search field.
 
 @ProviderFor(MapSearchQuery)
 final mapSearchQueryProvider = MapSearchQueryProvider._();
 
-/// Search query text from the floating field.
+/// Search query text from the search field.
 final class MapSearchQueryProvider
     extends $NotifierProvider<MapSearchQuery, String> {
-  /// Search query text from the floating field.
+  /// Search query text from the search field.
   MapSearchQueryProvider._()
     : super(
         from: null,
@@ -105,7 +269,7 @@ final class MapSearchQueryProvider
 
 String _$mapSearchQueryHash() => r'dedcec8bc8174d1028bf44e3237600265ec091fa';
 
-/// Search query text from the floating field.
+/// Search query text from the search field.
 
 abstract class _$MapSearchQuery extends $Notifier<String> {
   String build();

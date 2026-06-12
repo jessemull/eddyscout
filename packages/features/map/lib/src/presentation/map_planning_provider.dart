@@ -2,6 +2,7 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../domain/map_trip_duration.dart';
 import 'map_planning_phase.dart';
 
 part 'map_planning_provider.g.dart';
@@ -330,6 +331,10 @@ class RoutePlanning extends _$RoutePlanning {
       return null;
     }
     final now = DateTime.now();
+    final distanceKm = capture.geometry.lengthMeters / 1000.0;
+    final durationMinutes =
+        estimatedDurationMinutes ??
+        estimateTripDurationMinutes(distanceKm: distanceKm);
     final metadata =
         computeSavedRouteMetadata(
           launches: capture.waypoints,
@@ -337,7 +342,7 @@ class RoutePlanning extends _$RoutePlanning {
         ).copyWith(
           difficulty: difficulty,
           recommendedSkillLevel: recommendedSkillLevel,
-          estimatedDurationMinutes: estimatedDurationMinutes,
+          estimatedDurationMinutes: durationMinutes,
         );
     return SavedRoute(
       id: existingId ?? generateSavedRouteId(),

@@ -3,19 +3,22 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'map_sheet_provider.g.dart';
 
-/// Bottom sheet visibility on the map tab.
+/// Map chrome visibility for place peek, planning edit, and route preview.
 enum MapSheetVisibility {
   /// No sheet — map browse only.
   hidden,
 
-  /// Place summary sheet (peek height).
+  /// Compact place summary at the bottom.
   placePeek,
 
-  /// Route planning sheet (expanded).
-  planningExpanded,
+  /// Top edit-stops panel while building a route.
+  planningEdit,
+
+  /// Bottom preview bar after Done (Google Maps style).
+  planningPreview,
 }
 
-/// Currently selected launch for the place / planning sheets.
+/// Currently selected launch for the place peek sheet.
 @Riverpod(keepAlive: true)
 class MapPlaceSelection extends _$MapPlaceSelection {
   @override
@@ -27,7 +30,7 @@ class MapPlaceSelection extends _$MapPlaceSelection {
   void clear() => state = null;
 }
 
-/// Controls which bottom sheet variant is shown on the map.
+/// Controls which map chrome variant is shown.
 @Riverpod(keepAlive: true)
 class MapSheetVisibilityState extends _$MapSheetVisibilityState {
   @override
@@ -35,7 +38,9 @@ class MapSheetVisibilityState extends _$MapSheetVisibilityState {
 
   void showPlacePeek() => state = MapSheetVisibility.placePeek;
 
-  void showPlanningExpanded() => state = MapSheetVisibility.planningExpanded;
+  void showPlanningEdit() => state = MapSheetVisibility.planningEdit;
+
+  void showPlanningPreview() => state = MapSheetVisibility.planningPreview;
 
   void hide() => state = MapSheetVisibility.hidden;
 }

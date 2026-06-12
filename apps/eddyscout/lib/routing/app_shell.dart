@@ -23,6 +23,9 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     return Scaffold(
+      backgroundColor: navigationShell.currentIndex == AppShellBranches.map
+          ? Colors.transparent
+          : null,
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,

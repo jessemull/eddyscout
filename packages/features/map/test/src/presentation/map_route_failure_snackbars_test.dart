@@ -97,7 +97,7 @@ void main() {
     );
   });
 
-  testWidgets('closes route planning sheet and exits planning mode', (
+  testWidgets('exits planning edit via back arrow', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -105,7 +105,7 @@ void main() {
         overrides: [
           mapInteractiveProvider.overrideWithValue(true),
           routePlanningProvider.overrideWith(_PlanningWithRoute.new),
-          mapSheetVisibilityStateProvider.overrideWith(_ExpandedSheet.new),
+          mapSheetVisibilityStateProvider.overrideWith(_EditSheet.new),
         ],
         child: testLocalizedApp(
           child: const MapScreen(
@@ -117,13 +117,13 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(find.text('Plan paddle'), findsWidgets);
+    expect(find.text('Edit stops'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Close'));
+    await tester.tap(find.byTooltip('Back'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Plan paddle'), findsNothing);
+    expect(find.text('Edit stops'), findsNothing);
     expect(
       ProviderScope.containerOf(
         tester.element(find.byType(MapScreen)),
@@ -144,7 +144,7 @@ class _PlanningWithRoute extends RoutePlanning {
   }
 }
 
-class _ExpandedSheet extends MapSheetVisibilityState {
+class _EditSheet extends MapSheetVisibilityState {
   @override
-  MapSheetVisibility build() => MapSheetVisibility.planningExpanded;
+  MapSheetVisibility build() => MapSheetVisibility.planningEdit;
 }

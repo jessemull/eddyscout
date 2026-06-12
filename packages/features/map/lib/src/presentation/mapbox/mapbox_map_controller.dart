@@ -7,6 +7,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../launch_lookup.dart';
 import '../map_planning_provider.dart';
+import '../map_session_provider.dart';
+import '../map_sheet_provider.dart';
 import 'map_debug_log.dart';
 import 'mapbox_map_camera_mixin.dart';
 import 'mapbox_map_controller_shared.dart';
@@ -35,6 +37,7 @@ final class MapboxMapController extends _$MapboxMapController
       ..onDispose(() {
         alive = false;
         tapCancelable?.cancel();
+        selectionTapCancelable?.cancel();
       })
       ..listen(riverRoutePlannerProvider, (previous, next) {
         final planning = ref.read(routePlanningProvider);
@@ -49,13 +52,46 @@ final class MapboxMapController extends _$MapboxMapController
   }
 
   Future<void> onMapCreated(MapboxMap mapboxMap) async {
-    this.mapboxMap = mapboxMap;
+    await _prepareNewMapSurface(mapboxMap);
     mapDebugLog('onMapCreated (initial camera from MapWidget viewport)');
     await mapDebugLogMapboxSnapshot(
       mapboxMap,
       'onMapCreated',
       includeGestures: true,
     );
+  }
+
+  Future<void> _prepareNewMapSurface(MapboxMap mapboxMap) async {
+    tapCancelable?.cancel();
+    tapCancelable = null;
+    selectionTapCancelable?.cancel();
+    selectionTapCancelable = null;
+    markersInstalled = false;
+    selectionAnnotation = null;
+    selectionManager = null;
+    ref.read(mapInteractiveProvider.notifier).resetInteractive();
+    this.mapboxMap = mapboxMap;
+    mapboxMap.setOnMapTapListener(onMapContentTap);
+    await setMapGesturesEnabled(mapboxMap, enabled: false);
+  }
+
+  /// Map surface tap — resolves nearest launch marker under the finger.
+  void onMapContentTap(MapContentGestureContext context) {
+    if (context.gestureState != GestureState.ended) {
+      return;
+    }
+    unawaited(_handleMapContentTap(context));
+  }
+
+  Future<void> _handleMapContentTap(MapContentGestureContext context) async {
+    if (!alive || !ref.read(mapInteractiveProvider)) {
+      return;
+    }
+    final launch = await nearestLaunchAtTap(context.touchPosition);
+    if (launch == null) {
+      return;
+    }
+    _handleLaunchSelected(launch);
   }
 
   void onStyleLoaded() {
@@ -75,18 +111,30 @@ final class MapboxMapController extends _$MapboxMapController
     if (launch == null) {
       return;
     }
+    _handleLaunchSelected(launch);
+  }
 
+  void _handleLaunchSelected(LaunchPoint launch) {
     final planning = ref.read(routePlanningProvider);
     if (!planning.planningMode) {
       ui.onLaunchPlaceSelected?.call(launch);
       return;
     }
-
     _handlePlanningTap(launch);
+  }
+
+  /// Clears the selected-launch highlight ring.
+  Future<void> clearLaunchHighlight() => highlightLaunch(null);
+
+  /// Centers the camera and draws the selected-launch highlight ring.
+  Future<void> focusLaunch(LaunchPoint launch) async {
+    await flyToLaunch(launch);
+    await highlightLaunch(launch, onSelectionTap: onLaunchCircleTap);
   }
 
   Future<void> dismissPlanningSession() async {
     ref.read(routePlanningProvider.notifier).resetToBrowse();
+    await clearLaunchHighlight();
     await _afterExitPlanning();
   }
 
@@ -108,8 +156,16 @@ final class MapboxMapController extends _$MapboxMapController
     switch (result) {
       case RoutePlanningTapResult.putInSelected:
         unawaited(clearRouteLine());
+        unawaited(flyToLaunch(launch));
+        unawaited(
+          highlightLaunch(launch, onSelectionTap: onLaunchCircleTap),
+        );
       case RoutePlanningTapResult.takeOutSelected:
         unawaited(_runRoute());
+        unawaited(flyToLaunch(launch));
+        unawaited(
+          highlightLaunch(launch, onSelectionTap: onLaunchCircleTap),
+        );
       case RoutePlanningTapResult.sameAsPutIn:
         ui.showSnackBar?.call(ui.pickDifferentTakeOutMessage);
       case null:
@@ -165,7 +221,9 @@ final class MapboxMapController extends _$MapboxMapController
           routeLengthKm: geometry.lengthMeters / 1000.0,
         );
     await drawRouteLine(geometry.polylineLonLat);
-    await fitCameraToRoute(geometry.polylineLonLat);
+    if (_shouldFitCameraAfterRoute()) {
+      await fitCameraToRoute(geometry.polylineLonLat);
+    }
   }
 
   /// Applies an imported GPX route to planning state and the map line.
@@ -192,6 +250,11 @@ final class MapboxMapController extends _$MapboxMapController
 
   /// Recomputes and draws the route for the current planning waypoints.
   Future<void> rerunActiveRoute() => _runRoute();
+
+  bool _shouldFitCameraAfterRoute() {
+    final visibility = ref.read(mapSheetVisibilityStateProvider);
+    return visibility == MapSheetVisibility.planningPreview;
+  }
 
   /// Draws a saved or imported route polyline and fits the camera.
   Future<void> displayPlannedRoute(List<List<double>> polyline) async {

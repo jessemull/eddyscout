@@ -38,13 +38,13 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
   }
 
-  testWidgets('shows floating search and map stub without app bar', (
+  testWidgets('shows browse search field and map without app bar', (
     tester,
   ) async {
     await pumpMap(tester, overrides: []);
 
     expect(find.text('EddyScout'), findsNothing);
-    expect(find.text('Search rivers, launches, places…'), findsOneWidget);
+    expect(find.byKey(const Key('map_browse_search_field')), findsOneWidget);
     expect(find.byKey(const Key('map_test_stub')), findsOneWidget);
   });
 
@@ -75,7 +75,7 @@ void main() {
     expect(find.byTooltip('Zoom in'), findsNothing);
   });
 
-  testWidgets('shows route planning sheet when planning expanded', (
+  testWidgets('shows route preview bar when in planning preview', (
     tester,
   ) async {
     await pumpMap(
@@ -83,19 +83,15 @@ void main() {
       overrides: [
         mapInteractiveProvider.overrideWithValue(true),
         routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
-        mapSheetVisibilityStateProvider.overrideWith(_ExpandedSheet.new),
+        mapSheetVisibilityStateProvider.overrideWith(_PreviewSheet.new),
       ],
     );
 
-    expect(find.text('Plan paddle'), findsWidgets);
-    expect(
-      find.textContaining(kLaunchPoints.first.name),
-      findsOneWidget,
-    );
-    expect(find.textContaining('12.5 km'), findsOneWidget);
+    expect(find.text('Save route'), findsOneWidget);
+    expect(find.text('Add stops'), findsOneWidget);
   });
 
-  testWidgets('shows place sheet when launch pin tapped', (tester) async {
+  testWidgets('shows place peek when launch pin tapped', (tester) async {
     await pumpMap(
       tester,
       overrides: [
@@ -115,6 +111,201 @@ void main() {
     expect(find.text('View conditions'), findsOneWidget);
     expect(find.text('Cathedral Park Boat Ramp'), findsOneWidget);
   });
+
+  testWidgets('focuses browse search without changing the map view', (
+    tester,
+  ) async {
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+      ],
+    );
+
+    await tester.tap(find.byKey(const Key('map_browse_search_field')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('map_fullscreen_search_overlay')),
+      findsNothing,
+    );
+    expect(find.byKey(const Key('map_compact_search_bar')), findsNothing);
+    expect(find.byKey(const Key('map_test_stub')), findsOneWidget);
+  });
+
+  testWidgets('shows full-screen search once browse results are returned', (
+    tester,
+  ) async {
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+      ],
+    );
+
+    await tester.enterText(find.byType(TextField), 'cat');
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('map_fullscreen_search_overlay')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('map_browse_search_field')), findsNothing);
+  });
+
+  testWidgets('returns to planning chrome after destination search selection', (
+    tester,
+  ) async {
+    final putIn = kLaunchPoints.first;
+    final takeOut = kLaunchPoints[1];
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+        routePlanningProvider.overrideWith(_SingleStopPlanning.new),
+        mapSheetVisibilityStateProvider.overrideWith(_PlanningEditSheet.new),
+      ],
+    );
+
+    expect(find.text(putIn.name), findsOneWidget);
+    expect(
+      find.byKey(const Key('map_destination_search_field')),
+      findsOneWidget,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('map_destination_search_field')),
+      takeOut.name.substring(0, 5),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(takeOut.name).last);
+    await tester.pumpAndSettle();
+
+    expect(find.text(takeOut.name), findsOneWidget);
+    expect(find.text('Done'), findsOneWidget);
+    expect(
+      find.byKey(const Key('map_fullscreen_search_overlay')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('shows inline search row in edit panel without add stop button', (
+    tester,
+  ) async {
+    final putIn = kLaunchPoints.first;
+    final takeOut = kLaunchPoints[1];
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+        routePlanningProvider.overrideWith(_TwoStopPlanning.new),
+        mapSheetVisibilityStateProvider.overrideWith(_PlanningEditSheet.new),
+      ],
+    );
+
+    expect(find.text(putIn.name), findsOneWidget);
+    expect(find.text(takeOut.name), findsOneWidget);
+    expect(find.byKey(const Key('map_add_stop_search_field')), findsOneWidget);
+    expect(find.text('Add stop'), findsNothing);
+  });
+
+  testWidgets('back from edit stops shows place peek and keeps waypoints', (
+    tester,
+  ) async {
+    final putIn = kLaunchPoints.first;
+    final takeOut = kLaunchPoints[1];
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+        routePlanningProvider.overrideWith(_TwoStopPlanning.new),
+        mapSheetVisibilityStateProvider.overrideWith(_PlanningEditSheet.new),
+      ],
+    );
+
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Plan paddle'), findsOneWidget);
+    expect(find.text('View conditions'), findsOneWidget);
+    expect(find.text(putIn.name), findsOneWidget);
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MapScreen)),
+    );
+    expect(
+      container.read(routePlanningProvider).waypoints.map((w) => w.id),
+      [putIn.id, takeOut.id],
+    );
+  });
+
+  testWidgets('done from edit stops shows route preview bar', (tester) async {
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+        routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
+        mapSheetVisibilityStateProvider.overrideWith(_PlanningEditSheet.new),
+      ],
+    );
+
+    await tester.tap(find.text('Done').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Start'), findsOneWidget);
+    expect(find.text('Save route'), findsOneWidget);
+  });
+
+  testWidgets('shows total trip footer when route length is known', (
+    tester,
+  ) async {
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+        routePlanningProvider.overrideWith(_RoutedTwoStopPlanning.new),
+        mapSheetVisibilityStateProvider.overrideWith(_PlanningEditSheet.new),
+      ],
+    );
+
+    expect(find.textContaining('Total trip:'), findsOneWidget);
+    expect(find.textContaining('mi)'), findsOneWidget);
+  });
+}
+
+class _TwoStopPlanning extends RoutePlanning {
+  @override
+  RoutePlanningState build() => RoutePlanningState(
+    phase: MapPlanningPhase.planning,
+    waypoints: [kLaunchPoints.first, kLaunchPoints[1]],
+  );
+}
+
+class _RoutedTwoStopPlanning extends RoutePlanning {
+  @override
+  RoutePlanningState build() {
+    final putIn = kLaunchPoints.first;
+    final takeOut = kLaunchPoints[1];
+    return RoutePlanningState(
+      phase: MapPlanningPhase.routeReady,
+      waypoints: [putIn, takeOut],
+      routeLengthKm: 4.2,
+    );
+  }
+}
+
+class _SingleStopPlanning extends RoutePlanning {
+  @override
+  RoutePlanningState build() => RoutePlanningState(
+    phase: MapPlanningPhase.planning,
+    waypoints: [kLaunchPoints.first],
+  );
+}
+
+class _PlanningEditSheet extends MapSheetVisibilityState {
+  @override
+  MapSheetVisibility build() => MapSheetVisibility.planningEdit;
 }
 
 class _FixedRoutePlanning extends RoutePlanning {
@@ -139,7 +330,7 @@ class _FixedRoutePlanning extends RoutePlanning {
   }
 }
 
-class _ExpandedSheet extends MapSheetVisibilityState {
+class _PreviewSheet extends MapSheetVisibilityState {
   @override
-  MapSheetVisibility build() => MapSheetVisibility.planningExpanded;
+  MapSheetVisibility build() => MapSheetVisibility.planningPreview;
 }

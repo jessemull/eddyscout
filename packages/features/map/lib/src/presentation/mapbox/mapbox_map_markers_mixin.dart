@@ -1,6 +1,8 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import '../../domain/launch_points.dart';
+import '../../domain/launch_tap_hit_test.dart';
 import '../map_constants.dart';
 import '../map_session_provider.dart';
 import 'map_debug_log.dart';
@@ -21,12 +23,15 @@ mixin MapboxMapMarkersMixin
     void Function(CircleAnnotation) onLaunchTap,
   ) async {
     final mapboxMap = this.mapboxMap;
-    if (markersInstalled || mapboxMap == null || !alive) {
+    if (mapboxMap == null || !alive) {
       if (!alive && mapboxMap != null) {
         mapDebugLog(
           '_installLaunchMarkersIfNeeded skipped (controller disposed)',
         );
       }
+      return;
+    }
+    if (markersInstalled && tapCancelable != null) {
       return;
     }
     try {
@@ -59,14 +64,94 @@ mixin MapboxMapMarkersMixin
 
       tapCancelable?.cancel();
       tapCancelable = circleManager.tapEvents(onTap: onLaunchTap);
-    } on Object catch (e, st) {
-      mapDebugLog('_installLaunchMarkersIfNeeded failed: $e\n$st');
-    } finally {
       if (alive) {
         mapControllerRef
             .read(mapInteractiveProvider.notifier)
             .markInteractive();
+        await setMapGesturesEnabled(mapboxMap, enabled: true);
       }
+    } on Object catch (e, st) {
+      mapDebugLog('_installLaunchMarkersIfNeeded failed: $e\n$st');
+    }
+  }
+
+  Future<void> setMapGesturesEnabled(
+    MapboxMap map, {
+    required bool enabled,
+  }) async {
+    try {
+      await map.gestures.updateSettings(
+        GesturesSettings(
+          scrollEnabled: enabled,
+          pinchToZoomEnabled: enabled,
+          rotateEnabled: enabled,
+          pitchEnabled: enabled,
+          doubleTapToZoomInEnabled: enabled,
+          doubleTouchToZoomOutEnabled: enabled,
+          quickZoomEnabled: enabled,
+        ),
+      );
+    } on Object catch (e, st) {
+      mapDebugLog('setMapGesturesEnabled failed: $e\n$st');
+    }
+  }
+
+  /// Resolves a screen tap to the nearest curated launch marker.
+  Future<LaunchPoint?> nearestLaunchAtTap(ScreenCoordinate tap) async {
+    final map = mapboxMap;
+    if (map == null || !alive) {
+      return null;
+    }
+    return nearestLaunchAtScreenPoint(
+      launches: kLaunchPoints,
+      tap: tap,
+      launchToPixel: (launch) => map.pixelForCoordinate(
+        Point(coordinates: Position(launch.longitude, launch.latitude)),
+      ),
+    );
+  }
+
+  /// Draws or clears a highlighted ring on the selected launch pin.
+  Future<void> highlightLaunch(
+    LaunchPoint? launch, {
+    void Function(CircleAnnotation annotation)? onSelectionTap,
+  }) async {
+    final map = mapboxMap;
+    if (map == null || !alive) {
+      return;
+    }
+    try {
+      selectionManager ??= await map.annotations
+          .createCircleAnnotationManager();
+      final manager = selectionManager;
+      if (manager == null) {
+        return;
+      }
+      final existing = selectionAnnotation;
+      if (existing != null) {
+        await manager.delete(existing);
+        selectionAnnotation = null;
+      }
+      if (launch == null) {
+        return;
+      }
+      selectionAnnotation = await manager.create(
+        CircleAnnotationOptions(
+          geometry: Point(
+            coordinates: Position(launch.longitude, launch.latitude),
+          ),
+          circleRadius: 18,
+          circleColor: kMapSelectedMarkerFill,
+          circleStrokeWidth: 3,
+          circleStrokeColor: kMapSelectedMarkerStroke,
+          customData: <String, Object>{'launchId': launch.id},
+        ),
+      );
+      if (onSelectionTap != null && selectionTapCancelable == null) {
+        selectionTapCancelable = manager.tapEvents(onTap: onSelectionTap);
+      }
+    } on Object catch (e, st) {
+      mapDebugLog('highlightLaunch failed: $e\n$st');
     }
   }
 }
