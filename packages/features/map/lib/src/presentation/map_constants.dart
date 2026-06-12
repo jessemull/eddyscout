@@ -39,6 +39,9 @@ const double kMapMinPitch = 0;
 const double kMapMaxPitch = 85;
 const double kMapChromeZoomStep = 1.25;
 
+/// Zoom when centering on a selected launch (browse / search pick).
+const double kLaunchFocusZoom = 10.5;
+
 /// Default recreational kayak speed for trip-time estimates (km/h).
 ///
 /// River current is not modeled; personalized speed is planned for auth/profile.

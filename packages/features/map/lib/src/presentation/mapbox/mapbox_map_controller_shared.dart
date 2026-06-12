@@ -28,6 +28,7 @@ mixin MapboxMapControllerBase {
   MapboxMap? _mapboxMap;
   Cancelable? _tapCancelable;
   Cancelable? _selectionTapCancelable;
+  CircleAnnotationManager? _launchCircleManager;
   CircleAnnotationManager? _selectionManager;
   CircleAnnotation? _selectionAnnotation;
   bool _markersInstalled = false;
@@ -56,6 +57,13 @@ mixin MapboxMapControllerBase {
   @protected
   set selectionTapCancelable(Cancelable? value) =>
       _selectionTapCancelable = value;
+
+  @protected
+  CircleAnnotationManager? get launchCircleManager => _launchCircleManager;
+
+  @protected
+  set launchCircleManager(CircleAnnotationManager? value) =>
+      _launchCircleManager = value;
 
   @protected
   CircleAnnotationManager? get selectionManager => _selectionManager;

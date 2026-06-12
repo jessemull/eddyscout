@@ -102,7 +102,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(launch);
     ref.read(routePlanningProvider.notifier).selectPlace(launch);
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlacePeek();
-    unawaited(_focusLaunchOnMap(launch));
+    _scheduleFocusLaunch(launch);
+  }
+
+  void _scheduleFocusLaunch(LaunchPoint launch) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      unawaited(_focusLaunchOnMap(launch));
+    });
   }
 
   Future<void> _focusLaunchOnMap(LaunchPoint launch) async {
@@ -110,8 +119,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   void _handleSearchLaunchSelected(LaunchPoint launch) {
-    final context = ref.read(mapSearchContextStateProvider);
-    if (context == MapSearchContext.addStop) {
+    final sheet = ref.read(mapSheetVisibilityStateProvider);
+    final searchContext = ref.read(mapSearchContextStateProvider);
+    if (sheet == MapSheetVisibility.planningEdit ||
+        searchContext == MapSearchContext.addStop) {
       _addStopFromSearch(launch);
       return;
     }
@@ -124,6 +135,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         .handleLaunchTap(
           launch,
         );
+    if (result == null) {
+      return;
+    }
+    if (result == RoutePlanningTapResult.sameAsPutIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.mapPickDifferentTakeOut)),
+      );
+      ref.read(mapSearchExpandedProvider.notifier).collapse();
+      return;
+    }
     if (result == RoutePlanningTapResult.takeOutSelected) {
       unawaited(
         ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute(),
@@ -131,13 +152,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
     ref.read(mapSearchExpandedProvider.notifier).collapse();
-    unawaited(_focusLaunchOnMap(launch));
+    _scheduleFocusLaunch(launch);
+  }
+
+  void _beginPlanningEditSession() {
+    ref.read(mapSearchContextStateProvider.notifier).setAddStop();
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
   }
 
   void _startPlanPaddle(LaunchPoint launch) {
     ref.read(routePlanningProvider.notifier).startPlanPaddle(launch);
+    _beginPlanningEditSession();
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
-    unawaited(_focusLaunchOnMap(launch));
+    _scheduleFocusLaunch(launch);
   }
 
   Future<void> _closePlacePeek() async {
@@ -218,9 +245,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final l10n = context.l10n;
 
     final trimmedSearchQuery = searchQuery.trim();
-    final showBrowseFullScreenSearch = ref.watch(
-      mapBrowseSearchFullScreenProvider,
-    );
+    final showBrowseFullScreenSearch =
+        sheetVisibility == MapSheetVisibility.hidden &&
+        ref.watch(mapBrowseSearchFullScreenProvider);
     final showPlanningFullScreenSearch =
         searchExpanded && trimmedSearchQuery.isNotEmpty;
     final showFullScreenSearch =
@@ -252,14 +279,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
               left: Spacing.sm,
               right: Spacing.sm,
-              child: MapRoutePlanningChrome(
-                waypoints: planning.waypoints,
-                routeLengthKm: planning.routeLengthKm,
-                onBack: () => unawaited(_backFromPlanningEdit()),
-                onDone: () => unawaited(_finishPlanningEdit()),
-                onRemoveStop: (index) => unawaited(_removeStop(index)),
-                onReorderStop: (oldIndex, newIndex) =>
-                    unawaited(_reorderStop(oldIndex, newIndex)),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: MapRoutePlanningChrome(
+                  waypoints: planning.waypoints,
+                  routeLengthKm: planning.routeLengthKm,
+                  onBack: () => unawaited(_backFromPlanningEdit()),
+                  onDone: () => unawaited(_finishPlanningEdit()),
+                  onRemoveStop: (index) => unawaited(_removeStop(index)),
+                  onReorderStop: (oldIndex, newIndex) =>
+                      unawaited(_reorderStop(oldIndex, newIndex)),
+                ),
               ),
             ),
           if (sheetVisibility == MapSheetVisibility.placePeek &&
@@ -292,6 +322,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 onStart: _showStartComingSoon,
                 onSave: () => widget.onSaveRoute?.call(),
                 onAddStops: () {
+                  _beginPlanningEditSession();
                   ref
                       .read(mapSheetVisibilityStateProvider.notifier)
                       .showPlanningEdit();

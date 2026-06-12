@@ -67,6 +67,7 @@ final class MapboxMapController extends _$MapboxMapController
     selectionTapCancelable?.cancel();
     selectionTapCancelable = null;
     markersInstalled = false;
+    launchCircleManager = null;
     selectionAnnotation = null;
     selectionManager = null;
     ref.read(mapInteractiveProvider.notifier).resetInteractive();
@@ -115,12 +116,12 @@ final class MapboxMapController extends _$MapboxMapController
   }
 
   void _handleLaunchSelected(LaunchPoint launch) {
-    final planning = ref.read(routePlanningProvider);
-    if (!planning.planningMode) {
-      ui.onLaunchPlaceSelected?.call(launch);
+    final sheet = ref.read(mapSheetVisibilityStateProvider);
+    if (sheet == MapSheetVisibility.planningEdit) {
+      _handlePlanningTap(launch);
       return;
     }
-    _handlePlanningTap(launch);
+    ui.onLaunchPlaceSelected?.call(launch);
   }
 
   /// Clears the selected-launch highlight ring.

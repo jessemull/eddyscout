@@ -38,29 +38,37 @@ mixin MapboxMapMarkersMixin
       await configureStandardStyleMap(mapboxMap);
       await ensureRouteLineStyle(mapboxMap);
 
-      final circleManager = await mapboxMap.annotations
-          .createCircleAnnotationManager();
+      final circleManager =
+          launchCircleManager ??
+          await mapboxMap.annotations.createCircleAnnotationManager();
+      launchCircleManager = circleManager;
 
-      final options = kLaunchPoints
-          .map(
-            (p) => CircleAnnotationOptions(
-              geometry: Point(coordinates: Position(p.longitude, p.latitude)),
-              circleRadius: 10,
-              circleColor: kMapMarkerColor,
-              circleStrokeWidth: 2,
-              circleStrokeColor: kMapMarkerStroke,
-              customData: <String, Object>{'launchId': p.id},
-            ),
-          )
-          .toList();
+      if (!markersInstalled) {
+        final options = kLaunchPoints
+            .map(
+              (p) => CircleAnnotationOptions(
+                geometry: Point(
+                  coordinates: Position(p.longitude, p.latitude),
+                ),
+                circleRadius: 10,
+                circleColor: kMapMarkerColor,
+                circleStrokeWidth: 2,
+                circleStrokeColor: kMapMarkerStroke,
+                customData: <String, Object>{'launchId': p.id},
+              ),
+            )
+            .toList();
 
-      await circleManager.createMulti(options);
-      markersInstalled = true;
-      mapDebugLog(
-        '_installLaunchMarkersIfNeeded OK markers=${kLaunchPoints.length}',
-      );
+        await circleManager.createMulti(options);
+        markersInstalled = true;
+        mapDebugLog(
+          '_installLaunchMarkersIfNeeded OK markers=${kLaunchPoints.length}',
+        );
 
-      await fitViewportToAllLaunches(mapboxMap);
+        await fitViewportToAllLaunches(mapboxMap);
+      } else {
+        mapDebugLog('_installLaunchMarkersIfNeeded rebind tapEvents');
+      }
 
       tapCancelable?.cancel();
       tapCancelable = circleManager.tapEvents(onTap: onLaunchTap);

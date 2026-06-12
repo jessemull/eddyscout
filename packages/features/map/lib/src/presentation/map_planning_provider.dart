@@ -187,7 +187,7 @@ class RoutePlanning extends _$RoutePlanning {
   }
 
   RoutePlanningTapResult? handleLaunchTap(LaunchPoint launch) {
-    if (!state.planningMode) {
+    if (!state.planningMode && state.waypoints.isEmpty) {
       return null;
     }
     final waypoints = List<LaunchPoint>.of(state.waypoints);
