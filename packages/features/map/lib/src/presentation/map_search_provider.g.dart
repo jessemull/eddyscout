@@ -405,7 +405,7 @@ final class MapSearchPlaceHitsProvider
 }
 
 String _$mapSearchPlaceHitsHash() =>
-    r'd39ccdc96c1f639a9aeda6bac3c00758a501bed7';
+    r'6c6b92b8bda92c7b9d1cd0e36e37ade884203812';
 
 /// Remote geocoding hits (stub until Mapbox Search is integrated).
 
