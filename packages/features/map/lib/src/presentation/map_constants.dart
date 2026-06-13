@@ -42,10 +42,5 @@ const double kMapChromeZoomStep = 1.25;
 /// Zoom when centering on a selected launch (browse / search pick).
 const double kLaunchFocusZoom = 10.5;
 
-/// Default recreational kayak speed for trip-time estimates (km/h).
-///
-/// River current is not modeled; personalized speed is planned for auth/profile.
-const double kDefaultKayakSpeedKmh = 4;
-
 /// [MapboxMap.addInteraction] id for map-surface tap handling.
 const String kMapContentTapInteractionId = 'eddyscout_map_content_tap';

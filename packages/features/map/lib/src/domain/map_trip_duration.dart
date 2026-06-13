@@ -1,4 +1,7 @@
-import 'package:eddyscout_map/src/presentation/map_constants.dart';
+/// Default recreational kayak speed for trip-time estimates (km/h).
+///
+/// River current is not modeled; personalized speed is planned for auth/profile.
+const double kDefaultKayakSpeedKmh = 4;
 
 /// Estimates paddling duration from distance at a constant speed.
 int? estimateTripDurationMinutes({
