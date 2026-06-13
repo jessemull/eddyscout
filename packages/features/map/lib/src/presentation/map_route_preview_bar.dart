@@ -23,9 +23,7 @@ class MapRoutePreviewBar extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onSave;
 
-  static const double _backColumnWidth = 36;
-  static const double _backIconSize = 20;
-  static const double _headerRowHeight = 48;
+  static const double _headerIconSize = 24;
 
   @override
   Widget build(BuildContext context) {
@@ -63,29 +61,11 @@ class MapRoutePreviewBar extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: _backColumnWidth,
-                    height: _headerRowHeight,
-                    child: Tooltip(
-                      message: backTooltip,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: onBack,
-                          borderRadius: BorderRadius.circular(20),
-                          child: Semantics(
-                            button: true,
-                            label: backTooltip,
-                            child: const Center(
-                              child: Icon(
-                                Icons.arrow_back,
-                                size: _backIconSize,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  _PreviewHeaderIconButton(
+                    icon: Icons.arrow_back,
+                    tooltip: backTooltip,
+                    alignment: Alignment.topLeft,
+                    onPressed: onBack,
                   ),
                   Expanded(
                     child: Column(
@@ -111,10 +91,11 @@ class MapRoutePreviewBar extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(
+                  _PreviewHeaderIconButton(
+                    icon: Icons.close,
                     tooltip: l10n.mapCloseSheetLabel,
+                    alignment: Alignment.topRight,
                     onPressed: onDismiss,
-                    icon: const Icon(Icons.close),
                   ),
                 ],
               ),
@@ -137,6 +118,48 @@ class MapRoutePreviewBar extends StatelessWidget {
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PreviewHeaderIconButton extends StatelessWidget {
+  const _PreviewHeaderIconButton({
+    required this.icon,
+    required this.tooltip,
+    required this.alignment,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final Alignment alignment;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: tooltip,
+      child: Tooltip(
+        message: tooltip,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(20),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: 48,
+                minHeight: 48,
+              ),
+              child: Align(
+                alignment: alignment,
+                child: Icon(icon, size: MapRoutePreviewBar._headerIconSize),
+              ),
+            ),
           ),
         ),
       ),
