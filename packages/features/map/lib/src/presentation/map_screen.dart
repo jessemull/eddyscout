@@ -224,10 +224,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }
   }
 
-  void _showStartComingSoon() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.mapRouteStartComingSoon)),
-    );
+  Future<void> _resetFromRoutePreview() async {
+    ref.read(mapSheetVisibilityStateProvider.notifier).hide();
+    ref.read(mapPlaceSelectionProvider.notifier).clear();
+    await ref
+        .read(mapboxMapControllerProvider.notifier)
+        .dismissPlanningSession();
   }
 
   String? _tripTimeLabel(AppLocalizations l10n, double? routeLengthKm) {
@@ -347,7 +349,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   canSave:
                       planning.hasRunnableRoute &&
                       planning.activeGeometry != null,
-                  onStart: _showStartComingSoon,
+                  onStart: () => unawaited(_resetFromRoutePreview()),
                   onSave: () => widget.onSaveRoute?.call(),
                   onAddStops: () {
                     _beginPlanningEditSession();

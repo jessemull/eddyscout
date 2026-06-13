@@ -2,7 +2,7 @@ import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/material.dart';
 
-/// Bottom preview bar after Done — trip time, summary placeholder, actions.
+/// Bottom preview bar after Done — trip time and actions.
 class MapRoutePreviewBar extends StatelessWidget {
   const MapRoutePreviewBar({
     required this.tripTimeLabel,
@@ -42,20 +42,6 @@ class MapRoutePreviewBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                padding: const EdgeInsets.all(Spacing.sm),
-                decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  l10n.mapRouteSummaryComingSoon,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              const SizedBox(height: Spacing.sm),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [

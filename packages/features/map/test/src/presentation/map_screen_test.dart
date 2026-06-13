@@ -261,6 +261,35 @@ void main() {
     expect(find.text('Save route'), findsOneWidget);
   });
 
+  testWidgets('start from route preview resets to map browse', (tester) async {
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+        routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
+        mapSheetVisibilityStateProvider.overrideWith(_PreviewSheet.new),
+      ],
+    );
+
+    expect(find.text('Start'), findsOneWidget);
+    expect(find.text('Route conditions summary coming soon.'), findsNothing);
+
+    await tester.tap(find.text('Start'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Start'), findsNothing);
+    expect(find.byKey(const Key('map_browse_search_field')), findsOneWidget);
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MapScreen)),
+    );
+    expect(
+      container.read(routePlanningProvider).phase,
+      MapPlanningPhase.browse,
+    );
+    expect(container.read(mapPlaceSelectionProvider), isNull);
+  });
+
   testWidgets('shows total trip footer when route length is known', (
     tester,
   ) async {
