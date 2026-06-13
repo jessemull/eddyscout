@@ -277,8 +277,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               !showFullScreenSearch)
             Positioned(
               top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
-              left: Spacing.sm,
-              right: Spacing.sm,
+              left: Spacing.md,
+              right: Spacing.md,
               child: Align(
                 alignment: Alignment.topCenter,
                 child: MapRoutePlanningChrome(
