@@ -25,7 +25,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    const footerHeight = 32 + (Spacing.md * 2);
+    const footerHeight = 32 + (Spacing.sm * 2);
     final footerFinder = find.byKey(const Key('map_planning_footer'));
     expect(tester.getSize(footerFinder).height, footerHeight);
 
@@ -36,5 +36,34 @@ void main() {
     final footerCenter = footerTop + (footerHeight / 2);
 
     expect(doneCenter, closeTo(footerCenter, 2));
+  });
+
+  testWidgets('aligns footer edges with chrome columns', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: testLocalizedApp(
+          child: MapRoutePlanningChrome(
+            waypoints: [kLaunchPoints[0], kLaunchPoints[1]],
+            routeLengthKm: 5.8,
+            onBack: () {},
+            onDone: () {},
+            onRemoveStop: (_) {},
+            onReorderStop: (from, to) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final totalTripRect = tester.getRect(find.textContaining('Total trip'));
+    final doneRect = tester.getRect(find.text('Done'));
+    final closeRect = tester.getRect(find.byIcon(Icons.close).first);
+    final backArrowRect = tester.getRect(find.byIcon(Icons.arrow_back));
+
+    expect(
+      totalTripRect.left,
+      closeTo(backArrowRect.left, 2),
+    );
+    expect(doneRect.right, closeTo(closeRect.right, 2));
   });
 }

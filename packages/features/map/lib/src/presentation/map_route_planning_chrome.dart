@@ -27,14 +27,17 @@ class MapRoutePlanningChrome extends ConsumerWidget {
   final void Function(int oldIndex, int newIndex) onReorderStop;
 
   static const double _chromeInset = Spacing.sm;
+  static const double _footerVerticalInset = Spacing.sm;
   static const double _backColumnWidth = 36;
   static const double _timelineWidth = 18;
   static const double _rowHeight = 32;
   static const double _rowGap = 10;
-  static const double _footerVerticalPadding = Spacing.md;
   static const double _actionWidth = 36;
+  static const double _actionIconSize = 18;
   static const int _connectorDotCount = 3;
   static const double _backIconSize = 20;
+  static const double _backIconInset = (_backColumnWidth - _backIconSize) / 2;
+  static const double _actionIconInset = (_actionWidth - _actionIconSize) / 2;
 
   void _onInlineSearchChanged(WidgetRef ref, String value) {
     ref.read(mapSearchQueryProvider.notifier).changeQuery(value);
@@ -172,68 +175,63 @@ class MapRoutePlanningChrome extends ConsumerWidget {
           const Divider(height: 1),
           SizedBox(
             key: const Key('map_planning_footer'),
-            height: _rowHeight + (_footerVerticalPadding * 2),
+            height: _rowHeight + (_footerVerticalInset * 2),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
-                _chromeInset,
-                _footerVerticalPadding,
+                _chromeInset + _backIconInset,
+                _footerVerticalInset,
                 Spacing.xs,
-                _footerVerticalPadding,
+                _footerVerticalInset,
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(width: _backColumnWidth),
-                  Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (showTotalTrip) ...[
-                          const SizedBox(width: _timelineWidth),
-                          const SizedBox(width: Spacing.xs),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                l10n.mapRouteTotalTrip(tripMinutes, tripMiles),
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.copyWith(height: 1.2),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                        ] else
-                          const Spacer(),
-                        Semantics(
+                  if (showTotalTrip)
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          l10n.mapRouteTotalTrip(tripMinutes, tripMiles),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(height: 1.2),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
+                  else
+                    const Spacer(),
+                  SizedBox(
+                    width: _actionWidth * 2,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: _actionIconInset),
+                        child: Semantics(
                           button: true,
                           enabled: canDone,
                           label: l10n.mapPlanningDoneLabel,
                           child: GestureDetector(
                             onTap: canDone ? onDone : null,
                             behavior: HitTestBehavior.opaque,
-                            child: SizedBox(
-                              width: _actionWidth * 2,
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  l10n.mapPlanningDoneLabel,
-                                  style: Theme.of(context).textTheme.labelLarge
-                                      ?.copyWith(
-                                        height: 1,
-                                        color: canDone
-                                            ? scheme.primary
-                                            : scheme.onSurface.withValues(
-                                                alpha: 0.38,
-                                              ),
-                                      ),
-                                ),
-                              ),
+                            child: Text(
+                              l10n.mapPlanningDoneLabel,
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(
+                                    height: 1,
+                                    color: canDone
+                                        ? scheme.primary
+                                        : scheme.onSurface.withValues(
+                                            alpha: 0.38,
+                                          ),
+                                  ),
+                              softWrap: false,
+                              maxLines: 1,
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ],
@@ -277,7 +275,6 @@ class _EditStopRow extends StatelessWidget {
           SizedBox(
             height: MapRoutePlanningChrome._rowHeight,
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
                   width: MapRoutePlanningChrome._timelineWidth,
@@ -459,7 +456,6 @@ class _InlineSearchRow extends StatelessWidget {
     return SizedBox(
       height: MapRoutePlanningChrome._rowHeight,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: MapRoutePlanningChrome._timelineWidth,
