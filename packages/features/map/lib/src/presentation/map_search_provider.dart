@@ -15,7 +15,7 @@ enum MapSearchContext {
 }
 
 /// Whether inline map search is expanded at the top of the map.
-@Riverpod(keepAlive: true)
+@riverpod
 class MapSearchExpanded extends _$MapSearchExpanded {
   @override
   bool build() => false;
@@ -30,7 +30,7 @@ class MapSearchExpanded extends _$MapSearchExpanded {
 }
 
 /// Whether the edit-stops panel shows an inline add-stop search row (2+ stops).
-@Riverpod(keepAlive: true)
+@riverpod
 class MapPlanningInlineAddStop extends _$MapPlanningInlineAddStop {
   @override
   bool build() => false;
@@ -56,7 +56,7 @@ bool mapBrowseSearchFullScreen(Ref ref) {
 }
 
 /// Selection context for the active search session.
-@Riverpod(keepAlive: true)
+@riverpod
 class MapSearchContextState extends _$MapSearchContextState {
   @override
   MapSearchContext build() => MapSearchContext.browse;
@@ -67,7 +67,7 @@ class MapSearchContextState extends _$MapSearchContextState {
 }
 
 /// Search query text from the search field.
-@Riverpod(keepAlive: true)
+@riverpod
 class MapSearchQuery extends _$MapSearchQuery {
   @override
   String build() => '';

@@ -46,3 +46,6 @@ const double kLaunchFocusZoom = 10.5;
 ///
 /// River current is not modeled; personalized speed is planned for auth/profile.
 const double kDefaultKayakSpeedKmh = 4;
+
+/// [MapboxMap.addInteraction] id for map-surface tap handling.
+const String kMapContentTapInteractionId = 'eddyscout_map_content_tap';

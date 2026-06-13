@@ -61,6 +61,7 @@ void main() {
     );
 
     container.read(routePlanningProvider.notifier).togglePlanningMode();
+    container.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
     await tester.pump();
 
     final map = container.read(mapboxMapControllerProvider.notifier);

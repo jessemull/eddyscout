@@ -15,6 +15,11 @@ CircleAnnotation _launchAnnotation(String launchId) {
   );
 }
 
+void _enterPlanningEdit(ProviderContainer container) {
+  container.read(routePlanningProvider.notifier).togglePlanningMode();
+  container.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -43,7 +48,7 @@ void main() {
     final container = await pumpMap(tester);
     final map = container.read(mapboxMapControllerProvider.notifier);
 
-    container.read(routePlanningProvider.notifier).togglePlanningMode();
+    _enterPlanningEdit(container);
     await tester.pump();
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
@@ -61,7 +66,7 @@ void main() {
     final container = await pumpMap(tester);
     final map = container.read(mapboxMapControllerProvider.notifier);
 
-    container.read(routePlanningProvider.notifier).togglePlanningMode();
+    _enterPlanningEdit(container);
     await tester.pump();
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
@@ -82,7 +87,7 @@ void main() {
     final container = await pumpMap(tester);
     final map = container.read(mapboxMapControllerProvider.notifier);
 
-    container.read(routePlanningProvider.notifier).togglePlanningMode();
+    _enterPlanningEdit(container);
     await tester.pump();
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
@@ -117,13 +122,14 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(find.text('Edit stops'), findsOneWidget);
+    expect(find.text('Done'), findsOneWidget);
+    expect(find.text(kLaunchPoints.first.name), findsOneWidget);
 
     await tester.tap(find.byTooltip('Back'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Edit stops'), findsNothing);
+    expect(find.text('Done'), findsNothing);
     expect(
       ProviderScope.containerOf(
         tester.element(find.byType(MapScreen)),

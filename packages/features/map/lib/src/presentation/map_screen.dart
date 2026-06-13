@@ -168,6 +168,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Future<void> _closePlacePeek() async {
+    ref.read(mapSearchContextStateProvider.notifier).setBrowse();
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
     ref.read(mapSheetVisibilityStateProvider.notifier).hide();
     ref.read(mapPlaceSelectionProvider.notifier).clear();
     ref.read(routePlanningProvider.notifier).resetToBrowse();
@@ -196,10 +198,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   void _returnToPlanningEditFromPreview() {
     _beginPlanningEditSession();
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
-  }
-
-  Future<void> _backFromPlanningPreview() async {
-    _returnToPlanningEditFromPreview();
   }
 
   Future<void> _reorderStop(int oldIndex, int newIndex) async {
@@ -232,6 +230,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Future<void> _resetFromRoutePreview() async {
+    ref.read(mapSearchContextStateProvider.notifier).setBrowse();
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
     ref.read(mapSheetVisibilityStateProvider.notifier).hide();
     ref.read(mapPlaceSelectionProvider.notifier).clear();
     await ref
@@ -298,7 +298,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           return;
         }
         if (sheetVisibility == MapSheetVisibility.planningPreview) {
-          unawaited(_backFromPlanningPreview());
+          _returnToPlanningEditFromPreview();
         } else {
           unawaited(_backFromPlanningEdit());
         }
@@ -406,8 +406,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     ),
     onMapCreated: controller.onMapCreated,
     onStyleLoadedListener: (_) => controller.onStyleLoaded(),
-    // ignore: deprecated_member_use — Mapbox addInteraction migration tracked separately
-    onTapListener: controller.onMapContentTap,
     onCameraChangeListener: kDebugMode ? controller.onDebugCameraChanged : null,
     onZoomListener: kDebugMode ? controller.onDebugMapZoomEnded : null,
   );

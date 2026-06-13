@@ -6,6 +6,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../launch_lookup.dart';
+import '../map_constants.dart';
 import '../map_planning_provider.dart';
 import '../map_session_provider.dart';
 import '../map_sheet_provider.dart';
@@ -79,7 +80,12 @@ final class MapboxMapController extends _$MapboxMapController
     selectionManager = null;
     ref.read(mapInteractiveProvider.notifier).resetInteractive();
     this.mapboxMap = mapboxMap;
-    mapboxMap.setOnMapTapListener(onMapContentTap);
+    mapboxMap
+      ..removeInteraction(kMapContentTapInteractionId)
+      ..addInteraction(
+        TapInteraction.onMap(onMapContentTap),
+        interactionID: kMapContentTapInteractionId,
+      );
     await setMapGesturesEnabled(mapboxMap, enabled: false);
   }
 

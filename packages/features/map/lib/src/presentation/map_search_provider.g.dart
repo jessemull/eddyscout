@@ -23,7 +23,7 @@ final class MapSearchExpandedProvider
         argument: null,
         retry: null,
         name: r'mapSearchExpandedProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -44,7 +44,7 @@ final class MapSearchExpandedProvider
   }
 }
 
-String _$mapSearchExpandedHash() => r'9e1ba373b186462bd3547fb049e1387432f4ce15';
+String _$mapSearchExpandedHash() => r'd9e3b1588ec63502d548307892cf59123316ad57';
 
 /// Whether inline map search is expanded at the top of the map.
 
@@ -81,7 +81,7 @@ final class MapPlanningInlineAddStopProvider
         argument: null,
         retry: null,
         name: r'mapPlanningInlineAddStopProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -103,7 +103,7 @@ final class MapPlanningInlineAddStopProvider
 }
 
 String _$mapPlanningInlineAddStopHash() =>
-    r'11d6b33131a06a69cc7399b34cccef5fb1f261cf';
+    r'532a122ee704a4d6ff50fa1e3b193344c0f265d0';
 
 /// Whether the edit-stops panel shows an inline add-stop search row (2+ stops).
 
@@ -187,7 +187,7 @@ final class MapSearchContextStateProvider
         argument: null,
         retry: null,
         name: r'mapSearchContextStateProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -209,7 +209,7 @@ final class MapSearchContextStateProvider
 }
 
 String _$mapSearchContextStateHash() =>
-    r'f933c16a5b95c7bcd50b0650194d1ff484390306';
+    r'0f98a3fb37b682075518106c91f2876bbc290f32';
 
 /// Selection context for the active search session.
 
@@ -246,7 +246,7 @@ final class MapSearchQueryProvider
         argument: null,
         retry: null,
         name: r'mapSearchQueryProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -267,7 +267,7 @@ final class MapSearchQueryProvider
   }
 }
 
-String _$mapSearchQueryHash() => r'dedcec8bc8174d1028bf44e3237600265ec091fa';
+String _$mapSearchQueryHash() => r'5dd30629840bc2ad32ac020e0baf15e414e2ef74';
 
 /// Search query text from the search field.
 

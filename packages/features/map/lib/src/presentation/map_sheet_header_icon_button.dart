@@ -17,6 +17,23 @@ class MapSheetHeaderIconButton extends StatelessWidget {
   static const double closeSlotWidth = 48;
   static const double compactSlotWidth = iconSize + Spacing.sm + Spacing.xs;
 
+  static const BoxConstraints _closeSlotConstraints = BoxConstraints(
+    minWidth: closeSlotWidth,
+    minHeight: closeSlotWidth,
+  );
+  static const BoxConstraints _closeContentSizedConstraints = BoxConstraints(
+    minWidth: closeSlotWidth,
+    minHeight: iconSize,
+  );
+  static const BoxConstraints _compactSlotConstraints = BoxConstraints(
+    minWidth: compactSlotWidth,
+    minHeight: closeSlotWidth,
+  );
+  static const BoxConstraints _compactContentSizedConstraints = BoxConstraints(
+    minWidth: compactSlotWidth,
+    minHeight: iconSize,
+  );
+
   final IconData icon;
   final String tooltip;
   final Alignment alignment;
@@ -24,10 +41,17 @@ class MapSheetHeaderIconButton extends StatelessWidget {
   final bool compact;
   final bool contentSized;
 
+  BoxConstraints get _constraints {
+    if (compact) {
+      return contentSized
+          ? _compactContentSizedConstraints
+          : _compactSlotConstraints;
+    }
+    return contentSized ? _closeContentSizedConstraints : _closeSlotConstraints;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final minWidth = compact ? compactSlotWidth : closeSlotWidth;
-    final minHeight = contentSized ? iconSize : closeSlotWidth;
     return Semantics(
       button: true,
       label: tooltip,
@@ -39,10 +63,7 @@ class MapSheetHeaderIconButton extends StatelessWidget {
             onTap: onPressed,
             borderRadius: BorderRadius.circular(20),
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: minWidth,
-                minHeight: minHeight,
-              ),
+              constraints: _constraints,
               child: Align(
                 alignment: alignment,
                 child: Icon(icon, size: iconSize),
