@@ -66,7 +66,9 @@ class MapPlacePeekBar extends StatelessWidget {
                 clipBehavior: Clip.none,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 48),
+                    padding: const EdgeInsets.only(
+                      right: MapSheetHeaderIconButton.closeSlotWidth,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -95,6 +97,7 @@ class MapPlacePeekBar extends StatelessWidget {
                       tooltip: l10n.mapCloseSheetLabel,
                       alignment: Alignment.topRight,
                       onPressed: onDismiss,
+                      contentSized: true,
                     ),
                   ),
                 ],

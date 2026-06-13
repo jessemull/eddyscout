@@ -63,8 +63,8 @@ class MapRoutePreviewBar extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(
-                      left: MapSheetHeaderIconButton.iconSize + Spacing.sm,
-                      right: 48,
+                      left: MapSheetHeaderIconButton.compactSlotWidth,
+                      right: MapSheetHeaderIconButton.closeSlotWidth,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,13 +91,18 @@ class MapRoutePreviewBar extends StatelessWidget {
                   ),
                   Positioned(
                     top: 0,
+                    bottom: 0,
                     left: 0,
-                    child: MapSheetHeaderIconButton(
-                      icon: Icons.arrow_back,
-                      tooltip: backTooltip,
-                      alignment: Alignment.topLeft,
-                      onPressed: onBack,
-                      compact: true,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: MapSheetHeaderIconButton(
+                        icon: Icons.arrow_back,
+                        tooltip: backTooltip,
+                        alignment: Alignment.centerLeft,
+                        onPressed: onBack,
+                        compact: true,
+                        contentSized: true,
+                      ),
                     ),
                   ),
                   Positioned(
@@ -108,6 +113,7 @@ class MapRoutePreviewBar extends StatelessWidget {
                       tooltip: l10n.mapCloseSheetLabel,
                       alignment: Alignment.topRight,
                       onPressed: onDismiss,
+                      contentSized: true,
                     ),
                   ),
                 ],
