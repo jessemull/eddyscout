@@ -210,11 +210,10 @@ void main() {
     expect(find.text('Add stop'), findsNothing);
   });
 
-  testWidgets('back from edit stops shows place peek and keeps waypoints', (
+  testWidgets('back from edit stops clears route and shows place peek', (
     tester,
   ) async {
     final putIn = kLaunchPoints.first;
-    final takeOut = kLaunchPoints[1];
     await pumpMap(
       tester,
       overrides: [
@@ -234,9 +233,14 @@ void main() {
     final container = ProviderScope.containerOf(
       tester.element(find.byType(MapScreen)),
     );
+    final planning = container.read(routePlanningProvider);
+    expect(planning.phase, MapPlanningPhase.placeSelected);
+    expect(planning.waypoints, isEmpty);
+    expect(planning.activeGeometry, isNull);
+    expect(planning.routeLengthKm, isNull);
     expect(
-      container.read(routePlanningProvider).waypoints.map((w) => w.id),
-      [putIn.id, takeOut.id],
+      container.read(mapPlaceSelectionProvider)?.id,
+      putIn.id,
     );
   });
 

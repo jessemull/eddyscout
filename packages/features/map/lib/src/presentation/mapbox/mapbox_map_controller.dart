@@ -48,6 +48,13 @@ final class MapboxMapController extends _$MapboxMapController
         if (wasPending && next.hasValue) {
           unawaited(_runRoute());
         }
+      })
+      ..listen(routePlanningProvider, (previous, next) {
+        final prevPoints = previous?.polylineLonLat?.length ?? 0;
+        final nextPoints = next.polylineLonLat?.length ?? 0;
+        if (prevPoints >= 2 && nextPoints < 2) {
+          unawaited(clearRouteLine());
+        }
       });
   }
 
@@ -174,15 +181,30 @@ final class MapboxMapController extends _$MapboxMapController
     }
   }
 
+  /// Invalidates in-flight [_runRoute] work and clears the map line.
+  ///
+  /// Call before leaving planning edit (back arrow) so a late planner result
+  /// cannot redraw the route after the user exits.
+  Future<void> abandonPlanningRouteLine() async {
+    bumpRouteLineGeneration();
+    await clearRouteLine();
+  }
+
   Future<void> _runRoute() async {
+    final routeGeneration = routeLineGeneration;
     final planning = ref.read(routePlanningProvider);
     final waypoints = planning.waypoints;
     if (waypoints.length < 2) {
       return;
     }
+    final waypointIds = waypoints.map((w) => w.id).toList(growable: false);
 
     final planner = await _resolveRoutePlanner();
-    if (planner == null || !alive) {
+    if (planner == null ||
+        !_canApplyRouteResult(
+          routeGeneration: routeGeneration,
+          waypointIds: waypointIds,
+        )) {
       return;
     }
 
@@ -193,6 +215,12 @@ final class MapboxMapController extends _$MapboxMapController
 
     if (planResult case Failure(:final error)) {
       mapDebugLog('plan FAILED multi-segment: ${error.code}');
+      if (!_canApplyRouteResult(
+        routeGeneration: routeGeneration,
+        waypointIds: waypointIds,
+      )) {
+        return;
+      }
       ref
           .read(routePlanningProvider.notifier)
           .setActiveGeometry(
@@ -207,7 +235,11 @@ final class MapboxMapController extends _$MapboxMapController
     final segments =
         (planResult as Success<List<RouteSuccess>, RouteFailure>).value;
     final geometry = mergeRouteSegments(segments);
-    if (geometry == null) {
+    if (geometry == null ||
+        !_canApplyRouteResult(
+          routeGeneration: routeGeneration,
+          waypointIds: waypointIds,
+        )) {
       return;
     }
     mapDebugLog(
@@ -221,7 +253,16 @@ final class MapboxMapController extends _$MapboxMapController
           geometry: geometry,
           routeLengthKm: geometry.lengthMeters / 1000.0,
         );
+    if (!_canApplyRouteResult(
+      routeGeneration: routeGeneration,
+      waypointIds: waypointIds,
+    )) {
+      return;
+    }
     await drawRouteLine(geometry.polylineLonLat);
+    if (!isRouteLineGenerationCurrent(routeGeneration)) {
+      return;
+    }
     if (_shouldFitCameraAfterRoute()) {
       await fitCameraToRoute(geometry.polylineLonLat);
     }
@@ -255,6 +296,38 @@ final class MapboxMapController extends _$MapboxMapController
   bool _shouldFitCameraAfterRoute() {
     final visibility = ref.read(mapSheetVisibilityStateProvider);
     return visibility == MapSheetVisibility.planningPreview;
+  }
+
+  bool _matchesPlannedWaypoints(List<String> waypointIds) {
+    final current = ref.read(routePlanningProvider).waypoints;
+    if (current.length != waypointIds.length) {
+      return false;
+    }
+    for (var i = 0; i < waypointIds.length; i++) {
+      if (current[i].id != waypointIds[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool _shouldShowRouteOnMap() {
+    final sheet = ref.read(mapSheetVisibilityStateProvider);
+    return sheet == MapSheetVisibility.planningEdit ||
+        sheet == MapSheetVisibility.planningPreview;
+  }
+
+  bool _canApplyRouteResult({
+    required int routeGeneration,
+    required List<String> waypointIds,
+  }) {
+    if (!alive ||
+        !isRouteLineGenerationCurrent(routeGeneration) ||
+        !_matchesPlannedWaypoints(waypointIds) ||
+        !_shouldShowRouteOnMap()) {
+      return false;
+    }
+    return true;
   }
 
   /// Draws a saved or imported route polyline and fits the camera.

@@ -37,6 +37,7 @@ mixin MapboxMapControllerBase {
   double? _debugLastLoggedCameraZoom;
   int _debugLastCameraChangeLogMs = 0;
   bool _alive = true;
+  int _routeLineGeneration = 0;
 
   /// Active Mapbox map instance, if created.
   @protected
@@ -110,4 +111,15 @@ mixin MapboxMapControllerBase {
   @protected
   set debugLastCameraChangeLogMs(int value) =>
       _debugLastCameraChangeLogMs = value;
+
+  /// Bumped when route drawing should be abandoned (back from planning).
+  @protected
+  int get routeLineGeneration => _routeLineGeneration;
+
+  @protected
+  int bumpRouteLineGeneration() => ++_routeLineGeneration;
+
+  @protected
+  bool isRouteLineGenerationCurrent(int generation) =>
+      generation == _routeLineGeneration;
 }

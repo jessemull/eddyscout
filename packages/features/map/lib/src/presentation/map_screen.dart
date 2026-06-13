@@ -171,18 +171,29 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     ref.read(mapSheetVisibilityStateProvider.notifier).hide();
     ref.read(mapPlaceSelectionProvider.notifier).clear();
     ref.read(routePlanningProvider.notifier).resetToBrowse();
+    await ref.read(mapboxMapControllerProvider.notifier).clearRouteLine();
     await ref.read(mapboxMapControllerProvider.notifier).clearLaunchHighlight();
   }
 
-  Future<void> _backFromPlanningEdit() async {
+  Future<void> _exitPlanningToPlacePeek() async {
     ref.read(mapPlanningInlineAddStopProvider.notifier).hide();
     ref.read(mapSearchExpandedProvider.notifier).collapse();
     final putIn = ref.read(routePlanningProvider).putIn;
+    final mapController = ref.read(mapboxMapControllerProvider.notifier);
+    await mapController.abandonPlanningRouteLine();
     if (putIn != null) {
       ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(putIn);
+      ref.read(routePlanningProvider.notifier).selectPlace(putIn);
+    } else {
+      ref.read(routePlanningProvider.notifier).resetToBrowse();
     }
+    await mapController.clearLaunchHighlight();
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlacePeek();
   }
+
+  Future<void> _backFromPlanningEdit() => _exitPlanningToPlacePeek();
+
+  Future<void> _backFromPlanningPreview() => _exitPlanningToPlacePeek();
 
   Future<void> _reorderStop(int oldIndex, int newIndex) async {
     ref
@@ -266,97 +277,115 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final showBrowseSearchField =
         sheetVisibility == MapSheetVisibility.hidden && !showFullScreenSearch;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          mapChild,
-          if (sheetVisibility == MapSheetVisibility.planningEdit &&
-              !showFullScreenSearch)
-            Positioned(
-              top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
-              left: Spacing.md,
-              right: Spacing.md,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: MapRoutePlanningChrome(
-                  waypoints: planning.waypoints,
-                  routeLengthKm: planning.routeLengthKm,
-                  onBack: () => unawaited(_backFromPlanningEdit()),
-                  onDone: () => unawaited(_finishPlanningEdit()),
-                  onRemoveStop: (index) => unawaited(_removeStop(index)),
-                  onReorderStop: (oldIndex, newIndex) =>
-                      unawaited(_reorderStop(oldIndex, newIndex)),
+    final interceptPlanningBack =
+        (sheetVisibility == MapSheetVisibility.planningEdit ||
+            sheetVisibility == MapSheetVisibility.planningPreview) &&
+        !showFullScreenSearch;
+
+    return PopScope(
+      canPop: !interceptPlanningBack,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop || !interceptPlanningBack) {
+          return;
+        }
+        if (sheetVisibility == MapSheetVisibility.planningPreview) {
+          unawaited(_backFromPlanningPreview());
+        } else {
+          unawaited(_backFromPlanningEdit());
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: false,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            mapChild,
+            if (sheetVisibility == MapSheetVisibility.planningEdit &&
+                !showFullScreenSearch)
+              Positioned(
+                top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
+                left: Spacing.md,
+                right: Spacing.md,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: MapRoutePlanningChrome(
+                    waypoints: planning.waypoints,
+                    routeLengthKm: planning.routeLengthKm,
+                    onBack: () => unawaited(_backFromPlanningEdit()),
+                    onDone: () => unawaited(_finishPlanningEdit()),
+                    onRemoveStop: (index) => unawaited(_removeStop(index)),
+                    onReorderStop: (oldIndex, newIndex) =>
+                        unawaited(_reorderStop(oldIndex, newIndex)),
+                  ),
                 ),
               ),
-            ),
-          if (sheetVisibility == MapSheetVisibility.placePeek &&
-              selectedLaunch != null &&
-              !showFullScreenSearch)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: MapPlacePeekBar(
-                launch: selectedLaunch,
-                onPlanPaddle: () => _startPlanPaddle(selectedLaunch),
-                onViewConditions: () =>
-                    widget.onOpenLaunchDetail?.call(selectedLaunch),
-                onDismiss: () => unawaited(_closePlacePeek()),
-              ),
-            ),
-          if (sheetVisibility == MapSheetVisibility.planningPreview &&
-              !showFullScreenSearch)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: MapRoutePreviewBar(
-                tripTimeLabel: _tripTimeLabel(l10n, planning.routeLengthKm),
-                routeLengthKm: planning.routeLengthKm,
-                canSave:
-                    planning.hasRunnableRoute &&
-                    planning.activeGeometry != null,
-                onStart: _showStartComingSoon,
-                onSave: () => widget.onSaveRoute?.call(),
-                onAddStops: () {
-                  _beginPlanningEditSession();
-                  ref
-                      .read(mapSheetVisibilityStateProvider.notifier)
-                      .showPlanningEdit();
-                },
-              ),
-            ),
-          if (showFullScreenSearch)
-            Positioned.fill(
-              child: MapFullScreenSearchOverlay(
-                onLaunchSelected: _handleSearchLaunchSelected,
-              ),
-            ),
-          if (showBrowseSearchField)
-            Positioned(
-              top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
-              left: Spacing.md,
-              right: Spacing.md,
-              child: const MapBrowseSearchField(),
-            ),
-          if (mapInteractive &&
-              (!_usesMapStub || widget.forceZoomChromeForTest)) ...[
-            if (!_usesMapStub || widget.forceZoomChromeForTest)
+            if (sheetVisibility == MapSheetVisibility.placePeek &&
+                selectedLaunch != null &&
+                !showFullScreenSearch)
               Positioned(
-                left: Spacing.sm,
-                bottom: controlsBottomPadding,
-                child: MapZoomControls(controller: mapController),
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: MapPlacePeekBar(
+                  launch: selectedLaunch,
+                  onPlanPaddle: () => _startPlanPaddle(selectedLaunch),
+                  onViewConditions: () =>
+                      widget.onOpenLaunchDetail?.call(selectedLaunch),
+                  onDismiss: () => unawaited(_closePlacePeek()),
+                ),
               ),
-            Positioned(
-              right: Spacing.sm,
-              bottom: controlsBottomPadding,
-              child: const MapLocateControl(),
-            ),
+            if (sheetVisibility == MapSheetVisibility.planningPreview &&
+                !showFullScreenSearch)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: MapRoutePreviewBar(
+                  tripTimeLabel: _tripTimeLabel(l10n, planning.routeLengthKm),
+                  routeLengthKm: planning.routeLengthKm,
+                  canSave:
+                      planning.hasRunnableRoute &&
+                      planning.activeGeometry != null,
+                  onStart: _showStartComingSoon,
+                  onSave: () => widget.onSaveRoute?.call(),
+                  onAddStops: () {
+                    _beginPlanningEditSession();
+                    ref
+                        .read(mapSheetVisibilityStateProvider.notifier)
+                        .showPlanningEdit();
+                  },
+                ),
+              ),
+            if (showFullScreenSearch)
+              Positioned.fill(
+                child: MapFullScreenSearchOverlay(
+                  onLaunchSelected: _handleSearchLaunchSelected,
+                ),
+              ),
+            if (showBrowseSearchField)
+              Positioned(
+                top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
+                left: Spacing.md,
+                right: Spacing.md,
+                child: const MapBrowseSearchField(),
+              ),
+            if (mapInteractive &&
+                (!_usesMapStub || widget.forceZoomChromeForTest)) ...[
+              if (!_usesMapStub || widget.forceZoomChromeForTest)
+                Positioned(
+                  left: Spacing.sm,
+                  bottom: controlsBottomPadding,
+                  child: MapZoomControls(controller: mapController),
+                ),
+              Positioned(
+                right: Spacing.sm,
+                bottom: controlsBottomPadding,
+                child: const MapLocateControl(),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
