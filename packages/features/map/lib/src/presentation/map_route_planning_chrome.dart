@@ -88,157 +88,225 @@ class MapRoutePlanningChrome extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: _backColumnWidth,
-                  height: _rowHeight,
-                  child: Tooltip(
-                    message: MaterialLocalizations.of(
-                      context,
-                    ).backButtonTooltip,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: onBack,
-                        borderRadius: BorderRadius.circular(20),
-                        child: Semantics(
-                          button: true,
-                          label: MaterialLocalizations.of(
-                            context,
-                          ).backButtonTooltip,
-                          child: const Center(
-                            child: Icon(
-                              Icons.arrow_back,
-                              size: _backIconSize,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                _PlanningChromeBackButton(onBack: onBack),
                 Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (waypoints.isNotEmpty)
-                        ReorderableListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          buildDefaultDragHandles: false,
-                          itemCount: waypoints.length,
-                          onReorderItem: onReorderStop,
-                          itemBuilder: (context, index) {
-                            final launch = waypoints[index];
-                            final canRemove = waypoints.length > 1;
-                            return Semantics(
-                              key: ValueKey('${launch.id}_$index'),
-                              label: _stopSemanticsLabel(
-                                l10n,
-                                index,
-                                launch.name,
-                              ),
-                              hint: l10n.mapRouteReorderStopHint,
-                              child: _EditStopRow(
-                                showConnectorBelow: true,
-                                indicator: _StopIndicator(
-                                  index: index,
-                                  totalStops: waypoints.length,
-                                ),
-                                label: launch.name,
-                                onRemove: canRemove
-                                    ? () => onRemoveStop(index)
-                                    : null,
-                                removeSemanticsLabel: l10n
-                                    .mapRouteDeleteStopSemantics(
-                                      launch.name,
-                                    ),
-                                reorderHint: l10n.mapRouteReorderStopHint,
-                                dragIndex: index,
-                              ),
-                            );
-                          },
-                        ),
-                      _InlineSearchRow(
-                        fieldKey: hasDestination
-                            ? const Key('map_add_stop_search_field')
-                            : const Key('map_destination_search_field'),
-                        hintText: l10n.mapSearchPlaceholder,
-                        onChanged: (value) =>
-                            _onInlineSearchChanged(ref, value),
-                      ),
-                    ],
+                  child: _PlanningStopListSection(
+                    waypoints: waypoints,
+                    hasDestination: hasDestination,
+                    searchHintText: l10n.mapSearchPlaceholder,
+                    stopSemanticsLabel: (index, name) =>
+                        _stopSemanticsLabel(l10n, index, name),
+                    onRemoveStop: onRemoveStop,
+                    onReorderStop: onReorderStop,
+                    onInlineSearchChanged: (value) =>
+                        _onInlineSearchChanged(ref, value),
                   ),
                 ),
               ],
             ),
           ),
           const Divider(height: 1),
-          SizedBox(
-            key: const Key('map_planning_footer'),
-            height: _rowHeight + (_footerVerticalInset * 2),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                _chromeInset + _backIconInset,
-                _footerVerticalInset,
-                Spacing.xs,
-                _footerVerticalInset,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (showTotalTrip)
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          l10n.mapRouteTotalTrip(tripMinutes, tripMiles),
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(height: 1.2),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    )
-                  else
-                    const Spacer(),
-                  SizedBox(
-                    width: _actionWidth * 2,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: _actionIconInset),
-                        child: Semantics(
-                          button: true,
-                          enabled: canDone,
-                          label: l10n.mapPlanningDoneLabel,
-                          child: GestureDetector(
-                            onTap: canDone ? onDone : null,
-                            behavior: HitTestBehavior.opaque,
-                            child: Text(
-                              l10n.mapPlanningDoneLabel,
-                              style: Theme.of(context).textTheme.labelLarge
-                                  ?.copyWith(
-                                    height: 1,
-                                    color: canDone
-                                        ? scheme.primary
-                                        : scheme.onSurface.withValues(
-                                            alpha: 0.38,
-                                          ),
-                                  ),
-                              softWrap: false,
-                              maxLines: 1,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+          _PlanningChromeFooter(
+            showTotalTrip: showTotalTrip,
+            totalTripLabel: tripMinutes != null && tripMiles != null
+                ? l10n.mapRouteTotalTrip(tripMinutes, tripMiles)
+                : null,
+            canDone: canDone,
+            doneLabel: l10n.mapPlanningDoneLabel,
+            onDone: onDone,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlanningChromeBackButton extends StatelessWidget {
+  const _PlanningChromeBackButton({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final backTooltip = MaterialLocalizations.of(context).backButtonTooltip;
+    return SizedBox(
+      width: MapRoutePlanningChrome._backColumnWidth,
+      height: MapRoutePlanningChrome._rowHeight,
+      child: Tooltip(
+        message: backTooltip,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onBack,
+            borderRadius: BorderRadius.circular(20),
+            child: Semantics(
+              button: true,
+              label: backTooltip,
+              child: const Center(
+                child: Icon(
+                  Icons.arrow_back,
+                  size: MapRoutePlanningChrome._backIconSize,
+                ),
               ),
             ),
           ),
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanningStopListSection extends StatelessWidget {
+  const _PlanningStopListSection({
+    required this.waypoints,
+    required this.hasDestination,
+    required this.searchHintText,
+    required this.stopSemanticsLabel,
+    required this.onRemoveStop,
+    required this.onReorderStop,
+    required this.onInlineSearchChanged,
+  });
+
+  final List<LaunchPoint> waypoints;
+  final bool hasDestination;
+  final String searchHintText;
+  final String Function(int index, String name) stopSemanticsLabel;
+  final ValueChanged<int> onRemoveStop;
+  final void Function(int oldIndex, int newIndex) onReorderStop;
+  final ValueChanged<String> onInlineSearchChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (waypoints.isNotEmpty)
+          ReorderableListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            buildDefaultDragHandles: false,
+            itemCount: waypoints.length,
+            onReorderItem: onReorderStop,
+            itemBuilder: (context, index) {
+              final launch = waypoints[index];
+              final canRemove = waypoints.length > 1;
+              return Semantics(
+                key: ValueKey('${launch.id}_$index'),
+                label: stopSemanticsLabel(index, launch.name),
+                hint: l10n.mapRouteReorderStopHint,
+                child: _EditStopRow(
+                  showConnectorBelow: true,
+                  indicator: _StopIndicator(
+                    index: index,
+                    totalStops: waypoints.length,
+                  ),
+                  label: launch.name,
+                  onRemove: canRemove ? () => onRemoveStop(index) : null,
+                  removeSemanticsLabel: l10n.mapRouteDeleteStopSemantics(
+                    launch.name,
+                  ),
+                  reorderHint: l10n.mapRouteReorderStopHint,
+                  dragIndex: index,
+                ),
+              );
+            },
+          ),
+        _InlineSearchRow(
+          fieldKey: hasDestination
+              ? const Key('map_add_stop_search_field')
+              : const Key('map_destination_search_field'),
+          hintText: searchHintText,
+          onChanged: onInlineSearchChanged,
+        ),
+      ],
+    );
+  }
+}
+
+class _PlanningChromeFooter extends StatelessWidget {
+  const _PlanningChromeFooter({
+    required this.showTotalTrip,
+    required this.totalTripLabel,
+    required this.canDone,
+    required this.doneLabel,
+    required this.onDone,
+  });
+
+  final bool showTotalTrip;
+  final String? totalTripLabel;
+  final bool canDone;
+  final String doneLabel;
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      key: const Key('map_planning_footer'),
+      height:
+          MapRoutePlanningChrome._rowHeight +
+          (MapRoutePlanningChrome._footerVerticalInset * 2),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          MapRoutePlanningChrome._chromeInset +
+              MapRoutePlanningChrome._backIconInset,
+          MapRoutePlanningChrome._footerVerticalInset,
+          Spacing.xs,
+          MapRoutePlanningChrome._footerVerticalInset,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (showTotalTrip && totalTripLabel != null)
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    totalTripLabel!,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(height: 1.2),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+            else
+              const Spacer(),
+            SizedBox(
+              width: MapRoutePlanningChrome._actionWidth * 2,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    right: MapRoutePlanningChrome._actionIconInset,
+                  ),
+                  child: Semantics(
+                    button: true,
+                    enabled: canDone,
+                    label: doneLabel,
+                    child: GestureDetector(
+                      onTap: canDone ? onDone : null,
+                      behavior: HitTestBehavior.opaque,
+                      child: Text(
+                        doneLabel,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          height: 1,
+                          color: canDone
+                              ? scheme.primary
+                              : scheme.onSurface.withValues(alpha: 0.38),
+                        ),
+                        softWrap: false,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

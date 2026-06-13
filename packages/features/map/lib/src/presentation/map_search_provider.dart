@@ -99,7 +99,7 @@ Future<List<MapSearchHitPlace>> mapSearchPlaceHits(
   if (trimmed.isEmpty) {
     return const [];
   }
-  final repository = ref.read(mapSearchRepositoryProvider);
+  final repository = ref.watch(mapSearchRepositoryProvider);
   final places = await repository.searchPlaces(trimmed);
   return places.map(MapSearchHitPlace.new).toList();
 }

@@ -167,11 +167,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     _scheduleFocusLaunch(launch);
   }
 
-  Future<void> _closePlacePeek() async {
+  void _resetBrowseSearchAndHideSheet() {
     ref.read(mapSearchContextStateProvider.notifier).setBrowse();
     ref.read(mapSearchExpandedProvider.notifier).collapse();
     ref.read(mapSheetVisibilityStateProvider.notifier).hide();
     ref.read(mapPlaceSelectionProvider.notifier).clear();
+  }
+
+  Future<void> _closePlacePeek() async {
+    _resetBrowseSearchAndHideSheet();
     ref.read(routePlanningProvider.notifier).resetToBrowse();
     await ref.read(mapboxMapControllerProvider.notifier).clearRouteLine();
     await ref.read(mapboxMapControllerProvider.notifier).clearLaunchHighlight();
@@ -230,10 +234,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Future<void> _resetFromRoutePreview() async {
-    ref.read(mapSearchContextStateProvider.notifier).setBrowse();
-    ref.read(mapSearchExpandedProvider.notifier).collapse();
-    ref.read(mapSheetVisibilityStateProvider.notifier).hide();
-    ref.read(mapPlaceSelectionProvider.notifier).clear();
+    _resetBrowseSearchAndHideSheet();
     await ref
         .read(mapboxMapControllerProvider.notifier)
         .dismissPlanningSession();
