@@ -31,7 +31,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
   static const double _timelineWidth = 18;
   static const double _rowHeight = 32;
   static const double _rowGap = 10;
-  static const double _footerHeight = 36;
+  static const double _footerVerticalPadding = Spacing.md;
   static const double _actionWidth = 36;
   static const int _connectorDotCount = 3;
   static const double _backIconSize = 20;
@@ -102,7 +102,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
                           label: MaterialLocalizations.of(
                             context,
                           ).backButtonTooltip,
-                          child: Center(
+                          child: const Center(
                             child: Icon(
                               Icons.arrow_back,
                               size: _backIconSize,
@@ -171,34 +171,70 @@ class MapRoutePlanningChrome extends ConsumerWidget {
           ),
           const Divider(height: 1),
           SizedBox(
-            height: _footerHeight,
+            key: const Key('map_planning_footer'),
+            height: _rowHeight + (_footerVerticalPadding * 2),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
+              padding: const EdgeInsets.fromLTRB(
+                _chromeInset,
+                _footerVerticalPadding,
+                Spacing.xs,
+                _footerVerticalPadding,
+              ),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (showTotalTrip)
-                    Expanded(
-                      child: Text(
-                        l10n.mapRouteTotalTrip(tripMinutes, tripMiles),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    )
-                  else
-                    const Spacer(),
-                  TextButton(
-                    onPressed: canDone ? onDone : null,
-                    style: TextButton.styleFrom(
-                      foregroundColor: scheme.primary,
-                      visualDensity: VisualDensity.compact,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Spacing.sm,
-                        vertical: Spacing.xxs,
-                      ),
+                  const SizedBox(width: _backColumnWidth),
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (showTotalTrip) ...[
+                          const SizedBox(width: _timelineWidth),
+                          const SizedBox(width: Spacing.xs),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                l10n.mapRouteTotalTrip(tripMinutes, tripMiles),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(height: 1.2),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ] else
+                          const Spacer(),
+                        Semantics(
+                          button: true,
+                          enabled: canDone,
+                          label: l10n.mapPlanningDoneLabel,
+                          child: GestureDetector(
+                            onTap: canDone ? onDone : null,
+                            behavior: HitTestBehavior.opaque,
+                            child: SizedBox(
+                              width: _actionWidth * 2,
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  l10n.mapPlanningDoneLabel,
+                                  style: Theme.of(context).textTheme.labelLarge
+                                      ?.copyWith(
+                                        height: 1,
+                                        color: canDone
+                                            ? scheme.primary
+                                            : scheme.onSurface.withValues(
+                                                alpha: 0.38,
+                                              ),
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    child: Text(l10n.mapPlanningDoneLabel),
                   ),
                 ],
               ),
@@ -296,12 +332,12 @@ class _EditStopRow extends StatelessWidget {
             ),
           ),
           if (showConnectorBelow)
-            Row(
+            const Row(
               children: [
                 SizedBox(
                   height: MapRoutePlanningChrome._rowGap,
                   width: MapRoutePlanningChrome._timelineWidth,
-                  child: const _VerticalDotConnector(),
+                  child: _VerticalDotConnector(),
                 ),
               ],
             ),
