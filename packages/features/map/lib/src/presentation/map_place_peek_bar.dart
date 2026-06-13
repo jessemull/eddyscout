@@ -3,6 +3,8 @@ import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/material.dart';
 
+import 'map_sheet_header_icon_button.dart';
+
 String mapLaunchRiverLabel(AppLocalizations l10n, RiverSystem river) {
   return switch (river) {
     RiverSystem.willamette => l10n.launchDetailRiverWillamette,
@@ -60,9 +62,11 @@ class MapPlacePeekBar extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: Spacing.sm),
-              Row(
+              Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  Expanded(
+                  Padding(
+                    padding: const EdgeInsets.only(right: 48),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -83,10 +87,15 @@ class MapPlacePeekBar extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(
-                    tooltip: l10n.mapCloseSheetLabel,
-                    onPressed: onDismiss,
-                    icon: const Icon(Icons.close),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: MapSheetHeaderIconButton(
+                      icon: Icons.close,
+                      tooltip: l10n.mapCloseSheetLabel,
+                      alignment: Alignment.topRight,
+                      onPressed: onDismiss,
+                    ),
                   ),
                 ],
               ),

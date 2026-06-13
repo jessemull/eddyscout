@@ -2,6 +2,8 @@ import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/material.dart';
 
+import 'map_sheet_header_icon_button.dart';
+
 /// Bottom preview bar after Done — trip time and actions.
 class MapRoutePreviewBar extends StatelessWidget {
   const MapRoutePreviewBar({
@@ -22,8 +24,6 @@ class MapRoutePreviewBar extends StatelessWidget {
   final VoidCallback onDismiss;
   final VoidCallback onStart;
   final VoidCallback onSave;
-
-  static const double _headerIconSize = 24;
 
   @override
   Widget build(BuildContext context) {
@@ -58,16 +58,14 @@ class MapRoutePreviewBar extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: Spacing.sm),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  _PreviewHeaderIconButton(
-                    icon: Icons.arrow_back,
-                    tooltip: backTooltip,
-                    alignment: Alignment.topLeft,
-                    onPressed: onBack,
-                  ),
-                  Expanded(
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: MapSheetHeaderIconButton.iconSize + Spacing.sm,
+                      right: 48,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -91,11 +89,26 @@ class MapRoutePreviewBar extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _PreviewHeaderIconButton(
-                    icon: Icons.close,
-                    tooltip: l10n.mapCloseSheetLabel,
-                    alignment: Alignment.topRight,
-                    onPressed: onDismiss,
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    child: MapSheetHeaderIconButton(
+                      icon: Icons.arrow_back,
+                      tooltip: backTooltip,
+                      alignment: Alignment.topLeft,
+                      onPressed: onBack,
+                      compact: true,
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: MapSheetHeaderIconButton(
+                      icon: Icons.close,
+                      tooltip: l10n.mapCloseSheetLabel,
+                      alignment: Alignment.topRight,
+                      onPressed: onDismiss,
+                    ),
                   ),
                 ],
               ),
@@ -118,48 +131,6 @@ class MapRoutePreviewBar extends StatelessWidget {
                 ],
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PreviewHeaderIconButton extends StatelessWidget {
-  const _PreviewHeaderIconButton({
-    required this.icon,
-    required this.tooltip,
-    required this.alignment,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final Alignment alignment;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: tooltip,
-      child: Tooltip(
-        message: tooltip,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(20),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                minWidth: 48,
-                minHeight: 48,
-              ),
-              child: Align(
-                alignment: alignment,
-                child: Icon(icon, size: MapRoutePreviewBar._headerIconSize),
-              ),
-            ),
           ),
         ),
       ),
