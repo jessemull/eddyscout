@@ -88,7 +88,67 @@ void main() {
     );
 
     expect(find.text('Save route'), findsOneWidget);
-    expect(find.text('Add stops'), findsOneWidget);
+    expect(find.text('Start'), findsOneWidget);
+    expect(find.text('Add stops'), findsNothing);
+    expect(find.byTooltip('Back'), findsOneWidget);
+    expect(find.byTooltip('Close'), findsOneWidget);
+  });
+
+  testWidgets('back from route preview returns to planning edit', (
+    tester,
+  ) async {
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+        routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
+        mapSheetVisibilityStateProvider.overrideWith(_PreviewSheet.new),
+      ],
+    );
+
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Done'), findsOneWidget);
+    expect(find.text('Start'), findsNothing);
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MapScreen)),
+    );
+    expect(
+      container.read(mapSheetVisibilityStateProvider),
+      MapSheetVisibility.planningEdit,
+    );
+    final planning = container.read(routePlanningProvider);
+    expect(planning.phase, MapPlanningPhase.routeReady);
+    expect(planning.waypoints, hasLength(2));
+    expect(planning.activeGeometry, isNotNull);
+  });
+
+  testWidgets('close from route preview resets to map browse', (tester) async {
+    await pumpMap(
+      tester,
+      overrides: [
+        mapInteractiveProvider.overrideWithValue(true),
+        routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
+        mapSheetVisibilityStateProvider.overrideWith(_PreviewSheet.new),
+      ],
+    );
+
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Start'), findsNothing);
+    expect(find.byKey(const Key('map_browse_search_field')), findsOneWidget);
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MapScreen)),
+    );
+    expect(
+      container.read(routePlanningProvider).phase,
+      MapPlanningPhase.browse,
+    );
+    expect(container.read(mapPlaceSelectionProvider), isNull);
   });
 
   testWidgets('shows place peek when launch pin tapped', (tester) async {

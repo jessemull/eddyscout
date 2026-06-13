@@ -8,23 +8,30 @@ class MapRoutePreviewBar extends StatelessWidget {
     required this.tripTimeLabel,
     required this.routeLengthKm,
     required this.canSave,
+    required this.onBack,
+    required this.onDismiss,
     required this.onStart,
     required this.onSave,
-    required this.onAddStops,
     super.key,
   });
 
   final String? tripTimeLabel;
   final double? routeLengthKm;
   final bool canSave;
+  final VoidCallback onBack;
+  final VoidCallback onDismiss;
   final VoidCallback onStart;
   final VoidCallback onSave;
-  final VoidCallback onAddStops;
+
+  static const double _backColumnWidth = 36;
+  static const double _backIconSize = 20;
+  static const double _headerRowHeight = 48;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
+    final backTooltip = MaterialLocalizations.of(context).backButtonTooltip;
     return Material(
       elevation: 8,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -34,7 +41,7 @@ class MapRoutePreviewBar extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
             Spacing.md,
-            Spacing.sm,
+            Spacing.xs,
             Spacing.md,
             Spacing.sm,
           ),
@@ -42,9 +49,44 @@ class MapRoutePreviewBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: scheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: Spacing.sm),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(
+                    width: _backColumnWidth,
+                    height: _headerRowHeight,
+                    child: Tooltip(
+                      message: backTooltip,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: onBack,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Semantics(
+                            button: true,
+                            label: backTooltip,
+                            child: const Center(
+                              child: Icon(
+                                Icons.arrow_back,
+                                size: _backIconSize,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +94,9 @@ class MapRoutePreviewBar extends StatelessWidget {
                         if (tripTimeLabel != null)
                           Text(
                             tripTimeLabel!,
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: Theme.of(context).textTheme.titleSmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         if (routeLengthKm != null)
                           Text(
@@ -61,28 +105,36 @@ class MapRoutePreviewBar extends StatelessWidget {
                             ),
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: scheme.onSurfaceVariant),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                       ],
                     ),
                   ),
-                  OutlinedButton(
-                    onPressed: onStart,
-                    child: Text(l10n.mapRoutePreviewStart),
+                  IconButton(
+                    tooltip: l10n.mapCloseSheetLabel,
+                    onPressed: onDismiss,
+                    icon: const Icon(Icons.close),
                   ),
-                  const SizedBox(width: Spacing.xs),
-                  if (canSave)
-                    FilledButton(
-                      onPressed: onSave,
-                      child: Text(l10n.mapPlanningSaveLabel),
-                    ),
                 ],
               ),
-              const SizedBox(height: Spacing.xs),
-              Align(
-                child: TextButton(
-                  onPressed: onAddStops,
-                  child: Text(l10n.mapRoutePreviewAddStops),
-                ),
+              const SizedBox(height: Spacing.sm),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: onStart,
+                      child: Text(l10n.mapRoutePreviewStart),
+                    ),
+                  ),
+                  const SizedBox(width: Spacing.sm),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: canSave ? onSave : null,
+                      child: Text(l10n.mapPlanningSaveLabel),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

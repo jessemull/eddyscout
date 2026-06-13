@@ -193,7 +193,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Future<void> _backFromPlanningEdit() => _exitPlanningToPlacePeek();
 
-  Future<void> _backFromPlanningPreview() => _exitPlanningToPlacePeek();
+  void _returnToPlanningEditFromPreview() {
+    _beginPlanningEditSession();
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+  }
+
+  Future<void> _backFromPlanningPreview() async {
+    _returnToPlanningEditFromPreview();
+  }
 
   Future<void> _reorderStop(int oldIndex, int newIndex) async {
     ref
@@ -271,7 +278,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         : _liveMapWidget(mapController);
 
     final controlsBottomPadding = switch (sheetVisibility) {
-      MapSheetVisibility.planningPreview => 200.0,
+      MapSheetVisibility.planningPreview => 220.0,
       MapSheetVisibility.placePeek => 160.0,
       _ => MediaQuery.viewPaddingOf(context).bottom + 72,
     };
@@ -349,14 +356,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   canSave:
                       planning.hasRunnableRoute &&
                       planning.activeGeometry != null,
+                  onBack: _returnToPlanningEditFromPreview,
+                  onDismiss: () => unawaited(_resetFromRoutePreview()),
                   onStart: () => unawaited(_resetFromRoutePreview()),
                   onSave: () => widget.onSaveRoute?.call(),
-                  onAddStops: () {
-                    _beginPlanningEditSession();
-                    ref
-                        .read(mapSheetVisibilityStateProvider.notifier)
-                        .showPlanningEdit();
-                  },
                 ),
               ),
             if (showFullScreenSearch)

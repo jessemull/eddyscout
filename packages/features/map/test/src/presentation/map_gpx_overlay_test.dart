@@ -12,7 +12,10 @@ void main() {
   ) async {
     await pumpMapWithPreview(tester);
     expect(find.text('Save route'), findsOneWidget);
-    expect(find.text('Add stops'), findsOneWidget);
+    expect(find.text('Start'), findsOneWidget);
+    expect(find.text('Add stops'), findsNothing);
+    expect(find.byTooltip('Back'), findsOneWidget);
+    expect(find.byTooltip('Close'), findsOneWidget);
     expect(find.text('188 min'), findsOneWidget);
   });
 
@@ -20,7 +23,7 @@ void main() {
     tester,
   ) async {
     await pumpMapWithPlanningEdit(tester);
-    expect(find.text('Edit stops'), findsOneWidget);
+    expect(find.text(kLaunchPoints.first.name), findsOneWidget);
     expect(find.text('Done'), findsOneWidget);
   });
 
