@@ -149,6 +149,8 @@ class _MapRouteHost extends ConsumerWidget {
       });
 
     void onOpenLaunchDetail(LaunchPoint launch) {
+      ref.read(mapSheetVisibilityStateProvider.notifier).hide();
+      ref.read(mapPlaceSelectionProvider.notifier).clear();
       unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(context));
     }
 

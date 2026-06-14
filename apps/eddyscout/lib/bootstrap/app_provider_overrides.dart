@@ -20,6 +20,7 @@ List<Override> buildAppProviderOverrides({
   ConditionsRepository? conditionsRepository,
   String? mapboxTokenOverride,
   bool? mapInteractiveOverride,
+  GpxFileGateway? gpxFileGatewayOverride,
 }) {
   final overrides = <Override>[
     routesProvider.overrideWithValue($appRoutes),
@@ -47,7 +48,9 @@ List<Override> buildAppProviderOverrides({
         ),
       ],
     ),
-    gpxFileGatewayProvider.overrideWithValue(const GpxFileGatewayImpl()),
+    gpxFileGatewayProvider.overrideWithValue(
+      gpxFileGatewayOverride ?? const GpxFileGatewayImpl(),
+    ),
     mapRoutePlannerProvider.overrideWith((ref) async {
       await ref.read(riverRoutePlannerProvider.future);
       return HydroMapRoutePlanner(ref);

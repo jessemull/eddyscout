@@ -1,5 +1,6 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_map/src/presentation/gpx_actions_provider.dart';
 import 'package:eddyscout_map/src/presentation/map_route_failure_l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -66,5 +67,78 @@ void main() {
         entry.value,
       );
     }
+  });
+
+  testWidgets('localizeGpxActionFailure covers platform failures', (
+    tester,
+  ) async {
+    late AppLocalizations l10n;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SizedBox.shrink(),
+      ),
+    );
+    l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+    expect(
+      localizeGpxActionFailure(
+        l10n: l10n,
+        failure: const GpxCodecActionFailure(
+          GpxFailure(code: GpxFailureCode.malformedXml),
+        ),
+      ),
+      l10n.mapGpxFailureMalformed,
+    );
+    expect(
+      localizeGpxActionFailure(
+        l10n: l10n,
+        failure: const GpxPlatformActionFailure(
+          StorageFailure(message: 'gpx_share_failed'),
+        ),
+      ),
+      l10n.mapGpxFailureShare,
+    );
+    expect(
+      localizeGpxActionFailure(
+        l10n: l10n,
+        failure: const GpxPlatformActionFailure(
+          NetworkFailure(message: 'offline'),
+        ),
+      ),
+      l10n.mapGpxFailureGeneric,
+    );
+  });
+
+  testWidgets('localizeGpxStorageFailure maps storage messages', (
+    tester,
+  ) async {
+    late AppLocalizations l10n;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SizedBox.shrink(),
+      ),
+    );
+    l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+    expect(
+      localizeGpxStorageFailure(l10n, 'gpx_file_read_failed'),
+      l10n.mapGpxFailureFileRead,
+    );
   });
 }
