@@ -133,6 +133,87 @@ void main() {
       expect(ok.reachId, 'columbia_gorge');
       expect(ok.lengthMeters, greaterThan(100));
     });
+
+    test('disconnectedReach when launches snap to separate reaches', () async {
+      const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette", "reach_id": "reach_a"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0], [0, 0.01]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette", "reach_id": "reach_b"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 1], [0, 1.01]]}
+    }
+  ]
+}
+''';
+      final planner = RiverRoutePlanner.fromGeoJson(json);
+      final putIn = _launch(
+        id: 'a',
+        river: RiverSystem.willamette,
+        lat: 0.0,
+        lon: 0.0,
+      );
+      final takeOut = _launch(
+        id: 'b',
+        river: RiverSystem.willamette,
+        lat: 1.0,
+        lon: 0.0,
+      );
+      final result = planner.plan(putIn, takeOut);
+      expect(result, isA<RouteFailure>());
+      final failure = result as RouteFailure;
+      expect(failure.code, RouteFailureCode.disconnectedReach);
+      expect(failure.putInReachId, 'reach_a');
+      expect(failure.takeOutReachId, 'reach_b');
+    });
+  });
+
+  group('planMultiSegmentRoute', () {
+    test('returns disconnectedReach on first failing segment', () {
+      const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette", "reach_id": "reach_a"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0], [0, 0.01]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette", "reach_id": "reach_b"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 1], [0, 1.01]]}
+    }
+  ]
+}
+''';
+      final planner = RiverRoutePlanner.fromGeoJson(json);
+      final putIn = _launch(
+        id: 'a',
+        river: RiverSystem.willamette,
+        lat: 0.0,
+        lon: 0.0,
+      );
+      final takeOut = _launch(
+        id: 'b',
+        river: RiverSystem.willamette,
+        lat: 1.0,
+        lon: 0.0,
+      );
+      final result = planMultiSegmentRoute(planner, [putIn, takeOut]);
+      expect(result, isA<Failure<List<RouteSuccess>, RouteFailure>>());
+      final failure =
+          (result as Failure<List<RouteSuccess>, RouteFailure>).error;
+      expect(failure.code, RouteFailureCode.disconnectedReach);
+      expect(failure.putInReachId, 'reach_a');
+      expect(failure.takeOutReachId, 'reach_b');
+    });
   });
 
   group('RiverRoutePlanner.planLaunches', () {

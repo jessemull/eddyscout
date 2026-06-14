@@ -1,5 +1,4 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,7 +105,7 @@ void main() {
       container
           .read(mapboxMapControllerProvider.notifier)
           .showSnackBarForTest(
-            const RouteFailure(
+            const RoutePlanningFailure(
               code: RouteFailureCode.disconnectedReach,
               putInReachId: 'willamette_portland',
               takeOutReachId: 'columbia_gorge',

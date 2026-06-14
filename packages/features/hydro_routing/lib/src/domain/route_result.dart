@@ -1,35 +1,7 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'route_result.freezed.dart';
-
-/// Machine-readable failures for river routing.
-///
-/// UI must localize these via `AppLocalizations`.
-enum RouteFailureCode {
-  /// Put-in and take-out are the same launch.
-  sameLaunch,
-
-  /// Put-in and take-out are on different river systems.
-  differentSystem,
-
-  /// No bundled hydro line exists for the requested river system.
-  noBundledLine,
-
-  /// The graph has no vertices (e.g., asset missing/empty).
-  noRiverGeometryLoaded,
-
-  /// Put-in is too far from the modeled river line.
-  putInTooFar,
-
-  /// Take-out is too far from the modeled river line.
-  takeOutTooFar,
-
-  /// No connected path exists between snapped vertices.
-  noConnectedPath,
-
-  /// Put-in and take-out snap to different disconnected hydro segments.
-  disconnectedReach,
-}
 
 /// Outcome of routing between two launches along bundled hydro lines.
 @freezed
@@ -63,3 +35,12 @@ sealed class RouteResult with _$RouteResult {
   /// True when this result is [RouteSuccess].
   bool get isSuccess => this is RouteSuccess;
 }
+
+/// Maps hydro [RouteFailure] to core [RoutePlanningFailure] for map UI.
+RoutePlanningFailure routePlanningFailureFrom(RouteFailure failure) =>
+    RoutePlanningFailure(
+      code: failure.code,
+      riverSystemName: failure.riverSystemName,
+      putInReachId: failure.putInReachId,
+      takeOutReachId: failure.takeOutReachId,
+    );

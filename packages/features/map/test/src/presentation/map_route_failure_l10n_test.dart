@@ -1,5 +1,4 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/src/presentation/map_route_failure_l10n.dart';
 import 'package:flutter/material.dart';
@@ -27,27 +26,27 @@ void main() {
     l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
 
     final cases = <Object, String>{
-      const RouteFailure(code: RouteFailureCode.sameLaunch):
+      const RoutePlanningFailure(code: RouteFailureCode.sameLaunch):
           l10n.mapRouteFailureSameLaunch,
-      const RouteFailure(code: RouteFailureCode.differentSystem):
+      const RoutePlanningFailure(code: RouteFailureCode.differentSystem):
           l10n.mapRouteFailureDifferentSystem,
-      const RouteFailure(
+      const RoutePlanningFailure(
         code: RouteFailureCode.noBundledLine,
         riverSystemName: 'Willamette',
       ): l10n.mapRouteFailureNoBundledLine(
         'Willamette',
       ),
-      const RouteFailure(code: RouteFailureCode.noRiverGeometryLoaded):
+      const RoutePlanningFailure(code: RouteFailureCode.noRiverGeometryLoaded):
           l10n.mapRouteFailureNoData,
-      const RouteFailure(code: RouteFailureCode.putInTooFar):
+      const RoutePlanningFailure(code: RouteFailureCode.putInTooFar):
           l10n.mapRouteFailurePutInTooFar,
-      const RouteFailure(code: RouteFailureCode.takeOutTooFar):
+      const RoutePlanningFailure(code: RouteFailureCode.takeOutTooFar):
           l10n.mapRouteFailureTakeOutTooFar,
-      const RouteFailure(code: RouteFailureCode.noConnectedPath):
+      const RoutePlanningFailure(code: RouteFailureCode.noConnectedPath):
           l10n.mapRouteFailureNoConnectedPath,
-      const RouteFailure(code: RouteFailureCode.disconnectedReach):
+      const RoutePlanningFailure(code: RouteFailureCode.disconnectedReach):
           l10n.mapRouteFailureDisconnectedReach,
-      const RouteFailure(
+      const RoutePlanningFailure(
         code: RouteFailureCode.disconnectedReach,
         putInReachId: 'willamette_portland',
         takeOutReachId: 'columbia_gorge',

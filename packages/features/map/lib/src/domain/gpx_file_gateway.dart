@@ -1,5 +1,4 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 
 /// User dismissed the GPX file picker without choosing a file.
 const kGpxPickCancelledMessage = 'gpx_pick_cancelled';
@@ -14,18 +13,4 @@ abstract class GpxFileGateway {
     required String filename,
     required String gpxXml,
   });
-}
-
-/// Maps file-gateway [AppFailure] values to [GpxFailureCode] when possible.
-GpxFailureCode gpxFailureCodeFromAppFailure(AppFailure failure) {
-  if (failure is StorageFailure) {
-    return switch (failure.message) {
-      'gpx_file_read_failed' ||
-      'gpx_read_failed' => GpxFailureCode.fileReadFailed,
-      'gpx_file_write_failed' => GpxFailureCode.fileWriteFailed,
-      'gpx_share_failed' => GpxFailureCode.shareFailed,
-      _ => GpxFailureCode.fileReadFailed,
-    };
-  }
-  return GpxFailureCode.fileReadFailed;
 }

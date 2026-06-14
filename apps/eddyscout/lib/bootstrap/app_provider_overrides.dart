@@ -1,3 +1,5 @@
+import 'package:eddyscout/bootstrap/map_gpx_service_adapter.dart';
+import 'package:eddyscout/bootstrap/map_route_planner_adapter.dart';
 import 'package:eddyscout/preferences/key_value_store_provider.dart';
 import 'package:eddyscout/routing/app_routes.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
@@ -46,6 +48,13 @@ List<Override> buildAppProviderOverrides({
       ],
     ),
     gpxFileGatewayProvider.overrideWithValue(const GpxFileGatewayImpl()),
+    mapRoutePlannerProvider.overrideWith((ref) async {
+      await ref.read(riverRoutePlannerProvider.future);
+      return HydroMapRoutePlanner(ref);
+    }),
+    mapGpxServiceProvider.overrideWith(
+      (ref) async => const HydroMapGpxService(),
+    ),
   ];
 
   if (mapboxTokenOverride != null) {

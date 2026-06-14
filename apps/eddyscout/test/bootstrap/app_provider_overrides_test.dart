@@ -62,6 +62,32 @@ void main() {
     },
   );
 
+  test(
+    'mapGpxServiceProvider resolves from app overrides',
+    () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final service = await container.read(mapGpxServiceProvider.future);
+      expect(service, isA<MapGpxService>());
+    },
+  );
+
+  test(
+    'mapRoutePlannerProvider resolves after hydro graphs load',
+    () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(mapRoutePlannerProvider.future);
+      expect(planner, isA<MapRoutePlanner>());
+    },
+  );
+
   test('routesProvider override is supplied for goRouterProvider', () {
     final container = ProviderContainer(
       overrides: buildAppProviderOverrides(keyValueStore: store),

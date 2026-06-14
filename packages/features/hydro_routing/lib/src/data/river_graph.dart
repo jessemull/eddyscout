@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:eddyscout_hydro_routing/src/data/geodesy.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
 import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
 

@@ -1,5 +1,4 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -103,21 +102,26 @@ void main() {
       expect(state.polylineLonLat, isNull);
     });
 
-    test('applyImportedRoute stores polyline and launch picks', () {
+    test('applyImportedWaypoints stores polyline and launch picks', () {
       final putIn = _launch(id: 'a');
       final takeOut = _launch(id: 'b');
-      final route = PlannedRoute(
-        points: const [
-          GpxPoint(latitude: 45.5, longitude: -122.7),
-          GpxPoint(latitude: 45.4, longitude: -122.6),
+      final geometry = RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.7, 45.5],
+          [-122.6, 45.4],
         ],
-        putIn: putIn,
-        takeOut: takeOut,
         lengthMeters: 8000,
-        origin: RouteOrigin.imported,
+        computedAt: DateTime.utc(2026),
       );
 
-      container.read(routePlanningProvider.notifier).applyImportedRoute(route);
+      container
+          .read(routePlanningProvider.notifier)
+          .applyImportedWaypoints(
+            waypoints: [putIn, takeOut],
+            geometry: geometry,
+            routeLengthKm: 8.0,
+            routeOrigin: RouteOrigin.imported,
+          );
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
@@ -128,7 +132,7 @@ void main() {
       expect(state.routeOrigin, RouteOrigin.imported);
     });
 
-    test('setActiveGeometry stores polyline and reach id on success', () {
+    test('setActiveGeometry stores polyline on success', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final putIn = _launch(id: 'a');
       final takeOut = _launch(id: 'b');
@@ -148,7 +152,6 @@ void main() {
             ),
             routeLengthKm: 4.2,
             routeOrigin: RouteOrigin.planner,
-            routeReachId: 'columbia_gorge',
           );
 
       final state = container.read(routePlanningProvider);
@@ -156,54 +159,6 @@ void main() {
       expect(state.routeLengthKm, closeTo(4.2, 0.01));
       expect(state.polylineLonLat?.length, 2);
       expect(state.routeOrigin, RouteOrigin.planner);
-      expect(state.routeReachId, 'columbia_gorge');
-    });
-
-    test('setRouteFailure stores failure metadata on error', () {
-      container.read(routePlanningProvider.notifier).togglePlanningMode();
-      final putIn = _launch(id: 'a');
-      final takeOut = _launch(id: 'b');
-      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
-      container.read(routePlanningProvider.notifier).handleLaunchTap(takeOut);
-
-      container
-          .read(routePlanningProvider.notifier)
-          .setRouteFailure(
-            failure: const RouteFailure(
-              code: RouteFailureCode.disconnectedReach,
-              putInReachId: 'willamette_portland',
-              takeOutReachId: 'columbia_gorge',
-            ),
-          );
-
-      final state = container.read(routePlanningProvider);
-      expect(state.phase, MapPlanningPhase.planning);
-      expect(state.lastFailureCode, RouteFailureCode.disconnectedReach);
-      expect(state.lastFailurePutInReachId, 'willamette_portland');
-      expect(state.lastFailureTakeOutReachId, 'columbia_gorge');
-    });
-
-    test('setRouteFailure stores river system name for noBundledLine copy', () {
-      container.read(routePlanningProvider.notifier).togglePlanningMode();
-      final putIn = _launch(id: 'a');
-      final takeOut = _launch(id: 'b');
-
-      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
-      container.read(routePlanningProvider.notifier).handleLaunchTap(takeOut);
-
-      container
-          .read(routePlanningProvider.notifier)
-          .setRouteFailure(
-            failure: const RouteFailure(
-              code: RouteFailureCode.noBundledLine,
-              riverSystemName: 'slough',
-            ),
-          );
-
-      expect(
-        container.read(routePlanningProvider).lastFailureRiverSystemName,
-        'slough',
-      );
     });
 
     test('keeps state after listeners are removed', () {
@@ -359,58 +314,6 @@ void main() {
         container.read(routePlanningProvider).waypoints.map((w) => w.id),
         ['b', 'c', 'a'],
       );
-    });
-  });
-
-  group('sharedReachIdFromSegments', () {
-    test('returns id when all segments share one reach', () {
-      final segments = [
-        RouteResult.success(
-              polylineLonLat: [
-                [-122.6, 45.5],
-                [-122.5, 45.5],
-              ],
-              lengthMeters: 1000,
-              reachId: 'columbia_gorge',
-            )
-            as RouteSuccess,
-        RouteResult.success(
-              polylineLonLat: [
-                [-122.5, 45.5],
-                [-122.4, 45.5],
-              ],
-              lengthMeters: 2000,
-              reachId: 'columbia_gorge',
-            )
-            as RouteSuccess,
-      ];
-
-      expect(sharedReachIdFromSegments(segments), 'columbia_gorge');
-    });
-
-    test('returns null when segments span multiple reaches', () {
-      final segments = [
-        RouteResult.success(
-              polylineLonLat: [
-                [-122.6, 45.5],
-                [-122.5, 45.5],
-              ],
-              lengthMeters: 1000,
-              reachId: 'willamette_portland',
-            )
-            as RouteSuccess,
-        RouteResult.success(
-              polylineLonLat: [
-                [-122.5, 45.5],
-                [-122.4, 45.5],
-              ],
-              lengthMeters: 2000,
-              reachId: 'columbia_gorge',
-            )
-            as RouteSuccess,
-      ];
-
-      expect(sharedReachIdFromSegments(segments), isNull);
     });
   });
 }

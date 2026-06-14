@@ -1,11 +1,11 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
+import '../../helpers/test_hydro_map_providers.dart';
 import '../../helpers/test_localized_app.dart';
 
 CircleAnnotation _launchAnnotation(String launchId) {
@@ -25,8 +25,8 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          hydroGeoJsonLoaderProvider.overrideWithValue(
-            () async {
+          ...testHydroMapProviderOverrides(
+            hydroLoader: () async {
               throw Exception('asset missing');
             },
           ),
@@ -54,11 +54,11 @@ void main() {
     );
 
     await expectLater(
-      container.read(riverRoutePlannerProvider.future),
-      throwsA(isA<HydroAppFailureException>()),
+      container.read(mapRoutePlannerProvider.future),
+      throwsA(isA<AppFailureException>()),
     );
     expect(
-      hydroAppFailureFrom(container.read(riverRoutePlannerProvider).error),
+      appFailureFrom(container.read(mapRoutePlannerProvider).error),
       isA<AssetLoadFailure>(),
     );
 

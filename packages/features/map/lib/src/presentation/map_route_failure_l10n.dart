@@ -1,7 +1,5 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
-import 'package:eddyscout_map/src/domain/gpx_file_gateway.dart';
 import 'package:eddyscout_map/src/presentation/gpx_actions_provider.dart';
 
 /// Localizes planner, hydro, and GPX failures for map snackbars.
@@ -9,7 +7,7 @@ String localizeMapPlannerMessage({
   required AppLocalizations l10n,
   required Object message,
 }) => switch (message) {
-  RouteFailure(
+  RoutePlanningFailure(
     :final code,
     :final riverSystemName,
     :final putInReachId,

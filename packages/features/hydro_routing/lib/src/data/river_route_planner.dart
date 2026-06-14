@@ -4,7 +4,7 @@ import 'package:eddyscout_hydro_routing/src/data/hydro_debug_log.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_geojson_merge.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_graph.dart';
-import 'package:eddyscout_hydro_routing/src/domain/planned_route.dart';
+import 'package:eddyscout_hydro_routing/src/domain/planned_route_hydro.dart';
 import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
 
 /// Loads bundled hydro GeoJSON and plans routes between launches.
@@ -98,7 +98,7 @@ class RiverRoutePlanner {
     if (result is! RouteSuccess) {
       return null;
     }
-    return PlannedRoute.fromRouteSuccess(
+    return plannedRouteFromRouteSuccess(
       result,
       putIn: putIn,
       takeOut: takeOut,
