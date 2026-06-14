@@ -2,7 +2,6 @@ import 'dart:convert' show utf8;
 import 'dart:io';
 
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/src/data/gpx_file_gateway_impl.dart';
 import 'package:eddyscout_map/src/domain/gpx_file_gateway.dart';
 import 'package:file_picker/file_picker.dart';

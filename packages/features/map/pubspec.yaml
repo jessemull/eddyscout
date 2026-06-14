@@ -15,8 +15,6 @@ dependencies:
     path: ../../core
   eddyscout_design_system:
     path: ../../design_system
-  eddyscout_hydro_routing:
-    path: ../hydro_routing
   eddyscout_localization:
     path: ../../localization
   eddyscout_persistence:
@@ -33,6 +31,8 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.4.14
+  eddyscout_hydro_routing:
+    path: ../hydro_routing
   flutter_localizations:
     sdk: flutter
   flutter_test:

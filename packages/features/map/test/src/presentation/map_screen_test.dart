@@ -94,6 +94,40 @@ void main() {
     expect(find.byTooltip('Close'), findsOneWidget);
   });
 
+  testWidgets(
+    'shows localized named snackbar for disconnected reach failure',
+    (tester) async {
+      await pumpMap(tester, overrides: []);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MapScreen)),
+      );
+      container
+          .read(mapboxMapControllerProvider.notifier)
+          .showSnackBarForTest(
+            const RoutePlanningFailure(
+              code: RouteFailureCode.disconnectedReach,
+              putInReachId: 'willamette_portland',
+              takeOutReachId: 'columbia_gorge',
+            ),
+          );
+      await tester.pump();
+
+      expect(
+        find.textContaining('willamette_portland'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('columbia_gorge'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('different bundled segments'),
+        findsOneWidget,
+      );
+    },
+  );
+
   testWidgets('back from route preview returns to planning edit', (
     tester,
   ) async {

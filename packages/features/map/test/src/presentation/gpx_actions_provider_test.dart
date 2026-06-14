@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/test_hydro_map_providers.dart';
+
 class _MockGpxFileGateway extends Mock implements GpxFileGateway {}
 
 const _sampleGpx = '''
@@ -52,6 +54,7 @@ void main() {
       overrides: [
         gpxFileGatewayProvider.overrideWithValue(gateway),
         analyticsClientProvider.overrideWithValue(analytics),
+        testHydroMapGpxServiceOverride(),
         routePlanningProvider.overrideWith(
           () => _PlannedRoutePlanning(polyline),
         ),
@@ -64,6 +67,7 @@ void main() {
       overrides: [
         gpxFileGatewayProvider.overrideWithValue(gateway),
         analyticsClientProvider.overrideWithValue(analytics),
+        testHydroMapGpxServiceOverride(),
         mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
       ],
     );

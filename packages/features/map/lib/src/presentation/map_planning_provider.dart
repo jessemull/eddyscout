@@ -1,5 +1,4 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../domain/map_trip_duration.dart';
@@ -160,30 +159,20 @@ class RoutePlanning extends _$RoutePlanning {
     );
   }
 
-  void applyImportedRoute(PlannedRoute route) {
-    final waypoints = <LaunchPoint>[
-      if (route.putIn != null) route.putIn!,
-      if (route.takeOut != null && route.takeOut!.id != route.putIn?.id)
-        route.takeOut!,
-    ];
-    final polyline = route.toPolylineLonLat();
-    final geometry = polyline.length >= 2
-        ? RouteGeometrySnapshot(
-            polylineLonLat: polyline,
-            lengthMeters: route.lengthMeters ?? 0,
-            computedAt: DateTime.now(),
-          )
-        : null;
+  void applyImportedWaypoints({
+    required List<LaunchPoint> waypoints,
+    required RouteGeometrySnapshot? geometry,
+    required double? routeLengthKm,
+    required RouteOrigin routeOrigin,
+  }) {
     state = RoutePlanningState(
       phase: geometry != null && waypoints.length >= 2
           ? MapPlanningPhase.routeReady
           : MapPlanningPhase.planning,
       waypoints: waypoints,
-      routeLengthKm: route.lengthMeters != null
-          ? route.lengthMeters! / 1000.0
-          : null,
+      routeLengthKm: routeLengthKm,
       activeGeometry: geometry,
-      routeOrigin: RouteOrigin.imported,
+      routeOrigin: routeOrigin,
     );
   }
 
@@ -364,47 +353,4 @@ class RoutePlanning extends _$RoutePlanning {
       updatedAt: now,
     );
   }
-}
-
-/// Merges segment polylines from multi-stop routing.
-RouteGeometrySnapshot? mergeRouteSegments(List<RouteSuccess> segments) {
-  if (segments.isEmpty) {
-    return null;
-  }
-  final merged = <List<double>>[];
-  var totalMeters = 0.0;
-  for (final segment in segments) {
-    totalMeters += segment.lengthMeters;
-    if (merged.isEmpty) {
-      merged.addAll(segment.polylineLonLat);
-    } else {
-      merged.addAll(segment.polylineLonLat.skip(1));
-    }
-  }
-  return RouteGeometrySnapshot(
-    polylineLonLat: merged,
-    lengthMeters: totalMeters,
-    computedAt: DateTime.now(),
-  );
-}
-
-/// Plans all consecutive waypoint pairs; returns failures on first error.
-Result<List<RouteSuccess>, RouteFailure> planMultiSegmentRoute(
-  RiverRoutePlanner planner,
-  List<LaunchPoint> waypoints,
-) {
-  if (waypoints.length < 2) {
-    return const Result.failure(
-      RouteFailure(code: RouteFailureCode.sameLaunch),
-    );
-  }
-  final successes = <RouteSuccess>[];
-  for (var i = 0; i < waypoints.length - 1; i++) {
-    final result = planner.plan(waypoints[i], waypoints[i + 1]);
-    if (result case final RouteFailure failure) {
-      return Result.failure(failure);
-    }
-    successes.add(result as RouteSuccess);
-  }
-  return Result.success(successes);
 }

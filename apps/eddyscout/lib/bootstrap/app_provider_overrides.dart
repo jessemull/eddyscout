@@ -1,3 +1,5 @@
+import 'package:eddyscout/bootstrap/map_gpx_service_adapter.dart';
+import 'package:eddyscout/bootstrap/map_route_planner_adapter.dart';
 import 'package:eddyscout/preferences/key_value_store_provider.dart';
 import 'package:eddyscout/routing/app_routes.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
@@ -18,6 +20,7 @@ List<Override> buildAppProviderOverrides({
   ConditionsRepository? conditionsRepository,
   String? mapboxTokenOverride,
   bool? mapInteractiveOverride,
+  GpxFileGateway? gpxFileGatewayOverride,
 }) {
   final overrides = <Override>[
     routesProvider.overrideWithValue($appRoutes),
@@ -39,9 +42,23 @@ List<Override> buildAppProviderOverrides({
     ),
     mapKeyValueStoreProvider.overrideWith((ref) async => keyValueStore),
     hydroGeoJsonLoaderProvider.overrideWithValue(
-      () => rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
+      () async => [
+        await rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
+        await rootBundle.loadString(
+          'assets/hydro/columbia_gorge_waterway.geojson',
+        ),
+      ],
     ),
-    gpxFileGatewayProvider.overrideWithValue(const GpxFileGatewayImpl()),
+    gpxFileGatewayProvider.overrideWithValue(
+      gpxFileGatewayOverride ?? const GpxFileGatewayImpl(),
+    ),
+    mapRoutePlannerProvider.overrideWith((ref) async {
+      await ref.read(riverRoutePlannerProvider.future);
+      return HydroMapRoutePlanner(ref);
+    }),
+    mapGpxServiceProvider.overrideWith(
+      (ref) async => const HydroMapGpxService(),
+    ),
   ];
 
   if (mapboxTokenOverride != null) {
