@@ -9,12 +9,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import 'gpx_actions_provider.dart';
+import '../domain/map_trip_duration.dart';
 import 'map_constants.dart';
-import 'map_planning_overlay.dart';
+import 'map_floating_controls.dart';
+import 'map_place_peek_bar.dart';
 import 'map_planning_provider.dart';
 import 'map_route_failure_l10n.dart';
+import 'map_route_planning_chrome.dart';
+import 'map_route_preview_bar.dart';
+import 'map_search_field.dart';
+import 'map_search_provider.dart';
 import 'map_session_provider.dart';
+import 'map_sheet_provider.dart';
 import 'map_ui_callbacks.dart';
 import 'mapbox/mapbox_map_controller.dart';
 
@@ -35,7 +41,7 @@ class MapScreen extends ConsumerStatefulWidget {
   @visibleForTesting
   final bool forceZoomChromeForTest;
 
-  /// Opens launch detail for a tapped pin when not in route-planning mode.
+  /// Opens launch detail from the place sheet.
   final void Function(LaunchPoint launch)? onOpenLaunchDetail;
 
   /// Opens the save-route flow when planning has a valid route.
@@ -47,12 +53,10 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   bool get _usesMapStub => widget.mapSlot != null;
-  bool _gpxBusy = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Riverpod forbids modifying providers during build/initState; bind after frame.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _bindUiCallbacks();
     });
@@ -88,151 +92,313 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               }
               widget.onOpenLaunchDetail?.call(launch);
             },
+            onLaunchPlaceSelected: _handleLaunchPlaceSelected,
           ),
         );
   }
 
-  Future<void> _handleGpxExport() async {
-    if (_gpxBusy) {
-      return;
-    }
-    setState(() => _gpxBusy = true);
-    try {
-      final outcome = await ref.read(gpxActionsProvider.notifier).exportRoute();
+  void _handleLaunchPlaceSelected(LaunchPoint launch) {
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
+    ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(launch);
+    ref.read(routePlanningProvider.notifier).selectPlace(launch);
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlacePeek();
+    _scheduleFocusLaunch(launch);
+  }
+
+  void _scheduleFocusLaunch(LaunchPoint launch) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
       }
-      _showGpxOutcome(
-        outcome,
-        successMessage: context.l10n.mapGpxExportSuccess,
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _gpxBusy = false);
-      }
-    }
+      unawaited(_focusLaunchOnMap(launch));
+    });
   }
 
-  Future<void> _handleGpxImport() async {
-    if (_gpxBusy) {
+  Future<void> _focusLaunchOnMap(LaunchPoint launch) async {
+    await ref.read(mapboxMapControllerProvider.notifier).focusLaunch(launch);
+  }
+
+  void _handleSearchLaunchSelected(LaunchPoint launch) {
+    final sheet = ref.read(mapSheetVisibilityStateProvider);
+    final searchContext = ref.read(mapSearchContextStateProvider);
+    if (sheet == MapSheetVisibility.planningEdit ||
+        searchContext == MapSearchContext.addStop) {
+      _addStopFromSearch(launch);
       return;
     }
-    setState(() => _gpxBusy = true);
-    try {
-      final outcome = await ref.read(gpxActionsProvider.notifier).importRoute();
-      if (!mounted) {
-        return;
-      }
-      _showGpxOutcome(
-        outcome,
-        successMessage: context.l10n.mapGpxImportSuccess,
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _gpxBusy = false);
-      }
-    }
+    _handleLaunchPlaceSelected(launch);
   }
 
-  void _showGpxOutcome(
-    GpxActionOutcome outcome, {
-    required String successMessage,
-  }) {
-    switch (outcome) {
-      case GpxActionCancelled():
-        return;
-      case GpxActionSuccess():
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(successMessage)));
-      case GpxActionFailure(:final failure):
-        final localized = localizeGpxActionFailure(
-          l10n: context.l10n,
-          failure: failure,
+  void _addStopFromSearch(LaunchPoint launch) {
+    final result = ref
+        .read(routePlanningProvider.notifier)
+        .handleLaunchTap(
+          launch,
         );
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(localized)));
+    if (result == null) {
+      return;
     }
+    if (result == RoutePlanningTapResult.sameAsPutIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.mapPickDifferentTakeOut)),
+      );
+      ref.read(mapSearchExpandedProvider.notifier).collapse();
+      return;
+    }
+    if (result == RoutePlanningTapResult.takeOutSelected) {
+      unawaited(
+        ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute(),
+      );
+    }
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
+    _scheduleFocusLaunch(launch);
+  }
+
+  void _beginPlanningEditSession() {
+    ref.read(mapSearchContextStateProvider.notifier).setAddStop();
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
+  }
+
+  void _startPlanPaddle(LaunchPoint launch) {
+    ref.read(routePlanningProvider.notifier).startPlanPaddle(launch);
+    _beginPlanningEditSession();
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+    _scheduleFocusLaunch(launch);
+  }
+
+  void _resetBrowseSearchAndHideSheet() {
+    ref.read(mapSearchContextStateProvider.notifier).setBrowse();
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
+    ref.read(mapSheetVisibilityStateProvider.notifier).hide();
+    ref.read(mapPlaceSelectionProvider.notifier).clear();
+  }
+
+  Future<void> _closePlacePeek() async {
+    _resetBrowseSearchAndHideSheet();
+    ref.read(routePlanningProvider.notifier).resetToBrowse();
+    await ref.read(mapboxMapControllerProvider.notifier).clearRouteLine();
+    await ref.read(mapboxMapControllerProvider.notifier).clearLaunchHighlight();
+  }
+
+  Future<void> _exitPlanningToPlacePeek() async {
+    ref.read(mapPlanningInlineAddStopProvider.notifier).hide();
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
+    final putIn = ref.read(routePlanningProvider).putIn;
+    final mapController = ref.read(mapboxMapControllerProvider.notifier);
+    await mapController.abandonPlanningRouteLine();
+    if (putIn != null) {
+      ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(putIn);
+      ref.read(routePlanningProvider.notifier).selectPlace(putIn);
+    } else {
+      ref.read(routePlanningProvider.notifier).resetToBrowse();
+    }
+    await mapController.clearLaunchHighlight();
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlacePeek();
+  }
+
+  Future<void> _backFromPlanningEdit() => _exitPlanningToPlacePeek();
+
+  void _returnToPlanningEditFromPreview() {
+    _beginPlanningEditSession();
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+  }
+
+  Future<void> _reorderStop(int oldIndex, int newIndex) async {
+    ref
+        .read(routePlanningProvider.notifier)
+        .reorderWaypoints(oldIndex, newIndex);
+    if (ref.read(routePlanningProvider).hasRunnableRoute) {
+      await ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute();
+    }
+  }
+
+  Future<void> _finishPlanningEdit() async {
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningPreview();
+    final polyline = ref.read(routePlanningProvider).polylineLonLat;
+    if (polyline != null && polyline.length >= 2) {
+      await ref
+          .read(mapboxMapControllerProvider.notifier)
+          .fitCameraToRoute(polyline);
+    }
+  }
+
+  Future<void> _removeStop(int index) async {
+    ref.read(routePlanningProvider.notifier).removeWaypoint(index);
+    final planning = ref.read(routePlanningProvider);
+    if (planning.waypoints.length >= 2) {
+      await ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute();
+    } else {
+      await ref.read(mapboxMapControllerProvider.notifier).clearRouteLine();
+    }
+  }
+
+  Future<void> _resetFromRoutePreview() async {
+    _resetBrowseSearchAndHideSheet();
+    await ref
+        .read(mapboxMapControllerProvider.notifier)
+        .dismissPlanningSession();
+  }
+
+  String? _tripTimeLabel(AppLocalizations l10n, double? routeLengthKm) {
+    final minutes = estimateTripDurationMinutes(distanceKm: routeLengthKm);
+    if (minutes == null) {
+      return null;
+    }
+    return l10n.mapRouteTripTime(minutes);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Start loading bundled river geometry as soon as the map tab is visible.
     ref.watch(riverRoutePlannerProvider);
 
     final planning = ref.watch(routePlanningProvider);
     final mapInteractive = ref.watch(mapInteractiveProvider);
-
-    // Keep controller alive while this screen is mounted; autoDispose was
-    // disposing it before async launch-marker install finished.
-    ref.watch(mapboxMapControllerProvider);
+    final sheetVisibility = ref.watch(mapSheetVisibilityStateProvider);
+    final selectedLaunch = ref.watch(mapPlaceSelectionProvider);
+    final searchExpanded = ref.watch(mapSearchExpandedProvider);
+    final searchQuery = ref.watch(mapSearchQueryProvider);
+    ref
+      ..watch(mapSearchLaunchHitsProvider)
+      ..watch(mapSearchPlaceHitsProvider(searchQuery.trim()))
+      ..watch(mapboxMapControllerProvider);
     final mapController = ref.read(mapboxMapControllerProvider.notifier);
-
     final l10n = context.l10n;
+
+    final trimmedSearchQuery = searchQuery.trim();
+    final showBrowseFullScreenSearch =
+        sheetVisibility == MapSheetVisibility.hidden &&
+        ref.watch(mapBrowseSearchFullScreenProvider);
+    final showPlanningFullScreenSearch =
+        searchExpanded && trimmedSearchQuery.isNotEmpty;
+    final showFullScreenSearch =
+        showBrowseFullScreenSearch || showPlanningFullScreenSearch;
+
     final mapChild = _usesMapStub
         ? widget.mapSlot!
         : _liveMapWidget(mapController);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.mapScreenTitle),
-        actions: [
-          Semantics(
-            button: true,
-            label: planning.planningMode
-                ? l10n.mapExitPlanningTooltip
-                : l10n.mapPlanRouteTooltip,
-            child: IconButton(
-              tooltip: planning.planningMode
-                  ? l10n.mapExitPlanningTooltip
-                  : l10n.mapPlanRouteTooltip,
-              onPressed: mapController.togglePlanningMode,
-              icon: Icon(planning.planningMode ? Icons.close : Icons.alt_route),
-            ),
-          ),
-        ],
-      ),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          IgnorePointer(
-            ignoring: !mapInteractive,
-            child: mapChild,
-          ),
-          if (mapInteractive &&
-              (!_usesMapStub || widget.forceZoomChromeForTest))
-            _MapZoomChrome(
-              bottomPadding: MediaQuery.viewPaddingOf(context).bottom + 120,
-              controller: mapController,
-              semanticsLabel: l10n.mapZoomControlsSemantics,
-              zoomInLabel: l10n.mapZoomInLabel,
-              zoomOutLabel: l10n.mapZoomOutLabel,
-              showAllLaunchesLabel: l10n.mapShowAllLaunchesLabel,
-            ),
-          if (planning.planningMode)
-            MapPlanningOverlay(
-              waypoints: planning.waypoints,
-              routeLengthKm: planning.routeLengthKm,
-              canSave:
-                  planning.hasRunnableRoute && planning.activeGeometry != null,
-              canExportGpx:
-                  planning.polylineLonLat != null &&
-                  planning.polylineLonLat!.length >= 2,
-              gpxBusy: _gpxBusy,
-              onClear: () => unawaited(mapController.clearPlanningSelection()),
-              onDone: mapController.togglePlanningMode,
-              onSave: () => widget.onSaveRoute?.call(),
-              onExportGpx: () => unawaited(_handleGpxExport()),
-              onImportGpx: () => unawaited(_handleGpxImport()),
-            ),
-        ],
+
+    final controlsBottomPadding = switch (sheetVisibility) {
+      MapSheetVisibility.planningPreview => 220.0,
+      MapSheetVisibility.placePeek => 160.0,
+      _ => MediaQuery.viewPaddingOf(context).bottom + 72,
+    };
+
+    final showBrowseSearchField =
+        sheetVisibility == MapSheetVisibility.hidden && !showFullScreenSearch;
+
+    final interceptPlanningBack =
+        (sheetVisibility == MapSheetVisibility.planningEdit ||
+            sheetVisibility == MapSheetVisibility.planningPreview) &&
+        !showFullScreenSearch;
+
+    return PopScope(
+      canPop: !interceptPlanningBack,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop || !interceptPlanningBack) {
+          return;
+        }
+        if (sheetVisibility == MapSheetVisibility.planningPreview) {
+          _returnToPlanningEditFromPreview();
+        } else {
+          unawaited(_backFromPlanningEdit());
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: false,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            mapChild,
+            if (sheetVisibility == MapSheetVisibility.planningEdit &&
+                !showFullScreenSearch)
+              Positioned(
+                top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
+                left: Spacing.md,
+                right: Spacing.md,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: MapRoutePlanningChrome(
+                    waypoints: planning.waypoints,
+                    routeLengthKm: planning.routeLengthKm,
+                    onBack: () => unawaited(_backFromPlanningEdit()),
+                    onDone: () => unawaited(_finishPlanningEdit()),
+                    onRemoveStop: (index) => unawaited(_removeStop(index)),
+                    onReorderStop: (oldIndex, newIndex) =>
+                        unawaited(_reorderStop(oldIndex, newIndex)),
+                  ),
+                ),
+              ),
+            if (sheetVisibility == MapSheetVisibility.placePeek &&
+                selectedLaunch != null &&
+                !showFullScreenSearch)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: MapPlacePeekBar(
+                  launch: selectedLaunch,
+                  onPlanPaddle: () => _startPlanPaddle(selectedLaunch),
+                  onViewConditions: () =>
+                      widget.onOpenLaunchDetail?.call(selectedLaunch),
+                  onDismiss: () => unawaited(_closePlacePeek()),
+                ),
+              ),
+            if (sheetVisibility == MapSheetVisibility.planningPreview &&
+                !showFullScreenSearch)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: MapRoutePreviewBar(
+                  tripTimeLabel: _tripTimeLabel(l10n, planning.routeLengthKm),
+                  routeLengthKm: planning.routeLengthKm,
+                  canSave:
+                      planning.hasRunnableRoute &&
+                      planning.activeGeometry != null,
+                  onBack: _returnToPlanningEditFromPreview,
+                  onDismiss: () => unawaited(_resetFromRoutePreview()),
+                  onStart: () => unawaited(_resetFromRoutePreview()),
+                  onSave: () => widget.onSaveRoute?.call(),
+                ),
+              ),
+            if (showFullScreenSearch)
+              Positioned.fill(
+                child: MapFullScreenSearchOverlay(
+                  onLaunchSelected: _handleSearchLaunchSelected,
+                ),
+              ),
+            if (showBrowseSearchField)
+              Positioned(
+                top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
+                left: Spacing.md,
+                right: Spacing.md,
+                child: const MapBrowseSearchField(),
+              ),
+            if (mapInteractive &&
+                (!_usesMapStub || widget.forceZoomChromeForTest)) ...[
+              if (!_usesMapStub || widget.forceZoomChromeForTest)
+                Positioned(
+                  left: Spacing.sm,
+                  bottom: controlsBottomPadding,
+                  child: MapZoomControls(controller: mapController),
+                ),
+              Positioned(
+                right: Spacing.sm,
+                bottom: controlsBottomPadding,
+                child: const MapLocateControl(),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _liveMapWidget(MapboxMapController controller) => MapWidget(
     key: const ValueKey<String>('eddyscout_map'),
-    // TLHC_HC avoids Android texture/surface bugs with Mapbox (experimental).
+    // Mapbox Android texture hosting — see mapbox_maps_flutter docs.
     // ignore: experimental_member_use
     androidHostingMode: AndroidPlatformViewHostingMode.TLHC_HC,
     viewport: kInitialMapViewport,
@@ -243,62 +409,5 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     onStyleLoadedListener: (_) => controller.onStyleLoaded(),
     onCameraChangeListener: kDebugMode ? controller.onDebugCameraChanged : null,
     onZoomListener: kDebugMode ? controller.onDebugMapZoomEnded : null,
-  );
-}
-
-class _MapZoomChrome extends StatelessWidget {
-  const _MapZoomChrome({
-    required this.bottomPadding,
-    required this.controller,
-    required this.semanticsLabel,
-    required this.zoomInLabel,
-    required this.zoomOutLabel,
-    required this.showAllLaunchesLabel,
-  });
-
-  final double bottomPadding;
-  final MapboxMapController controller;
-  final String semanticsLabel;
-  final String zoomInLabel;
-  final String zoomOutLabel;
-  final String showAllLaunchesLabel;
-
-  @override
-  Widget build(BuildContext context) => Positioned(
-    left: Spacing.sm,
-    bottom: bottomPadding,
-    child: Semantics(
-      container: true,
-      label: semanticsLabel,
-      child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              tooltip: zoomInLabel,
-              icon: const Icon(Icons.add),
-              onPressed: () =>
-                  unawaited(controller.nudgeZoomBy(kMapChromeZoomStep)),
-            ),
-            const Divider(height: 1),
-            IconButton(
-              tooltip: zoomOutLabel,
-              icon: const Icon(Icons.remove),
-              onPressed: () =>
-                  unawaited(controller.nudgeZoomBy(-kMapChromeZoomStep)),
-            ),
-            const Divider(height: 1),
-            IconButton(
-              tooltip: showAllLaunchesLabel,
-              icon: const Icon(Icons.zoom_out_map),
-              onPressed: () => unawaited(controller.fitRegionFromChrome()),
-            ),
-          ],
-        ),
-      ),
-    ),
   );
 }

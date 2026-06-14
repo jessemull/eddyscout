@@ -278,6 +278,82 @@
   "webMapPlaceholderBody": "Use the Android or iOS app for the interactive map.",
   "shellTabMap": "Map",
   "shellTabSavedRoutes": "Saved routes",
+  "shellTabHome": "Home",
+  "shellTabMenu": "Menu",
+  "mapSearchPlaceholder": "Search rivers, launches, places…",
+  "mapSearchLaunchesSection": "Launches",
+  "mapSearchPlacesSection": "Places",
+  "mapSearchNoResults": "No results found.",
+  "mapPlanPaddleButton": "Plan paddle",
+  "mapViewConditionsButton": "View conditions",
+  "mapRoutePlanningTitle": "Plan paddle",
+  "mapRouteStopStart": "Start",
+  "mapRouteStopDestination": "Destination",
+  "mapRouteStopMiddle": "Stop {number}",
+  "@mapRouteStopMiddle": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "mapRouteAddStop": "Add stop",
+  "mapRouteChooseDestination": "Choose destination",
+  "mapRouteAddStopHint": "Tap another launch on the map to set your destination or add a stop.",
+  "mapRouteEditStopsTitle": "Edit stops",
+  "mapRoutePreviewStart": "Start",
+  "mapRoutePreviewAddStops": "Add stops",
+  "mapRouteSummaryComingSoon": "Route conditions summary coming soon.",
+  "mapRouteTripTime": "{minutes} min",
+  "@mapRouteTripTime": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "mapRouteTotalTrip": "Total trip: {minutes} min ({miles} mi)",
+  "@mapRouteTotalTrip": {
+    "placeholders": {
+      "minutes": {"type": "int"},
+      "miles": {"type": "String"}
+    }
+  },
+  "mapRouteReorderStopHint": "Drag to reorder stop",
+  "mapRouteDeleteStopSemantics": "Remove stop {name}",
+  "@mapRouteDeleteStopSemantics": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "mapRouteOriginStopSemantics": "Starting location, {name}",
+  "@mapRouteOriginStopSemantics": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "mapRouteDestinationStopSemantics": "Destination, {name}",
+  "@mapRouteDestinationStopSemantics": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "mapRouteMiddleStopSemantics": "Stop {letter}, {name}",
+  "@mapRouteMiddleStopSemantics": {
+    "placeholders": {
+      "letter": {"type": "String"},
+      "name": {"type": "String"}
+    }
+  },
+  "mapRouteStartComingSoon": "On-water navigation is coming soon.",
+  "mapLocateMeLabel": "Locate me",
+  "mapCloseSheetLabel": "Close",
+  "homePlaceholderTitle": "Home",
+  "homePlaceholderBody": "Featured paddles and discovery experiences are coming soon.",
+  "homeExploreMapButton": "Explore map",
+  "menuScreenTitle": "Menu",
+  "menuImportGpx": "Import GPX",
+  "menuExportGpx": "Export GPX",
+  "menuSettings": "Settings",
+  "menuAbout": "About",
+  "menuSettingsComingSoon": "Settings coming soon.",
+  "menuAboutBody": "EddyScout — your Pacific Northwest paddling companion.",
   "savedRoutesListTitle": "Saved routes",
   "savedRoutesAllTab": "All",
   "savedRoutesFavoritesTab": "Favorites",

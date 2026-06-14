@@ -60,7 +60,8 @@ void main() {
       isA<AssetLoadFailure>(),
     );
 
-    await tester.tap(find.byTooltip('Plan river route'));
+    container.read(routePlanningProvider.notifier).togglePlanningMode();
+    container.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
     await tester.pump();
 
     final map = container.read(mapboxMapControllerProvider.notifier);

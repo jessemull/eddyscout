@@ -1,4 +1,4 @@
-.PHONY: bootstrap ensure-husky analyze format test coverage coverage-check gen gen-check clean preflight ci setup dev run integration-test
+.PHONY: bootstrap ensure-husky analyze format test coverage coverage-check gen gen-check clean preflight ci setup dev run kill-emulator integration-test
 
 bootstrap:
 	./scripts/bootstrap.sh
@@ -49,6 +49,10 @@ dev:
 
 run:
 	$(MAKE) -C apps/eddyscout run ARGS="$(ARGS)"
+
+# Stop running Android emulators (adb emu kill). Optional: EMULATOR_SERIAL=emulator-5554
+kill-emulator:
+	./scripts/kill_emulator.sh
 
 # Linux in CI; macOS on Darwin dev machines (integration_test/ requires a desktop target).
 INTEGRATION_DEVICE := $(shell uname -s | grep -q Darwin && echo macos || echo linux)

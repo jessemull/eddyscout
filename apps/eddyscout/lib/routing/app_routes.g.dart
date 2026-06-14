@@ -8,6 +8,8 @@ part of 'app_routes.dart';
 
 List<RouteBase> get $appRoutes => [
   $appShellRouteData,
+  $homeRoute,
+  $menuRoute,
   $mapRoute,
   $launchDetailRoute,
   $savedRoutesListRoute,
@@ -19,6 +21,12 @@ List<RouteBase> get $appRoutes => [
 RouteBase get $appShellRouteData => StatefulShellRouteData.$route(
   factory: $AppShellRouteDataExtension._fromState,
   branches: [
+    StatefulShellBranchData.$branch(
+      navigatorKey: HomeShellBranchData.$navigatorKey,
+      routes: [
+        GoRouteData.$route(path: '/home', factory: $HomeRoute._fromState),
+      ],
+    ),
     StatefulShellBranchData.$branch(
       navigatorKey: MapShellBranchData.$navigatorKey,
       routes: [
@@ -42,12 +50,38 @@ RouteBase get $appShellRouteData => StatefulShellRouteData.$route(
         ),
       ],
     ),
+    StatefulShellBranchData.$branch(
+      navigatorKey: MenuShellBranchData.$navigatorKey,
+      routes: [
+        GoRouteData.$route(path: '/menu', factory: $MenuRoute._fromState),
+      ],
+    ),
   ],
 );
 
 extension $AppShellRouteDataExtension on AppShellRouteData {
   static AppShellRouteData _fromState(GoRouterState state) =>
       const AppShellRouteData();
+}
+
+mixin $HomeRoute on GoRouteData {
+  static HomeRoute _fromState(GoRouterState state) => const HomeRoute();
+
+  @override
+  String get location => GoRouteData.$location('/home');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
 }
 
 mixin $MapRoute on GoRouteData {
@@ -139,6 +173,32 @@ mixin $SavedRouteDetailRoute on GoRouteData {
   @override
   void replace(BuildContext context) => context.replace(location);
 }
+
+mixin $MenuRoute on GoRouteData {
+  static MenuRoute _fromState(GoRouterState state) => const MenuRoute();
+
+  @override
+  String get location => GoRouteData.$location('/menu');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $homeRoute =>
+    GoRouteData.$route(path: '/home', factory: $HomeRoute._fromState);
+
+RouteBase get $menuRoute =>
+    GoRouteData.$route(path: '/menu', factory: $MenuRoute._fromState);
 
 RouteBase get $mapRoute =>
     GoRouteData.$route(path: '/', factory: $MapRoute._fromState);

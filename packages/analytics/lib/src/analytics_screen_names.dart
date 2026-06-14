@@ -18,6 +18,12 @@ abstract final class AnalyticsScreenNames {
   /// Saved routes list tab.
   static const savedRoutesList = 'screen_saved_routes_list';
 
+  /// Home placeholder tab.
+  static const home = 'screen_home';
+
+  /// Menu tab.
+  static const menu = 'screen_menu';
+
   /// Saved route detail screen.
   static const savedRouteDetail = 'screen_saved_route_detail';
 
@@ -29,6 +35,12 @@ abstract final class AnalyticsScreenNames {
   static String? fromMatchedLocation(String matchedLocation) {
     if (matchedLocation == '/') {
       return map;
+    }
+    if (matchedLocation == '/home') {
+      return home;
+    }
+    if (matchedLocation == '/menu') {
+      return menu;
     }
     if (matchedLocation == '/missing-token') {
       return missingMapboxToken;

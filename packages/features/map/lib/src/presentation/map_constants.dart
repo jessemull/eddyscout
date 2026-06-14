@@ -24,6 +24,8 @@ final ViewportState kInitialMapViewport = CameraViewportState(
 
 const int kMapMarkerColor = 0xFF0077B6;
 const int kMapMarkerStroke = 0xFFFFFFFF;
+const int kMapSelectedMarkerFill = 0x330077B6;
+const int kMapSelectedMarkerStroke = 0xFF0077B6;
 const int kMapRouteLineColor = 0xFFE63946;
 
 const String kMapRouteSourceId = 'eddyscout-route-source';
@@ -36,3 +38,9 @@ const double kMapMaxZoom = 25.5;
 const double kMapMinPitch = 0;
 const double kMapMaxPitch = 85;
 const double kMapChromeZoomStep = 1.25;
+
+/// Zoom when centering on a selected launch (browse / search pick).
+const double kLaunchFocusZoom = 10.5;
+
+/// [MapboxMap.addInteraction] id for map-surface tap handling.
+const String kMapContentTapInteractionId = 'eddyscout_map_content_tap';
