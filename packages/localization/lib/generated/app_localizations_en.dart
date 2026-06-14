@@ -654,6 +654,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'EddyScout — your Pacific Northwest paddling companion.';
 
   @override
+  String get settingsScreenTitle => 'Settings';
+
+  @override
+  String get settingsPaddleSpeedLabel => 'Paddling speed';
+
+  @override
+  String settingsPaddleSpeedValue(String speed) {
+    return '$speed km/h';
+  }
+
+  @override
+  String get settingsPaddleSpeedDescription =>
+      'Your average paddling speed for trip-time estimates.';
+
+  @override
+  String get settingsPaddleSpeedReset => 'Reset';
+
+  @override
   String get savedRoutesListTitle => 'Saved routes';
 
   @override

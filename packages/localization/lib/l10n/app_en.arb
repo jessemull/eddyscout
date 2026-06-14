@@ -354,6 +354,29 @@
   "menuAbout": "About",
   "menuSettingsComingSoon": "Settings coming soon.",
   "menuAboutBody": "EddyScout — your Pacific Northwest paddling companion.",
+  "settingsScreenTitle": "Settings",
+  "@settingsScreenTitle": {
+    "description": "Title for the app settings screen"
+  },
+  "settingsPaddleSpeedLabel": "Paddling speed",
+  "@settingsPaddleSpeedLabel": {
+    "description": "Label for the paddling speed preference"
+  },
+  "settingsPaddleSpeedValue": "{speed} km/h",
+  "@settingsPaddleSpeedValue": {
+    "description": "Formatted paddling speed value",
+    "placeholders": {
+      "speed": {"type": "String"}
+    }
+  },
+  "settingsPaddleSpeedDescription": "Your average paddling speed for trip-time estimates.",
+  "@settingsPaddleSpeedDescription": {
+    "description": "Help text for the paddling speed preference"
+  },
+  "settingsPaddleSpeedReset": "Reset",
+  "@settingsPaddleSpeedReset": {
+    "description": "Button label to restore default paddling speed"
+  },
   "savedRoutesListTitle": "Saved routes",
   "savedRoutesAllTab": "All",
   "savedRoutesFavoritesTab": "Favorites",

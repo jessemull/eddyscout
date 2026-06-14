@@ -19,6 +19,8 @@ dependencies:
     path: ../hydro_routing
   eddyscout_localization:
     path: ../../localization
+  eddyscout_persistence:
+    path: ../../persistence
   file_picker: ^10.3.10
   flutter:
     sdk: flutter

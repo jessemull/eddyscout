@@ -120,11 +120,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
           ListTile(
             leading: const Icon(Icons.settings_outlined),
             title: Text(l10n.menuSettings),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.menuSettingsComingSoon)),
-              );
-            },
+            onTap: () => unawaited(const SettingsRoute().push<void>(context)),
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),

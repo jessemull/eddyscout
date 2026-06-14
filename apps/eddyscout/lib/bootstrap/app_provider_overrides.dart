@@ -37,6 +37,7 @@ List<Override> buildAppProviderOverrides({
     goNoGoProfileRepositoryProvider.overrideWithValue(
       GoNoGoProfileRepositoryImpl(keyValueStore),
     ),
+    mapKeyValueStoreProvider.overrideWith((ref) async => keyValueStore),
     hydroGeoJsonLoaderProvider.overrideWithValue(
       () => rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
     ),

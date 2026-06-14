@@ -9,6 +9,9 @@ void main() {
     expect(light.useMaterial3, isTrue);
     expect(dark.colorScheme.brightness, Brightness.dark);
     expect(light.colorScheme.primary, isNotNull);
+    expect(light.appBarTheme.centerTitle, isFalse);
+    expect(light.appBarTheme.leadingWidth, AppBarMetrics.leadingWidth);
+    expect(light.appBarTheme.titleSpacing, AppBarMetrics.titleSpacing);
   });
 
   test('Spacing tokens are positive', () {

@@ -23,6 +23,7 @@ import 'map_session_provider.dart';
 import 'map_sheet_provider.dart';
 import 'map_ui_callbacks.dart';
 import 'mapbox/mapbox_map_controller.dart';
+import 'paddle_speed_provider.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({
@@ -241,7 +242,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   String? _tripTimeLabel(AppLocalizations l10n, double? routeLengthKm) {
-    final minutes = estimateTripDurationMinutes(distanceKm: routeLengthKm);
+    final speedKmh = ref.watch(effectivePaddleSpeedKmhProvider);
+    final minutes = estimateTripDurationMinutes(
+      distanceKm: routeLengthKm,
+      speedKmh: speedKmh,
+    );
     if (minutes == null) {
       return null;
     }

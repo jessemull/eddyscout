@@ -18,7 +18,7 @@ void main() {
     store = await SharedPreferencesKeyValueStore.open();
   });
 
-  test('buildAppProviderOverrides wires core repository tokens', () {
+  test('buildAppProviderOverrides wires core repository tokens', () async {
     final container = ProviderContainer(
       overrides: buildAppProviderOverrides(keyValueStore: store),
     );
@@ -30,6 +30,10 @@ void main() {
     expect(container.read(conditionReportSubmitRepositoryProvider), isNotNull);
     expect(container.read(goNoGoProfileRepositoryProvider), isNotNull);
     expect(container.read(gpxFileGatewayProvider), isA<GpxFileGatewayImpl>());
+    expect(
+      await container.read(mapKeyValueStoreProvider.future),
+      same(store),
+    );
   });
 
   test('buildAppProviderOverrides applies optional map overrides', () {
