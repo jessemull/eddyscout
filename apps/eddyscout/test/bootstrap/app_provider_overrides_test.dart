@@ -1,5 +1,6 @@
 import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_map/eddyscout_map_data.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
@@ -44,6 +45,48 @@ void main() {
     expect(container.read(mapboxAccessTokenProvider), 'pk.test');
     expect(container.read(mapInteractiveProvider), isFalse);
   });
+
+  test(
+    'hydroGeoJsonLoaderProvider loads Willamette and Columbia gorge assets',
+    () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final docs = await container.read(hydroGeoJsonLoaderProvider)();
+      expect(docs, hasLength(2));
+      expect(docs.first, contains('FeatureCollection'));
+      expect(docs.first, contains('willamette'));
+      expect(docs.last, contains('columbia_gorge'));
+    },
+  );
+
+  test(
+    'mapGpxServiceProvider resolves from app overrides',
+    () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final service = await container.read(mapGpxServiceProvider.future);
+      expect(service, isA<MapGpxService>());
+    },
+  );
+
+  test(
+    'mapRoutePlannerProvider resolves after hydro graphs load',
+    () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(mapRoutePlannerProvider.future);
+      expect(planner, isA<MapRoutePlanner>());
+    },
+  );
 
   test('routesProvider override is supplied for goRouterProvider', () {
     final container = ProviderContainer(

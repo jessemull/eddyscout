@@ -119,11 +119,11 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<List<double>> polylineLonLat,  double lengthMeters)?  success,TResult Function( RouteFailureCode code,  String? riverSystemName)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<List<double>> polylineLonLat,  double lengthMeters,  String? reachId)?  success,TResult Function( RouteFailureCode code,  String? riverSystemName,  String? putInReachId,  String? takeOutReachId)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case RouteSuccess() when success != null:
-return success(_that.polylineLonLat,_that.lengthMeters);case RouteFailure() when failure != null:
-return failure(_that.code,_that.riverSystemName);case _:
+return success(_that.polylineLonLat,_that.lengthMeters,_that.reachId);case RouteFailure() when failure != null:
+return failure(_that.code,_that.riverSystemName,_that.putInReachId,_that.takeOutReachId);case _:
   return orElse();
 
 }
@@ -141,11 +141,11 @@ return failure(_that.code,_that.riverSystemName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<List<double>> polylineLonLat,  double lengthMeters)  success,required TResult Function( RouteFailureCode code,  String? riverSystemName)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<List<double>> polylineLonLat,  double lengthMeters,  String? reachId)  success,required TResult Function( RouteFailureCode code,  String? riverSystemName,  String? putInReachId,  String? takeOutReachId)  failure,}) {final _that = this;
 switch (_that) {
 case RouteSuccess():
-return success(_that.polylineLonLat,_that.lengthMeters);case RouteFailure():
-return failure(_that.code,_that.riverSystemName);}
+return success(_that.polylineLonLat,_that.lengthMeters,_that.reachId);case RouteFailure():
+return failure(_that.code,_that.riverSystemName,_that.putInReachId,_that.takeOutReachId);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -159,11 +159,11 @@ return failure(_that.code,_that.riverSystemName);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<List<double>> polylineLonLat,  double lengthMeters)?  success,TResult? Function( RouteFailureCode code,  String? riverSystemName)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<List<double>> polylineLonLat,  double lengthMeters,  String? reachId)?  success,TResult? Function( RouteFailureCode code,  String? riverSystemName,  String? putInReachId,  String? takeOutReachId)?  failure,}) {final _that = this;
 switch (_that) {
 case RouteSuccess() when success != null:
-return success(_that.polylineLonLat,_that.lengthMeters);case RouteFailure() when failure != null:
-return failure(_that.code,_that.riverSystemName);case _:
+return success(_that.polylineLonLat,_that.lengthMeters,_that.reachId);case RouteFailure() when failure != null:
+return failure(_that.code,_that.riverSystemName,_that.putInReachId,_that.takeOutReachId);case _:
   return null;
 
 }
@@ -175,7 +175,7 @@ return failure(_that.code,_that.riverSystemName);case _:
 
 
 class RouteSuccess extends RouteResult {
-  const RouteSuccess({required final  List<List<double>> polylineLonLat, required this.lengthMeters}): _polylineLonLat = polylineLonLat,super._();
+  const RouteSuccess({required final  List<List<double>> polylineLonLat, required this.lengthMeters, this.reachId}): _polylineLonLat = polylineLonLat,super._();
   
 
 /// Outer list is vertices along the river path.
@@ -192,6 +192,8 @@ class RouteSuccess extends RouteResult {
 }
 
  final  double lengthMeters;
+/// Reach id when both endpoints share one bundled segment.
+ final  String? reachId;
 
 /// Create a copy of RouteResult
 /// with the given fields replaced by the non-null parameter values.
@@ -203,16 +205,16 @@ $RouteSuccessCopyWith<RouteSuccess> get copyWith => _$RouteSuccessCopyWithImpl<R
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteSuccess&&const DeepCollectionEquality().equals(other._polylineLonLat, _polylineLonLat)&&(identical(other.lengthMeters, lengthMeters) || other.lengthMeters == lengthMeters));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteSuccess&&const DeepCollectionEquality().equals(other._polylineLonLat, _polylineLonLat)&&(identical(other.lengthMeters, lengthMeters) || other.lengthMeters == lengthMeters)&&(identical(other.reachId, reachId) || other.reachId == reachId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_polylineLonLat),lengthMeters);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_polylineLonLat),lengthMeters,reachId);
 
 @override
 String toString() {
-  return 'RouteResult.success(polylineLonLat: $polylineLonLat, lengthMeters: $lengthMeters)';
+  return 'RouteResult.success(polylineLonLat: $polylineLonLat, lengthMeters: $lengthMeters, reachId: $reachId)';
 }
 
 
@@ -223,7 +225,7 @@ abstract mixin class $RouteSuccessCopyWith<$Res> implements $RouteResultCopyWith
   factory $RouteSuccessCopyWith(RouteSuccess value, $Res Function(RouteSuccess) _then) = _$RouteSuccessCopyWithImpl;
 @useResult
 $Res call({
- List<List<double>> polylineLonLat, double lengthMeters
+ List<List<double>> polylineLonLat, double lengthMeters, String? reachId
 });
 
 
@@ -240,11 +242,12 @@ class _$RouteSuccessCopyWithImpl<$Res>
 
 /// Create a copy of RouteResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? polylineLonLat = null,Object? lengthMeters = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? polylineLonLat = null,Object? lengthMeters = null,Object? reachId = freezed,}) {
   return _then(RouteSuccess(
 polylineLonLat: null == polylineLonLat ? _self._polylineLonLat : polylineLonLat // ignore: cast_nullable_to_non_nullable
 as List<List<double>>,lengthMeters: null == lengthMeters ? _self.lengthMeters : lengthMeters // ignore: cast_nullable_to_non_nullable
-as double,
+as double,reachId: freezed == reachId ? _self.reachId : reachId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -255,12 +258,16 @@ as double,
 
 
 class RouteFailure extends RouteResult {
-  const RouteFailure({required this.code, this.riverSystemName}): super._();
+  const RouteFailure({required this.code, this.riverSystemName, this.putInReachId, this.takeOutReachId}): super._();
   
 
  final  RouteFailureCode code;
 /// River system name (for messaging like: no bundled line).
  final  String? riverSystemName;
+/// Reach id nearest the put-in snap, when known.
+ final  String? putInReachId;
+/// Reach id nearest the take-out snap, when known.
+ final  String? takeOutReachId;
 
 /// Create a copy of RouteResult
 /// with the given fields replaced by the non-null parameter values.
@@ -272,16 +279,16 @@ $RouteFailureCopyWith<RouteFailure> get copyWith => _$RouteFailureCopyWithImpl<R
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteFailure&&(identical(other.code, code) || other.code == code)&&(identical(other.riverSystemName, riverSystemName) || other.riverSystemName == riverSystemName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteFailure&&(identical(other.code, code) || other.code == code)&&(identical(other.riverSystemName, riverSystemName) || other.riverSystemName == riverSystemName)&&(identical(other.putInReachId, putInReachId) || other.putInReachId == putInReachId)&&(identical(other.takeOutReachId, takeOutReachId) || other.takeOutReachId == takeOutReachId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,code,riverSystemName);
+int get hashCode => Object.hash(runtimeType,code,riverSystemName,putInReachId,takeOutReachId);
 
 @override
 String toString() {
-  return 'RouteResult.failure(code: $code, riverSystemName: $riverSystemName)';
+  return 'RouteResult.failure(code: $code, riverSystemName: $riverSystemName, putInReachId: $putInReachId, takeOutReachId: $takeOutReachId)';
 }
 
 
@@ -292,7 +299,7 @@ abstract mixin class $RouteFailureCopyWith<$Res> implements $RouteResultCopyWith
   factory $RouteFailureCopyWith(RouteFailure value, $Res Function(RouteFailure) _then) = _$RouteFailureCopyWithImpl;
 @useResult
 $Res call({
- RouteFailureCode code, String? riverSystemName
+ RouteFailureCode code, String? riverSystemName, String? putInReachId, String? takeOutReachId
 });
 
 
@@ -309,10 +316,12 @@ class _$RouteFailureCopyWithImpl<$Res>
 
 /// Create a copy of RouteResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? code = null,Object? riverSystemName = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? code = null,Object? riverSystemName = freezed,Object? putInReachId = freezed,Object? takeOutReachId = freezed,}) {
   return _then(RouteFailure(
 code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
 as RouteFailureCode,riverSystemName: freezed == riverSystemName ? _self.riverSystemName : riverSystemName // ignore: cast_nullable_to_non_nullable
+as String?,putInReachId: freezed == putInReachId ? _self.putInReachId : putInReachId // ignore: cast_nullable_to_non_nullable
+as String?,takeOutReachId: freezed == takeOutReachId ? _self.takeOutReachId : takeOutReachId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

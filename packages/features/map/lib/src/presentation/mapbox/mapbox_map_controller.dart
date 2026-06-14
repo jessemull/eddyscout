@@ -1,10 +1,12 @@
 import 'dart:async' show unawaited;
 
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../domain/map_route_planner.dart';
+import '../../domain/map_route_planner_provider.dart';
 import '../launch_lookup.dart';
 import '../map_constants.dart';
 import '../map_planning_provider.dart';
@@ -40,7 +42,7 @@ final class MapboxMapController extends _$MapboxMapController
         tapCancelable?.cancel();
         selectionTapCancelable?.cancel();
       })
-      ..listen(riverRoutePlannerProvider, (previous, next) {
+      ..listen(mapRoutePlannerProvider, (previous, next) {
         final planning = ref.read(routePlanningProvider);
         if (planning.waypoints.length < 2) {
           return;
@@ -152,6 +154,13 @@ final class MapboxMapController extends _$MapboxMapController
     await _afterExitPlanning();
   }
 
+  /// Invokes the snackbar callback bound from the map screen
+  /// (widget tests only).
+  @visibleForTesting
+  void showSnackBarForTest(Object message) {
+    ui.showSnackBar?.call(message);
+  }
+
   Future<void> clearPlanningSelection() async {
     mapDebugLog('_clearPlanningSelection');
     ref.read(routePlanningProvider.notifier).clearSelection();
@@ -205,7 +214,7 @@ final class MapboxMapController extends _$MapboxMapController
     }
     final waypointIds = waypoints.map((w) => w.id).toList(growable: false);
 
-    final planner = await _resolveRoutePlanner();
+    final planner = await _resolveMapRoutePlanner();
     if (planner == null ||
         !_canApplyRouteResult(
           routeGeneration: routeGeneration,
@@ -214,13 +223,13 @@ final class MapboxMapController extends _$MapboxMapController
       return;
     }
 
-    final planResult = planMultiSegmentRoute(planner, waypoints);
+    final planResult = await planner.planMultiSegment(waypoints);
     if (!alive) {
       return;
     }
 
     if (planResult case Failure(:final error)) {
-      mapDebugLog('plan FAILED multi-segment: ${error.code}');
+      mapDebugLog('plan FAILED multi-segment: $error');
       if (!_canApplyRouteResult(
         routeGeneration: routeGeneration,
         waypointIds: waypointIds,
@@ -238,9 +247,8 @@ final class MapboxMapController extends _$MapboxMapController
       return;
     }
 
-    final segments =
-        (planResult as Success<List<RouteSuccess>, RouteFailure>).value;
-    final geometry = mergeRouteSegments(segments);
+    final geometry =
+        (planResult as Success<RouteGeometrySnapshot?, Object>).value;
     if (geometry == null ||
         !_canApplyRouteResult(
           routeGeneration: routeGeneration,
@@ -279,7 +287,26 @@ final class MapboxMapController extends _$MapboxMapController
     if (!alive) {
       return;
     }
-    ref.read(routePlanningProvider.notifier).applyImportedRoute(route);
+    ref
+        .read(routePlanningProvider.notifier)
+        .applyImportedWaypoints(
+          waypoints: [
+            if (route.putIn != null) route.putIn!,
+            if (route.takeOut != null && route.takeOut!.id != route.putIn?.id)
+              route.takeOut!,
+          ],
+          geometry: route.toPolylineLonLat().length >= 2
+              ? RouteGeometrySnapshot(
+                  polylineLonLat: route.toPolylineLonLat(),
+                  lengthMeters: route.lengthMeters ?? 0,
+                  computedAt: DateTime.now(),
+                )
+              : null,
+          routeLengthKm: route.lengthMeters != null
+              ? route.lengthMeters! / 1000.0
+              : null,
+          routeOrigin: route.origin,
+        );
     final polyline = route.toPolylineLonLat();
     if (polyline.length >= 2) {
       await drawRouteLine(polyline);
@@ -351,23 +378,23 @@ final class MapboxMapController extends _$MapboxMapController
   }
 
   /// Waits for bundled hydro graphs when still loading; surfaces load errors.
-  Future<RiverRoutePlanner?> _resolveRoutePlanner() async {
-    final plannerAsync = ref.read(riverRoutePlannerProvider);
+  Future<MapRoutePlanner?> _resolveMapRoutePlanner() async {
+    final plannerAsync = ref.read(mapRoutePlannerProvider);
     if (plannerAsync.hasValue) {
       return plannerAsync.requireValue;
     }
     if (plannerAsync.hasError) {
       if (alive) {
-        final failure = hydroAppFailureFrom(plannerAsync.error);
+        final failure = appFailureFrom(plannerAsync.error);
         ui.showSnackBar?.call(failure ?? ui.riverDataLoadFailedMessage);
       }
       return null;
     }
     try {
-      return await ref.read(riverRoutePlannerProvider.future);
+      return await ref.read(mapRoutePlannerProvider.future);
     } on Object catch (error) {
       if (alive) {
-        final failure = hydroAppFailureFrom(error);
+        final failure = appFailureFrom(error);
         ui.showSnackBar?.call(failure ?? ui.riverDataLoadFailedMessage);
       }
       return null;

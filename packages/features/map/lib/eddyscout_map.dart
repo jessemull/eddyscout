@@ -3,23 +3,35 @@ library;
 
 export 'package:eddyscout_core/eddyscout_core.dart'
     show
+        AppFailureException,
+        GpxFailure,
+        GpxFailureCode,
+        GpxPoint,
         LaunchFlowBands,
         LaunchPoint,
+        PlannedRoute,
         RiverSystem,
+        RouteFailureCode,
+        RouteOrigin,
+        RoutePlanningFailure,
         TideRelevance,
         TideRelevanceLabel,
         WindExposure,
         WindExposureLabel,
+        appFailureFrom,
+        gpxFailureCodeFromAppFailure,
         kFlowBandsUsgs14137000SandyTroutdale,
         kFlowBandsUsgs14144700ColumbiaVancouver,
         kFlowBandsUsgs14211010ClackamasNearOc,
         kFlowBandsUsgs14211720WillamettePortland;
-export 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart'
-    show GpxFailure, GpxFailureCode, GpxPoint, PlannedRoute, RouteOrigin;
 export 'src/data/launch_providers.dart';
 export 'src/domain/gpx_file_gateway.dart';
 export 'src/domain/gpx_file_gateway_provider.dart';
 export 'src/domain/launch_points.dart';
+export 'src/domain/map_gpx_service.dart';
+export 'src/domain/map_gpx_service_provider.dart';
+export 'src/domain/map_route_planner.dart';
+export 'src/domain/map_route_planner_provider.dart';
 export 'src/domain/map_search_repository.dart';
 export 'src/domain/map_search_repository_provider.dart';
 export 'src/domain/map_search_result.dart';

@@ -208,6 +208,51 @@ abstract class AppLocalizations {
   /// **'No connected river path between these points in the current data.'**
   String get mapRouteFailureNoConnectedPath;
 
+  /// No description provided for @mapRouteFailureDisconnectedReach.
+  ///
+  /// In en, this message translates to:
+  /// **'Put-in and take-out are on different river segments in our bundled data. Try launches on the same reach.'**
+  String get mapRouteFailureDisconnectedReach;
+
+  /// No description provided for @mapRouteFailureDisconnectedReachNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Put-in ({putInReach}) and take-out ({takeOutReach}) are on different bundled segments. Try launches on the same reach.'**
+  String mapRouteFailureDisconnectedReachNamed(
+    String putInReach,
+    String takeOutReach,
+  );
+
+  /// No description provided for @mapPlanningStepPickPutIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1: Tap a launch for put-in.'**
+  String get mapPlanningStepPickPutIn;
+
+  /// No description provided for @mapPlanningStepPickTakeOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2: Tap another launch for take-out.'**
+  String get mapPlanningStepPickTakeOut;
+
+  /// No description provided for @mapPlanningComputingRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculating route…'**
+  String get mapPlanningComputingRoute;
+
+  /// No description provided for @mapPlanningRiverSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'River system: {system}'**
+  String mapPlanningRiverSystem(String system);
+
+  /// No description provided for @mapPlanningRouteReach.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundled reach: {reachId}'**
+  String mapPlanningRouteReach(String reachId);
+
   /// No description provided for @mapPlanningSemanticsLabel.
   ///
   /// In en, this message translates to:
