@@ -1,7 +1,7 @@
 import 'dart:async' show unawaited;
 import 'dart:developer' as developer;
 
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 

@@ -58,7 +58,7 @@ void main() {
               )
               as RouteSuccess;
 
-      final route = PlannedRoute.fromRouteSuccess(
+      final route = plannedRouteFromRouteSuccess(
         success,
         putIn: putIn,
         takeOut: takeOut,

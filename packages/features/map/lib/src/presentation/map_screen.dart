@@ -2,13 +2,13 @@ import 'dart:async' show unawaited;
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
+import '../domain/map_route_planner_provider.dart';
 import '../domain/map_trip_duration.dart';
 import 'map_constants.dart';
 import 'map_floating_controls.dart';
@@ -250,7 +250,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(riverRoutePlannerProvider);
+    ref.watch(mapRoutePlannerProvider);
 
     final planning = ref.watch(routePlanningProvider);
     final mapInteractive = ref.watch(mapInteractiveProvider);

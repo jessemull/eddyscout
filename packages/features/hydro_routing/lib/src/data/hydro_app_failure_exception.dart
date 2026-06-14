@@ -1,26 +1,10 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 
-/// Wraps [AppFailure] for Riverpod async throw semantics and
-/// `only_throw_errors`.
-final class HydroAppFailureException implements Exception {
-  /// Creates an exception carrying [failure].
-  const HydroAppFailureException(this.failure);
+export 'package:eddyscout_core/eddyscout_core.dart'
+    show AppFailureException, appFailureFrom;
 
-  /// Mapped hydro load/parse failure.
-  final AppFailure failure;
+/// Back-compat alias for hydro asset load failures.
+typedef HydroAppFailureException = AppFailureException;
 
-  @override
-  String toString() => failure.message;
-}
-
-/// Returns [AppFailure] when [error] is [HydroAppFailureException] or
-/// [AppFailure].
-AppFailure? hydroAppFailureFrom(Object? error) {
-  if (error is HydroAppFailureException) {
-    return error.failure;
-  }
-  if (error is AppFailure) {
-    return error;
-  }
-  return null;
-}
+/// Back-compat alias for hydro asset load failures.
+AppFailure? hydroAppFailureFrom(Object? error) => appFailureFrom(error);

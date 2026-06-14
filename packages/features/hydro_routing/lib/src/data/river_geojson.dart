@@ -1,15 +1,19 @@
 import 'dart:convert';
 
-/// One LineString from hydro GeoJSON with optional `river_system` property.
+/// One LineString from hydro GeoJSON with optional river metadata.
 class HydroLineFeature {
   /// Creates a parsed line with optional river filter key and vertices.
   const HydroLineFeature({
     required this.riverSystemKey,
+    required this.reachId,
     required this.coordinatesLonLat,
   });
 
   /// Matches `RiverSystem.name` when present; null means all rivers.
   final String? riverSystemKey;
+
+  /// Bundled reach identifier from `properties.reach_id`, when present.
+  final String? reachId;
 
   /// GeoJSON order: [lon, lat] per vertex.
   final List<List<double>> coordinatesLonLat;
@@ -46,7 +50,14 @@ List<HydroLineFeature> parseHydroGeoJson(String jsonText) {
     }
     final props = f['properties'] as Map<String, dynamic>?;
     final rs = props?['river_system'] as String?;
-    out.add(HydroLineFeature(riverSystemKey: rs, coordinatesLonLat: ring));
+    final reachId = props?['reach_id'] as String?;
+    out.add(
+      HydroLineFeature(
+        riverSystemKey: rs,
+        reachId: reachId,
+        coordinatesLonLat: ring,
+      ),
+    );
   }
   return out;
 }

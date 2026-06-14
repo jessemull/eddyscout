@@ -1,10 +1,10 @@
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
+import '../../helpers/test_hydro_map_providers.dart';
 import '../../helpers/test_localized_app.dart';
 
 CircleAnnotation _launchAnnotation(String launchId) {
@@ -28,8 +28,10 @@ void main() {
       ProviderScope(
         overrides: [
           mapInteractiveProvider.overrideWithValue(true),
-          hydroGeoJsonLoaderProvider.overrideWithValue(
-            () async => '{"type":"FeatureCollection","features":[]}',
+          ...testHydroMapProviderOverrides(
+            hydroLoader: () async => [
+              '{"type":"FeatureCollection","features":[]}',
+            ],
           ),
         ],
         child: testLocalizedApp(
@@ -76,7 +78,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(
-      find.textContaining('same river system'),
+      find.descendant(
+        of: find.byType(SnackBar),
+        matching: find.textContaining('same river system'),
+      ),
       findsOneWidget,
     );
   });
@@ -97,7 +102,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(
-      find.textContaining('No bundled river line'),
+      find.descendant(
+        of: find.byType(SnackBar),
+        matching: find.textContaining('No bundled river line'),
+      ),
       findsOneWidget,
     );
   });
