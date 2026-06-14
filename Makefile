@@ -1,78 +1,88 @@
-# EddyScout developer commands. See AGENTS.md for descriptions.
+# EddyScout developer commands. See AGENTS.md for details.
+# Run `make` or `make help` for a compact target list.
+
+.DEFAULT_GOAL := help
 
 # ── Config ─────────────────────────────────────────────────────────
 # Linux in CI; macOS on Darwin dev machines (integration_test/ requires a desktop target).
 INTEGRATION_DEVICE := $(shell uname -s | grep -q Darwin && echo macos || echo linux)
 
-.PHONY: analyze bootstrap ci clean coverage coverage-check dev ensure-husky \
+.PHONY: help analyze bootstrap ci clean coverage coverage-check dev ensure-husky \
 	format format-fix gen gen-check integration-test kill-emulator preflight \
 	run setup test
 
+help: ## Help@show targets
+	@printf 'EddyScout — make <target>\n\n'
+	@grep -E '^[a-zA-Z0-9_-]+:.* ## ' Makefile \
+		| grep -v '^help:' \
+		| awk 'BEGIN {FS = ":.* ## "} \
+		{ split($$2, p, "@"); \
+		  if (p[1] != g) { if (g != "") print ""; printf "%s\n", p[1]; g = p[1] } \
+		  printf "  %-20s %s\n", $$1, p[2] }'
+
 # ── Setup ──────────────────────────────────────────────────────────
 
-bootstrap:
+bootstrap: ## Setup@install deps, melos bootstrap
 	./scripts/bootstrap.sh
 
-ensure-husky:
+ensure-husky: ## Setup@install git hooks (once per worktree)
 	./scripts/ensure_husky.sh
 
-setup:
+setup: ## Setup@alias for bootstrap
 	./scripts/bootstrap.sh
 
 # ── Quality / CI ───────────────────────────────────────────────────
 
-analyze:
+analyze: ## Quality@static analysis (all packages)
 	dart run melos run analyze
 
-ci:
+ci: ## Quality@CI preflight (--ci)
 	./scripts/preflight.sh --ci
 
-coverage:
+coverage: ## Quality@tests with coverage
 	dart run melos run coverage
 
-coverage-check: coverage
+coverage-check: coverage ## Quality@coverage + threshold check
 	./scripts/check_coverage.sh
 
-format:
+format: ## Quality@check formatting
 	dart run melos run format
 
-format-fix:
+format-fix: ## Quality@fix formatting
 	dart run melos run format:fix
 
-gen:
+gen: ## Quality@run code generation
 	dart run melos run gen
 
-gen-check:
+gen-check: ## Quality@verify codegen is fresh
 	dart run melos run gen:check
 
-preflight:
+preflight: ## Quality@format, analyze, test, gen-check, coverage
 	./scripts/preflight.sh
 
-test:
+test: ## Quality@all package tests
 	dart run melos run test
 
 # ── Cleanup ────────────────────────────────────────────────────────
 
-clean:
+clean: ## Cleanup@remove build dirs and .dart_tool
 	dart run melos run clean
 
 # ── Local dev ──────────────────────────────────────────────────────
 
-# Bootstrap worktree, link .local.env, start Android emulator if needed, flutter run.
-# Optional: RUN_TARGET=launch:Pixel_9 RUN_TARGET=run:emulator-5554 DEVICE_ID=emulator-5554 EMULATOR_ID=Pixel_9 DEV_INTERACTIVE=0 AUTO_LAUNCH=0
-dev:
+# Optional: RUN_TARGET=launch:Pixel_9 DEVICE_ID=emulator-5554 EMULATOR_ID=Pixel_9 DEV_INTERACTIVE=0
+dev: ## Dev@bootstrap, .local.env, emulator, flutter run
 	./scripts/dev.sh $(ARGS)
 
-# Stop running Android emulators (adb emu kill). Optional: EMULATOR_SERIAL=emulator-5554
-kill-emulator:
+kill-emulator: ## Dev@stop Android emulators (EMULATOR_SERIAL optional)
 	./scripts/kill_emulator.sh
 
-run:
+run: ## Dev@flutter run via apps/eddyscout (ARGS="-d …")
 	$(MAKE) -C apps/eddyscout run ARGS="$(ARGS)"
 
 # ── Integration tests ──────────────────────────────────────────────
 
-integration-test:
+integration-test: ## Integration@desktop integration_test/ (macos or linux)
 	cd apps/eddyscout && flutter test integration_test/app_navigation_test.dart -d $(INTEGRATION_DEVICE)
 	cd apps/eddyscout && flutter test integration_test/map_launch_detail_journey_test.dart -d $(INTEGRATION_DEVICE) \
 		--dart-define=MAPBOX_ACCESS_TOKEN=pk.integration_test \

@@ -49,7 +49,7 @@ eddyscout/
 
 ## Development Commands
 
-All commands are available via `make` targets in the root `Makefile`. They delegate to melos and shell scripts under `scripts/`. Targets are grouped and alphabetized within each group (see the root `Makefile`).
+All commands are available via `make` targets in the root `Makefile`. Run **`make`** or **`make help`** for a compact grouped list; see below for details.
 
 ### Setup
 
