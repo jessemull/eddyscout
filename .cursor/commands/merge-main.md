@@ -2,6 +2,8 @@
 
 Bring the current feature branch up to date with `origin/main`. Resolve merge conflicts, then confirm status.
 
+**Keep this fast.** The merge step is seconds. Do **not** run `make preflight`, `make test`, or codegen on a clean merge — `git push` runs push validation.
+
 Do **not** push unless the user asks.
 
 ---
@@ -34,7 +36,7 @@ git merge origin/main
 
 Do **not** `git checkout main` unless the user explicitly asks to update local `main` in this worktree.
 
-If the merge succeeds with no conflicts, skip to **§4 Confirm**.
+If the merge succeeds with **no conflicts**, skip to **§4 Confirm** immediately. Do not run codegen or tests.
 
 ---
 
@@ -46,7 +48,7 @@ When `git merge` reports conflicts:
 2. Open each file; resolve conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
 3. Prefer **higher-precedence docs** when governance conflicts arise (`CONTEXT.md` > `GOVERNANCE.md` > `ARCHITECTURE.md`).
 4. For code conflicts, preserve the **feature branch intent** while integrating **main** fixes — do not silently drop either side.
-5. If generated files conflict (`*.g.dart`, `*.freezed.dart`), prefer **regenerating** with `make gen` after resolving source files — never hand-edit generated output.
+5. If generated files conflict (`*.g.dart`, `*.freezed.dart`), resolve **source** files only, then run `make gen` — never hand-edit generated output.
 6. Stage resolved files: `git add <file>…`
 7. Complete the merge:
 
@@ -56,7 +58,7 @@ When `git merge` reports conflicts:
 
    Use a custom merge message only if `--no-edit` fails.
 
-8. After merge, if source models/providers changed: run `make gen` and `make gen-check` when annotated sources were touched.
+8. **Codegen (conflict path only):** run `make gen` only if conflict resolution touched `@freezed`, `@JsonSerializable`, `@riverpod`, or `@TypedGoRoute` sources, or if generated files were in the conflict list.
 
 Do **not** use `git merge --abort` unless the user asks to cancel.
 
@@ -66,11 +68,13 @@ Do **not** use `git merge --abort` unless the user asks to cancel.
 
 Reply with a short summary:
 
-- [ ] Fetched `origin/main` (include short SHA: `git rev-parse --short origin/main`)
-- [ ] Merged into branch `$(git branch --show-current)` (merge commit SHA if created)
-- [ ] Conflicts resolved (list files if any were conflicted; otherwise “none”)
+- [ ] Fetched `origin/main` (short SHA: `git rev-parse --short origin/main`)
+- [ ] Merged into `$(git branch --show-current)` (merge commit SHA if created)
+- [ ] Conflicts: none / list resolved files
 - [ ] Working tree clean (`git status --short`)
-- [ ] Codegen re-run if needed (`make gen` / `make gen-check`)
+- [ ] Stash: note if you stashed before merge; remind user to `git stash pop` if they want those changes back
+- [ ] Codegen: skipped (clean merge) / `make gen` run (conflict path only)
+- [ ] Next step: `git push` when ready — husky runs full validation
 
 If merge could not be completed, report what blocked it and what the user should decide next.
 
