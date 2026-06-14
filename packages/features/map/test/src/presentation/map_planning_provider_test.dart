@@ -102,21 +102,26 @@ void main() {
       expect(state.polylineLonLat, isNull);
     });
 
-    test('applyImportedRoute stores polyline and launch picks', () {
+    test('applyImportedWaypoints stores polyline and launch picks', () {
       final putIn = _launch(id: 'a');
       final takeOut = _launch(id: 'b');
-      final route = PlannedRoute(
-        points: const [
-          GpxPoint(latitude: 45.5, longitude: -122.7),
-          GpxPoint(latitude: 45.4, longitude: -122.6),
+      final geometry = RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.7, 45.5],
+          [-122.6, 45.4],
         ],
-        putIn: putIn,
-        takeOut: takeOut,
         lengthMeters: 8000,
-        origin: RouteOrigin.imported,
+        computedAt: DateTime.utc(2026),
       );
 
-      container.read(routePlanningProvider.notifier).applyImportedRoute(route);
+      container
+          .read(routePlanningProvider.notifier)
+          .applyImportedWaypoints(
+            waypoints: [putIn, takeOut],
+            geometry: geometry,
+            routeLengthKm: 8.0,
+            routeOrigin: RouteOrigin.imported,
+          );
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
@@ -125,6 +130,35 @@ void main() {
       expect(state.routeLengthKm, closeTo(8.0, 0.01));
       expect(state.polylineLonLat?.length, 2);
       expect(state.routeOrigin, RouteOrigin.imported);
+    });
+
+    test('setActiveGeometry stores polyline on success', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final putIn = _launch(id: 'a');
+      final takeOut = _launch(id: 'b');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(takeOut);
+
+      container
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: RouteGeometrySnapshot(
+              polylineLonLat: const [
+                [-122.6, 45.5],
+                [-122.5, 45.5],
+              ],
+              lengthMeters: 4200,
+              computedAt: DateTime.utc(2026),
+            ),
+            routeLengthKm: 4.2,
+            routeOrigin: RouteOrigin.planner,
+          );
+
+      final state = container.read(routePlanningProvider);
+      expect(state.phase, MapPlanningPhase.routeReady);
+      expect(state.routeLengthKm, closeTo(4.2, 0.01));
+      expect(state.polylineLonLat?.length, 2);
+      expect(state.routeOrigin, RouteOrigin.planner);
     });
 
     test('keeps state after listeners are removed', () {

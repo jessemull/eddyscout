@@ -64,4 +64,13 @@ void main() {
       expect(hit, isNull);
     },
   );
+
+  test('screenDistancePx returns euclidean distance', () {
+    final distance = screenDistancePx(
+      ScreenCoordinate(x: 0, y: 0),
+      ScreenCoordinate(x: 3, y: 4),
+    );
+
+    expect(distance, 5);
+  });
 }

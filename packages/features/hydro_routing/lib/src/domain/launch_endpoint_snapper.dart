@@ -2,8 +2,6 @@ import 'dart:math' as math;
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 
-import 'package:eddyscout_hydro_routing/src/domain/planned_route.dart';
-
 /// Maximum distance (meters) to match GPX endpoints to catalog launches.
 const kLaunchSnapThresholdMeters = 2000.0;
 

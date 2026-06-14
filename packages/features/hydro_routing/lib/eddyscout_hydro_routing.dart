@@ -3,6 +3,8 @@ library;
 
 export 'src/data/geodesy.dart';
 export 'src/data/hydro_app_failure_exception.dart';
+export 'src/data/hydro_geojson_merge.dart';
+export 'src/data/river_multi_segment_route.dart';
 export 'src/data/river_route_planner.dart';
 export 'src/data/river_route_planner_provider.dart';
 export 'src/domain/gpx_bounds.dart';

@@ -178,6 +178,42 @@ void main() {
     expect(find.byType(LaunchDetailScreen), findsOneWidget);
   });
 
+  testWidgets('back from launch detail restores map browse search', (
+    tester,
+  ) async {
+    await pumpAt(tester, location: '/');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(MapScreen)),
+    );
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MapScreen)),
+    );
+    container
+        .read(mapboxMapControllerProvider.notifier)
+        .onLaunchCircleTap(
+          CircleAnnotation(
+            id: 'cathedral_park',
+            geometry: Point(coordinates: Position(0, 0)),
+            customData: <String, Object>{'launchId': 'cathedral_park'},
+          ),
+        );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(l10n.mapViewConditionsButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(LaunchDetailScreen), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.mapSearchPlaceholder), findsOneWidget);
+    expect(find.text(l10n.mapViewConditionsButton), findsNothing);
+  });
+
   testWidgets('gate routes render routing package screens', (tester) async {
     await pumpAt(tester, location: '/missing-token');
     await tester.pumpAndSettle();
