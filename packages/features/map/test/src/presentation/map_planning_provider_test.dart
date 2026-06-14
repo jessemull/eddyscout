@@ -46,21 +46,12 @@ void main() {
       final putIn = _launch(id: 'a', name: 'Put-in');
       final takeOut = _launch(id: 'b', name: 'Take-out');
 
-      expect(
-        container.read(routePlanningProvider).phase,
-        RoutePlanningPhase.pickPutIn,
-      );
-
       final first = container
           .read(routePlanningProvider.notifier)
           .handleLaunchTap(putIn);
       expect(first, RoutePlanningTapResult.putInSelected);
       expect(container.read(routePlanningProvider).putIn, putIn);
       expect(container.read(routePlanningProvider).takeOut, isNull);
-      expect(
-        container.read(routePlanningProvider).phase,
-        RoutePlanningPhase.pickTakeOut,
-      );
 
       final second = container
           .read(routePlanningProvider.notifier)
@@ -82,11 +73,13 @@ void main() {
       expect(container.read(routePlanningProvider).takeOut, isNull);
     });
 
-    test('clearSelection resets picks and phase but keeps planning mode', () {
+    test('clearSelection clears route geometry but keeps start waypoint', () {
+      final putIn = _launch(id: 'a');
       container.read(routePlanningProvider.notifier).togglePlanningMode();
+      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
       container
           .read(routePlanningProvider.notifier)
-          .handleLaunchTap(_launch(id: 'a'));
+          .handleLaunchTap(_launch(id: 'b'));
       container
           .read(routePlanningProvider.notifier)
           .setActiveGeometry(
@@ -105,8 +98,7 @@ void main() {
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
-      expect(state.phase, RoutePlanningPhase.pickPutIn);
-      expect(state.waypoints, isEmpty);
+      expect(state.waypoints, [putIn]);
       expect(state.routeLengthKm, isNull);
       expect(state.polylineLonLat, isNull);
     });
@@ -136,7 +128,7 @@ void main() {
       expect(state.routeOrigin, RouteOrigin.imported);
     });
 
-    test('setActiveGeometry stores polyline on success', () {
+    test('setActiveGeometry stores polyline and reach id on success', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final putIn = _launch(id: 'a');
       final takeOut = _launch(id: 'b');
@@ -160,35 +152,14 @@ void main() {
           );
 
       final state = container.read(routePlanningProvider);
-      expect(state.phase, RoutePlanningPhase.routeReady);
+      expect(state.phase, MapPlanningPhase.routeReady);
       expect(state.routeLengthKm, closeTo(4.2, 0.01));
       expect(state.polylineLonLat?.length, 2);
       expect(state.routeOrigin, RouteOrigin.planner);
       expect(state.routeReachId, 'columbia_gorge');
     });
 
-    test(
-      'revertFromComputingRoute returns to pickTakeOut with selections kept',
-      () {
-        container.read(routePlanningProvider.notifier).togglePlanningMode();
-        final putIn = _launch(id: 'a');
-        final takeOut = _launch(id: 'b');
-        container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
-        container.read(routePlanningProvider.notifier).handleLaunchTap(takeOut);
-        container.read(routePlanningProvider.notifier).setComputingRoute();
-
-        container
-            .read(routePlanningProvider.notifier)
-            .revertFromComputingRoute();
-
-        final state = container.read(routePlanningProvider);
-        expect(state.phase, RoutePlanningPhase.pickTakeOut);
-        expect(state.putIn, putIn);
-        expect(state.takeOut, takeOut);
-      },
-    );
-
-    test('setRouteFailure stores failure code on error', () {
+    test('setRouteFailure stores failure metadata on error', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final putIn = _launch(id: 'a');
       final takeOut = _launch(id: 'b');
@@ -206,7 +177,7 @@ void main() {
           );
 
       final state = container.read(routePlanningProvider);
-      expect(state.phase, RoutePlanningPhase.routeError);
+      expect(state.phase, MapPlanningPhase.planning);
       expect(state.lastFailureCode, RouteFailureCode.disconnectedReach);
       expect(state.lastFailurePutInReachId, 'willamette_portland');
       expect(state.lastFailureTakeOutReachId, 'columbia_gorge');
@@ -388,6 +359,58 @@ void main() {
         container.read(routePlanningProvider).waypoints.map((w) => w.id),
         ['b', 'c', 'a'],
       );
+    });
+  });
+
+  group('sharedReachIdFromSegments', () {
+    test('returns id when all segments share one reach', () {
+      final segments = [
+        RouteResult.success(
+              polylineLonLat: [
+                [-122.6, 45.5],
+                [-122.5, 45.5],
+              ],
+              lengthMeters: 1000,
+              reachId: 'columbia_gorge',
+            )
+            as RouteSuccess,
+        RouteResult.success(
+              polylineLonLat: [
+                [-122.5, 45.5],
+                [-122.4, 45.5],
+              ],
+              lengthMeters: 2000,
+              reachId: 'columbia_gorge',
+            )
+            as RouteSuccess,
+      ];
+
+      expect(sharedReachIdFromSegments(segments), 'columbia_gorge');
+    });
+
+    test('returns null when segments span multiple reaches', () {
+      final segments = [
+        RouteResult.success(
+              polylineLonLat: [
+                [-122.6, 45.5],
+                [-122.5, 45.5],
+              ],
+              lengthMeters: 1000,
+              reachId: 'willamette_portland',
+            )
+            as RouteSuccess,
+        RouteResult.success(
+              polylineLonLat: [
+                [-122.5, 45.5],
+                [-122.4, 45.5],
+              ],
+              lengthMeters: 2000,
+              reachId: 'columbia_gorge',
+            )
+            as RouteSuccess,
+      ];
+
+      expect(sharedReachIdFromSegments(segments), isNull);
     });
   });
 }

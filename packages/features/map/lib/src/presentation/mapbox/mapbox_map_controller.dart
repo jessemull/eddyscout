@@ -7,7 +7,10 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../launch_lookup.dart';
+import '../map_constants.dart';
 import '../map_planning_provider.dart';
+import '../map_session_provider.dart';
+import '../map_sheet_provider.dart';
 import 'map_debug_log.dart';
 import 'mapbox_map_camera_mixin.dart';
 import 'mapbox_map_controller_shared.dart';
@@ -36,6 +39,7 @@ final class MapboxMapController extends _$MapboxMapController
       ..onDispose(() {
         alive = false;
         tapCancelable?.cancel();
+        selectionTapCancelable?.cancel();
       })
       ..listen(riverRoutePlannerProvider, (previous, next) {
         final planning = ref.read(routePlanningProvider);
@@ -46,17 +50,63 @@ final class MapboxMapController extends _$MapboxMapController
         if (wasPending && next.hasValue) {
           unawaited(_runRoute());
         }
+      })
+      ..listen(routePlanningProvider, (previous, next) {
+        final prevPoints = previous?.polylineLonLat?.length ?? 0;
+        final nextPoints = next.polylineLonLat?.length ?? 0;
+        if (prevPoints >= 2 && nextPoints < 2) {
+          unawaited(clearRouteLine());
+        }
       });
   }
 
   Future<void> onMapCreated(MapboxMap mapboxMap) async {
-    this.mapboxMap = mapboxMap;
+    await _prepareNewMapSurface(mapboxMap);
     mapDebugLog('onMapCreated (initial camera from MapWidget viewport)');
     await mapDebugLogMapboxSnapshot(
       mapboxMap,
       'onMapCreated',
       includeGestures: true,
     );
+  }
+
+  Future<void> _prepareNewMapSurface(MapboxMap mapboxMap) async {
+    tapCancelable?.cancel();
+    tapCancelable = null;
+    selectionTapCancelable?.cancel();
+    selectionTapCancelable = null;
+    markersInstalled = false;
+    launchCircleManager = null;
+    selectionAnnotation = null;
+    selectionManager = null;
+    ref.read(mapInteractiveProvider.notifier).resetInteractive();
+    this.mapboxMap = mapboxMap;
+    mapboxMap
+      ..removeInteraction(kMapContentTapInteractionId)
+      ..addInteraction(
+        TapInteraction.onMap(onMapContentTap),
+        interactionID: kMapContentTapInteractionId,
+      );
+    await setMapGesturesEnabled(mapboxMap, enabled: false);
+  }
+
+  /// Map surface tap — resolves nearest launch marker under the finger.
+  void onMapContentTap(MapContentGestureContext context) {
+    if (context.gestureState != GestureState.ended) {
+      return;
+    }
+    unawaited(_handleMapContentTap(context));
+  }
+
+  Future<void> _handleMapContentTap(MapContentGestureContext context) async {
+    if (!alive || !ref.read(mapInteractiveProvider)) {
+      return;
+    }
+    final launch = await nearestLaunchAtTap(context.touchPosition);
+    if (launch == null) {
+      return;
+    }
+    _handleLaunchSelected(launch);
   }
 
   void onStyleLoaded() {
@@ -76,22 +126,31 @@ final class MapboxMapController extends _$MapboxMapController
     if (launch == null) {
       return;
     }
-
-    final planning = ref.read(routePlanningProvider);
-    if (!planning.planningMode) {
-      ui.openLaunchDetail?.call(launch);
-      return;
-    }
-
-    _handlePlanningTap(launch);
+    _handleLaunchSelected(launch);
   }
 
-  void togglePlanningMode() {
-    final wasPlanning = ref.read(routePlanningProvider).planningMode;
-    ref.read(routePlanningProvider.notifier).togglePlanningMode();
-    if (wasPlanning) {
-      unawaited(_afterExitPlanning());
+  void _handleLaunchSelected(LaunchPoint launch) {
+    final sheet = ref.read(mapSheetVisibilityStateProvider);
+    if (sheet == MapSheetVisibility.planningEdit) {
+      _handlePlanningTap(launch);
+      return;
     }
+    ui.onLaunchPlaceSelected?.call(launch);
+  }
+
+  /// Clears the selected-launch highlight ring.
+  Future<void> clearLaunchHighlight() => highlightLaunch(null);
+
+  /// Centers the camera and draws the selected-launch highlight ring.
+  Future<void> focusLaunch(LaunchPoint launch) async {
+    await flyToLaunch(launch);
+    await highlightLaunch(launch, onSelectionTap: onLaunchCircleTap);
+  }
+
+  Future<void> dismissPlanningSession() async {
+    ref.read(routePlanningProvider.notifier).resetToBrowse();
+    await clearLaunchHighlight();
+    await _afterExitPlanning();
   }
 
   /// Invokes the snackbar callback bound from the map screen
@@ -119,8 +178,16 @@ final class MapboxMapController extends _$MapboxMapController
     switch (result) {
       case RoutePlanningTapResult.putInSelected:
         unawaited(clearRouteLine());
+        unawaited(flyToLaunch(launch));
+        unawaited(
+          highlightLaunch(launch, onSelectionTap: onLaunchCircleTap),
+        );
       case RoutePlanningTapResult.takeOutSelected:
         unawaited(_runRoute());
+        unawaited(flyToLaunch(launch));
+        unawaited(
+          highlightLaunch(launch, onSelectionTap: onLaunchCircleTap),
+        );
       case RoutePlanningTapResult.sameAsPutIn:
         ui.showSnackBar?.call(ui.pickDifferentTakeOutMessage);
       case null:
@@ -128,18 +195,30 @@ final class MapboxMapController extends _$MapboxMapController
     }
   }
 
+  /// Invalidates in-flight [_runRoute] work and clears the map line.
+  ///
+  /// Call before leaving planning edit (back arrow) so a late planner result
+  /// cannot redraw the route after the user exits.
+  Future<void> abandonPlanningRouteLine() async {
+    bumpRouteLineGeneration();
+    await clearRouteLine();
+  }
+
   Future<void> _runRoute() async {
+    final routeGeneration = routeLineGeneration;
     final planning = ref.read(routePlanningProvider);
     final waypoints = planning.waypoints;
     if (waypoints.length < 2) {
       return;
     }
-
-    ref.read(routePlanningProvider.notifier).setComputingRoute();
+    final waypointIds = waypoints.map((w) => w.id).toList(growable: false);
 
     final planner = await _resolveRoutePlanner();
-    if (planner == null || !alive) {
-      ref.read(routePlanningProvider.notifier).revertFromComputingRoute();
+    if (planner == null ||
+        !_canApplyRouteResult(
+          routeGeneration: routeGeneration,
+          waypointIds: waypointIds,
+        )) {
       return;
     }
 
@@ -150,7 +229,19 @@ final class MapboxMapController extends _$MapboxMapController
 
     if (planResult case Failure(:final error)) {
       mapDebugLog('plan FAILED multi-segment: ${error.code}');
+      if (!_canApplyRouteResult(
+        routeGeneration: routeGeneration,
+        waypointIds: waypointIds,
+      )) {
+        return;
+      }
       ref.read(routePlanningProvider.notifier).setRouteFailure(failure: error);
+      ref
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: null,
+            routeLengthKm: null,
+          );
       unawaited(clearRouteLine());
       ui.showSnackBar?.call(error);
       return;
@@ -159,7 +250,11 @@ final class MapboxMapController extends _$MapboxMapController
     final segments =
         (planResult as Success<List<RouteSuccess>, RouteFailure>).value;
     final geometry = mergeRouteSegments(segments);
-    if (geometry == null) {
+    if (geometry == null ||
+        !_canApplyRouteResult(
+          routeGeneration: routeGeneration,
+          waypointIds: waypointIds,
+        )) {
       return;
     }
     mapDebugLog(
@@ -174,8 +269,19 @@ final class MapboxMapController extends _$MapboxMapController
           routeLengthKm: geometry.lengthMeters / 1000.0,
           routeReachId: sharedReachIdFromSegments(segments),
         );
+    if (!_canApplyRouteResult(
+      routeGeneration: routeGeneration,
+      waypointIds: waypointIds,
+    )) {
+      return;
+    }
     await drawRouteLine(geometry.polylineLonLat);
-    await fitCameraToRoute(geometry.polylineLonLat);
+    if (!isRouteLineGenerationCurrent(routeGeneration)) {
+      return;
+    }
+    if (_shouldFitCameraAfterRoute()) {
+      await fitCameraToRoute(geometry.polylineLonLat);
+    }
   }
 
   /// Applies an imported GPX route to planning state and the map line.
@@ -202,6 +308,43 @@ final class MapboxMapController extends _$MapboxMapController
 
   /// Recomputes and draws the route for the current planning waypoints.
   Future<void> rerunActiveRoute() => _runRoute();
+
+  bool _shouldFitCameraAfterRoute() {
+    final visibility = ref.read(mapSheetVisibilityStateProvider);
+    return visibility == MapSheetVisibility.planningPreview;
+  }
+
+  bool _matchesPlannedWaypoints(List<String> waypointIds) {
+    final current = ref.read(routePlanningProvider).waypoints;
+    if (current.length != waypointIds.length) {
+      return false;
+    }
+    for (var i = 0; i < waypointIds.length; i++) {
+      if (current[i].id != waypointIds[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool _shouldShowRouteOnMap() {
+    final sheet = ref.read(mapSheetVisibilityStateProvider);
+    return sheet == MapSheetVisibility.planningEdit ||
+        sheet == MapSheetVisibility.planningPreview;
+  }
+
+  bool _canApplyRouteResult({
+    required int routeGeneration,
+    required List<String> waypointIds,
+  }) {
+    if (!alive ||
+        !isRouteLineGenerationCurrent(routeGeneration) ||
+        !_matchesPlannedWaypoints(waypointIds) ||
+        !_shouldShowRouteOnMap()) {
+      return false;
+    }
+    return true;
+  }
 
   /// Draws a saved or imported route polyline and fits the camera.
   Future<void> displayPlannedRoute(List<List<double>> polyline) async {

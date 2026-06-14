@@ -10,9 +10,14 @@ import 'mapbox_map_style_mixin.dart';
 /// Route line GeoJSON source/layer for river planning.
 mixin MapboxMapRouteMixin on MapboxMapControllerBase, MapboxMapStyleMixin {
   String routeGeoJsonFromLonLat(List<List<double>> lonLat) => jsonEncode({
-    'type': 'Feature',
-    'properties': <String, dynamic>{},
-    'geometry': {'type': 'LineString', 'coordinates': lonLat},
+    'type': 'FeatureCollection',
+    'features': [
+      {
+        'type': 'Feature',
+        'properties': <String, dynamic>{},
+        'geometry': {'type': 'LineString', 'coordinates': lonLat},
+      },
+    ],
   });
 
   /// Adds route source/layer if missing on the current style.
@@ -53,27 +58,37 @@ mixin MapboxMapRouteMixin on MapboxMapControllerBase, MapboxMapStyleMixin {
     final data = routeGeoJsonFromLonLat(lonLat);
     try {
       await map.style.setStyleSourceProperty(kMapRouteSourceId, 'data', data);
+      if (await map.style.styleLayerExists(kMapRouteLayerId)) {
+        await map.style.setStyleLayerProperty(
+          kMapRouteLayerId,
+          'visibility',
+          'visible',
+        );
+      }
       mapDebugLog('route source updated coordCount=${lonLat.length}');
     } on Object catch (e, st) {
       mapDebugLog('_drawRouteLine setStyleSourceProperty failed: $e\n$st');
     }
   }
 
-  /// Clears the route line GeoJSON source.
+  /// Clears the route line by removing style layer + source.
+  ///
+  /// Empty GeoJSON updates report success on Android but often leave the
+  /// previous line visible — remove/recreate is reliable.
   Future<void> clearRouteLine() async {
+    bumpRouteLineGeneration();
     final map = mapboxMap;
     if (map == null) {
       return;
     }
     try {
-      if (await map.style.styleSourceExists(kMapRouteSourceId)) {
-        await map.style.setStyleSourceProperty(
-          kMapRouteSourceId,
-          'data',
-          kMapEmptyRouteGeoJson,
-        );
-        mapDebugLog('_clearRouteLine: emptied GeoJSON source');
+      if (await map.style.styleLayerExists(kMapRouteLayerId)) {
+        await map.style.removeStyleLayer(kMapRouteLayerId);
       }
+      if (await map.style.styleSourceExists(kMapRouteSourceId)) {
+        await map.style.removeStyleSource(kMapRouteSourceId);
+      }
+      mapDebugLog('_clearRouteLine removed layer and source');
     } on Object catch (e, st) {
       mapDebugLog('_clearRouteLine failed: $e\n$st');
     }

@@ -298,7 +298,7 @@ class _PlannedRoutePlanning extends RoutePlanning {
 
   @override
   RoutePlanningState build() => RoutePlanningState(
-    planningMode: true,
+    phase: MapPlanningPhase.routeReady,
     waypoints: [kLaunchPoints.first, kLaunchPoints[1]],
     routeLengthKm: 10,
     activeGeometry: RouteGeometrySnapshot(

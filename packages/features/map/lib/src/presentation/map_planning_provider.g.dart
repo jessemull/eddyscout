@@ -41,7 +41,7 @@ final class RoutePlanningProvider
   }
 }
 
-String _$routePlanningHash() => r'1b8283594995a9059443eb7dd0e143260abc4b5a';
+String _$routePlanningHash() => r'61874eb2090dedf78aa8794f33247730029bd84d';
 
 abstract class _$RoutePlanning extends $Notifier<RoutePlanningState> {
   RoutePlanningState build();

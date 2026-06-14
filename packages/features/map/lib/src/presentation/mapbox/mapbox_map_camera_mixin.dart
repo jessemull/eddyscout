@@ -1,11 +1,13 @@
 import 'dart:async' show unawaited;
 
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import '../../domain/launch_points.dart';
 import '../map_constants.dart';
 import '../map_session_provider.dart';
+import '../map_sheet_provider.dart';
 import 'map_debug_log.dart';
 import 'mapbox_map_controller_shared.dart';
 import 'mapbox_map_style_mixin.dart';
@@ -201,6 +203,60 @@ mixin MapboxMapCameraMixin on MapboxMapControllerBase, MapboxMapStyleMixin {
       mapDebugLog('_fitViewportToAllLaunches OK');
     } on Object catch (e, st) {
       mapDebugLog('_fitViewportToAllLaunches failed: $e\n$st');
+    }
+  }
+
+  /// Eases the camera to a single curated launch with sheet-aware padding.
+  Future<void> flyToLaunch(LaunchPoint launch) async {
+    final map = mapboxMap;
+    if (map == null || !alive) {
+      return;
+    }
+    final sheet = mapControllerRef.read(mapSheetVisibilityStateProvider);
+    final padding = switch (sheet) {
+      MapSheetVisibility.planningEdit => MbxEdgeInsets(
+        top: 220,
+        left: 48,
+        bottom: 120,
+        right: 48,
+      ),
+      MapSheetVisibility.placePeek => MbxEdgeInsets(
+        top: 80,
+        left: 48,
+        bottom: 200,
+        right: 48,
+      ),
+      MapSheetVisibility.planningPreview => MbxEdgeInsets(
+        top: 80,
+        left: 48,
+        bottom: 220,
+        right: 48,
+      ),
+      _ => MbxEdgeInsets(top: 100, left: 48, bottom: 120, right: 48),
+    };
+    try {
+      final point = Point(
+        coordinates: Position(launch.longitude, launch.latitude),
+      );
+      final fitted = await map.cameraForCoordinatesPadding(
+        [point],
+        CameraOptions(
+          center: point,
+          zoom: kLaunchFocusZoom,
+          bearing: 0,
+          pitch: 0,
+        ),
+        padding,
+        kLaunchFocusZoom + 1,
+        null,
+      );
+      await instantEaseToCamera(
+        map,
+        fitted,
+        debugTag: 'flyToLaunch',
+      );
+    } on Object catch (e, st) {
+      mapDebugLog('flyToLaunch failed: $e\n$st');
     }
   }
 

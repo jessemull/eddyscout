@@ -2,6 +2,9 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../domain/map_trip_duration.dart';
+import 'map_planning_phase.dart';
+
 part 'map_planning_provider.g.dart';
 
 /// Outcome of tapping a launch pin while route planning is active.
@@ -16,20 +19,10 @@ enum RoutePlanningTapResult {
   sameAsPutIn,
 }
 
-/// UI phase for the route-planning overlay.
-enum RoutePlanningPhase {
-  pickPutIn,
-  pickTakeOut,
-  computingRoute,
-  routeReady,
-  routeError,
-}
-
-/// Waypoint selection and route geometry for map route planning mode.
+/// Waypoint selection and route geometry for map-first paddle planning.
 class RoutePlanningState {
   const RoutePlanningState({
-    this.planningMode = false,
-    this.phase = RoutePlanningPhase.pickPutIn,
+    this.phase = MapPlanningPhase.browse,
     this.waypoints = const [],
     this.routeLengthKm,
     this.activeGeometry,
@@ -42,8 +35,7 @@ class RoutePlanningState {
     this.routeReachId,
   });
 
-  final bool planningMode;
-  final RoutePlanningPhase phase;
+  final MapPlanningPhase phase;
   final List<LaunchPoint> waypoints;
   final double? routeLengthKm;
   final RouteGeometrySnapshot? activeGeometry;
@@ -68,6 +60,11 @@ class RoutePlanningState {
 
   /// Mapbox order: each pair is `[longitude, latitude]`.
   List<List<double>>? get polylineLonLat => activeGeometry?.polylineLonLat;
+
+  /// Whether launch taps add waypoints (planning or route-ready session).
+  bool get planningMode =>
+      phase == MapPlanningPhase.planning ||
+      phase == MapPlanningPhase.routeReady;
 }
 
 /// Frozen planning selection used while save UI is open.
@@ -115,31 +112,39 @@ class RoutePlanning extends _$RoutePlanning {
 
   void togglePlanningMode() {
     if (state.planningMode) {
-      state = const RoutePlanningState();
+      resetToBrowse();
       return;
     }
-    state = const RoutePlanningState(planningMode: true);
+    state = const RoutePlanningState(phase: MapPlanningPhase.planning);
   }
 
-  void clearSelection() {
-    state = RoutePlanningState(planningMode: state.planningMode);
+  void resetToBrowse() {
+    state = const RoutePlanningState();
   }
 
-  void setComputingRoute() {
+  void selectPlace(LaunchPoint launch) {
+    state = const RoutePlanningState(phase: MapPlanningPhase.placeSelected);
+  }
+
+  void startPlanPaddle(LaunchPoint launch) {
     state = RoutePlanningState(
-      planningMode: state.planningMode,
-      phase: RoutePlanningPhase.computingRoute,
-      waypoints: state.waypoints,
+      phase: MapPlanningPhase.planning,
+      waypoints: [launch],
       loadedSavedRouteId: state.loadedSavedRouteId,
     );
   }
 
-  /// Leaves waypoints selected after planner data is unavailable.
-  void revertFromComputingRoute() {
+  void clearSelection() {
+    if (state.phase == MapPlanningPhase.browse ||
+        state.phase == MapPlanningPhase.placeSelected) {
+      state = RoutePlanningState(phase: state.phase);
+      return;
+    }
     state = RoutePlanningState(
-      planningMode: state.planningMode,
-      phase: _phaseForWaypoints(state.waypoints),
-      waypoints: state.waypoints,
+      phase: MapPlanningPhase.planning,
+      waypoints: state.waypoints.isNotEmpty
+          ? [state.waypoints.first]
+          : const [],
       loadedSavedRouteId: state.loadedSavedRouteId,
     );
   }
@@ -150,11 +155,13 @@ class RoutePlanning extends _$RoutePlanning {
     RouteOrigin? routeOrigin,
     String? routeReachId,
   }) {
+    final phase = geometry != null && state.waypoints.length >= 2
+        ? MapPlanningPhase.routeReady
+        : state.phase == MapPlanningPhase.browse
+        ? MapPlanningPhase.planning
+        : state.phase;
     state = RoutePlanningState(
-      planningMode: state.planningMode,
-      phase: geometry != null
-          ? RoutePlanningPhase.routeReady
-          : _phaseForWaypoints(state.waypoints),
+      phase: phase,
       waypoints: state.waypoints,
       routeLengthKm: routeLengthKm,
       activeGeometry: geometry,
@@ -168,8 +175,7 @@ class RoutePlanning extends _$RoutePlanning {
 
   void setRouteFailure({required RouteFailure failure}) {
     state = RoutePlanningState(
-      planningMode: state.planningMode,
-      phase: RoutePlanningPhase.routeError,
+      phase: MapPlanningPhase.planning,
       waypoints: state.waypoints,
       loadedSavedRouteId: state.loadedSavedRouteId,
       lastFailureCode: failure.code,
@@ -186,28 +192,28 @@ class RoutePlanning extends _$RoutePlanning {
         route.takeOut!,
     ];
     final polyline = route.toPolylineLonLat();
+    final geometry = polyline.length >= 2
+        ? RouteGeometrySnapshot(
+            polylineLonLat: polyline,
+            lengthMeters: route.lengthMeters ?? 0,
+            computedAt: DateTime.now(),
+          )
+        : null;
     state = RoutePlanningState(
-      planningMode: true,
-      phase: polyline.length >= 2
-          ? RoutePlanningPhase.routeReady
-          : RoutePlanningPhase.pickTakeOut,
+      phase: geometry != null && waypoints.length >= 2
+          ? MapPlanningPhase.routeReady
+          : MapPlanningPhase.planning,
       waypoints: waypoints,
       routeLengthKm: route.lengthMeters != null
           ? route.lengthMeters! / 1000.0
           : null,
-      activeGeometry: polyline.length >= 2
-          ? RouteGeometrySnapshot(
-              polylineLonLat: polyline,
-              lengthMeters: route.lengthMeters ?? 0,
-              computedAt: DateTime.now(),
-            )
-          : null,
+      activeGeometry: geometry,
       routeOrigin: RouteOrigin.imported,
     );
   }
 
   RoutePlanningTapResult? handleLaunchTap(LaunchPoint launch) {
-    if (!state.planningMode) {
+    if (!state.planningMode && state.waypoints.isEmpty) {
       return null;
     }
     final waypoints = List<LaunchPoint>.of(state.waypoints);
@@ -220,8 +226,7 @@ class RoutePlanning extends _$RoutePlanning {
     if (waypoints.isEmpty) {
       waypoints.add(launch);
       state = RoutePlanningState(
-        planningMode: true,
-        phase: RoutePlanningPhase.pickTakeOut,
+        phase: MapPlanningPhase.planning,
         waypoints: waypoints,
         loadedSavedRouteId: state.loadedSavedRouteId,
       );
@@ -229,8 +234,7 @@ class RoutePlanning extends _$RoutePlanning {
     }
     waypoints.add(launch);
     state = RoutePlanningState(
-      planningMode: true,
-      phase: RoutePlanningPhase.pickTakeOut,
+      phase: MapPlanningPhase.planning,
       waypoints: waypoints,
       loadedSavedRouteId: state.loadedSavedRouteId,
     );
@@ -243,10 +247,15 @@ class RoutePlanning extends _$RoutePlanning {
     }
     final waypoints = List<LaunchPoint>.of(state.waypoints)..removeAt(index);
     state = RoutePlanningState(
-      planningMode: state.planningMode,
-      phase: _phaseForWaypoints(waypoints),
+      phase: waypoints.length >= 2 && state.activeGeometry != null
+          ? MapPlanningPhase.routeReady
+          : MapPlanningPhase.planning,
       waypoints: waypoints,
+      routeLengthKm: waypoints.length >= 2 ? state.routeLengthKm : null,
+      activeGeometry: waypoints.length >= 2 ? state.activeGeometry : null,
       loadedSavedRouteId: state.loadedSavedRouteId,
+      routeOrigin: state.routeOrigin,
+      routeReachId: state.routeReachId,
     );
   }
 
@@ -261,7 +270,6 @@ class RoutePlanning extends _$RoutePlanning {
     final item = waypoints.removeAt(oldIndex);
     waypoints.insert(newIndex, item);
     state = RoutePlanningState(
-      planningMode: state.planningMode,
       phase: state.phase,
       waypoints: waypoints,
       routeLengthKm: state.routeLengthKm,
@@ -277,10 +285,9 @@ class RoutePlanning extends _$RoutePlanning {
     List<LaunchPoint> resolvedWaypoints,
   ) {
     state = RoutePlanningState(
-      planningMode: true,
-      phase: route.geometrySnapshot != null
-          ? RoutePlanningPhase.routeReady
-          : RoutePlanningPhase.pickTakeOut,
+      phase: route.geometrySnapshot != null && resolvedWaypoints.length >= 2
+          ? MapPlanningPhase.routeReady
+          : MapPlanningPhase.planning,
       waypoints: resolvedWaypoints,
       loadedSavedRouteId: route.id,
       activeGeometry: route.geometrySnapshot,
@@ -298,8 +305,9 @@ class RoutePlanning extends _$RoutePlanning {
   /// Restores a prior capture when planning state was cleared unexpectedly.
   void restoreCapture(RoutePlanningSaveCapture capture) {
     state = RoutePlanningState(
-      planningMode: capture.planningMode,
-      phase: RoutePlanningPhase.routeReady,
+      phase: capture.planningMode
+          ? MapPlanningPhase.routeReady
+          : MapPlanningPhase.browse,
       waypoints: List<LaunchPoint>.of(capture.waypoints),
       routeLengthKm: capture.routeLengthKm,
       activeGeometry: capture.geometry,
@@ -351,6 +359,10 @@ class RoutePlanning extends _$RoutePlanning {
       return null;
     }
     final now = DateTime.now();
+    final distanceKm = capture.geometry.lengthMeters / 1000.0;
+    final durationMinutes =
+        estimatedDurationMinutes ??
+        estimateTripDurationMinutes(distanceKm: distanceKm);
     final metadata =
         computeSavedRouteMetadata(
           launches: capture.waypoints,
@@ -358,7 +370,7 @@ class RoutePlanning extends _$RoutePlanning {
         ).copyWith(
           difficulty: difficulty,
           recommendedSkillLevel: recommendedSkillLevel,
-          estimatedDurationMinutes: estimatedDurationMinutes,
+          estimatedDurationMinutes: durationMinutes,
         );
     return SavedRoute(
       id: existingId ?? generateSavedRouteId(),
@@ -374,16 +386,6 @@ class RoutePlanning extends _$RoutePlanning {
       createdAt: existingCreatedAt ?? now,
       updatedAt: now,
     );
-  }
-
-  RoutePlanningPhase _phaseForWaypoints(List<LaunchPoint> waypoints) {
-    if (waypoints.isEmpty) {
-      return RoutePlanningPhase.pickPutIn;
-    }
-    if (waypoints.length == 1) {
-      return RoutePlanningPhase.pickTakeOut;
-    }
-    return RoutePlanningPhase.pickTakeOut;
   }
 }
 

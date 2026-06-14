@@ -45,7 +45,7 @@ final class MapboxMapControllerProvider
 }
 
 String _$mapboxMapControllerHash() =>
-    r'e1dd70e8b360c359596be21f5e55be52349fd2cc';
+    r'db28a4859b1a8420bd229d1118d1641f03a234b3';
 
 /// Owns Mapbox map lifecycle: markers, route line, camera, and launch taps.
 

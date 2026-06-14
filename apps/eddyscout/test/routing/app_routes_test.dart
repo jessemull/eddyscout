@@ -169,6 +169,12 @@ void main() {
         );
     await tester.pumpAndSettle();
 
+    expect(find.text('View conditions'), findsOneWidget);
+    await tester.ensureVisible(find.text('View conditions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('View conditions'));
+    await tester.pumpAndSettle();
+
     expect(find.byType(LaunchDetailScreen), findsOneWidget);
   });
 
@@ -192,7 +198,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(MaterialApp), findsOneWidget);
-    expect(find.text('EddyScout'), findsOneWidget);
+    expect(find.text('Search rivers, launches, places…'), findsOneWidget);
   });
 
   group('SavedRoutesListRoute', () {
@@ -251,7 +257,7 @@ void main() {
       );
 
       final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
-      expect(nav.selectedIndex, 1);
+      expect(nav.selectedIndex, 2);
     });
 
     testWidgets('switching to map tab notifies mapTabResumed', (tester) async {

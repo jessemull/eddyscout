@@ -15,6 +15,11 @@ CircleAnnotation _launchAnnotation(String launchId) {
   );
 }
 
+void _enterPlanningEdit(ProviderContainer container) {
+  container.read(routePlanningProvider.notifier).togglePlanningMode();
+  container.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -45,7 +50,7 @@ void main() {
     final container = await pumpMap(tester);
     final map = container.read(mapboxMapControllerProvider.notifier);
 
-    await tester.tap(find.byTooltip('Plan river route'));
+    _enterPlanningEdit(container);
     await tester.pump();
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
@@ -63,7 +68,7 @@ void main() {
     final container = await pumpMap(tester);
     final map = container.read(mapboxMapControllerProvider.notifier);
 
-    await tester.tap(find.byTooltip('Plan river route'));
+    _enterPlanningEdit(container);
     await tester.pump();
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
@@ -87,7 +92,7 @@ void main() {
     final container = await pumpMap(tester);
     final map = container.read(mapboxMapControllerProvider.notifier);
 
-    await tester.tap(find.byTooltip('Plan river route'));
+    _enterPlanningEdit(container);
     await tester.pump();
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
@@ -105,11 +110,15 @@ void main() {
     );
   });
 
-  testWidgets('toggle planning mode via app bar action', (tester) async {
+  testWidgets('exits planning edit via back arrow', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           mapInteractiveProvider.overrideWithValue(true),
+          routePlanningProvider.overrideWith(_PlanningWithRoute.new),
+          mapSheetVisibilityStateProvider.overrideWith(_EditSheet.new),
         ],
         child: testLocalizedApp(
           child: const MapScreen(
@@ -121,12 +130,35 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    await tester.tap(find.byTooltip('Plan river route'));
-    await tester.pump();
-    expect(find.text('River route (beta)'), findsOneWidget);
+    expect(find.text('Done'), findsOneWidget);
+    expect(find.text(kLaunchPoints.first.name), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Exit route planning'));
+    await tester.tap(find.byTooltip('Back'));
     await tester.pump();
-    expect(find.text('River route (beta)'), findsNothing);
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Done'), findsNothing);
+    expect(
+      ProviderScope.containerOf(
+        tester.element(find.byType(MapScreen)),
+      ).read(routePlanningProvider).planningMode,
+      isFalse,
+    );
   });
+}
+
+class _PlanningWithRoute extends RoutePlanning {
+  @override
+  RoutePlanningState build() {
+    final putIn = kLaunchPoints.first;
+    return RoutePlanningState(
+      phase: MapPlanningPhase.planning,
+      waypoints: [putIn],
+    );
+  }
+}
+
+class _EditSheet extends MapSheetVisibilityState {
+  @override
+  MapSheetVisibility build() => MapSheetVisibility.planningEdit;
 }

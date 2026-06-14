@@ -29,7 +29,7 @@ final class MapInteractiveProvider
         argument: null,
         retry: null,
         name: r'mapInteractiveProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -50,7 +50,7 @@ final class MapInteractiveProvider
   }
 }
 
-String _$mapInteractiveHash() => r'97efb5bc18bb308fb9bab4b915afe52891a47a14';
+String _$mapInteractiveHash() => r'8bd70a1d58281bdf95c1a9cce9a47f199cb9b466';
 
 /// Whether the Mapbox map finished style setup and launch markers are ready.
 ///

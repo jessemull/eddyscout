@@ -1,5 +1,6 @@
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +29,61 @@ const _pnwFarFromLaunchesGpx = '''
   </trkseg></trk>
 </gpx>''';
 
+Future<void> _pumpGpxImportButton(
+  WidgetTester tester, {
+  required _MockGpxFileGateway gateway,
+}) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        gpxFileGatewayProvider.overrideWithValue(gateway),
+        analyticsClientProvider.overrideWithValue(RecordingAnalyticsClient()),
+        mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
+      ],
+      child: testLocalizedApp(
+        child: Consumer(
+          builder: (context, ref, _) {
+            return Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  final outcome = await ref
+                      .read(gpxActionsProvider.notifier)
+                      .importRoute();
+                  if (!context.mounted) {
+                    return;
+                  }
+                  final l10n = context.l10n;
+                  switch (outcome) {
+                    case GpxActionCancelled():
+                      return;
+                    case GpxActionSuccess():
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.mapGpxImportSuccess)),
+                      );
+                    case GpxActionFailure(:final failure):
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            localizeGpxActionFailure(
+                              l10n: l10n,
+                              failure: failure,
+                            ),
+                          ),
+                        ),
+                      );
+                  }
+                },
+                child: Text(context.l10n.menuImportGpx),
+              ),
+            );
+          },
+        ),
+      ),
+    ),
+  );
+  await tester.pump();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -39,31 +95,7 @@ void main() {
       (_) async => const Result.success('<<<not gpx xml>>>'),
     );
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          gpxFileGatewayProvider.overrideWithValue(gateway),
-          analyticsClientProvider.overrideWithValue(RecordingAnalyticsClient()),
-          mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
-          mapInteractiveProvider.overrideWithValue(true),
-          routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
-        ],
-        child: testLocalizedApp(
-          child: Builder(
-            builder: (context) => Theme(
-              data: Theme.of(context).copyWith(
-                splashFactory: NoSplash.splashFactory,
-              ),
-              child: const MapScreen(
-                mapSlot: SizedBox(key: Key('map_test_stub')),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pump();
-    await tester.pump();
+    await _pumpGpxImportButton(tester, gateway: gateway);
 
     await tester.tap(find.text('Import GPX'));
     await tester.pump();
@@ -80,33 +112,7 @@ void main() {
         (_) async => const Result.success(_outsidePnwGpx),
       );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            gpxFileGatewayProvider.overrideWithValue(gateway),
-            analyticsClientProvider.overrideWithValue(
-              RecordingAnalyticsClient(),
-            ),
-            mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
-            mapInteractiveProvider.overrideWithValue(true),
-            routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
-          ],
-          child: testLocalizedApp(
-            child: Builder(
-              builder: (context) => Theme(
-                data: Theme.of(context).copyWith(
-                  splashFactory: NoSplash.splashFactory,
-                ),
-                child: const MapScreen(
-                  mapSlot: SizedBox(key: Key('map_test_stub')),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
-      await tester.pump();
+      await _pumpGpxImportButton(tester, gateway: gateway);
 
       await tester.tap(find.text('Import GPX'));
       await tester.pump();
@@ -128,33 +134,7 @@ void main() {
         (_) async => const Result.success(_pnwFarFromLaunchesGpx),
       );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            gpxFileGatewayProvider.overrideWithValue(gateway),
-            analyticsClientProvider.overrideWithValue(
-              RecordingAnalyticsClient(),
-            ),
-            mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
-            mapInteractiveProvider.overrideWithValue(true),
-            routePlanningProvider.overrideWith(_FixedRoutePlanning.new),
-          ],
-          child: testLocalizedApp(
-            child: Builder(
-              builder: (context) => Theme(
-                data: Theme.of(context).copyWith(
-                  splashFactory: NoSplash.splashFactory,
-                ),
-                child: const MapScreen(
-                  mapSlot: SizedBox(key: Key('map_test_stub')),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
-      await tester.pump();
+      await _pumpGpxImportButton(tester, gateway: gateway);
 
       await tester.tap(find.text('Import GPX'));
       await tester.pump();
@@ -169,26 +149,4 @@ void main() {
       );
     },
   );
-}
-
-class _FixedRoutePlanning extends RoutePlanning {
-  @override
-  RoutePlanningState build() {
-    final putIn = kLaunchPoints.first;
-    final takeOut = kLaunchPoints[1];
-    return RoutePlanningState(
-      planningMode: true,
-      waypoints: [putIn, takeOut],
-      routeLengthKm: 12.5,
-      activeGeometry: RouteGeometrySnapshot(
-        polylineLonLat: [
-          [putIn.longitude, putIn.latitude],
-          [takeOut.longitude, takeOut.latitude],
-        ],
-        lengthMeters: 12500,
-        computedAt: DateTime.utc(2026),
-      ),
-      routeOrigin: RouteOrigin.planner,
-    );
-  }
 }
