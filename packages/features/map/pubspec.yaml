@@ -17,7 +17,7 @@ dependencies:
     path: ../../design_system
   eddyscout_localization:
     path: ../../localization
-  file_picker: ^10.3.10
+  file_picker: ^11.0.2
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.3.1
