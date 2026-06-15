@@ -39,6 +39,7 @@ Companion skills (use for deeper passes in specific areas):
 - `code-generation` — freezed, json_serializable, riverpod_generator
 - `commit` — commit preparation
 - `testing` — test conventions
+- `manual-test-steps` — emulator/UI manual verification checklist
 - `security-review` — security audit
 - `performance-profiling` — performance analysis
 

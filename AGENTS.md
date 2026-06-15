@@ -49,22 +49,50 @@ eddyscout/
 
 ## Development Commands
 
-All commands are available via `make` targets. They delegate to melos and shell scripts under `scripts/`.
+All commands are available via `make` targets in the root `Makefile`. Run **`make`** or **`make help`** for a compact grouped list; see below for details.
+
+### Setup
 
 | Command | Description |
 |---------|-------------|
 | `make bootstrap` / `./scripts/bootstrap.sh` | Initial setup — install dependencies, activate melos, bootstrap all packages |
+| `make ensure-husky` | Verify/install husky hooks (required once per git worktree) |
+| `make setup` | Alias for `bootstrap` |
+
+### Quality / CI
+
+| Command | Description |
+|---------|-------------|
 | `make analyze` | Run static analysis across all packages (`dart analyze --fatal-infos`) |
+| `make ci` | CI-grade checks (same as preflight with stricter options) |
+| `make coverage` | Run tests with coverage collection |
+| `make coverage-check` | Run coverage and enforce thresholds in `tooling/coverage.yaml` |
 | `make format` | Check formatting without modifying files (`dart format --set-exit-if-changed .`) |
 | `make format-fix` | Fix formatting in place (`dart format .`) |
-| `make test` | Run all tests across all packages |
-| `make coverage` | Run tests with coverage collection |
 | `make gen` | Run code generation (`build_runner`, `freezed`, `json_serializable`, `drift`) |
 | `make gen-check` | Verify codegen output is fresh (fails if stale) |
-| `make ensure-husky` | Verify/install husky hooks (required once per git worktree) |
 | `make preflight` | Full preflight: format → analyze → test → gen-check → coverage (optional; push hook covers most) |
-| `make ci` | CI-grade checks (same as preflight with stricter options) |
+| `make test` | Run all tests across all packages |
+
+### Cleanup
+
+| Command | Description |
+|---------|-------------|
 | `make clean` | Clean all packages (delete build dirs, `.dart_tool`, generated files) |
+
+### Local dev
+
+| Command | Description |
+|---------|-------------|
+| `make dev` | Bootstrap worktree, link `.local.env`, start Android emulator if needed, `flutter run` |
+| `make kill-emulator` | Stop running Android emulators (`adb emu kill`) |
+| `make run` | Run app on a connected device/emulator via `apps/eddyscout` (pass `ARGS="-d emulator-5554"` if needed) |
+
+### Integration tests
+
+| Command | Description |
+|---------|-------------|
+| `make integration-test` | Run `integration_test/` on macOS (Darwin) or Linux; journey test uses Mapbox stub dart-defines |
 
 ---
 
