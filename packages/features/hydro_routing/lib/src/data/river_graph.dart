@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/src/data/min_heap.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
+import 'package:eddyscout_hydro_routing/src/data/vertex_merge_index.dart';
 import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
 import 'package:meta/meta.dart';
 
@@ -105,20 +106,27 @@ class RiverLineGraph {
     final adj = <List<GraphEdge>>[];
     final vertexReachId = <String?>[];
 
+    final refLatitude = _referenceLatitude(features);
+    final mergeIndex = VertexMergeIndex(
+      mergeMeters: mergeVertexMeters,
+      refLatitude: refLatitude,
+    );
+
     int findOrAdd(double la, double lo, String? reachId) {
-      for (var i = 0; i < lat.length; i++) {
-        if (haversineMeters(lat[i], lon[i], la, lo) <= mergeVertexMeters) {
-          if (vertexReachId[i] == null && reachId != null) {
-            vertexReachId[i] = reachId;
-          }
-          return i;
+      final existing = mergeIndex.findExisting(lat, lon, la, lo);
+      if (existing != null) {
+        if (vertexReachId[existing] == null && reachId != null) {
+          vertexReachId[existing] = reachId;
         }
+        return existing;
       }
+      final index = lat.length;
       lat.add(la);
       lon.add(lo);
       adj.add([]);
       vertexReachId.add(reachId);
-      return lat.length - 1;
+      mergeIndex.add(index, la, lo);
+      return index;
     }
 
     void addEdge(
@@ -173,6 +181,16 @@ class RiverLineGraph {
 
     final componentId = _labelComponents(adj);
     return RiverLineGraph._(lat, lon, adj, componentId, vertexReachId);
+  }
+
+  static double _referenceLatitude(List<HydroLineFeature> features) {
+    for (final feature in features) {
+      final coords = feature.coordinatesLonLat;
+      if (coords.isNotEmpty) {
+        return coords.first[1];
+      }
+    }
+    return 45;
   }
 
   static List<int> _labelComponents(List<List<GraphEdge>> adj) {

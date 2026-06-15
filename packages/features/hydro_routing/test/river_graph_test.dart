@@ -5,6 +5,7 @@ import 'package:eddyscout_hydro_routing/src/data/river_graph.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/dijkstra_reference.dart';
+import 'helpers/synthetic_grid_features.dart';
 import 'helpers/synthetic_grid_graph.dart';
 
 void main() {
@@ -305,6 +306,17 @@ void main() {
         final last = graph.vertexCount - 1;
         expect(dijkstraReference(graph, 0, last), isNotNull);
         expect(graph.astarForTesting(0, last), isNotNull);
+      }
+    });
+
+    test('fromFeatures grid build matches expected vertex count', () {
+      for (final target in [100, 5000]) {
+        final features = buildSyntheticGridFeatures(target);
+        final graph = RiverLineGraph.fromFeatures(
+          features,
+          riverSystemName: 'bench',
+        );
+        expect(graph.vertexCount, syntheticGridVertexCount(target));
       }
     });
   });
