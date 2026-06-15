@@ -6,6 +6,7 @@ class HydroLineFeature {
   const HydroLineFeature({
     required this.riverSystemKey,
     required this.coordinatesLonLat,
+    this.oneWay = false,
   });
 
   /// Matches `RiverSystem.name` when present; null means all rivers.
@@ -13,6 +14,9 @@ class HydroLineFeature {
 
   /// GeoJSON order: [lon, lat] per vertex.
   final List<List<double>> coordinatesLonLat;
+
+  /// When true, edges follow coordinate order only (GeoJSON `one_way`).
+  final bool oneWay;
 }
 
 /// Parses a FeatureCollection containing LineString features.
@@ -46,7 +50,14 @@ List<HydroLineFeature> parseHydroGeoJson(String jsonText) {
     }
     final props = f['properties'] as Map<String, dynamic>?;
     final rs = props?['river_system'] as String?;
-    out.add(HydroLineFeature(riverSystemKey: rs, coordinatesLonLat: ring));
+    final oneWay = props?['one_way'] as bool? ?? false;
+    out.add(
+      HydroLineFeature(
+        riverSystemKey: rs,
+        coordinatesLonLat: ring,
+        oneWay: oneWay,
+      ),
+    );
   }
   return out;
 }
