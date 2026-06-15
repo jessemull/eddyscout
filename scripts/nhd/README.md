@@ -63,18 +63,27 @@ Each file is `output/<river_system>_waterway.geojson`:
 
 ### `river_system` values
 
-The script emits intended system keys:
+The script emits intended system keys. The app loads bundled hydro GeoJSON via
+`hydroGeoJsonLoaderProvider` (multi-file list merged in
+`packages/features/hydro_routing/lib/src/data/hydro_geojson_merge.dart`).
 
-| System | Bundled in app today? |
-|--------|------------------------|
-| `willamette` | Yes |
-| `columbia` | No — needs `RiverSystem` enum + loader wiring |
-| `clackamas` | No |
-| `slough` | No |
-| `tualatin` | No — future enum value |
-| `sandy` | No — future enum value |
+| System | Bundled in app today? | Notes |
+|--------|------------------------|-------|
+| `willamette` | Yes | `assets/hydro/willamette_waterway.geojson` (OSM) |
+| `columbia` | Partial | `assets/hydro/columbia_gorge_waterway.geojson` — gorge / Bonneville pool reach only (OSM) |
+| `clackamas` | No | NHD output → review → separate bundling PR |
+| `slough` | No | NHD output → review → separate bundling PR |
+| `tualatin` | No | Future `RiverSystem` enum value may be required |
+| `sandy` | No | Future `RiverSystem` enum value may be required |
 
-The Dart parser (`packages/features/hydro_routing/lib/src/data/river_geojson.dart`) requires `properties.river_system` to match `RiverSystem.name`. Add enum values and bundle assets in a separate PR after reviewing generated files.
+NHD `convert.py` writes `output/columbia_waterway.geojson` for the full Portland-metro
+Columbia reach. That is **not** the same file as bundled `columbia_gorge_waterway.geojson`.
+After review, add new assets to `apps/eddyscout/assets/hydro/`, declare them in
+`pubspec.yaml`, and append paths in `hydroGeoJsonLoaderProvider`
+(`apps/eddyscout/lib/bootstrap/app_provider_overrides.dart`).
+
+The Dart parser (`packages/features/hydro_routing/lib/src/data/river_geojson.dart`)
+requires `properties.river_system` to match `RiverSystem.name` for routing.
 
 `reach_id` is included for provenance; the current routing graph does not use it.
 
@@ -96,6 +105,21 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+
+### All-in-one
+
+```bash
+cd scripts/nhd
+python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+chmod +x run.sh download.sh
+./run.sh
+```
+
+Pass `convert.py` flags after `--`:
+
+```bash
+./run.sh -- --system willamette --no-simplify
+```
 
 ### 1. Download shapefiles
 
@@ -144,10 +168,14 @@ Use `--strict` to exit non-zero when near-miss gaps exist.
 
 ```bash
 python3 compare.py \
-  --baseline ../../apps/eddyscout/assets/hydro/willamette_waterway.geojson \
-  --candidate output/willamette_waterway.geojson \
-  --overlay-out output/willamette_compare_overlay.geojson
+  --baseline ../../apps/eddyscout/assets/hydro/columbia_gorge_waterway.geojson \
+  --candidate output/columbia_waterway.geojson \
+  --system columbia \
+  --overlay-out output/columbia_compare_overlay.geojson
 ```
+
+For Willamette, swap baseline to `willamette_waterway.geojson` and candidate to
+`output/willamette_waterway.geojson`.
 
 Reports feature/vertex counts, total length (km), bounding boxes, and approximate Hausdorff distance. Optional overlay GeoJSON tags features with `dataset: baseline|candidate` for QGIS inspection.
 
@@ -171,8 +199,11 @@ Edit [`config.json`](config.json):
 ### Adding a river system
 
 1. Add a rule to `river_system_rules` (more specific patterns first).
-2. Re-run `convert.py` and `validate.py`.
-3. In a separate app PR: extend `RiverSystem` in `packages/core/lib/src/launch_models.dart`, wire assets, and bundle reviewed GeoJSON.
+2. Re-run `./run.sh` or `convert.py` + `validate.py`.
+3. In a separate app PR: add reviewed GeoJSON under `assets/hydro/`, update
+   `pubspec.yaml`, and append the asset path in `hydroGeoJsonLoaderProvider`.
+   Add `RiverSystem` enum values in `packages/core` only when the product needs
+   a distinct routing graph key.
 
 ## Pipeline layout
 
@@ -181,6 +212,7 @@ scripts/nhd/
 ├── README.md
 ├── config.json
 ├── requirements.txt
+├── run.sh               # download → convert → validate
 ├── download.sh          # fetch + unzip NHD HU4 shapefiles
 ├── convert.py           # shapefile → per-system GeoJSON
 ├── validate.py          # connectivity checks
@@ -189,6 +221,8 @@ scripts/nhd/
 ├── raw/                 # downloaded shapefiles (gitignored)
 └── output/              # generated GeoJSON (gitignored)
 ```
+
+Shell tests for `kill_emulator.sh` live in `scripts/test/kill_emulator_test.sh`.
 
 ## Known limitations
 
@@ -203,10 +237,8 @@ scripts/nhd/
 The pipeline is idempotent:
 
 ```bash
-./download.sh          # skips existing extracts
-python3 convert.py     # overwrites output/*.geojson
-python3 validate.py
-python3 compare.py ... # optional
+./run.sh               # or: ./download.sh && python3 convert.py && python3 validate.py
+./compare.py ...       # optional
 ```
 
 To force a fresh download, remove `raw/<huc4>/` or the zip under `raw/`.
