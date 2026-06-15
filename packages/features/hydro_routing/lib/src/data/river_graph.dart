@@ -4,7 +4,7 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/src/data/min_heap.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
 import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
-import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 
 /// Weighted graph edge with optional routing metadata.
 typedef GraphEdge = ({
@@ -554,6 +554,9 @@ class RiverLineGraph {
       if (entry.fScore > gScore[u] + h) {
         continue;
       }
+      if (u == dst) {
+        break;
+      }
 
       for (final e in _adj[u]) {
         final tentG = gScore[u] + e.w;
@@ -566,51 +569,6 @@ class RiverLineGraph {
     }
 
     if (gScore[dst] >= inf) {
-      return null;
-    }
-
-    return _reconstructPath(prev, src, dst);
-  }
-
-  /// Reference O(n²) Dijkstra for test comparison.
-  @visibleForTesting
-  List<int>? dijkstraReference(int src, int dst) {
-    final n = _lat.length;
-    const inf = 1e30;
-    final dist = List<double>.filled(n, inf);
-    final prev = List<int>.filled(n, -1);
-    final used = List<bool>.filled(n, false);
-    dist[src] = 0;
-
-    for (var iter = 0; iter < n; iter++) {
-      var u = -1;
-      var best = inf;
-      for (var i = 0; i < n; i++) {
-        if (!used[i] && dist[i] < best) {
-          best = dist[i];
-          u = i;
-        }
-      }
-      if (u < 0 || best >= inf) {
-        break;
-      }
-      if (u == dst) {
-        break;
-      }
-      used[u] = true;
-      for (final e in _adj[u]) {
-        if (used[e.to]) {
-          continue;
-        }
-        final nd = dist[u] + e.w;
-        if (nd < dist[e.to]) {
-          dist[e.to] = nd;
-          prev[e.to] = u;
-        }
-      }
-    }
-
-    if (dist[dst] >= inf) {
       return null;
     }
 

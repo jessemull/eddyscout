@@ -4,6 +4,7 @@ import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_graph.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'helpers/dijkstra_reference.dart';
 import 'helpers/synthetic_grid_graph.dart';
 
 void main() {
@@ -136,7 +137,7 @@ void main() {
         riverSystemName: 'chain',
       );
       final astar = g.astarForTesting(0, g.vertexCount - 1);
-      final dijkstra = g.dijkstraReference(0, g.vertexCount - 1);
+      final dijkstra = dijkstraReference(g, 0, g.vertexCount - 1);
       expect(astar, dijkstra);
     });
 
@@ -201,7 +202,7 @@ void main() {
         riverSystemName: 'zig',
       );
       final dst = g.vertexCount - 1;
-      expect(g.astarForTesting(0, dst), g.dijkstraReference(0, dst));
+      expect(g.astarForTesting(0, dst), dijkstraReference(g, 0, dst));
     });
 
     test('one-way edges block reverse traversal', () {
@@ -302,7 +303,7 @@ void main() {
       for (final target in [100, 5000]) {
         final graph = buildSyntheticGridGraph(target);
         final last = graph.vertexCount - 1;
-        expect(graph.dijkstraReference(0, last), isNotNull);
+        expect(dijkstraReference(graph, 0, last), isNotNull);
         expect(graph.astarForTesting(0, last), isNotNull);
       }
     });
