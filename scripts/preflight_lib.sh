@@ -165,7 +165,7 @@ preflight_run_tests() {
   jobs="$(preflight_resolve_jobs)"
   local flutter_j
   flutter_j="$(preflight_resolve_flutter_test_concurrency)"
-  local -a test_args=(--exclude-tags golden --concurrency="$flutter_j")
+  local -a test_args=(--exclude-tags golden --exclude-tags benchmark --concurrency="$flutter_j")
   if [[ $# -gt 0 ]]; then
     test_args+=("$@")
   fi
@@ -176,7 +176,7 @@ preflight_run_tests() {
     if [[ "$arg" == "--coverage" ]]; then
       jobs=1
       flutter_j=1
-      test_args=(--exclude-tags golden --concurrency=1 --coverage)
+      test_args=(--exclude-tags golden --exclude-tags benchmark --concurrency=1 --coverage)
       break
     fi
   done
