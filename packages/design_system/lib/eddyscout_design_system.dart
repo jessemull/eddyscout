@@ -2,6 +2,7 @@
 library;
 
 export 'src/theme/app_theme.dart';
+export 'src/tokens/app_bar_metrics.dart';
 export 'src/tokens/semantic_colors.dart';
 export 'src/tokens/spacing.dart';
 export 'src/tokens/typography.dart';

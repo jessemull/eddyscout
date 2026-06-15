@@ -101,43 +101,45 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.menuScreenTitle)),
-      body: ListView(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.upload_file),
-            title: Text(l10n.menuImportGpx),
-            enabled: !_gpxBusy,
-            onTap: _gpxBusy ? null : () => unawaited(_handleGpxImport()),
-          ),
-          ListTile(
-            leading: const Icon(Icons.download),
-            title: Text(l10n.menuExportGpx),
-            enabled: canExport && !_gpxBusy,
-            onTap: canExport && !_gpxBusy
-                ? () => unawaited(_handleGpxExport())
-                : null,
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings_outlined),
-            title: Text(l10n.menuSettings),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.menuSettingsComingSoon)),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: Text(l10n.menuAbout),
-            onTap: () {
-              showAboutDialog(
-                context: context,
-                applicationName: l10n.appTitle,
-                applicationLegalese: l10n.menuAboutBody,
-              );
-            },
-          ),
-        ],
+      body: ListTileTheme(
+        data: ListTileTheme.of(context).copyWith(
+          visualDensity: VisualDensity.compact,
+          minVerticalPadding: 0,
+        ),
+        child: ListView(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.upload_file),
+              title: Text(l10n.menuImportGpx),
+              enabled: !_gpxBusy,
+              onTap: _gpxBusy ? null : () => unawaited(_handleGpxImport()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.download),
+              title: Text(l10n.menuExportGpx),
+              enabled: canExport && !_gpxBusy,
+              onTap: canExport && !_gpxBusy
+                  ? () => unawaited(_handleGpxExport())
+                  : null,
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: Text(l10n.menuSettings),
+              onTap: () => unawaited(const SettingsRoute().push<void>(context)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: Text(l10n.menuAbout),
+              onTap: () {
+                showAboutDialog(
+                  context: context,
+                  applicationName: l10n.appTitle,
+                  applicationLegalese: l10n.menuAboutBody,
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
