@@ -26,5 +26,5 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   go_router_builder: ^4.3.0
-  riverpod_generator: ^4.0.3
+  riverpod_generator: ^4.0.4
   very_good_analysis: ^10.2.0

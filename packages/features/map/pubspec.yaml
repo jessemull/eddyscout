@@ -40,5 +40,5 @@ dev_dependencies:
   mocktail: ^1.0.4
   path_provider_platform_interface: ^2.1.2
   plugin_platform_interface: ^2.1.8
-  riverpod_generator: ^4.0.3
+  riverpod_generator: ^4.0.4
   very_good_analysis: ^10.2.0
