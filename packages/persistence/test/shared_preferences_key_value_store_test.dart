@@ -46,14 +46,25 @@ void main() {
       expect(await store.getInt('missing'), isNull);
     });
 
+    test('setDouble and getDouble round-trip', () async {
+      await store.setDouble('d', 4.5);
+      expect(await store.getDouble('d'), 4.5);
+    });
+
+    test('getDouble returns null when absent', () async {
+      expect(await store.getDouble('missing'), isNull);
+    });
+
     test('clear removes all keys', () async {
       await store.setString('k', 'v');
       await store.setBool('b', value: true);
       await store.setInt('i', 1);
+      await store.setDouble('d', 2.5);
       await store.clear();
       expect(await store.getString('k'), isNull);
       expect(await store.getBool('b'), isNull);
       expect(await store.getInt('i'), isNull);
+      expect(await store.getDouble('d'), isNull);
     });
 
     test('wraps an already-open SharedPreferences instance', () async {

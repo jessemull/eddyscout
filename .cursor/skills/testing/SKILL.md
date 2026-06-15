@@ -23,6 +23,7 @@ Companion skills:
 - `golden-testing` — visual regression test conventions
 - `accessibility-review` — a11y assertions in widget tests
 - `code-generation` — ensuring codegen output is fresh before testing
+- `manual-test-steps` — human emulator/UI verification checklist after UI work
 
 Testing is a **hard requirement for correctness, maintainability, and CI integrity**.
 
@@ -315,6 +316,8 @@ make analyze
 melos exec --scope=<package> -- "flutter test test/<file>_test.dart"
 make preflight   # optional — local coverage only before PR
 ```
+
+For UI/UX changes, also produce a manual test plan per `manual-test-steps` before PR.
 
 ---
 

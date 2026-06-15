@@ -1,6 +1,4 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/src/domain/gpx_failure.dart';
-import 'package:eddyscout_hydro_routing/src/domain/planned_route.dart';
 import 'package:gpx/gpx.dart';
 
 /// Parses and serializes GPX 1.1 for planned routes.

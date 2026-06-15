@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/memory_key_value_store.dart';
 import '../../helpers/test_localized_app.dart';
 
 void main() {
@@ -65,5 +66,33 @@ void main() {
       closeTo(backArrowRect.left, 2),
     );
     expect(doneRect.right, closeTo(closeRect.right, 2));
+  });
+
+  testWidgets('uses personalized paddling speed for trip estimate', (
+    tester,
+  ) async {
+    final store = MemoryKeyValueStore();
+    await store.setDouble(kPaddleSpeedKmhKey, 5);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mapKeyValueStoreProvider.overrideWith((ref) async => store),
+        ],
+        child: testLocalizedApp(
+          child: MapRoutePlanningChrome(
+            waypoints: [kLaunchPoints[0], kLaunchPoints[1]],
+            routeLengthKm: 5,
+            onBack: () {},
+            onDone: () {},
+            onRemoveStop: (_) {},
+            onReorderStop: (from, to) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Total trip: 60 min'), findsOneWidget);
   });
 }

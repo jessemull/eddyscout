@@ -221,6 +221,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 
 - [ ] **(Reports / mod)** Moderation — admin queue, TTL, keyword hold (optional report-abuse UX)
 - [x] **(Phase C)** Route preview on map — planning mode, put-in / take-out from existing launches, path along bundled open hydro LineStrings (`assets/hydro/`; Willamette Portland reach first); not navigation-grade
+- [x] **(Phase C)** Route planner follow-ups — more rivers / segment snap (`feat/route-planner-hydro-expansion`; Willamette + Columbia gorge hydro, edge snap, `PlannedRoute` domain model)
 - [ ] **(Phase C / R1)** Route planner: import Columbia, Clackamas, slough, Tualatin, Sandy waterway geometry from OSM Overpass; validate connectivity; bundle as `assets/hydro/`
 - [ ] **(Phase C / R1)** Route planner: add NHD download + conversion script for higher-quality river centerlines
 - [ ] **(Phase C / R2)** Route planner: upgrade Dijkstra to A* with priority queue and haversine heuristic
@@ -230,7 +231,8 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase C / R3)** Route planner: reachability index per launch (nearby launches within 5/10/20 mi graph distance)
 - [ ] **(Phase C / R3)** Route planner: suggested trips from each launch (distance, time, waypoints)
 - [ ] **(Phase C / R3)** Route planner: "Trips from here" UI on place peek and launch detail
-- [ ] **(Phase C)** Route planner: **personalized paddling speed** at sign-up / profile for trip-time estimates (default 4 km/h until set; optional learning from trip log)
+- [x] **(Phase C)** Route planner: **personalized paddling speed** at sign-up / profile for trip-time estimates (default 4 km/h until set; optional learning from trip log)
+- [ ] **(Phase C)** **Metric / imperial units** — user preference for distance (km/mi) and speed (km/h/mph) across settings, route planner, and saved routes
 - [ ] **(Phase C / R4)** Route editing: arbitrary waypoints (drop pin on waterway, snap to graph)
 - [ ] **(Phase C / R4)** Route editing: drag-to-edit polyline mid-points to reroute through alternate channels
 - [ ] **(Phase C / R4)** Route editing: loop routes, island hopping, multi-day expedition waypoints

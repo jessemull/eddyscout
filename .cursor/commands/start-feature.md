@@ -1,4 +1,4 @@
-# Start agent session (EddyScout)
+# Start feature branch (EddyScout)
 
 Branch name: **$ARGUMENTS**
 
@@ -44,12 +44,13 @@ Rules:
 - Use the branch name exactly as provided in `$ARGUMENTS`.
 - Do not commit or push unless the user asks.
 - If the branch already exists locally, stop and ask whether to check it out or use a different name.
+- In **git worktrees**, if `main` is checked out elsewhere, branch from `origin/main` instead: `git checkout -b $ARGUMENTS origin/main`.
 
 ---
 
 ## 3. Ensure git hooks (once per worktree)
 
-**Run this every time you `/start` in a worktree.** Do not assume hooks from another checkout are active here.
+**Run this every time you `/start-feature` in a worktree.** Do not assume hooks from another checkout are active here.
 
 From the repository root:
 
@@ -71,7 +72,7 @@ test -x .husky/_/pre-push && echo OK
 - `.husky/_/` (the hook stubs Husky actually executes) is **gitignored** — each checkout must run `npm install` (via `make ensure-husky`) to generate it.
 - New **git worktrees** get the hook scripts but often **not** `.husky/_/`, so commits/pushes silently skip validation until you run this step.
 
-`make bootstrap` also runs ensure-husky; `/start` must run it explicitly so agents never skip it.
+`make bootstrap` also runs ensure-husky; `/start-feature` must run it explicitly so agents never skip it.
 
 ---
 
