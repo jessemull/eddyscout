@@ -50,7 +50,7 @@ dev:
 run:
 	$(MAKE) -C apps/eddyscout run ARGS="$(ARGS)"
 
-# Stop running Android emulators (adb emu kill). Optional: EMULATOR_SERIAL=emulator-5554
+# Stop Android emulators (adb + orphan qemu/emulator processes from make dev).
 kill-emulator:
 	./scripts/kill_emulator.sh
 
