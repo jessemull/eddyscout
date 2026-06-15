@@ -20,7 +20,12 @@ class SettingsScreen extends ConsumerWidget {
     final paddleSpeedAsync = ref.watch(paddleSpeedProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsScreenTitle)),
+      appBar: AppBar(
+        title: Text(l10n.settingsScreenTitle),
+        centerTitle: AppBarMetrics.theme.centerTitle,
+        leadingWidth: AppBarMetrics.leadingWidth,
+        titleSpacing: AppBarMetrics.titleSpacing,
+      ),
       body: paddleSpeedAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(

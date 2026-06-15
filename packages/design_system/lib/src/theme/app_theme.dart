@@ -1,4 +1,3 @@
-import 'package:eddyscout_design_system/src/tokens/app_bar_metrics.dart';
 import 'package:flutter/material.dart';
 
 /// Builds the app-wide [ThemeData] from Material 3 seed color.
@@ -11,7 +10,6 @@ abstract final class AppTheme {
     colorScheme: ColorScheme.fromSeed(
       seedColor: _seedColor,
     ),
-    appBarTheme: AppBarMetrics.theme,
   );
 
   /// Dark theme using the EddyScout seed color.
@@ -21,6 +19,5 @@ abstract final class AppTheme {
       seedColor: _seedColor,
       brightness: Brightness.dark,
     ),
-    appBarTheme: AppBarMetrics.theme,
   );
 }

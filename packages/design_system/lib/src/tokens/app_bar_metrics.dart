@@ -9,10 +9,10 @@ abstract final class AppBarMetrics {
   /// Standard back-button touch target width.
   static const double leadingWidth = 48;
 
-  /// Gap between the back icon and the title.
-  static const double titleSpacing = Spacing.xxs;
+  /// Gap between the back icon and the title on back-navigation app bars.
+  static const double titleSpacing = 0;
 
-  /// Default [AppBarTheme] applied app-wide via the design system theme.
+  /// [AppBarTheme] fragment for opt-in use on back-navigation app bars.
   static const AppBarTheme theme = AppBarTheme(
     centerTitle: false,
     leadingWidth: leadingWidth,
