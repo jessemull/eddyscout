@@ -10,18 +10,33 @@ import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
 /// Loads bundled hydro GeoJSON and plans routes between launches.
 class RiverRoutePlanner {
   /// Builds graphs from raw GeoJSON text (single bundled document).
-  factory RiverRoutePlanner.fromGeoJson(String raw) {
-    return RiverRoutePlanner.fromGeoJsonDocuments([raw]);
+  factory RiverRoutePlanner.fromGeoJson(
+    String raw, {
+    double mergeVertexMeters = 12,
+  }) {
+    return RiverRoutePlanner.fromGeoJsonDocuments(
+      [raw],
+      mergeVertexMeters: mergeVertexMeters,
+    );
   }
 
   /// Builds graphs from one or more bundled GeoJSON documents.
-  factory RiverRoutePlanner.fromGeoJsonDocuments(List<String> rawDocs) {
+  factory RiverRoutePlanner.fromGeoJsonDocuments(
+    List<String> rawDocs, {
+    double mergeVertexMeters = 12,
+  }) {
     final features = parseAndMergeHydroGeoJson(rawDocs);
-    return RiverRoutePlanner._fromFeatures(features);
+    return RiverRoutePlanner._fromFeatures(
+      features,
+      mergeVertexMeters: mergeVertexMeters,
+    );
   }
 
   /// Builds graphs from parsed hydro line features.
-  factory RiverRoutePlanner._fromFeatures(List<HydroLineFeature> features) {
+  factory RiverRoutePlanner._fromFeatures(
+    List<HydroLineFeature> features, {
+    double mergeVertexMeters = 12,
+  }) {
     final graphs = <String, RiverLineGraph>{};
     final systems = <String>{};
     for (final f in features) {
@@ -30,7 +45,11 @@ class RiverRoutePlanner {
       }
     }
     for (final name in systems) {
-      final g = RiverLineGraph.fromFeatures(features, riverSystemName: name);
+      final g = RiverLineGraph.fromFeatures(
+        features,
+        riverSystemName: name,
+        mergeVertexMeters: mergeVertexMeters,
+      );
       if (g.vertexCount > 0) {
         graphs[name] = g;
       }

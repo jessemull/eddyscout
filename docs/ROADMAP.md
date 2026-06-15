@@ -397,6 +397,7 @@ Waterway GeoJSON (OSM / NHD / curated)
 
 - [ ] **Priority queue Dijkstra or A\*** — replace O(n²) linear scan; required before graph exceeds ~5k nodes
 - [ ] **A\* heuristic** — haversine straight-line distance to destination; admissible for undirected waterway graphs
+- [ ] **Vertex merge spatial index** — replace O(n²) `findOrAdd` linear scan at graph build; required before R1 geometry exceeds ~5k nodes
 - [ ] **Configurable vertex merge threshold** — 12 m is tight for NHD; test 20–30 m for denser datasets
 - [ ] **Edge metadata** — store `river_system`, optional `one_way` flag (for future flow direction), optional hazard/closure flag
 - [ ] **Multi-system graph** — single unified graph with labeled edges; cross-system routing where waterways physically connect (e.g. Willamette → Columbia confluence)
@@ -413,11 +414,12 @@ Waterway GeoJSON (OSM / NHD / curated)
 
 ### Phase R3: Launch snap and discovery
 
-**Current state:** Dynamic snap at route time (nearest vertex within 900 m). No pre-computed reachability.
+**Current state:** Dynamic snap at route time via `_nearestSnap`, which linearly scans all vertices and edges O(V+E) per endpoint (twice per route). Acceptable at ~100 nodes today; becomes costly at R1 metro scale (20k–50k nodes). No pre-computed reachability.
 
 **Improvements:**
 
-- [ ] **Pre-snap at build time** — store `launch.graphNodeId` in catalog; validate during codegen / asset pipeline
+- [ ] **Pre-snap at build time** — store `launch.graphNodeId` in catalog; validate during codegen / asset pipeline (catalog launches skip route-time graph scan)
+- [ ] **Spatial index for route-time snap** — replace O(V+E) `_nearestSnap` with grid or R-tree lookup within `maxSnapMeters`; required before 20k+ node graphs and for R4 arbitrary waypoints / drop-pin routing
 - [ ] **Snap quality gate** — warn if snap distance > 200 m (indicates geometry gap near a launch)
 - [ ] **Reachability index** — BFS from each launch up to distance thresholds; store per launch:
 
