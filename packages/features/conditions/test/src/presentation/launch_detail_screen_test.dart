@@ -385,6 +385,14 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('•'), findsWidgets);
+    expect(find.textContaining('Effective wind about'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Text && (widget.data?.contains('wind_high') ?? false),
+      ),
+      findsNothing,
+    );
   });
 
   testWidgets('starts AI summary when summarize button is tapped', (

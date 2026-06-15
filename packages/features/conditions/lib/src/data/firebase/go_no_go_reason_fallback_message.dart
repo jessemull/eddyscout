@@ -2,6 +2,9 @@ import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 
 /// English fallback text for Firebase payloads
 /// (backward-compatible wire format).
+///
+/// Keep in sync with `launchDetailGoNoGoReason*` keys in
+/// `packages/localization/lib/l10n/app_en.arb`.
 String goNoGoReasonFallbackMessage(GoNoGoReason reason) =>
     switch (reason.code) {
       GoNoGoReasonCode.coldWaterSeason =>

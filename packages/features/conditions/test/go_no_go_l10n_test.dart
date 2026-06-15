@@ -200,4 +200,35 @@ void main() {
     expect(message, contains('28'));
     expect(message, contains('exposed'));
   });
+
+  testWidgets('goNoGoReasonFallbackMessage matches ARB for windHigh', (
+    tester,
+  ) async {
+    late AppLocalizations l10n;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SizedBox.shrink(),
+      ),
+    );
+    l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+    const reason = GoNoGoReason(
+      code: GoNoGoReasonCode.windHigh,
+      severity: GoNoGoReasonSeverity.noGo,
+      windMph: 28,
+      exposure: 'moderate',
+    );
+    expect(
+      goNoGoReasonFallbackMessage(reason),
+      localizeGoNoGoReason(l10n, reason),
+    );
+  });
 }
