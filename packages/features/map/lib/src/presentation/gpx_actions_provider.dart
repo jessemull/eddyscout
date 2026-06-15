@@ -60,7 +60,7 @@ final class GpxActionCancelled extends GpxActionOutcome {
   const GpxActionCancelled();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class GpxActions extends _$GpxActions {
   @override
   FutureOr<void> build() {}
@@ -79,6 +79,9 @@ class GpxActions extends _$GpxActions {
     }
 
     final gpxService = await ref.read(mapGpxServiceProvider.future);
+    if (!ref.mounted) {
+      return const GpxActionCancelled();
+    }
     final putIn = planning.putIn;
     final takeOut = planning.takeOut;
     final route = PlannedRoute(
@@ -119,6 +122,9 @@ class GpxActions extends _$GpxActions {
     final shared = await ref
         .read(gpxFileGatewayProvider)
         .writeAndShareGpx(filename: filename, gpxXml: serialized.valueOrNull!);
+    if (!ref.mounted) {
+      return const GpxActionCancelled();
+    }
 
     return shared.when(
       success: (_) async {
@@ -147,6 +153,9 @@ class GpxActions extends _$GpxActions {
   /// Imports a GPX file, snaps endpoints, and draws the route on the map.
   Future<GpxActionOutcome> importRoute() async {
     final picked = await ref.read(gpxFileGatewayProvider).pickAndReadGpx();
+    if (!ref.mounted) {
+      return const GpxActionCancelled();
+    }
     if (picked.isFailure) {
       final error = picked.errorOrNull!;
       if (error is StorageFailure &&
@@ -158,6 +167,9 @@ class GpxActions extends _$GpxActions {
     }
 
     final gpxService = await ref.read(mapGpxServiceProvider.future);
+    if (!ref.mounted) {
+      return const GpxActionCancelled();
+    }
     final parsed = gpxService.parse(picked.valueOrNull!);
     if (parsed.isFailure) {
       await _logImportFailure(parsed.errorOrNull!.code);
@@ -191,6 +203,9 @@ class GpxActions extends _$GpxActions {
     await ref
         .read(mapboxMapControllerProvider.notifier)
         .applyImportedRoute(route);
+    if (!ref.mounted) {
+      return const GpxActionCancelled();
+    }
 
     await ref
         .read(analyticsClientProvider)
@@ -210,6 +225,9 @@ class GpxActions extends _$GpxActions {
   }
 
   Future<void> _logExportFailure(GpxFailureCode code) {
+    if (!ref.mounted) {
+      return Future<void>.value();
+    }
     return ref
         .read(analyticsClientProvider)
         .logEvent(
@@ -221,6 +239,9 @@ class GpxActions extends _$GpxActions {
   }
 
   Future<void> _logImportFailure(GpxFailureCode code) {
+    if (!ref.mounted) {
+      return Future<void>.value();
+    }
     return ref
         .read(analyticsClientProvider)
         .logEvent(

@@ -259,6 +259,13 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
   /// route disposal has already disposed `TextEditingController`.
   bool _submittedClosing = false;
 
+  ConditionReportSubmitArgs get _submitArgs => (
+    launchId: widget.launch.id,
+    clientConditionsFetchedAt: widget.conditionsFetchedAt
+        .toUtc()
+        .toIso8601String(),
+  );
+
   @override
   void initState() {
     super.initState();
@@ -279,19 +286,14 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
       );
       return;
     }
-    final fetchedAt = widget.conditionsFetchedAt.toUtc().toIso8601String();
-    final submitArgs = (
-      launchId: widget.launch.id,
-      clientConditionsFetchedAt: fetchedAt,
-    );
     final ok = await ref
-        .read(conditionReportSubmitProvider(submitArgs).notifier)
+        .read(conditionReportSubmitProvider(_submitArgs).notifier)
         .submit(text);
     if (!mounted) {
       return;
     }
     if (!ok) {
-      final submitState = ref.read(conditionReportSubmitProvider(submitArgs));
+      final submitState = ref.read(conditionReportSubmitProvider(_submitArgs));
       widget.scaffoldMessenger?.showSnackBar(
         SnackBar(
           content: Text(
@@ -325,6 +327,8 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(conditionReportSubmitProvider(_submitArgs));
+
     if (_submittedClosing) {
       return const Padding(
         padding: EdgeInsets.all(Spacing.xl),

@@ -52,7 +52,7 @@ abstract class _$MapPlaceSelection extends $Notifier<LaunchPoint?> {
   LaunchPoint? build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<LaunchPoint?, LaunchPoint?>;
     final element =
         ref.element
@@ -62,7 +62,7 @@ abstract class _$MapPlaceSelection extends $Notifier<LaunchPoint?> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -111,7 +111,7 @@ abstract class _$MapSheetVisibilityState extends $Notifier<MapSheetVisibility> {
   MapSheetVisibility build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<MapSheetVisibility, MapSheetVisibility>;
     final element =
         ref.element
@@ -121,6 +121,6 @@ abstract class _$MapSheetVisibilityState extends $Notifier<MapSheetVisibility> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

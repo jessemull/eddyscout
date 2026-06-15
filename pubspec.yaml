@@ -22,7 +22,7 @@ dev_dependencies:
   melos: ^7.8.1
 
 dependency_overrides:
-  source_gen: 4.2.0
+  source_gen: 4.2.3
 
 melos:
   name: eddyscout
