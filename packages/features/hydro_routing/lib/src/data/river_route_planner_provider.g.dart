@@ -8,12 +8,12 @@ part of 'river_route_planner_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Override in the app shell with rootBundle.loadString for the hydro asset.
+/// Override in the app shell with rootBundle.loadString for hydro assets.
 
 @ProviderFor(hydroGeoJsonLoader)
 final hydroGeoJsonLoaderProvider = HydroGeoJsonLoaderProvider._();
 
-/// Override in the app shell with rootBundle.loadString for the hydro asset.
+/// Override in the app shell with rootBundle.loadString for hydro assets.
 
 final class HydroGeoJsonLoaderProvider
     extends
@@ -23,7 +23,7 @@ final class HydroGeoJsonLoaderProvider
           HydroGeoJsonLoader
         >
     with $Provider<HydroGeoJsonLoader> {
-  /// Override in the app shell with rootBundle.loadString for the hydro asset.
+  /// Override in the app shell with rootBundle.loadString for hydro assets.
   HydroGeoJsonLoaderProvider._()
     : super(
         from: null,
@@ -105,4 +105,4 @@ final class RiverRoutePlannerProvider
   }
 }
 
-String _$riverRoutePlannerHash() => r'c4cd9a80a1f768434af84212905064e51a98bc54';
+String _$riverRoutePlannerHash() => r'e7707107e22a7eff927dec2e03f7d88379d9af22';

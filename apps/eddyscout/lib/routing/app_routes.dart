@@ -4,6 +4,7 @@ import 'package:eddyscout/routing/app_shell.dart';
 import 'package:eddyscout/routing/home_screen.dart';
 import 'package:eddyscout/routing/map_save_route_sheet.dart';
 import 'package:eddyscout/routing/menu_screen.dart';
+import 'package:eddyscout/routing/settings_screen.dart';
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -41,6 +42,7 @@ const _integrationMapStub = bool.fromEnvironment('INTEGRATION_MAP_STUB');
     TypedStatefulShellBranch<MenuShellBranchData>(
       routes: <TypedRoute<RouteData>>[
         TypedGoRoute<MenuRoute>(path: RoutePaths.menu),
+        TypedGoRoute<SettingsRoute>(path: '/settings'),
       ],
     ),
   ],
@@ -108,6 +110,15 @@ class MenuRoute extends GoRouteData with $MenuRoute {
       );
 }
 
+@TypedGoRoute<SettingsRoute>(path: '/settings')
+class SettingsRoute extends GoRouteData with $SettingsRoute {
+  const SettingsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const SettingsScreen();
+}
+
 @TypedGoRoute<MapRoute>(path: RoutePaths.map)
 class MapRoute extends GoRouteData with $MapRoute {
   const MapRoute();
@@ -149,6 +160,8 @@ class _MapRouteHost extends ConsumerWidget {
       });
 
     void onOpenLaunchDetail(LaunchPoint launch) {
+      ref.read(mapSheetVisibilityStateProvider.notifier).hide();
+      ref.read(mapPlaceSelectionProvider.notifier).clear();
       unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(context));
     }
 

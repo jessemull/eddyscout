@@ -72,6 +72,38 @@ class AppLocalizationsEn extends AppLocalizations {
       'No connected river path between these points in the current data.';
 
   @override
+  String get mapRouteFailureDisconnectedReach =>
+      'Put-in and take-out are on different river segments in our bundled data. Try launches on the same reach.';
+
+  @override
+  String mapRouteFailureDisconnectedReachNamed(
+    String putInReach,
+    String takeOutReach,
+  ) {
+    return 'Put-in ($putInReach) and take-out ($takeOutReach) are on different bundled segments. Try launches on the same reach.';
+  }
+
+  @override
+  String get mapPlanningStepPickPutIn => 'Step 1: Tap a launch for put-in.';
+
+  @override
+  String get mapPlanningStepPickTakeOut =>
+      'Step 2: Tap another launch for take-out.';
+
+  @override
+  String get mapPlanningComputingRoute => 'Calculating route…';
+
+  @override
+  String mapPlanningRiverSystem(String system) {
+    return 'River system: $system';
+  }
+
+  @override
+  String mapPlanningRouteReach(String reachId) {
+    return 'Bundled reach: $reachId';
+  }
+
+  @override
   String get mapPlanningSemanticsLabel => 'River route planning';
 
   @override
@@ -652,6 +684,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get menuAboutBody =>
       'EddyScout — your Pacific Northwest paddling companion.';
+
+  @override
+  String get settingsScreenTitle => 'Settings';
+
+  @override
+  String get settingsPaddleSpeedLabel => 'Paddling speed';
+
+  @override
+  String settingsPaddleSpeedValue(String speed) {
+    return '$speed km/h';
+  }
+
+  @override
+  String get settingsPaddleSpeedDescription =>
+      'Your average paddling speed for trip-time estimates.';
+
+  @override
+  String get settingsPaddleSpeedReset => 'Reset';
 
   @override
   String get savedRoutesListTitle => 'Saved routes';

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'map_search_provider.dart';
+import 'paddle_speed_provider.dart';
 
 /// Floating edit-stops card (Google Maps directions style).
 class MapRoutePlanningChrome extends ConsumerWidget {
@@ -65,7 +66,11 @@ class MapRoutePlanningChrome extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final hasDestination = waypoints.length >= 2;
     final canDone = waypoints.length >= 2;
-    final tripMinutes = estimateTripDurationMinutes(distanceKm: routeLengthKm);
+    final speedKmh = ref.watch(effectivePaddleSpeedKmhProvider);
+    final tripMinutes = estimateTripDurationMinutes(
+      distanceKm: routeLengthKm,
+      speedKmh: speedKmh,
+    );
     final tripMiles = formatDistanceMiles(routeLengthKm);
     final showTotalTrip = canDone && tripMinutes != null && tripMiles != null;
 

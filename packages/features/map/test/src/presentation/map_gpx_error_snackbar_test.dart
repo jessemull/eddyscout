@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/test_hydro_map_providers.dart';
 import '../../helpers/test_localized_app.dart';
 
 class _MockGpxFileGateway extends Mock implements GpxFileGateway {}
@@ -38,6 +39,7 @@ Future<void> _pumpGpxImportButton(
       overrides: [
         gpxFileGatewayProvider.overrideWithValue(gateway),
         analyticsClientProvider.overrideWithValue(RecordingAnalyticsClient()),
+        testHydroMapGpxServiceOverride(),
         mapboxMapControllerProvider.overrideWith(MapboxMapController.new),
       ],
       child: testLocalizedApp(

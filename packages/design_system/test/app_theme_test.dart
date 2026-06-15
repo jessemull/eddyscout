@@ -9,6 +9,13 @@ void main() {
     expect(light.useMaterial3, isTrue);
     expect(dark.colorScheme.brightness, Brightness.dark);
     expect(light.colorScheme.primary, isNotNull);
+    expect(light.appBarTheme.titleSpacing, isNull);
+  });
+
+  test('AppBarMetrics targets back-navigation app bars', () {
+    expect(AppBarMetrics.theme.centerTitle, isFalse);
+    expect(AppBarMetrics.leadingWidth, 48);
+    expect(AppBarMetrics.titleSpacing, 0);
   });
 
   test('Spacing tokens are positive', () {
