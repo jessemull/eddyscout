@@ -1,0 +1,38 @@
+{
+  "nhd_base_url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Hydrography/NHD/HU4/HighResolution",
+  "huc_regions": [
+    {
+      "huc4": "1709",
+      "name": "Willamette",
+      "url_suffix": "Shape/NHD_H_1709_HU4_Shape.zip"
+    },
+    {
+      "huc4": "1708",
+      "name": "Lower Columbia",
+      "url_suffix": "Shape/NHD_H_1708_HU4_Shape.zip"
+    }
+  ],
+  "portland_metro_bbox": {
+    "min_lon": -123.05,
+    "min_lat": 45.15,
+    "max_lon": -121.95,
+    "max_lat": 46.05
+  },
+  "river_system_rules": [
+    {"pattern": "Multnomah Channel", "system": "slough", "case_insensitive": true},
+    {"pattern": "multnomah slough", "system": "slough", "case_insensitive": true},
+    {"pattern": "slough", "system": "slough", "case_insensitive": true},
+    {"pattern": "Clackamas", "system": "clackamas", "case_insensitive": true},
+    {"pattern": "Tualatin", "system": "tualatin", "case_insensitive": true},
+    {"pattern": "Sandy", "system": "sandy", "case_insensitive": true},
+    {"pattern": "Willamette", "system": "willamette", "case_insensitive": true},
+    {"pattern": "Columbia", "system": "columbia", "case_insensitive": true}
+  ],
+  "ftype_include": [460, 558],
+  "simplify_tolerance_meters": 5.0,
+  "coordinate_precision": 7,
+  "min_segment_length_meters": 50,
+  "merge_vertex_threshold_meters": 25,
+  "connectivity_gap_warning_meters": 100,
+  "utm_epsg": 32610
+}
