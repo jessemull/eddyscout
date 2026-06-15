@@ -231,7 +231,8 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase C / R3)** Route planner: reachability index per launch (nearby launches within 5/10/20 mi graph distance)
 - [ ] **(Phase C / R3)** Route planner: suggested trips from each launch (distance, time, waypoints)
 - [ ] **(Phase C / R3)** Route planner: "Trips from here" UI on place peek and launch detail
-- [ ] **(Phase C)** Route planner: **personalized paddling speed** at sign-up / profile for trip-time estimates (default 4 km/h until set; optional learning from trip log)
+- [x] **(Phase C)** Route planner: **personalized paddling speed** at sign-up / profile for trip-time estimates (default 4 km/h until set; optional learning from trip log)
+- [ ] **(Phase C)** **Metric / imperial units** — user preference for distance (km/mi) and speed (km/h/mph) across settings, route planner, and saved routes
 - [ ] **(Phase C / R4)** Route editing: arbitrary waypoints (drop pin on waterway, snap to graph)
 - [ ] **(Phase C / R4)** Route editing: drag-to-edit polyline mid-points to reroute through alternate channels
 - [ ] **(Phase C / R4)** Route editing: loop routes, island hopping, multi-day expedition waypoints

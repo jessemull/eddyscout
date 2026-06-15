@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../domain/map_trip_duration.dart';
 import 'map_planning_phase.dart';
+import 'paddle_speed_provider.dart';
 
 part 'map_planning_provider.g.dart';
 
@@ -321,9 +322,13 @@ class RoutePlanning extends _$RoutePlanning {
     }
     final now = DateTime.now();
     final distanceKm = capture.geometry.lengthMeters / 1000.0;
+    final speedKmh = ref.read(effectivePaddleSpeedKmhProvider);
     final durationMinutes =
         estimatedDurationMinutes ??
-        estimateTripDurationMinutes(distanceKm: distanceKm);
+        estimateTripDurationMinutes(
+          distanceKm: distanceKm,
+          speedKmh: speedKmh,
+        );
     final metadata =
         computeSavedRouteMetadata(
           launches: capture.waypoints,

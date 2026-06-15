@@ -21,6 +21,12 @@ abstract class KeyValueStore {
   /// Persists [value] under [key].
   Future<bool> setInt(String key, int value);
 
+  /// Reads a double value for [key], or null if absent.
+  Future<double?> getDouble(String key);
+
+  /// Persists [value] under [key].
+  Future<bool> setDouble(String key, double value);
+
   /// Removes the entry for [key].
   Future<bool> remove(String key);
 

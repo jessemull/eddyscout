@@ -20,6 +20,13 @@ void main() {
         120,
       );
     });
+
+    test('returns null for non-positive speed', () {
+      expect(
+        estimateTripDurationMinutes(distanceKm: 10, speedKmh: 0),
+        isNull,
+      );
+    });
   });
 
   group('formatDistanceMiles', () {
