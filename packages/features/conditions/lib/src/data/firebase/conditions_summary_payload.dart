@@ -1,3 +1,4 @@
+import 'package:eddyscout_conditions/src/data/firebase/go_no_go_reason_fallback_message.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -77,9 +78,26 @@ Map<String, Object?> conditionsSummaryPayload({
   required GoNoGoResult goNoGo,
   required GoNoGoProfile skillProfile,
 }) {
-  return ConditionsSummaryPayload(
+  final payload = ConditionsSummaryPayload(
     launch: LaunchSummary.fromLaunchPoint(launch, skillProfile),
     snapshot: snapshot,
     goNoGo: goNoGo,
   ).toJson();
+
+  final goNoGoMap = payload['goNoGo']! as Map<String, Object?>;
+  final reasons = goNoGoMap['reasons']! as List<Object?>;
+  goNoGoMap['reasons'] = reasons.map(_reasonJsonWithFallbackMessage).toList();
+
+  return payload;
+}
+
+Map<String, Object?> _reasonJsonWithFallbackMessage(Object? raw) {
+  final reasonMap = Map<String, Object?>.from(raw! as Map);
+  final reason = GoNoGoReason.fromJson(
+    Map<String, dynamic>.from(reasonMap),
+  );
+  return {
+    ...reasonMap,
+    'message': goNoGoReasonFallbackMessage(reason),
+  };
 }

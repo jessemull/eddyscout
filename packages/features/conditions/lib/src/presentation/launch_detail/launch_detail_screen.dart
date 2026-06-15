@@ -11,6 +11,7 @@ import 'package:eddyscout_conditions/src/presentation/condition_reports_list_pro
 import 'package:eddyscout_conditions/src/presentation/conditions_ai_summary_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/conditions_snapshot_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/firebase_bootstrap_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/go_no_go_l10n.dart';
 import 'package:eddyscout_conditions/src/presentation/go_no_go_profile_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/launch_reports_digest_provider.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';

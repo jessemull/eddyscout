@@ -16,9 +16,20 @@ T _$identity<T>(T value) => value;
 mixin _$GoNoGoReason {
 
 /// Machine-readable reason id for analytics and tests.
- String get code;/// Paddler-facing explanation.
- String get message;/// How this reason affects [GoNoGoVerdict].
- GoNoGoReasonSeverity get severity;
+ GoNoGoReasonCode get code;/// How this reason affects [GoNoGoVerdict].
+ GoNoGoReasonSeverity get severity;/// Effective wind in mph
+/// ([GoNoGoReasonCode.windHigh], [GoNoGoReasonCode.windElevated]).
+ int? get windMph;/// Wind exposure label, lowercased
+/// ([GoNoGoReasonCode.windHigh], [GoNoGoReasonCode.windElevated]).
+ String? get exposure;/// Matched marine forecast phrase
+/// ([GoNoGoReasonCode.marineSevere], [GoNoGoReasonCode.marineAdvisory]).
+ String? get pattern;/// Formatted discharge
+/// ([GoNoGoReasonCode.flowVeryHigh], [GoNoGoReasonCode.flowHigh],
+/// [GoNoGoReasonCode.flowLow]).
+ String? get cfs;/// USGS site id for flow readings.
+ String? get siteId;/// Weather fetch error code ([GoNoGoReasonCode.weatherMissing]).
+ String? get weatherError;/// True when flow bands come from launch-specific [LaunchFlowBands].
+ bool? get usesLaunchFlowBands;
 /// Create a copy of GoNoGoReason
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31,16 +42,16 @@ $GoNoGoReasonCopyWith<GoNoGoReason> get copyWith => _$GoNoGoReasonCopyWithImpl<G
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GoNoGoReason&&(identical(other.code, code) || other.code == code)&&(identical(other.message, message) || other.message == message)&&(identical(other.severity, severity) || other.severity == severity));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GoNoGoReason&&(identical(other.code, code) || other.code == code)&&(identical(other.severity, severity) || other.severity == severity)&&(identical(other.windMph, windMph) || other.windMph == windMph)&&(identical(other.exposure, exposure) || other.exposure == exposure)&&(identical(other.pattern, pattern) || other.pattern == pattern)&&(identical(other.cfs, cfs) || other.cfs == cfs)&&(identical(other.siteId, siteId) || other.siteId == siteId)&&(identical(other.weatherError, weatherError) || other.weatherError == weatherError)&&(identical(other.usesLaunchFlowBands, usesLaunchFlowBands) || other.usesLaunchFlowBands == usesLaunchFlowBands));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,code,message,severity);
+int get hashCode => Object.hash(runtimeType,code,severity,windMph,exposure,pattern,cfs,siteId,weatherError,usesLaunchFlowBands);
 
 @override
 String toString() {
-  return 'GoNoGoReason(code: $code, message: $message, severity: $severity)';
+  return 'GoNoGoReason(code: $code, severity: $severity, windMph: $windMph, exposure: $exposure, pattern: $pattern, cfs: $cfs, siteId: $siteId, weatherError: $weatherError, usesLaunchFlowBands: $usesLaunchFlowBands)';
 }
 
 
@@ -51,7 +62,7 @@ abstract mixin class $GoNoGoReasonCopyWith<$Res>  {
   factory $GoNoGoReasonCopyWith(GoNoGoReason value, $Res Function(GoNoGoReason) _then) = _$GoNoGoReasonCopyWithImpl;
 @useResult
 $Res call({
- String code, String message, GoNoGoReasonSeverity severity
+ GoNoGoReasonCode code, GoNoGoReasonSeverity severity, int? windMph, String? exposure, String? pattern, String? cfs, String? siteId, String? weatherError, bool? usesLaunchFlowBands
 });
 
 
@@ -68,12 +79,18 @@ class _$GoNoGoReasonCopyWithImpl<$Res>
 
 /// Create a copy of GoNoGoReason
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? code = null,Object? message = null,Object? severity = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? code = null,Object? severity = null,Object? windMph = freezed,Object? exposure = freezed,Object? pattern = freezed,Object? cfs = freezed,Object? siteId = freezed,Object? weatherError = freezed,Object? usesLaunchFlowBands = freezed,}) {
   return _then(_self.copyWith(
 code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
-as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,severity: null == severity ? _self.severity : severity // ignore: cast_nullable_to_non_nullable
-as GoNoGoReasonSeverity,
+as GoNoGoReasonCode,severity: null == severity ? _self.severity : severity // ignore: cast_nullable_to_non_nullable
+as GoNoGoReasonSeverity,windMph: freezed == windMph ? _self.windMph : windMph // ignore: cast_nullable_to_non_nullable
+as int?,exposure: freezed == exposure ? _self.exposure : exposure // ignore: cast_nullable_to_non_nullable
+as String?,pattern: freezed == pattern ? _self.pattern : pattern // ignore: cast_nullable_to_non_nullable
+as String?,cfs: freezed == cfs ? _self.cfs : cfs // ignore: cast_nullable_to_non_nullable
+as String?,siteId: freezed == siteId ? _self.siteId : siteId // ignore: cast_nullable_to_non_nullable
+as String?,weatherError: freezed == weatherError ? _self.weatherError : weatherError // ignore: cast_nullable_to_non_nullable
+as String?,usesLaunchFlowBands: freezed == usesLaunchFlowBands ? _self.usesLaunchFlowBands : usesLaunchFlowBands // ignore: cast_nullable_to_non_nullable
+as bool?,
   ));
 }
 
@@ -158,10 +175,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String code,  String message,  GoNoGoReasonSeverity severity)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( GoNoGoReasonCode code,  GoNoGoReasonSeverity severity,  int? windMph,  String? exposure,  String? pattern,  String? cfs,  String? siteId,  String? weatherError,  bool? usesLaunchFlowBands)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GoNoGoReason() when $default != null:
-return $default(_that.code,_that.message,_that.severity);case _:
+return $default(_that.code,_that.severity,_that.windMph,_that.exposure,_that.pattern,_that.cfs,_that.siteId,_that.weatherError,_that.usesLaunchFlowBands);case _:
   return orElse();
 
 }
@@ -179,10 +196,10 @@ return $default(_that.code,_that.message,_that.severity);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String code,  String message,  GoNoGoReasonSeverity severity)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( GoNoGoReasonCode code,  GoNoGoReasonSeverity severity,  int? windMph,  String? exposure,  String? pattern,  String? cfs,  String? siteId,  String? weatherError,  bool? usesLaunchFlowBands)  $default,) {final _that = this;
 switch (_that) {
 case _GoNoGoReason():
-return $default(_that.code,_that.message,_that.severity);case _:
+return $default(_that.code,_that.severity,_that.windMph,_that.exposure,_that.pattern,_that.cfs,_that.siteId,_that.weatherError,_that.usesLaunchFlowBands);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +216,10 @@ return $default(_that.code,_that.message,_that.severity);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String code,  String message,  GoNoGoReasonSeverity severity)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( GoNoGoReasonCode code,  GoNoGoReasonSeverity severity,  int? windMph,  String? exposure,  String? pattern,  String? cfs,  String? siteId,  String? weatherError,  bool? usesLaunchFlowBands)?  $default,) {final _that = this;
 switch (_that) {
 case _GoNoGoReason() when $default != null:
-return $default(_that.code,_that.message,_that.severity);case _:
+return $default(_that.code,_that.severity,_that.windMph,_that.exposure,_that.pattern,_that.cfs,_that.siteId,_that.weatherError,_that.usesLaunchFlowBands);case _:
   return null;
 
 }
@@ -214,15 +231,32 @@ return $default(_that.code,_that.message,_that.severity);case _:
 @JsonSerializable()
 
 class _GoNoGoReason implements GoNoGoReason {
-  const _GoNoGoReason({required this.code, required this.message, required this.severity});
+  const _GoNoGoReason({required this.code, required this.severity, this.windMph, this.exposure, this.pattern, this.cfs, this.siteId, this.weatherError, this.usesLaunchFlowBands});
   factory _GoNoGoReason.fromJson(Map<String, dynamic> json) => _$GoNoGoReasonFromJson(json);
 
 /// Machine-readable reason id for analytics and tests.
-@override final  String code;
-/// Paddler-facing explanation.
-@override final  String message;
+@override final  GoNoGoReasonCode code;
 /// How this reason affects [GoNoGoVerdict].
 @override final  GoNoGoReasonSeverity severity;
+/// Effective wind in mph
+/// ([GoNoGoReasonCode.windHigh], [GoNoGoReasonCode.windElevated]).
+@override final  int? windMph;
+/// Wind exposure label, lowercased
+/// ([GoNoGoReasonCode.windHigh], [GoNoGoReasonCode.windElevated]).
+@override final  String? exposure;
+/// Matched marine forecast phrase
+/// ([GoNoGoReasonCode.marineSevere], [GoNoGoReasonCode.marineAdvisory]).
+@override final  String? pattern;
+/// Formatted discharge
+/// ([GoNoGoReasonCode.flowVeryHigh], [GoNoGoReasonCode.flowHigh],
+/// [GoNoGoReasonCode.flowLow]).
+@override final  String? cfs;
+/// USGS site id for flow readings.
+@override final  String? siteId;
+/// Weather fetch error code ([GoNoGoReasonCode.weatherMissing]).
+@override final  String? weatherError;
+/// True when flow bands come from launch-specific [LaunchFlowBands].
+@override final  bool? usesLaunchFlowBands;
 
 /// Create a copy of GoNoGoReason
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +271,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GoNoGoReason&&(identical(other.code, code) || other.code == code)&&(identical(other.message, message) || other.message == message)&&(identical(other.severity, severity) || other.severity == severity));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GoNoGoReason&&(identical(other.code, code) || other.code == code)&&(identical(other.severity, severity) || other.severity == severity)&&(identical(other.windMph, windMph) || other.windMph == windMph)&&(identical(other.exposure, exposure) || other.exposure == exposure)&&(identical(other.pattern, pattern) || other.pattern == pattern)&&(identical(other.cfs, cfs) || other.cfs == cfs)&&(identical(other.siteId, siteId) || other.siteId == siteId)&&(identical(other.weatherError, weatherError) || other.weatherError == weatherError)&&(identical(other.usesLaunchFlowBands, usesLaunchFlowBands) || other.usesLaunchFlowBands == usesLaunchFlowBands));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,code,message,severity);
+int get hashCode => Object.hash(runtimeType,code,severity,windMph,exposure,pattern,cfs,siteId,weatherError,usesLaunchFlowBands);
 
 @override
 String toString() {
-  return 'GoNoGoReason(code: $code, message: $message, severity: $severity)';
+  return 'GoNoGoReason(code: $code, severity: $severity, windMph: $windMph, exposure: $exposure, pattern: $pattern, cfs: $cfs, siteId: $siteId, weatherError: $weatherError, usesLaunchFlowBands: $usesLaunchFlowBands)';
 }
 
 
@@ -257,7 +291,7 @@ abstract mixin class _$GoNoGoReasonCopyWith<$Res> implements $GoNoGoReasonCopyWi
   factory _$GoNoGoReasonCopyWith(_GoNoGoReason value, $Res Function(_GoNoGoReason) _then) = __$GoNoGoReasonCopyWithImpl;
 @override @useResult
 $Res call({
- String code, String message, GoNoGoReasonSeverity severity
+ GoNoGoReasonCode code, GoNoGoReasonSeverity severity, int? windMph, String? exposure, String? pattern, String? cfs, String? siteId, String? weatherError, bool? usesLaunchFlowBands
 });
 
 
@@ -274,12 +308,18 @@ class __$GoNoGoReasonCopyWithImpl<$Res>
 
 /// Create a copy of GoNoGoReason
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? code = null,Object? message = null,Object? severity = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? code = null,Object? severity = null,Object? windMph = freezed,Object? exposure = freezed,Object? pattern = freezed,Object? cfs = freezed,Object? siteId = freezed,Object? weatherError = freezed,Object? usesLaunchFlowBands = freezed,}) {
   return _then(_GoNoGoReason(
 code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
-as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,severity: null == severity ? _self.severity : severity // ignore: cast_nullable_to_non_nullable
-as GoNoGoReasonSeverity,
+as GoNoGoReasonCode,severity: null == severity ? _self.severity : severity // ignore: cast_nullable_to_non_nullable
+as GoNoGoReasonSeverity,windMph: freezed == windMph ? _self.windMph : windMph // ignore: cast_nullable_to_non_nullable
+as int?,exposure: freezed == exposure ? _self.exposure : exposure // ignore: cast_nullable_to_non_nullable
+as String?,pattern: freezed == pattern ? _self.pattern : pattern // ignore: cast_nullable_to_non_nullable
+as String?,cfs: freezed == cfs ? _self.cfs : cfs // ignore: cast_nullable_to_non_nullable
+as String?,siteId: freezed == siteId ? _self.siteId : siteId // ignore: cast_nullable_to_non_nullable
+as String?,weatherError: freezed == weatherError ? _self.weatherError : weatherError // ignore: cast_nullable_to_non_nullable
+as String?,usesLaunchFlowBands: freezed == usesLaunchFlowBands ? _self.usesLaunchFlowBands : usesLaunchFlowBands // ignore: cast_nullable_to_non_nullable
+as bool?,
   ));
 }
 

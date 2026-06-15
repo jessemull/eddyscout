@@ -28,7 +28,11 @@ void main() {
         source: WeatherDataSource.nws,
       ),
     );
-    final go = GoNoGoEvaluator.evaluate(launch, snap);
+    final go = GoNoGoEvaluator.evaluate(
+      launch,
+      snap,
+      now: DateTime.utc(2026, 1, 15, 12),
+    );
     final json = conditionsSummaryPayload(
       launch: launch,
       snapshot: snap,
@@ -49,5 +53,13 @@ void main() {
     final gg = json['goNoGo']! as Map<String, Object?>;
     expect(gg['verdict'], isNotNull);
     expect(gg['reasons'], isA<List<Object?>>());
+    final reasons = gg['reasons']! as List<Object?>;
+    expect(reasons, isNotEmpty);
+    for (final raw in reasons) {
+      final reasonMap = raw! as Map<String, Object?>;
+      expect(reasonMap['message'], isA<String>());
+      expect((reasonMap['message']! as String).isNotEmpty, isTrue);
+      expect(reasonMap['code'], isA<String>());
+    }
   });
 }

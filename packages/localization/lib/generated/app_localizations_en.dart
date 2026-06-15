@@ -413,6 +413,84 @@ class AppLocalizationsEn extends AppLocalizations {
       'Stub rules only—not a substitute for your judgment, skill, or scouting on site.';
 
   @override
+  String get launchDetailGoNoGoVerdictGo => 'Go (planning hint)';
+
+  @override
+  String get launchDetailGoNoGoVerdictMarginal => 'Marginal';
+
+  @override
+  String get launchDetailGoNoGoVerdictNoGo => 'No-go (planning hint)';
+
+  @override
+  String get launchDetailGoNoGoVerdictInsufficientData => 'Insufficient data';
+
+  @override
+  String get launchDetailGoNoGoReasonColdWaterSeason =>
+      'Cold-water season in the PNW—dress for immersion, know hypothermia risk, and carry safety gear.';
+
+  @override
+  String get launchDetailGoNoGoReasonWeatherMissing =>
+      'Weather data was not available. Cannot assess wind from forecast.';
+
+  @override
+  String launchDetailGoNoGoReasonWeatherMissingWithError(String error) {
+    return 'Weather data failed to load ($error). Cannot assess wind from forecast.';
+  }
+
+  @override
+  String get launchDetailGoNoGoReasonWindUnknown =>
+      'Wind speed or gust was not available from the forecast—use caution, especially in open or exposed areas.';
+
+  @override
+  String launchDetailGoNoGoReasonWindHigh(int mph, String exposure) {
+    return 'Effective wind about $mph mph ($exposure site)—our stub rules treat this as strong for paddling.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonWindElevated(int mph, String exposure) {
+    return 'Effective wind about $mph mph ($exposure site)—conditions may feel rougher on open water.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonMarineSevere(String pattern) {
+    return 'Marine forecast text mentions “$pattern”—treat as hazardous until you verify locally.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonMarineAdvisory(String pattern) {
+    return 'Marine forecast includes “$pattern”—expect rougher water, current, or advisories near the estuary/coast.';
+  }
+
+  @override
+  String get launchDetailGoNoGoReasonForecastLowLight =>
+      'This forecast period starts during typical low-light hours locally—verify visibility, hazards, and your comfort paddling after dark.';
+
+  @override
+  String launchDetailGoNoGoReasonFlowVeryHighLaunch(String cfs, String siteId) {
+    return 'Discharge about $cfs cfs at site $siteId—above this launch’s curated upper band; verify hazards and skill match.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonFlowVeryHighRiver(String cfs, String siteId) {
+    return 'Discharge about $cfs cfs at site $siteId—stub upper band for this river class suggests very high water; verify hazards and skill match.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonFlowHighLaunch(String cfs, String siteId) {
+    return 'Discharge about $cfs cfs at site $siteId—at or above this launch’s “elevated flow” band; double-check strainers and current.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonFlowHighRiver(String cfs, String siteId) {
+    return 'Discharge about $cfs cfs at site $siteId—above our placeholder “elevated” band for this river class; double-check strainers and current.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonFlowLow(String cfs, String siteId) {
+    return 'Discharge about $cfs cfs at site $siteId—below this launch’s low-flow cue; watch for shallow spots and wood.';
+  }
+
+  @override
   String get launchDetailWeatherTitle => 'Weather';
 
   @override

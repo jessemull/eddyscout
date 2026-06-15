@@ -178,7 +178,7 @@ class _GoNoGoCard extends StatelessWidget {
                         ).textTheme.labelMedium?.copyWith(color: onBg),
                       ),
                       Text(
-                        result.verdict.headline,
+                        localizeGoNoGoVerdict(l10n, result.verdict),
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(
                               color: onBg,
@@ -207,7 +207,7 @@ class _GoNoGoCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          r.message,
+                          localizeGoNoGoReason(l10n, r),
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall?.copyWith(color: onBg),

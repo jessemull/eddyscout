@@ -8,17 +8,43 @@ part of 'go_no_go.dart';
 
 _GoNoGoReason _$GoNoGoReasonFromJson(Map<String, dynamic> json) =>
     _GoNoGoReason(
-      code: json['code'] as String,
-      message: json['message'] as String,
+      code: $enumDecode(_$GoNoGoReasonCodeEnumMap, json['code']),
       severity: $enumDecode(_$GoNoGoReasonSeverityEnumMap, json['severity']),
+      windMph: (json['windMph'] as num?)?.toInt(),
+      exposure: json['exposure'] as String?,
+      pattern: json['pattern'] as String?,
+      cfs: json['cfs'] as String?,
+      siteId: json['siteId'] as String?,
+      weatherError: json['weatherError'] as String?,
+      usesLaunchFlowBands: json['usesLaunchFlowBands'] as bool?,
     );
 
 Map<String, dynamic> _$GoNoGoReasonToJson(_GoNoGoReason instance) =>
     <String, dynamic>{
-      'code': instance.code,
-      'message': instance.message,
+      'code': _$GoNoGoReasonCodeEnumMap[instance.code]!,
       'severity': _$GoNoGoReasonSeverityEnumMap[instance.severity]!,
+      'windMph': instance.windMph,
+      'exposure': instance.exposure,
+      'pattern': instance.pattern,
+      'cfs': instance.cfs,
+      'siteId': instance.siteId,
+      'weatherError': instance.weatherError,
+      'usesLaunchFlowBands': instance.usesLaunchFlowBands,
     };
+
+const _$GoNoGoReasonCodeEnumMap = {
+  GoNoGoReasonCode.coldWaterSeason: 'cold_water_season',
+  GoNoGoReasonCode.weatherMissing: 'weather_missing',
+  GoNoGoReasonCode.windUnknown: 'wind_unknown',
+  GoNoGoReasonCode.windHigh: 'wind_high',
+  GoNoGoReasonCode.windElevated: 'wind_elevated',
+  GoNoGoReasonCode.marineSevere: 'marine_severe',
+  GoNoGoReasonCode.marineAdvisory: 'marine_advisory',
+  GoNoGoReasonCode.forecastLowLightHours: 'forecast_low_light_hours',
+  GoNoGoReasonCode.flowVeryHigh: 'flow_very_high',
+  GoNoGoReasonCode.flowHigh: 'flow_high',
+  GoNoGoReasonCode.flowLow: 'flow_low',
+};
 
 const _$GoNoGoReasonSeverityEnumMap = {
   GoNoGoReasonSeverity.info: 'info',

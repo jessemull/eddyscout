@@ -757,6 +757,114 @@ abstract class AppLocalizations {
   /// **'Stub rules only—not a substitute for your judgment, skill, or scouting on site.'**
   String get launchDetailGoNoGoStubDisclaimer;
 
+  /// Headline when go/no-go verdict is go
+  ///
+  /// In en, this message translates to:
+  /// **'Go (planning hint)'**
+  String get launchDetailGoNoGoVerdictGo;
+
+  /// Headline when go/no-go verdict is marginal
+  ///
+  /// In en, this message translates to:
+  /// **'Marginal'**
+  String get launchDetailGoNoGoVerdictMarginal;
+
+  /// Headline when go/no-go verdict is no-go
+  ///
+  /// In en, this message translates to:
+  /// **'No-go (planning hint)'**
+  String get launchDetailGoNoGoVerdictNoGo;
+
+  /// Headline when go/no-go verdict lacks weather data
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient data'**
+  String get launchDetailGoNoGoVerdictInsufficientData;
+
+  /// Info reason during cold-water months
+  ///
+  /// In en, this message translates to:
+  /// **'Cold-water season in the PNW—dress for immersion, know hypothermia risk, and carry safety gear.'**
+  String get launchDetailGoNoGoReasonColdWaterSeason;
+
+  /// Info reason when weather data is missing
+  ///
+  /// In en, this message translates to:
+  /// **'Weather data was not available. Cannot assess wind from forecast.'**
+  String get launchDetailGoNoGoReasonWeatherMissing;
+
+  /// Info reason when weather fetch failed with an error code
+  ///
+  /// In en, this message translates to:
+  /// **'Weather data failed to load ({error}). Cannot assess wind from forecast.'**
+  String launchDetailGoNoGoReasonWeatherMissingWithError(String error);
+
+  /// Marginal reason when wind speed/gust is unavailable
+  ///
+  /// In en, this message translates to:
+  /// **'Wind speed or gust was not available from the forecast—use caution, especially in open or exposed areas.'**
+  String get launchDetailGoNoGoReasonWindUnknown;
+
+  /// No-go reason when effective wind exceeds threshold
+  ///
+  /// In en, this message translates to:
+  /// **'Effective wind about {mph} mph ({exposure} site)—our stub rules treat this as strong for paddling.'**
+  String launchDetailGoNoGoReasonWindHigh(int mph, String exposure);
+
+  /// Marginal reason when effective wind is elevated
+  ///
+  /// In en, this message translates to:
+  /// **'Effective wind about {mph} mph ({exposure} site)—conditions may feel rougher on open water.'**
+  String launchDetailGoNoGoReasonWindElevated(int mph, String exposure);
+
+  /// No-go reason when marine text matches a severe pattern
+  ///
+  /// In en, this message translates to:
+  /// **'Marine forecast text mentions “{pattern}”—treat as hazardous until you verify locally.'**
+  String launchDetailGoNoGoReasonMarineSevere(String pattern);
+
+  /// Marginal reason when marine text matches an advisory pattern
+  ///
+  /// In en, this message translates to:
+  /// **'Marine forecast includes “{pattern}”—expect rougher water, current, or advisories near the estuary/coast.'**
+  String launchDetailGoNoGoReasonMarineAdvisory(String pattern);
+
+  /// Info reason when forecast period starts at night
+  ///
+  /// In en, this message translates to:
+  /// **'This forecast period starts during typical low-light hours locally—verify visibility, hazards, and your comfort paddling after dark.'**
+  String get launchDetailGoNoGoReasonForecastLowLight;
+
+  /// No-go reason when discharge exceeds launch-specific upper band
+  ///
+  /// In en, this message translates to:
+  /// **'Discharge about {cfs} cfs at site {siteId}—above this launch’s curated upper band; verify hazards and skill match.'**
+  String launchDetailGoNoGoReasonFlowVeryHighLaunch(String cfs, String siteId);
+
+  /// No-go reason when discharge exceeds river-class upper band
+  ///
+  /// In en, this message translates to:
+  /// **'Discharge about {cfs} cfs at site {siteId}—stub upper band for this river class suggests very high water; verify hazards and skill match.'**
+  String launchDetailGoNoGoReasonFlowVeryHighRiver(String cfs, String siteId);
+
+  /// Marginal reason when discharge exceeds launch elevated band
+  ///
+  /// In en, this message translates to:
+  /// **'Discharge about {cfs} cfs at site {siteId}—at or above this launch’s “elevated flow” band; double-check strainers and current.'**
+  String launchDetailGoNoGoReasonFlowHighLaunch(String cfs, String siteId);
+
+  /// Marginal reason when discharge exceeds river-class elevated band
+  ///
+  /// In en, this message translates to:
+  /// **'Discharge about {cfs} cfs at site {siteId}—above our placeholder “elevated” band for this river class; double-check strainers and current.'**
+  String launchDetailGoNoGoReasonFlowHighRiver(String cfs, String siteId);
+
+  /// Marginal reason when discharge is below launch low-flow cue
+  ///
+  /// In en, this message translates to:
+  /// **'Discharge about {cfs} cfs at site {siteId}—below this launch’s low-flow cue; watch for shallow spots and wood.'**
+  String launchDetailGoNoGoReasonFlowLow(String cfs, String siteId);
+
   /// No description provided for @launchDetailWeatherTitle.
   ///
   /// In en, this message translates to:
