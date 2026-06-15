@@ -121,7 +121,7 @@ abstract class _$ConditionsAiSummary
   ConditionsAiSummaryState build(String launchId);
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<ConditionsAiSummaryState, ConditionsAiSummaryState>;
     final element =
@@ -132,6 +132,6 @@ abstract class _$ConditionsAiSummary
               Object?,
               Object?
             >;
-    element.handleCreate(ref, () => build(_$args));
+    return element.handleCreate(ref, () => build(_$args));
   }
 }

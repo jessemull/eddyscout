@@ -9,7 +9,7 @@ environment:
   sdk: ^3.11.4
 
 dependencies:
-  drift: ^2.28.1
+  drift: ^2.32.0
   eddyscout_analytics:
     path: ../../analytics
   eddyscout_core:
@@ -36,5 +36,5 @@ dev_dependencies:
   freezed: ^3.0.0
   json_serializable: ^6.13.0
   mocktail: ^1.0.4
-  riverpod_generator: ^4.0.3
+  riverpod_generator: ^4.0.4
   very_good_analysis: ^10.2.0

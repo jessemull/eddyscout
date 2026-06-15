@@ -47,7 +47,7 @@ abstract class _$RoutePlanning extends $Notifier<RoutePlanningState> {
   RoutePlanningState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<RoutePlanningState, RoutePlanningState>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$RoutePlanning extends $Notifier<RoutePlanningState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
