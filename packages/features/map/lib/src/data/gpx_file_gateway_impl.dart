@@ -8,19 +8,27 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus_platform_interface/share_plus_platform_interface.dart';
 
+/// Picks a GPX file via file_picker.
+typedef PickGpxFile = Future<FilePickerResult?> Function();
+
+Future<FilePickerResult?> _defaultPickGpxFile() => FilePicker.pickFiles(
+  type: FileType.custom,
+  allowedExtensions: const ['gpx'],
+  withData: true,
+);
+
 /// Default [GpxFileGateway] using file_picker and share_plus.
 class GpxFileGatewayImpl implements GpxFileGateway {
   /// Creates a [GpxFileGatewayImpl].
-  const GpxFileGatewayImpl();
+  const GpxFileGatewayImpl({PickGpxFile? pickGpxFile})
+    : _pickGpxFile = pickGpxFile ?? _defaultPickGpxFile;
+
+  final PickGpxFile _pickGpxFile;
 
   @override
   Future<Result<String, AppFailure>> pickAndReadGpx() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: const ['gpx'],
-        withData: true,
-      );
+      final result = await _pickGpxFile();
       if (result == null || result.files.isEmpty) {
         return const Result.failure(
           StorageFailure(message: kGpxPickCancelledMessage),
