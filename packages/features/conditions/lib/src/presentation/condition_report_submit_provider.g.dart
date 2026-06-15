@@ -23,7 +23,7 @@ final class ConditionReportSubmitProvider
   }) : super(
          retry: null,
          name: r'conditionReportSubmitProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -54,7 +54,7 @@ final class ConditionReportSubmitProvider
 }
 
 String _$conditionReportSubmitHash() =>
-    r'005c451572c30db352da80cbc7a446c1210e0970';
+    r'5264fab6a7bdd04fb3ee169601caf90857825dba';
 
 /// Submits a paddler condition report via Firebase Callable.
 
@@ -73,7 +73,7 @@ final class ConditionReportSubmitFamily extends $Family
         name: r'conditionReportSubmitProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   /// Submits a paddler condition report via Firebase Callable.

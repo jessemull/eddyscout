@@ -13,7 +13,7 @@ typedef ConditionReportSubmitArgs = ({
 });
 
 /// Submits a paddler condition report via Firebase Callable.
-@riverpod
+@Riverpod(keepAlive: true)
 class ConditionReportSubmit extends _$ConditionReportSubmit {
   CancelToken? _submitToken;
 
