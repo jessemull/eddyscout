@@ -1,0 +1,3 @@
+tags:
+  benchmark:
+    skip: "Benchmark timing tests — run with: flutter test --tags benchmark"

@@ -45,7 +45,7 @@ abstract class _$GoNoGoProfileNotifier extends $AsyncNotifier<GoNoGoProfile> {
   FutureOr<GoNoGoProfile> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<GoNoGoProfile>, GoNoGoProfile>;
     final element =
         ref.element
@@ -55,6 +55,6 @@ abstract class _$GoNoGoProfileNotifier extends $AsyncNotifier<GoNoGoProfile> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

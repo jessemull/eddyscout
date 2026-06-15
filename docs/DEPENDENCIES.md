@@ -57,7 +57,7 @@ The following packages are pre-approved for use across the monorepo:
 - `json_serializable` + `json_annotation`
 
 ### Local storage
-- `drift` + `sqlite3_flutter_libs`
+- `drift` + `sqlite3`
 
 ### Code generation
 - `build_runner`

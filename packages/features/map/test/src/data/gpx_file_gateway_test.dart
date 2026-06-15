@@ -11,10 +11,6 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:share_plus_platform_interface/share_plus_platform_interface.dart';
 
-class _MockFilePicker extends Mock
-    with MockPlatformInterfaceMixin
-    implements FilePicker {}
-
 class _TestSharePlatform extends SharePlatform {
   _TestSharePlatform(this.onShare);
 
@@ -38,32 +34,25 @@ class _FakePathProvider extends Fake
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late _MockFilePicker filePicker;
   late PathProviderPlatform originalPathProvider;
   late SharePlatform originalSharePlatform;
-  late FilePicker originalFilePicker;
-
-  const gateway = GpxFileGatewayImpl();
+  late PickGpxFile pickGpxFile;
+  late GpxFileGatewayImpl gateway;
 
   setUpAll(() {
-    FilePicker.platform = _MockFilePicker();
-    registerFallbackValue(FileType.custom);
-    registerFallbackValue(<String>[]);
     registerFallbackValue(ShareParams(files: []));
   });
 
   setUp(() {
-    filePicker = _MockFilePicker();
     originalPathProvider = PathProviderPlatform.instance;
     originalSharePlatform = SharePlatform.instance;
-    originalFilePicker = FilePicker.platform;
-    FilePicker.platform = filePicker;
+    pickGpxFile = () async => null;
+    gateway = GpxFileGatewayImpl(pickGpxFile: pickGpxFile);
   });
 
   tearDown(() {
     PathProviderPlatform.instance = originalPathProvider;
     SharePlatform.instance = originalSharePlatform;
-    FilePicker.platform = originalFilePicker;
   });
 
   group('gpxFailureCodeFromAppFailure', () {
@@ -115,19 +104,8 @@ void main() {
   });
 
   group('GpxFileGatewayImpl.pickAndReadGpx', () {
-    Future<void> stubPickFiles({required FilePickerResult? result}) {
-      when(
-        () => filePicker.pickFiles(
-          type: any(named: 'type'),
-          allowedExtensions: any(named: 'allowedExtensions'),
-          withData: any(named: 'withData'),
-        ),
-      ).thenAnswer((_) async => result);
-      return Future<void>.value();
-    }
-
     test('returns cancelled when picker dismissed', () async {
-      await stubPickFiles(result: null);
+      gateway = const GpxFileGatewayImpl(pickGpxFile: _pickNull);
 
       final outcome = await gateway.pickAndReadGpx();
 
@@ -144,8 +122,8 @@ void main() {
 
     test('returns decoded bytes when picker supplies in-memory data', () async {
       const xml = '<gpx version="1.1"></gpx>';
-      await stubPickFiles(
-        result: FilePickerResult([
+      gateway = GpxFileGatewayImpl(
+        pickGpxFile: () async => FilePickerResult([
           PlatformFile(
             name: 'route.gpx',
             size: xml.length,
@@ -166,8 +144,8 @@ void main() {
       const xml = '<gpx version="1.1"><trk/></gpx>';
       await file.writeAsString(xml);
 
-      await stubPickFiles(
-        result: FilePickerResult([
+      gateway = GpxFileGatewayImpl(
+        pickGpxFile: () async => FilePickerResult([
           PlatformFile(
             name: 'route.gpx',
             size: xml.length,
@@ -182,8 +160,8 @@ void main() {
     });
 
     test('returns file read failure when path is missing', () async {
-      await stubPickFiles(
-        result: FilePickerResult([
+      gateway = GpxFileGatewayImpl(
+        pickGpxFile: () async => FilePickerResult([
           PlatformFile(name: 'route.gpx', size: 0),
         ]),
       );
@@ -201,13 +179,9 @@ void main() {
     });
 
     test('returns read failure when picker throws', () async {
-      when(
-        () => filePicker.pickFiles(
-          type: any(named: 'type'),
-          allowedExtensions: any(named: 'allowedExtensions'),
-          withData: any(named: 'withData'),
-        ),
-      ).thenThrow(Exception('picker failed'));
+      gateway = GpxFileGatewayImpl(
+        pickGpxFile: () async => throw Exception('picker failed'),
+      );
 
       final outcome = await gateway.pickAndReadGpx();
 
@@ -307,3 +281,5 @@ void main() {
     });
   });
 }
+
+Future<FilePickerResult?> _pickNull() async => null;

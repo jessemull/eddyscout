@@ -5,15 +5,11 @@ import 'package:drift/native.dart';
 import 'package:eddyscout_persistence/src/database/saved_routes_table.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 part 'saved_routes_database.g.dart';
 
 /// Opens a file-backed saved routes database in app documents.
 Future<SavedRoutesDatabase> openSavedRoutesDatabase() async {
-  if (Platform.isAndroid) {
-    await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
-  }
   final dir = await getApplicationDocumentsDirectory();
   final file = File(p.join(dir.path, 'saved_routes.sqlite'));
   return SavedRoutesDatabase(
