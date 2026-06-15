@@ -7,9 +7,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'river_route_planner_provider.g.dart';
 
 /// Loads bundled hydro GeoJSON from the app asset bundle.
-typedef HydroGeoJsonLoader = Future<String> Function();
+typedef HydroGeoJsonLoader = Future<List<String>> Function();
 
-/// Override in the app shell with rootBundle.loadString for the hydro asset.
+/// Override in the app shell with rootBundle.loadString for hydro assets.
 @Riverpod(keepAlive: true)
 HydroGeoJsonLoader hydroGeoJsonLoader(Ref ref) {
   throw UnimplementedError(
@@ -22,8 +22,8 @@ HydroGeoJsonLoader hydroGeoJsonLoader(Ref ref) {
 Future<RiverRoutePlanner> riverRoutePlanner(Ref ref) async {
   final load = ref.read(hydroGeoJsonLoaderProvider);
   try {
-    final raw = await load();
-    return RiverRoutePlanner.fromGeoJson(raw);
+    final rawDocs = await load();
+    return RiverRoutePlanner.fromGeoJsonDocuments(rawDocs);
   } on Object catch (e, st) {
     throw HydroAppFailureException(mapHydroToAppFailure(e, st));
   }

@@ -1,7 +1,5 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
-import 'package:eddyscout_map/src/domain/gpx_file_gateway.dart';
 import 'package:eddyscout_map/src/presentation/gpx_actions_provider.dart';
 
 /// Localizes planner, hydro, and GPX failures for map snackbars.
@@ -9,11 +7,19 @@ String localizeMapPlannerMessage({
   required AppLocalizations l10n,
   required Object message,
 }) => switch (message) {
-  RouteFailure(:final code, :final riverSystemName) => _localizedRouteFailure(
-    l10n: l10n,
-    code: code,
-    riverSystemName: riverSystemName,
-  ),
+  RoutePlanningFailure(
+    :final code,
+    :final riverSystemName,
+    :final putInReachId,
+    :final takeOutReachId,
+  ) =>
+    _localizedRouteFailure(
+      l10n: l10n,
+      code: code,
+      riverSystemName: riverSystemName,
+      putInReachId: putInReachId,
+      takeOutReachId: takeOutReachId,
+    ),
   GpxFailure(:final code) => localizeGpxFailureCode(l10n, code),
   StorageFailure(:final message) => localizeGpxStorageFailure(l10n, message),
   ParseFailure() => l10n.mapRiverDataReadFailed,
@@ -61,6 +67,8 @@ String _localizedRouteFailure({
   required AppLocalizations l10n,
   required RouteFailureCode code,
   required String? riverSystemName,
+  String? putInReachId,
+  String? takeOutReachId,
 }) => switch (code) {
   RouteFailureCode.sameLaunch => l10n.mapRouteFailureSameLaunch,
   RouteFailureCode.differentSystem => l10n.mapRouteFailureDifferentSystem,
@@ -71,4 +79,14 @@ String _localizedRouteFailure({
   RouteFailureCode.putInTooFar => l10n.mapRouteFailurePutInTooFar,
   RouteFailureCode.takeOutTooFar => l10n.mapRouteFailureTakeOutTooFar,
   RouteFailureCode.noConnectedPath => l10n.mapRouteFailureNoConnectedPath,
+  RouteFailureCode.disconnectedReach =>
+    putInReachId != null &&
+            takeOutReachId != null &&
+            putInReachId.isNotEmpty &&
+            takeOutReachId.isNotEmpty
+        ? l10n.mapRouteFailureDisconnectedReachNamed(
+            putInReachId,
+            takeOutReachId,
+          )
+        : l10n.mapRouteFailureDisconnectedReach,
 };

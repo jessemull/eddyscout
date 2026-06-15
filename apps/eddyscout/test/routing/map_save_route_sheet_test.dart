@@ -22,7 +22,7 @@ class _RunnableRoutePlanning extends RoutePlanning {
     final putIn = findLaunchPointById('cathedral_park');
     final takeOut = findLaunchPointById('sellwood_riverfront');
     return RoutePlanningState(
-      planningMode: true,
+      phase: MapPlanningPhase.routeReady,
       waypoints: [putIn!, takeOut!],
       routeLengthKm: 5.2,
       activeGeometry: RouteGeometrySnapshot(

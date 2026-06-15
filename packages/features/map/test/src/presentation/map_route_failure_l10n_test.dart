@@ -1,6 +1,6 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_map/src/presentation/gpx_actions_provider.dart';
 import 'package:eddyscout_map/src/presentation/map_route_failure_l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -27,24 +27,34 @@ void main() {
     l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
 
     final cases = <Object, String>{
-      const RouteFailure(code: RouteFailureCode.sameLaunch):
+      const RoutePlanningFailure(code: RouteFailureCode.sameLaunch):
           l10n.mapRouteFailureSameLaunch,
-      const RouteFailure(code: RouteFailureCode.differentSystem):
+      const RoutePlanningFailure(code: RouteFailureCode.differentSystem):
           l10n.mapRouteFailureDifferentSystem,
-      const RouteFailure(
+      const RoutePlanningFailure(
         code: RouteFailureCode.noBundledLine,
         riverSystemName: 'Willamette',
       ): l10n.mapRouteFailureNoBundledLine(
         'Willamette',
       ),
-      const RouteFailure(code: RouteFailureCode.noRiverGeometryLoaded):
+      const RoutePlanningFailure(code: RouteFailureCode.noRiverGeometryLoaded):
           l10n.mapRouteFailureNoData,
-      const RouteFailure(code: RouteFailureCode.putInTooFar):
+      const RoutePlanningFailure(code: RouteFailureCode.putInTooFar):
           l10n.mapRouteFailurePutInTooFar,
-      const RouteFailure(code: RouteFailureCode.takeOutTooFar):
+      const RoutePlanningFailure(code: RouteFailureCode.takeOutTooFar):
           l10n.mapRouteFailureTakeOutTooFar,
-      const RouteFailure(code: RouteFailureCode.noConnectedPath):
+      const RoutePlanningFailure(code: RouteFailureCode.noConnectedPath):
           l10n.mapRouteFailureNoConnectedPath,
+      const RoutePlanningFailure(code: RouteFailureCode.disconnectedReach):
+          l10n.mapRouteFailureDisconnectedReach,
+      const RoutePlanningFailure(
+        code: RouteFailureCode.disconnectedReach,
+        putInReachId: 'willamette_portland',
+        takeOutReachId: 'columbia_gorge',
+      ): l10n.mapRouteFailureDisconnectedReachNamed(
+        'willamette_portland',
+        'columbia_gorge',
+      ),
       const ParseFailure(): l10n.mapRiverDataReadFailed,
       const AssetLoadFailure(): l10n.mapRiverDataUnavailable,
       'plain text': 'plain text',
@@ -57,5 +67,78 @@ void main() {
         entry.value,
       );
     }
+  });
+
+  testWidgets('localizeGpxActionFailure covers platform failures', (
+    tester,
+  ) async {
+    late AppLocalizations l10n;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SizedBox.shrink(),
+      ),
+    );
+    l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+    expect(
+      localizeGpxActionFailure(
+        l10n: l10n,
+        failure: const GpxCodecActionFailure(
+          GpxFailure(code: GpxFailureCode.malformedXml),
+        ),
+      ),
+      l10n.mapGpxFailureMalformed,
+    );
+    expect(
+      localizeGpxActionFailure(
+        l10n: l10n,
+        failure: const GpxPlatformActionFailure(
+          StorageFailure(message: 'gpx_share_failed'),
+        ),
+      ),
+      l10n.mapGpxFailureShare,
+    );
+    expect(
+      localizeGpxActionFailure(
+        l10n: l10n,
+        failure: const GpxPlatformActionFailure(
+          NetworkFailure(message: 'offline'),
+        ),
+      ),
+      l10n.mapGpxFailureGeneric,
+    );
+  });
+
+  testWidgets('localizeGpxStorageFailure maps storage messages', (
+    tester,
+  ) async {
+    late AppLocalizations l10n;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SizedBox.shrink(),
+      ),
+    );
+    l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+    expect(
+      localizeGpxStorageFailure(l10n, 'gpx_file_read_failed'),
+      l10n.mapGpxFailureFileRead,
+    );
   });
 }

@@ -169,7 +169,49 @@ void main() {
         );
     await tester.pumpAndSettle();
 
+    expect(find.text('View conditions'), findsOneWidget);
+    await tester.ensureVisible(find.text('View conditions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('View conditions'));
+    await tester.pumpAndSettle();
+
     expect(find.byType(LaunchDetailScreen), findsOneWidget);
+  });
+
+  testWidgets('back from launch detail restores map browse search', (
+    tester,
+  ) async {
+    await pumpAt(tester, location: '/');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(MapScreen)),
+    );
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MapScreen)),
+    );
+    container
+        .read(mapboxMapControllerProvider.notifier)
+        .onLaunchCircleTap(
+          CircleAnnotation(
+            id: 'cathedral_park',
+            geometry: Point(coordinates: Position(0, 0)),
+            customData: <String, Object>{'launchId': 'cathedral_park'},
+          ),
+        );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(l10n.mapViewConditionsButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(LaunchDetailScreen), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.mapSearchPlaceholder), findsOneWidget);
+    expect(find.text(l10n.mapViewConditionsButton), findsNothing);
   });
 
   testWidgets('gate routes render routing package screens', (tester) async {
@@ -192,7 +234,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(MaterialApp), findsOneWidget);
-    expect(find.text('EddyScout'), findsOneWidget);
+    expect(find.text('Search rivers, launches, places…'), findsOneWidget);
   });
 
   group('SavedRoutesListRoute', () {
@@ -251,7 +293,7 @@ void main() {
       );
 
       final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
-      expect(nav.selectedIndex, 1);
+      expect(nav.selectedIndex, 2);
     });
 
     testWidgets('switching to map tab notifies mapTabResumed', (tester) async {

@@ -27,12 +27,17 @@ mixin MapboxMapControllerBase {
 
   MapboxMap? _mapboxMap;
   Cancelable? _tapCancelable;
+  Cancelable? _selectionTapCancelable;
+  CircleAnnotationManager? _launchCircleManager;
+  CircleAnnotationManager? _selectionManager;
+  CircleAnnotation? _selectionAnnotation;
   bool _markersInstalled = false;
   bool _mapDiagnosticsLogged = false;
 
   double? _debugLastLoggedCameraZoom;
   int _debugLastCameraChangeLogMs = 0;
   bool _alive = true;
+  int _routeLineGeneration = 0;
 
   /// Active Mapbox map instance, if created.
   @protected
@@ -46,6 +51,34 @@ mixin MapboxMapControllerBase {
 
   @protected
   set tapCancelable(Cancelable? value) => _tapCancelable = value;
+
+  @protected
+  Cancelable? get selectionTapCancelable => _selectionTapCancelable;
+
+  @protected
+  set selectionTapCancelable(Cancelable? value) =>
+      _selectionTapCancelable = value;
+
+  @protected
+  CircleAnnotationManager? get launchCircleManager => _launchCircleManager;
+
+  @protected
+  set launchCircleManager(CircleAnnotationManager? value) =>
+      _launchCircleManager = value;
+
+  @protected
+  CircleAnnotationManager? get selectionManager => _selectionManager;
+
+  @protected
+  set selectionManager(CircleAnnotationManager? value) =>
+      _selectionManager = value;
+
+  @protected
+  CircleAnnotation? get selectionAnnotation => _selectionAnnotation;
+
+  @protected
+  set selectionAnnotation(CircleAnnotation? value) =>
+      _selectionAnnotation = value;
 
   @protected
   bool get markersInstalled => _markersInstalled;
@@ -78,4 +111,15 @@ mixin MapboxMapControllerBase {
   @protected
   set debugLastCameraChangeLogMs(int value) =>
       _debugLastCameraChangeLogMs = value;
+
+  /// Bumped when route drawing should be abandoned (back from planning).
+  @protected
+  int get routeLineGeneration => _routeLineGeneration;
+
+  @protected
+  int bumpRouteLineGeneration() => ++_routeLineGeneration;
+
+  @protected
+  bool isRouteLineGenerationCurrent(int generation) =>
+      generation == _routeLineGeneration;
 }

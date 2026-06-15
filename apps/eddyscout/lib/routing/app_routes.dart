@@ -1,7 +1,9 @@
 import 'dart:async' show unawaited;
 
 import 'package:eddyscout/routing/app_shell.dart';
+import 'package:eddyscout/routing/home_screen.dart';
 import 'package:eddyscout/routing/map_save_route_sheet.dart';
+import 'package:eddyscout/routing/menu_screen.dart';
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -19,6 +21,11 @@ const _integrationMapStub = bool.fromEnvironment('INTEGRATION_MAP_STUB');
 
 @TypedStatefulShellRoute<AppShellRouteData>(
   branches: <TypedStatefulShellBranch<StatefulShellBranchData>>[
+    TypedStatefulShellBranch<HomeShellBranchData>(
+      routes: <TypedRoute<RouteData>>[
+        TypedGoRoute<HomeRoute>(path: RoutePaths.home),
+      ],
+    ),
     TypedStatefulShellBranch<MapShellBranchData>(
       routes: <TypedRoute<RouteData>>[
         TypedGoRoute<MapRoute>(path: RoutePaths.map),
@@ -29,6 +36,11 @@ const _integrationMapStub = bool.fromEnvironment('INTEGRATION_MAP_STUB');
       routes: <TypedRoute<RouteData>>[
         TypedGoRoute<SavedRoutesListRoute>(path: RoutePaths.savedRoutes),
         TypedGoRoute<SavedRouteDetailRoute>(path: RoutePaths.savedRouteDetail),
+      ],
+    ),
+    TypedStatefulShellBranch<MenuShellBranchData>(
+      routes: <TypedRoute<RouteData>>[
+        TypedGoRoute<MenuRoute>(path: RoutePaths.menu),
       ],
     ),
   ],
@@ -51,11 +63,49 @@ class MapShellBranchData extends StatefulShellBranchData {
       GlobalKey<NavigatorState>(debugLabel: 'mapShell');
 }
 
+class HomeShellBranchData extends StatefulShellBranchData {
+  const HomeShellBranchData();
+
+  static final GlobalKey<NavigatorState> $navigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'homeShell');
+}
+
+class MenuShellBranchData extends StatefulShellBranchData {
+  const MenuShellBranchData();
+
+  static final GlobalKey<NavigatorState> $navigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'menuShell');
+}
+
 class SavedRoutesShellBranchData extends StatefulShellBranchData {
   const SavedRoutesShellBranchData();
 
   static final GlobalKey<NavigatorState> $navigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'savedRoutesShell');
+}
+
+@TypedGoRoute<HomeRoute>(path: RoutePaths.home)
+class HomeRoute extends GoRouteData with $HomeRoute {
+  const HomeRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const _ScreenViewLogger(
+        screenName: AnalyticsScreenNames.home,
+        child: HomeScreen(),
+      );
+}
+
+@TypedGoRoute<MenuRoute>(path: RoutePaths.menu)
+class MenuRoute extends GoRouteData with $MenuRoute {
+  const MenuRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const _ScreenViewLogger(
+        screenName: AnalyticsScreenNames.menu,
+        child: MenuScreen(),
+      );
 }
 
 @TypedGoRoute<MapRoute>(path: RoutePaths.map)
@@ -99,6 +149,8 @@ class _MapRouteHost extends ConsumerWidget {
       });
 
     void onOpenLaunchDetail(LaunchPoint launch) {
+      ref.read(mapSheetVisibilityStateProvider.notifier).hide();
+      ref.read(mapPlaceSelectionProvider.notifier).clear();
       unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(context));
     }
 
@@ -179,7 +231,7 @@ void _loadSavedRouteOnMap(
         ),
   );
   const MapRoute().go(context);
-  StatefulNavigationShell.maybeOf(context)?.goBranch(0);
+  StatefulNavigationShell.maybeOf(context)?.goBranch(AppShellBranches.map);
 }
 
 class _LaunchDetailRouteBody extends ConsumerWidget {

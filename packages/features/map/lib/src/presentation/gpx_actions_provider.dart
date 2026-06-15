@@ -1,12 +1,12 @@
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_map/src/domain/gpx_file_gateway.dart';
+import 'package:eddyscout_map/src/domain/gpx_file_gateway_provider.dart';
+import 'package:eddyscout_map/src/domain/map_gpx_service_provider.dart';
 import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
 import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../domain/gpx_file_gateway.dart';
-import '../domain/gpx_file_gateway_provider.dart';
 import '../domain/launch_points.dart';
 
 part 'gpx_actions_provider.g.dart';
@@ -21,7 +21,7 @@ final class GpxCodecActionFailure extends GpxActionFailureValue {
   /// Creates a [GpxCodecActionFailure].
   const GpxCodecActionFailure(this.failure);
 
-  /// Typed GPX failure from [GpxCodec].
+  /// Typed GPX failure from the map GPX service.
   final GpxFailure failure;
 }
 
@@ -78,6 +78,7 @@ class GpxActions extends _$GpxActions {
       );
     }
 
+    final gpxService = await ref.read(mapGpxServiceProvider.future);
     final putIn = planning.putIn;
     final takeOut = planning.takeOut;
     final route = PlannedRoute(
@@ -98,7 +99,7 @@ class GpxActions extends _$GpxActions {
       origin: planning.routeOrigin ?? RouteOrigin.planner,
     );
 
-    final serialized = GpxCodec.serialize(route);
+    final serialized = gpxService.serialize(route);
     if (serialized.isFailure) {
       final code = serialized.errorOrNull!.code;
       await _logExportFailure(code);
@@ -145,10 +146,6 @@ class GpxActions extends _$GpxActions {
 
   /// Imports a GPX file, snaps endpoints, and draws the route on the map.
   Future<GpxActionOutcome> importRoute() async {
-    if (!ref.read(routePlanningProvider).planningMode) {
-      ref.read(routePlanningProvider.notifier).togglePlanningMode();
-    }
-
     final picked = await ref.read(gpxFileGatewayProvider).pickAndReadGpx();
     if (picked.isFailure) {
       final error = picked.errorOrNull!;
@@ -160,7 +157,8 @@ class GpxActions extends _$GpxActions {
       return GpxActionFailure(GpxPlatformActionFailure(error));
     }
 
-    final parsed = GpxCodec.parse(picked.valueOrNull!);
+    final gpxService = await ref.read(mapGpxServiceProvider.future);
+    final parsed = gpxService.parse(picked.valueOrNull!);
     if (parsed.isFailure) {
       await _logImportFailure(parsed.errorOrNull!.code);
       return GpxActionFailure(
@@ -168,12 +166,12 @@ class GpxActions extends _$GpxActions {
       );
     }
 
-    final route = LaunchEndpointSnapper.snapEndpoints(
+    final route = gpxService.snapLaunchEndpoints(
       route: parsed.valueOrNull!,
       catalog: kLaunchPoints,
     );
 
-    if (GpxBounds.isEntirelyOutsidePnw(route.points)) {
+    if (gpxService.isEntirelyOutsidePnw(route.points)) {
       await _logImportFailure(GpxFailureCode.outsidePnw);
       return const GpxActionFailure(
         GpxCodecActionFailure(

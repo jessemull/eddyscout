@@ -27,6 +27,29 @@
   "mapRouteFailurePutInTooFar": "Put-in is too far from the modeled river line. Try another launch.",
   "mapRouteFailureTakeOutTooFar": "Take-out is too far from the modeled river line. Try another launch.",
   "mapRouteFailureNoConnectedPath": "No connected river path between these points in the current data.",
+  "mapRouteFailureDisconnectedReach": "Put-in and take-out are on different river segments in our bundled data. Try launches on the same reach.",
+  "mapRouteFailureDisconnectedReachNamed": "Put-in ({putInReach}) and take-out ({takeOutReach}) are on different bundled segments. Try launches on the same reach.",
+  "@mapRouteFailureDisconnectedReachNamed": {
+    "placeholders": {
+      "putInReach": {"type": "String"},
+      "takeOutReach": {"type": "String"}
+    }
+  },
+  "mapPlanningStepPickPutIn": "Step 1: Tap a launch for put-in.",
+  "mapPlanningStepPickTakeOut": "Step 2: Tap another launch for take-out.",
+  "mapPlanningComputingRoute": "Calculating route…",
+  "mapPlanningRiverSystem": "River system: {system}",
+  "@mapPlanningRiverSystem": {
+    "placeholders": {
+      "system": {"type": "String"}
+    }
+  },
+  "mapPlanningRouteReach": "Bundled reach: {reachId}",
+  "@mapPlanningRouteReach": {
+    "placeholders": {
+      "reachId": {"type": "String"}
+    }
+  },
   "mapPlanningSemanticsLabel": "River route planning",
   "mapPlanningTitleBeta": "River route (beta)",
   "mapPlanningInstructions": "Tap a launch for put-in, then another for take-out. The line follows bundled open hydro data (approximate centerline)—not for navigation. Several downtown launches sit close together; overlapping pins are separate sites. Clear removes the route line and picks so you can start over. Done closes this panel and clears the route.",
@@ -278,6 +301,82 @@
   "webMapPlaceholderBody": "Use the Android or iOS app for the interactive map.",
   "shellTabMap": "Map",
   "shellTabSavedRoutes": "Saved routes",
+  "shellTabHome": "Home",
+  "shellTabMenu": "Menu",
+  "mapSearchPlaceholder": "Search rivers, launches, places…",
+  "mapSearchLaunchesSection": "Launches",
+  "mapSearchPlacesSection": "Places",
+  "mapSearchNoResults": "No results found.",
+  "mapPlanPaddleButton": "Plan paddle",
+  "mapViewConditionsButton": "View conditions",
+  "mapRoutePlanningTitle": "Plan paddle",
+  "mapRouteStopStart": "Start",
+  "mapRouteStopDestination": "Destination",
+  "mapRouteStopMiddle": "Stop {number}",
+  "@mapRouteStopMiddle": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "mapRouteAddStop": "Add stop",
+  "mapRouteChooseDestination": "Choose destination",
+  "mapRouteAddStopHint": "Tap another launch on the map to set your destination or add a stop.",
+  "mapRouteEditStopsTitle": "Edit stops",
+  "mapRoutePreviewStart": "Start",
+  "mapRoutePreviewAddStops": "Add stops",
+  "mapRouteSummaryComingSoon": "Route conditions summary coming soon.",
+  "mapRouteTripTime": "{minutes} min",
+  "@mapRouteTripTime": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "mapRouteTotalTrip": "Total trip: {minutes} min ({miles} mi)",
+  "@mapRouteTotalTrip": {
+    "placeholders": {
+      "minutes": {"type": "int"},
+      "miles": {"type": "String"}
+    }
+  },
+  "mapRouteReorderStopHint": "Drag to reorder stop",
+  "mapRouteDeleteStopSemantics": "Remove stop {name}",
+  "@mapRouteDeleteStopSemantics": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "mapRouteOriginStopSemantics": "Starting location, {name}",
+  "@mapRouteOriginStopSemantics": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "mapRouteDestinationStopSemantics": "Destination, {name}",
+  "@mapRouteDestinationStopSemantics": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "mapRouteMiddleStopSemantics": "Stop {letter}, {name}",
+  "@mapRouteMiddleStopSemantics": {
+    "placeholders": {
+      "letter": {"type": "String"},
+      "name": {"type": "String"}
+    }
+  },
+  "mapRouteStartComingSoon": "On-water navigation is coming soon.",
+  "mapLocateMeLabel": "Locate me",
+  "mapCloseSheetLabel": "Close",
+  "homePlaceholderTitle": "Home",
+  "homePlaceholderBody": "Featured paddles and discovery experiences are coming soon.",
+  "homeExploreMapButton": "Explore map",
+  "menuScreenTitle": "Menu",
+  "menuImportGpx": "Import GPX",
+  "menuExportGpx": "Export GPX",
+  "menuSettings": "Settings",
+  "menuAbout": "About",
+  "menuSettingsComingSoon": "Settings coming soon.",
+  "menuAboutBody": "EddyScout — your Pacific Northwest paddling companion.",
   "savedRoutesListTitle": "Saved routes",
   "savedRoutesAllTab": "All",
   "savedRoutesFavoritesTab": "Favorites",

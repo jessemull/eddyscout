@@ -20,4 +20,10 @@ abstract final class RoutePaths {
 
   /// Saved route detail with `:routeId` path parameter.
   static const savedRouteDetail = '/saved-routes/:routeId';
+
+  /// Home placeholder tab.
+  static const home = '/home';
+
+  /// Menu tab (GPX, settings, about).
+  static const menu = '/menu';
 }

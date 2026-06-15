@@ -1,2 +1,4 @@
 #!/usr/bin/env sh
+# Git worktrees set GIT_DIR in hooks; melos/dart resolve Flutter SDK incorrectly.
+unset GIT_DIR GIT_WORK_TREE
 ./scripts/push_validate.sh

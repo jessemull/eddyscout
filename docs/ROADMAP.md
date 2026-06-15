@@ -4,7 +4,7 @@ High-level feature map for a PNW-focused kayak companion: **decision-first**, **
 
 > **Platform:** target architecture is **complete** (waves 1–3 merged; see § Platform architecture). **Product work** is Phase C+ below. New UI belongs in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
 >
-> **Last updated:** 2026-06-07
+> **Last updated:** 2026-06-13
 
 ## Vision
 
@@ -176,11 +176,11 @@ Budget: at most **one new** `integration_test/` file per product epic unless jus
 
 ### Recommended next implementation
 
-**Now (product — Phase C):** Prioritize **GPX export / trip log**, **saved routes (v1)**, and **route planner follow-ups** (more rivers, segment snap). **Moderation** for condition reports is an alternative early Phase C slice if community trust is the bottleneck.
+**Now (product — Phase C):** Prioritize **waterway geometry expansion** (import all Portland-area river systems), **A\* upgrade**, and **launch reachability / suggested trips**. GPX export/import and saved routes v1 are already built. **Moderation** for condition reports is an alternative early Phase C slice if community trust is the bottleneck.
 
 **Done (platform):** Waves 1–3 — monorepo, `@riverpod`, Result boundaries, router package, feature presentation layering, app-shell closeout (#19–#36).
 
-**Already shipped (context):** Route preview (v1) — planning mode on the map, put-in / take-out from launches, polyline along bundled hydro GeoJSON (`assets/hydro/`; Willamette Portland reach first).
+**Already shipped (context):** Route preview (v1) — planning mode on the map, put-in / take-out from launches, polyline along bundled hydro GeoJSON (`assets/hydro/`; Willamette Portland reach first). Multi-stop routing, GPX export/import, saved routes with local persistence, map-first UX with bottom sheets and 4-tab shell.
 
 ---
 
@@ -221,12 +221,25 @@ Single list of **everything** tracked for build progress. Tags show the original
 
 - [ ] **(Reports / mod)** Moderation — admin queue, TTL, keyword hold (optional report-abuse UX)
 - [x] **(Phase C)** Route preview on map — planning mode, put-in / take-out from existing launches, path along bundled open hydro LineStrings (`assets/hydro/`; Willamette Portland reach first); not navigation-grade
-- [ ] **(Phase C)** Route planner follow-ups — more rivers / NHD-quality lines, GPX, saved trips
+- [x] **(Phase C)** Route planner follow-ups — more rivers / segment snap (`feat/route-planner-hydro-expansion`; Willamette + Columbia gorge hydro, edge snap, `PlannedRoute` domain model)
+- [ ] **(Phase C / R1)** Route planner: import Columbia, Clackamas, slough, Tualatin, Sandy waterway geometry from OSM Overpass; validate connectivity; bundle as `assets/hydro/`
+- [ ] **(Phase C / R1)** Route planner: add NHD download + conversion script for higher-quality river centerlines
+- [ ] **(Phase C / R2)** Route planner: upgrade Dijkstra to A* with priority queue and haversine heuristic
+- [ ] **(Phase C / R2)** Route planner: unified multi-system graph with cross-system routing (Willamette → Columbia confluence)
+- [ ] **(Phase C / R2)** Route planner: pre-computed binary graph serialization for faster cold start
+- [ ] **(Phase C / R3)** Route planner: pre-snap launches to graph vertices at build time; snap quality validation
+- [ ] **(Phase C / R3)** Route planner: reachability index per launch (nearby launches within 5/10/20 mi graph distance)
+- [ ] **(Phase C / R3)** Route planner: suggested trips from each launch (distance, time, waypoints)
+- [ ] **(Phase C / R3)** Route planner: "Trips from here" UI on place peek and launch detail
+- [ ] **(Phase C)** Route planner: **personalized paddling speed** at sign-up / profile for trip-time estimates (default 4 km/h until set; optional learning from trip log)
+- [ ] **(Phase C / R4)** Route editing: arbitrary waypoints (drop pin on waterway, snap to graph)
+- [ ] **(Phase C / R4)** Route editing: drag-to-edit polyline mid-points to reroute through alternate channels
+- [ ] **(Phase C / R4)** Route editing: loop routes, island hopping, multi-day expedition waypoints
+- [ ] **(Phase C / R4)** Route editing: route alternatives (shortest, most sheltered, scenic)
 - [ ] **(Phase C)** GPX export / import
 - [ ] **(Phase C)** Trip log
 - [ ] **(Phase C)** Saved routes (v1) — name/description, categories, favorites, notes, private by default
 - [ ] **(Phase C)** Saved routes metadata (v1) — difficulty, distance, time estimate, exposure, tide dependency, skill level
-- [ ] **(Phase C)** Route editing (v1) — add waypoint(s), drag points, multi-stop, loop routes
 - [ ] **(Phase C)** **Auth** when identity is required for saves — accounts, `flutter_secure_storage` for credentials, session router guards (see § Engineering standards)
 - [ ] **(Phase D)** Planned trips / trip intent
 - [ ] **(Phase D)** Moderation posture (policy + product, beyond technical queue above)
@@ -256,6 +269,11 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase F)** **Ops** — index versioning, backfill, no live cfs in embeddings
 - [ ] **(Phase F)** AI route recommendations (v1) — “protected for wind”, “good on outgoing tide”, “beginner-friendly nearby”
 - [ ] **(Phase F)** Route discovery surfaces (v1) — nearby, trending, beginner, scenic, weather-appropriate
+- [ ] **(Phase R5)** Server-side routing: PostGIS + pgRouting for dynamic-weight routes and graph > 100k nodes
+- [ ] **(Phase R5)** Route API: serverless endpoint; request waypoints + options → GeoJSON polyline response
+- [ ] **(Phase R5)** Hybrid model: client-side for cached local; server for cross-region or closure-aware routing
+- [ ] **(Phase R6)** Continental routing: regional geometry tiles + graph stitching + hierarchical routing
+- [ ] **(Phase R6)** Incremental NHD import: HUC-region shapefiles → PostGIS → pgRouting network
 
 ### Remaining major features (from the feature table, not all on the build checklist)
 
@@ -300,6 +318,8 @@ Additional feature themes explicitly on the product roadmap but not fully itemiz
 | Source | Use |
 |--------|-----|
 | **Mapbox** | Basemap, style, later offline |
+| **OpenStreetMap / Overpass** | Waterway geometry (`waterway=river`, `waterway=canal`, `natural=water`, `water=lake`); basis for routable graph |
+| **US NHD (National Hydrography Dataset)** | Higher-quality centerlines for US rivers/streams; alternative or supplement to OSM for accuracy |
 | **USGS** | River discharge / gauge height |
 | **NOAA** | Weather, marine text; tides/currents where applicable |
 | **Crowd / editorial** | Hazards, wood, subjective stretch quality |
@@ -307,6 +327,198 @@ Additional feature themes explicitly on the product roadmap but not fully itemiz
 | **Embedding provider (optional)** | API or local model for **launch/route vectors**; often separate from chat LLM; **model-agnostic** storage (dimension + provider id per index) |
 
 Attribute and comply with each provider’s terms in the app.
+
+---
+
+## Waterway routing strategy
+
+The routing engine is the foundation for trip planning, discovery, and on-water features. The strategy below describes how the system should evolve from the current single-river bundled GeoJSON to a scalable graph-routed architecture.
+
+### Core principle
+
+**Do not connect launches directly.** Route along actual waterway geometry. Direct launch-to-launch edges lose:
+
+- Actual river/channel shape (bends, islands, channels)
+- Accurate distance
+- Alternate routes (side channels, portage options)
+- Scalability (adding a launch means re-wiring all connections)
+
+Instead: **waterway geometry → graph → snap launches → route through graph**.
+
+### Architecture layers
+
+```
+Waterway GeoJSON (OSM / NHD / curated)
+  → Graph builder (nodes + undirected weighted edges)
+    → Launch snapper (nearest graph vertex per launch)
+      → Pathfinder (A* / Dijkstra)
+        → GeoJSON polyline
+          → Mapbox LineLayer display
+```
+
+### Phase R1: Full waterway geometry (current gap)
+
+**Goal:** Import all routable waterways for Portland metro and greater PNW.
+
+**Data sources (priority order):**
+
+1. **OpenStreetMap via Overpass API** — query `waterway=river`, `waterway=stream`, `waterway=canal`, `natural=water`, `water=lake`, and `natural=coastline` for the target bounding box.
+2. **US NHD (National Hydrography Dataset)** — higher resolution centerlines; supplement OSM where it lacks detail (smaller tributaries, accurate river mile alignment).
+3. **OpenMapTiles** — pre-processed vector tiles if batch geometry extraction is easier than raw Overpass.
+
+**Target river systems (Portland area):**
+
+| System | Status |
+|--------|--------|
+| Willamette (main stem Portland reach) | Done (bundled GeoJSON) |
+| Columbia (Portland–Sauvie–St. Helens) | Not started |
+| Clackamas | Not started |
+| Multnomah Channel / slough | Not started |
+| Tualatin | Not started |
+| Sandy | Not started |
+
+**Output:** One GeoJSON `FeatureCollection` per river system with `river_system` property; each feature is a `LineString` of centerline coordinates.
+
+**Tasks:**
+
+- [ ] Write Overpass query scripts for each target system (`scripts/overpass/`)
+- [ ] Validate geometry connectivity (no gaps between line segments)
+- [ ] Merge disconnected segments within snap threshold
+- [ ] Bundle as `assets/hydro/<system>_waterway.geojson`
+- [ ] Add NHD download + conversion script for higher-quality alternatives
+- [ ] Document geometry provenance per file in `scripts/README-hydro.md`
+
+### Phase R2: Graph construction improvements
+
+**Current state:** `RiverLineGraph` builds undirected edges with haversine weights, 12 m vertex merge threshold.
+
+**Improvements:**
+
+- [ ] **Priority queue Dijkstra or A\*** — replace O(n²) linear scan; required before graph exceeds ~5k nodes
+- [ ] **A\* heuristic** — haversine straight-line distance to destination; admissible for undirected waterway graphs
+- [ ] **Configurable vertex merge threshold** — 12 m is tight for NHD; test 20–30 m for denser datasets
+- [ ] **Edge metadata** — store `river_system`, optional `one_way` flag (for future flow direction), optional hazard/closure flag
+- [ ] **Multi-system graph** — single unified graph with labeled edges; cross-system routing where waterways physically connect (e.g. Willamette → Columbia confluence)
+- [ ] **Bidirectional edges with direction cost** — downstream cheaper than upstream (integrate average current speed when available)
+- [ ] **Graph serialization** — pre-compute graph offline; ship as binary adjacency list (faster cold-start than parsing GeoJSON each launch)
+
+**Performance targets:**
+
+| Metric | Target |
+|--------|--------|
+| Portland metro graph size | 20k–50k nodes |
+| Route computation (client-side) | < 200 ms for 50k nodes with A* |
+| Cold start (graph load + parse) | < 500 ms from serialized binary |
+
+### Phase R3: Launch snap and discovery
+
+**Current state:** Dynamic snap at route time (nearest vertex within 900 m). No pre-computed reachability.
+
+**Improvements:**
+
+- [ ] **Pre-snap at build time** — store `launch.graphNodeId` in catalog; validate during codegen / asset pipeline
+- [ ] **Snap quality gate** — warn if snap distance > 200 m (indicates geometry gap near a launch)
+- [ ] **Reachability index** — BFS from each launch up to distance thresholds; store per launch:
+
+```json
+{
+  "launchId": "stjohns",
+  "nearbyLaunches": {
+    "5mi": ["cathedralPark", "universityOfPortland"],
+    "10mi": ["sellwoodRiverfront", "willamettePark"],
+    "20mi": ["sauvieIsland", "milwaukieBay"]
+  }
+}
+```
+
+- [ ] **Suggested trips** — pre-compute one-way and round-trip suggestions per launch using graph distance + common waypoints:
+
+```json
+{
+  "launchId": "cathedralPark",
+  "suggestedTrips": [
+    {
+      "destination": "sellwoodRiverfront",
+      "distanceKm": 8.2,
+      "estimatedMinutes": 123,
+      "waypoints": ["cathedralPark", "sellwoodRiverfront"]
+    },
+    {
+      "destination": "sauvieIsland",
+      "distanceKm": 14.5,
+      "estimatedMinutes": 218,
+      "waypoints": ["cathedralPark", "stjohns", "sauvieIsland"]
+    }
+  ]
+}
+```
+
+- [ ] **UI: "Trips from here"** — surface nearby launches and suggested trips on the place peek sheet and launch detail screen
+- [ ] **UI: Trip length filters** — short (< 5 mi), medium (5–10 mi), long (> 10 mi) on suggested trips
+
+### Phase R4: Multi-stop and advanced routing
+
+**Current state:** Multi-stop works via chained segments on same river system.
+
+**Improvements:**
+
+- [ ] **Cross-system routing** — route across Willamette → Columbia confluence; requires unified multi-system graph
+- [ ] **Arbitrary waypoints** — allow user to drop a pin on any waterway (snap to nearest graph vertex); not just catalog launches
+- [ ] **Loop routes** — detect same start/end; offer "out-and-back" or "loop via alternate channel"
+- [ ] **Island hopping / archipelago routes** — multiple segments with portage indicators between disconnected water bodies
+- [ ] **Multi-day expedition support** — save waypoints as overnight stops; segment time estimates per day
+- [ ] **Drag-to-edit route** — user drags mid-point of polyline to reroute through a different channel; re-snap to graph and re-route affected segments
+- [ ] **Route alternatives** — compute 2–3 route options (shortest, most sheltered, scenic) using edge attributes
+
+### Phase R5: Server-side routing (scale)
+
+**Current state:** 100% client-side. Acceptable for Portland (~20k–50k nodes).
+
+**When to move server-side:**
+
+- Graph exceeds ~100k nodes (multiple metro areas or regional coverage)
+- Real-time hazard/closure data needs to modify graph weights dynamically
+- Route sharing requires server-computed canonical polylines
+
+**Architecture (when needed):**
+
+```
+Client → Route API (POST /routes/plan)
+  → PostGIS graph stored in DB
+  → pgRouting or custom A* on server
+  → GeoJSON response
+  → Mapbox display
+```
+
+- [ ] **PostGIS + pgRouting** — import graph edges as a routable network; use `pgr_astar` or `pgr_dijkstra`
+- [ ] **Route API** — serverless function or lightweight service; request: `{waypoints: [{lat, lon}...], options: {avoidUpstream, preferSheltered}}`; response: GeoJSON polyline + metadata
+- [ ] **Hybrid model** — client-side for cached local area; server for cross-region or dynamic-weight routes
+- [ ] **Response time target** — < 500 ms for regional routes (Portland → Seattle waterway corridor)
+
+### Phase R6: Continental routing
+
+**Goal:** Portland → Seattle (or any coast-to-coast waterway route) is the same operation as Sellwood → St. Johns — the routing engine doesn't know or care about distance; it's just traversing a waterway graph.
+
+**Requirements:**
+
+- [ ] **Regional geometry tiles** — download/cache geometry per bounding box; don't ship entire US as bundled asset
+- [ ] **Graph stitching** — merge regional graphs at boundary edges (river crosses tile boundary → shared vertices)
+- [ ] **Hierarchical routing** — coarse graph (major rivers only) for long routes; fine graph for local segments; cascade for speed
+- [ ] **Server-mandatory** — client can't hold 1M+ nodes in memory; all continental routes go through Route API
+- [ ] **Incremental NHD import** — script to import NHD HUC-region shapefiles → PostGIS → pgRouting network
+
+### Routing decision tree (implementation order)
+
+```
+1. Import Portland-area waterway geometry (all systems)  ← NEXT
+2. Upgrade pathfinder to A* with priority queue
+3. Pre-snap launches; build reachability index
+4. Surface "trips from here" in UI
+5. Cross-system routing (unified graph)
+6. Arbitrary waypoints + drag-to-edit
+7. Server-side routing when graph > 100k nodes
+8. Continental expansion
+```
 
 ---
 

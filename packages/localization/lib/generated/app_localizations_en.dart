@@ -72,6 +72,38 @@ class AppLocalizationsEn extends AppLocalizations {
       'No connected river path between these points in the current data.';
 
   @override
+  String get mapRouteFailureDisconnectedReach =>
+      'Put-in and take-out are on different river segments in our bundled data. Try launches on the same reach.';
+
+  @override
+  String mapRouteFailureDisconnectedReachNamed(
+    String putInReach,
+    String takeOutReach,
+  ) {
+    return 'Put-in ($putInReach) and take-out ($takeOutReach) are on different bundled segments. Try launches on the same reach.';
+  }
+
+  @override
+  String get mapPlanningStepPickPutIn => 'Step 1: Tap a launch for put-in.';
+
+  @override
+  String get mapPlanningStepPickTakeOut =>
+      'Step 2: Tap another launch for take-out.';
+
+  @override
+  String get mapPlanningComputingRoute => 'Calculating route…';
+
+  @override
+  String mapPlanningRiverSystem(String system) {
+    return 'River system: $system';
+  }
+
+  @override
+  String mapPlanningRouteReach(String reachId) {
+    return 'Bundled reach: $reachId';
+  }
+
+  @override
   String get mapPlanningSemanticsLabel => 'River route planning';
 
   @override
@@ -517,6 +549,141 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellTabSavedRoutes => 'Saved routes';
+
+  @override
+  String get shellTabHome => 'Home';
+
+  @override
+  String get shellTabMenu => 'Menu';
+
+  @override
+  String get mapSearchPlaceholder => 'Search rivers, launches, places…';
+
+  @override
+  String get mapSearchLaunchesSection => 'Launches';
+
+  @override
+  String get mapSearchPlacesSection => 'Places';
+
+  @override
+  String get mapSearchNoResults => 'No results found.';
+
+  @override
+  String get mapPlanPaddleButton => 'Plan paddle';
+
+  @override
+  String get mapViewConditionsButton => 'View conditions';
+
+  @override
+  String get mapRoutePlanningTitle => 'Plan paddle';
+
+  @override
+  String get mapRouteStopStart => 'Start';
+
+  @override
+  String get mapRouteStopDestination => 'Destination';
+
+  @override
+  String mapRouteStopMiddle(int number) {
+    return 'Stop $number';
+  }
+
+  @override
+  String get mapRouteAddStop => 'Add stop';
+
+  @override
+  String get mapRouteChooseDestination => 'Choose destination';
+
+  @override
+  String get mapRouteAddStopHint =>
+      'Tap another launch on the map to set your destination or add a stop.';
+
+  @override
+  String get mapRouteEditStopsTitle => 'Edit stops';
+
+  @override
+  String get mapRoutePreviewStart => 'Start';
+
+  @override
+  String get mapRoutePreviewAddStops => 'Add stops';
+
+  @override
+  String get mapRouteSummaryComingSoon =>
+      'Route conditions summary coming soon.';
+
+  @override
+  String mapRouteTripTime(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String mapRouteTotalTrip(int minutes, String miles) {
+    return 'Total trip: $minutes min ($miles mi)';
+  }
+
+  @override
+  String get mapRouteReorderStopHint => 'Drag to reorder stop';
+
+  @override
+  String mapRouteDeleteStopSemantics(String name) {
+    return 'Remove stop $name';
+  }
+
+  @override
+  String mapRouteOriginStopSemantics(String name) {
+    return 'Starting location, $name';
+  }
+
+  @override
+  String mapRouteDestinationStopSemantics(String name) {
+    return 'Destination, $name';
+  }
+
+  @override
+  String mapRouteMiddleStopSemantics(String letter, String name) {
+    return 'Stop $letter, $name';
+  }
+
+  @override
+  String get mapRouteStartComingSoon => 'On-water navigation is coming soon.';
+
+  @override
+  String get mapLocateMeLabel => 'Locate me';
+
+  @override
+  String get mapCloseSheetLabel => 'Close';
+
+  @override
+  String get homePlaceholderTitle => 'Home';
+
+  @override
+  String get homePlaceholderBody =>
+      'Featured paddles and discovery experiences are coming soon.';
+
+  @override
+  String get homeExploreMapButton => 'Explore map';
+
+  @override
+  String get menuScreenTitle => 'Menu';
+
+  @override
+  String get menuImportGpx => 'Import GPX';
+
+  @override
+  String get menuExportGpx => 'Export GPX';
+
+  @override
+  String get menuSettings => 'Settings';
+
+  @override
+  String get menuAbout => 'About';
+
+  @override
+  String get menuSettingsComingSoon => 'Settings coming soon.';
+
+  @override
+  String get menuAboutBody =>
+      'EddyScout — your Pacific Northwest paddling companion.';
 
   @override
   String get savedRoutesListTitle => 'Saved routes';
