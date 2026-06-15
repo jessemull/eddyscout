@@ -29,6 +29,12 @@ class _MemoryKeyValueStore implements KeyValueStore {
   Future<bool> setInt(String key, int value) async => true;
 
   @override
+  Future<double?> getDouble(String key) async => null;
+
+  @override
+  Future<bool> setDouble(String key, double value) async => true;
+
+  @override
   Future<bool> remove(String key) async => _strings.remove(key) != null;
 
   @override

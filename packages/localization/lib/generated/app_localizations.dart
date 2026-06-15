@@ -1219,6 +1219,36 @@ abstract class AppLocalizations {
   /// **'EddyScout — your Pacific Northwest paddling companion.'**
   String get menuAboutBody;
 
+  /// Title for the app settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsScreenTitle;
+
+  /// Label for the paddling speed preference
+  ///
+  /// In en, this message translates to:
+  /// **'Paddling speed'**
+  String get settingsPaddleSpeedLabel;
+
+  /// Formatted paddling speed value
+  ///
+  /// In en, this message translates to:
+  /// **'{speed} km/h'**
+  String settingsPaddleSpeedValue(String speed);
+
+  /// Help text for the paddling speed preference
+  ///
+  /// In en, this message translates to:
+  /// **'Your average paddling speed for trip-time estimates.'**
+  String get settingsPaddleSpeedDescription;
+
+  /// Button label to restore default paddling speed
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get settingsPaddleSpeedReset;
+
   /// No description provided for @savedRoutesListTitle.
   ///
   /// In en, this message translates to:

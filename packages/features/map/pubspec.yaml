@@ -17,6 +17,8 @@ dependencies:
     path: ../../design_system
   eddyscout_localization:
     path: ../../localization
+  eddyscout_persistence:
+    path: ../../persistence
   file_picker: ^11.0.2
   flutter:
     sdk: flutter

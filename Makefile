@@ -74,7 +74,7 @@ clean: ## Cleanup@remove build dirs and .dart_tool
 dev: ## Dev@bootstrap, .local.env, emulator, flutter run
 	./scripts/dev.sh $(ARGS)
 
-kill-emulator: ## Dev@stop Android emulators (EMULATOR_SERIAL optional)
+kill-emulator: ## Dev@stop emulators and orphan qemu (EMULATOR_SERIAL optional)
 	./scripts/kill_emulator.sh
 
 run: ## Dev@flutter run via apps/eddyscout (ARGS="-d …")

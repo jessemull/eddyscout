@@ -96,21 +96,18 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('MenuScreen shows GPX actions and settings snackbar', (
-    tester,
-  ) async {
-    await pumpMenuWidget(tester);
+  testWidgets('MenuScreen navigates to settings', (tester) async {
+    await pumpMenuRoute(tester);
 
     final l10n = AppLocalizations.of(
       tester.element(find.byType(MenuScreen)),
     );
-    expect(find.text(l10n.menuScreenTitle), findsOneWidget);
-    expect(find.text(l10n.menuImportGpx), findsOneWidget);
-    expect(find.text(l10n.menuExportGpx), findsOneWidget);
 
     await tester.tap(find.text(l10n.menuSettings));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.menuSettingsComingSoon), findsOneWidget);
+
+    expect(find.text(l10n.settingsScreenTitle), findsOneWidget);
+    expect(find.text(l10n.settingsPaddleSpeedLabel), findsOneWidget);
   });
 
   testWidgets('MenuScreen about opens dialog', (tester) async {
