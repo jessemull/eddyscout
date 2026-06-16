@@ -67,6 +67,72 @@ void main() {
   );
 
   test(
+    'riverRoutePlannerProvider routes same-system launches on unified graph',
+    () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(riverRoutePlannerProvider.future);
+      final putIn = LaunchPoint(
+        id: 'cathedral_park',
+        name: 'Cathedral Park',
+        latitude: 45.5621,
+        longitude: -122.7328,
+        shortNote: 'Test',
+        riverSystem: RiverSystem.willamette,
+        windExposure: WindExposure.moderate,
+        tideRelevance: TideRelevance.none,
+      );
+      final takeOut = LaunchPoint(
+        id: 'sellwood_riverfront',
+        name: 'Sellwood',
+        latitude: 45.4709,
+        longitude: -122.6617,
+        shortNote: 'Test',
+        riverSystem: RiverSystem.willamette,
+        windExposure: WindExposure.moderate,
+        tideRelevance: TideRelevance.none,
+      );
+      expect(planner.plan(putIn, takeOut), isA<RouteSuccess>());
+    },
+  );
+
+  test(
+    'riverRoutePlannerProvider routes cross-system launches via bridge',
+    () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(riverRoutePlannerProvider.future);
+      final putIn = LaunchPoint(
+        id: 'cathedral_park',
+        name: 'Cathedral Park',
+        latitude: 45.5621,
+        longitude: -122.7328,
+        shortNote: 'Test',
+        riverSystem: RiverSystem.willamette,
+        windExposure: WindExposure.moderate,
+        tideRelevance: TideRelevance.none,
+      );
+      final takeOut = LaunchPoint(
+        id: 'glenn_otto_troutdale',
+        name: 'Glenn Otto Park',
+        latitude: 45.5365,
+        longitude: -122.3858,
+        shortNote: 'Test',
+        riverSystem: RiverSystem.columbia,
+        windExposure: WindExposure.moderate,
+        tideRelevance: TideRelevance.none,
+      );
+      expect(planner.plan(putIn, takeOut), isA<RouteSuccess>());
+    },
+  );
+
+  test(
     'mapGpxServiceProvider resolves from app overrides',
     () async {
       final container = ProviderContainer(

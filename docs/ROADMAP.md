@@ -225,7 +225,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase C / R1)** Route planner: import Columbia, Clackamas, slough, Tualatin, Sandy waterway geometry from OSM Overpass; validate connectivity; bundle as `assets/hydro/`
 - [ ] **(Phase C / R1)** Route planner: add NHD download + conversion script for higher-quality river centerlines
 - [ ] **(Phase C / R2)** Route planner: upgrade Dijkstra to A* with priority queue and haversine heuristic
-- [ ] **(Phase C / R2)** Route planner: unified multi-system graph with cross-system routing (Willamette → Columbia confluence)
+- [x] **(Phase C / R2)** Route planner: unified multi-system graph with cross-system routing (Willamette → Columbia confluence)
 - [ ] **(Phase C / R2)** Route planner: pre-computed binary graph serialization for faster cold start
 - [ ] **(Phase C / R3)** Route planner: pre-snap launches to graph vertices at build time; snap quality validation
 - [ ] **(Phase C / R3)** Route planner: reachability index per launch (nearby launches within 5/10/20 mi graph distance)

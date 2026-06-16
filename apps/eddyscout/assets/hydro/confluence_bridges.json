@@ -1,0 +1,12 @@
+[
+  {
+    "id": "willamette_columbia_mouth",
+    "a": { "lat": 45.6178872, "lon": -122.7909498 },
+    "b": { "lat": 45.5856, "lon": -122.4244 }
+  },
+  {
+    "id": "clackamas_willamette_oc",
+    "a": { "lat": 45.3548, "lon": -122.6120 },
+    "b": { "lat": 45.3555, "lon": -122.6110 }
+  }
+]

@@ -49,6 +49,9 @@ List<Override> buildAppProviderOverrides({
         ),
       ],
     ),
+    hydroConfluenceBridgesLoaderProvider.overrideWithValue(
+      () async => rootBundle.loadString('assets/hydro/confluence_bridges.json'),
+    ),
     gpxFileGatewayProvider.overrideWithValue(
       gpxFileGatewayOverride ?? const GpxFileGatewayImpl(),
     ),

@@ -1,5 +1,6 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_hydro_routing/src/data/confluence_bridges.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_graph.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -326,6 +327,77 @@ void main() {
       const json =
           '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[1,2]}}]}';
       expect(parseHydroGeoJson(json), isEmpty);
+    });
+  });
+
+  group('RiverLineGraph unified build', () {
+    test('fromAllFeatures merges overlapping cross-system vertices', () {
+      const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0], [0, 0.01]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "slough"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0.01], [0, 0.02]]}
+    }
+  ]
+}
+''';
+      final feats = parseHydroGeoJson(json);
+      final unified = RiverLineGraph.fromAllFeatures(feats);
+      final willametteOnly = RiverLineGraph.fromFeatures(
+        feats,
+        riverSystemName: 'willamette',
+      );
+      expect(unified.vertexCount, lessThan(willametteOnly.vertexCount + 2));
+      final r = unified.route(0.0, 0.0, 0.02, 0.0, maxSnapMeters: 50000);
+      expect(r, isA<RouteSuccess>());
+    });
+
+    test('addConfluenceBridges connects otherwise disconnected systems', () {
+      const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "alpha"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0], [0, 0.01]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "beta"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0.03], [0, 0.04]]}
+    }
+  ]
+}
+''';
+      final feats = parseHydroGeoJson(json);
+      final withoutBridge = RiverLineGraph.fromAllFeatures(feats);
+      expect(
+        withoutBridge.route(0.0, 0.0, 0.04, 0.0, maxSnapMeters: 50000),
+        isA<RouteFailure>(),
+      );
+
+      final withBridge = withoutBridge.addConfluenceBridges([
+        const ConfluenceBridge(
+          id: 'alpha_beta',
+          aLat: 0.01,
+          aLon: 0,
+          bLat: 0.03,
+          bLon: 0,
+        ),
+      ]);
+      expect(
+        withBridge.route(0.0, 0.0, 0.04, 0.0, maxSnapMeters: 50000),
+        isA<RouteSuccess>(),
+      );
     });
   });
 }

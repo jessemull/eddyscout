@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_hydro_routing/src/data/confluence_bridges.dart';
+import 'package:eddyscout_hydro_routing/src/data/hydro_debug_log.dart';
 import 'package:eddyscout_hydro_routing/src/data/min_heap.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
 import 'package:eddyscout_hydro_routing/src/data/vertex_merge_index.dart';
@@ -93,6 +95,18 @@ class RiverLineGraph {
   @visibleForTesting
   double longitudeAt(int index) => _lon[index];
 
+  /// Build from all parsed features across every bundled river system.
+  static RiverLineGraph fromAllFeatures(
+    List<HydroLineFeature> features, {
+    double mergeVertexMeters = 12,
+  }) {
+    return _buildFromFeatures(
+      features,
+      riverSystemName: null,
+      mergeVertexMeters: mergeVertexMeters,
+    );
+  }
+
   /// Build from parsed features.
   ///
   /// Keeps lines whose `river_system` matches [riverSystemName] or is null.
@@ -100,6 +114,18 @@ class RiverLineGraph {
     List<HydroLineFeature> features, {
     required String riverSystemName,
     double mergeVertexMeters = 12,
+  }) {
+    return _buildFromFeatures(
+      features,
+      riverSystemName: riverSystemName,
+      mergeVertexMeters: mergeVertexMeters,
+    );
+  }
+
+  static RiverLineGraph _buildFromFeatures(
+    List<HydroLineFeature> features, {
+    required String? riverSystemName,
+    required double mergeVertexMeters,
   }) {
     final lat = <double>[];
     final lon = <double>[];
@@ -156,7 +182,9 @@ class RiverLineGraph {
     }
 
     for (final f in features) {
-      if (f.riverSystemKey != null && f.riverSystemKey != riverSystemName) {
+      if (riverSystemName != null &&
+          f.riverSystemKey != null &&
+          f.riverSystemKey != riverSystemName) {
         continue;
       }
       final c = f.coordinatesLonLat;
@@ -177,6 +205,75 @@ class RiverLineGraph {
           oneWay: f.oneWay,
         );
       }
+    }
+
+    final componentId = _labelComponents(adj);
+    return RiverLineGraph._(lat, lon, adj, componentId, vertexReachId);
+  }
+
+  /// Adds curated confluence edges and recomputes connected components.
+  RiverLineGraph addConfluenceBridges(
+    List<ConfluenceBridge> bridges, {
+    double maxEndpointSnapMeters = 200,
+  }) {
+    if (bridges.isEmpty) {
+      return this;
+    }
+
+    final lat = List<double>.from(_lat);
+    final lon = List<double>.from(_lon);
+    final adj = _adj.map(List<GraphEdge>.from).toList();
+    final vertexReachId = List<String?>.from(_vertexReachId);
+
+    int? nearestVertexIndex(double la, double lo) {
+      var bestI = -1;
+      var bestD = maxEndpointSnapMeters;
+      for (var i = 0; i < lat.length; i++) {
+        final d = haversineMeters(lat[i], lon[i], la, lo);
+        if (d < bestD) {
+          bestD = d;
+          bestI = i;
+        }
+      }
+      return bestI < 0 ? null : bestI;
+    }
+
+    void addUndirectedBridge(int u, int v, double w) {
+      if (u == v) {
+        return;
+      }
+      if (!adj[u].any((e) => e.to == v)) {
+        adj[u].add(
+          (to: v, w: w, riverSystem: 'confluence', oneWay: false),
+        );
+      }
+      if (!adj[v].any((e) => e.to == u)) {
+        adj[v].add(
+          (to: u, w: w, riverSystem: 'confluence', oneWay: false),
+        );
+      }
+    }
+
+    for (final bridge in bridges) {
+      final u = nearestVertexIndex(bridge.aLat, bridge.aLon);
+      final v = nearestVertexIndex(bridge.bLat, bridge.bLon);
+      if (u == null || v == null || u == v) {
+        hydroDebugLog(
+          'addConfluenceBridges: skipped "${bridge.id}" — endpoint snap failed',
+        );
+        continue;
+      }
+      final w = haversineMeters(
+        lat[u],
+        lon[u],
+        lat[v],
+        lon[v],
+      );
+      addUndirectedBridge(u, v, w);
+      hydroDebugLog(
+        'addConfluenceBridges: linked "${bridge.id}" '
+        'vertices $u↔$v (${w.toStringAsFixed(0)} m)',
+      );
     }
 
     final componentId = _labelComponents(adj);

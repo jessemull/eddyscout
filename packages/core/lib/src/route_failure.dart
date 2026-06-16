@@ -5,7 +5,7 @@ enum RouteFailureCode {
   /// Put-in and take-out are the same launch.
   sameLaunch,
 
-  /// Put-in and take-out are on different river systems.
+  /// Put-in and take-out are on different river systems with no connected path.
   differentSystem,
 
   /// No bundled hydro line exists for the requested river system.
