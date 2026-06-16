@@ -1105,11 +1105,17 @@ abstract class AppLocalizations {
   /// **'{minutes} min'**
   String mapRouteTripTime(int minutes);
 
-  /// No description provided for @mapRouteTotalTrip.
+  /// Route planning footer total trip summary in metric units
   ///
   /// In en, this message translates to:
-  /// **'Total trip: {minutes} min ({miles} mi)'**
-  String mapRouteTotalTrip(int minutes, String miles);
+  /// **'Total trip: {minutes} min ({distance} km)'**
+  String mapRouteTotalTripMetric(int minutes, String distance);
+
+  /// Route planning footer total trip summary in imperial units
+  ///
+  /// In en, this message translates to:
+  /// **'Total trip: {minutes} min ({distance} mi)'**
+  String mapRouteTotalTripImperial(int minutes, String distance);
 
   /// No description provided for @mapRouteReorderStopHint.
   ///
@@ -1225,17 +1231,47 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsScreenTitle;
 
+  /// Label for the distance and speed unit preference
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get settingsUnitsLabel;
+
+  /// Help text for the unit preference
+  ///
+  /// In en, this message translates to:
+  /// **'Distance and paddling speed shown in the app.'**
+  String get settingsUnitsDescription;
+
+  /// Metric unit option label
+  ///
+  /// In en, this message translates to:
+  /// **'Metric'**
+  String get settingsUnitsMetric;
+
+  /// Imperial unit option label
+  ///
+  /// In en, this message translates to:
+  /// **'Imperial'**
+  String get settingsUnitsImperial;
+
   /// Label for the paddling speed preference
   ///
   /// In en, this message translates to:
   /// **'Paddling speed'**
   String get settingsPaddleSpeedLabel;
 
-  /// Formatted paddling speed value
+  /// Formatted paddling speed value in metric units
   ///
   /// In en, this message translates to:
   /// **'{speed} km/h'**
   String settingsPaddleSpeedValue(String speed);
+
+  /// Formatted paddling speed value in imperial units
+  ///
+  /// In en, this message translates to:
+  /// **'{speed} mph'**
+  String settingsPaddleSpeedValueMph(String speed);
 
   /// Help text for the paddling speed preference
   ///
@@ -1290,6 +1326,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{km} km'**
   String savedRoutesDistanceKm(String km);
+
+  /// Saved route distance in miles
+  ///
+  /// In en, this message translates to:
+  /// **'{mi} mi'**
+  String savedRoutesDistanceMi(String mi);
+
+  /// Read-only distance label on saved route detail
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get savedRoutesDistanceLabel;
 
   /// No description provided for @savedRoutesWaypointCount.
   ///
@@ -1351,11 +1399,17 @@ abstract class AppLocalizations {
   /// **'Estimated duration (minutes)'**
   String get savedRoutesDurationLabel;
 
-  /// No description provided for @savedRoutesDurationHint.
+  /// Duration field helper text when metric units are selected
   ///
   /// In en, this message translates to:
   /// **'Optional — e.g. distance ÷ 4 km/h'**
-  String get savedRoutesDurationHint;
+  String get savedRoutesDurationHintMetric;
+
+  /// Duration field helper text when imperial units are selected
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — e.g. distance ÷ 2.5 mph'**
+  String get savedRoutesDurationHintImperial;
 
   /// No description provided for @savedRoutesDifficultyLabel.
   ///

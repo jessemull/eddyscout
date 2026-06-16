@@ -1,8 +1,10 @@
 import 'dart:async' show unawaited;
 
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,6 +19,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final units = ref.watch(effectiveDisplayUnitsProvider);
     final paddleSpeedAsync = ref.watch(paddleSpeedProvider);
 
     return Scaffold(
@@ -43,6 +46,46 @@ class SettingsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
+                    l10n.settingsUnitsLabel,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    l10n.settingsUnitsDescription,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: Spacing.sm),
+                  SegmentedButton<DisplayUnitSystem>(
+                    key: const Key('settings_display_units_segment'),
+                    segments: [
+                      ButtonSegment(
+                        value: DisplayUnitSystem.metric,
+                        label: Text(l10n.settingsUnitsMetric),
+                      ),
+                      ButtonSegment(
+                        value: DisplayUnitSystem.imperial,
+                        label: Text(l10n.settingsUnitsImperial),
+                      ),
+                    ],
+                    selected: {units},
+                    onSelectionChanged: (selection) => unawaited(
+                      ref
+                          .read(displayUnitPreferenceProvider.notifier)
+                          .setUnits(selection.first),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: Spacing.lg),
+            Padding(
+              padding: _contentPadding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
                     l10n.settingsPaddleSpeedLabel,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
@@ -55,7 +98,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: Spacing.sm),
                   Text(
-                    l10n.settingsPaddleSpeedValue(_formatSpeed(speedKmh)),
+                    _formatSpeedLabel(l10n, speedKmh, units),
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: Spacing.xs),
@@ -69,9 +112,7 @@ class SettingsScreen extends ConsumerWidget {
                       min: kMinPaddleSpeedKmh,
                       max: kMaxPaddleSpeedKmh,
                       divisions: kPaddleSpeedSliderDivisions,
-                      label: l10n.settingsPaddleSpeedValue(
-                        _formatSpeed(speedKmh),
-                      ),
+                      label: _formatSpeedLabel(l10n, speedKmh, units),
                       onChanged: (value) => unawaited(
                         ref.read(paddleSpeedProvider.notifier).setSpeed(value),
                       ),
@@ -107,5 +148,15 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  String _formatSpeed(double speedKmh) => speedKmh.toStringAsFixed(1);
+  String _formatSpeedLabel(
+    AppLocalizations l10n,
+    double speedKmh,
+    DisplayUnitSystem units,
+  ) {
+    final numeric = formatSpeedNumeric(speedKmh, units);
+    return switch (units) {
+      DisplayUnitSystem.metric => l10n.settingsPaddleSpeedValue(numeric),
+      DisplayUnitSystem.imperial => l10n.settingsPaddleSpeedValueMph(numeric),
+    };
+  }
 }

@@ -331,11 +331,20 @@
       "minutes": {"type": "int"}
     }
   },
-  "mapRouteTotalTrip": "Total trip: {minutes} min ({miles} mi)",
-  "@mapRouteTotalTrip": {
+  "mapRouteTotalTripMetric": "Total trip: {minutes} min ({distance} km)",
+  "@mapRouteTotalTripMetric": {
+    "description": "Route planning footer total trip summary in metric units",
     "placeholders": {
       "minutes": {"type": "int"},
-      "miles": {"type": "String"}
+      "distance": {"type": "String"}
+    }
+  },
+  "mapRouteTotalTripImperial": "Total trip: {minutes} min ({distance} mi)",
+  "@mapRouteTotalTripImperial": {
+    "description": "Route planning footer total trip summary in imperial units",
+    "placeholders": {
+      "minutes": {"type": "int"},
+      "distance": {"type": "String"}
     }
   },
   "mapRouteReorderStopHint": "Drag to reorder stop",
@@ -381,13 +390,36 @@
   "@settingsScreenTitle": {
     "description": "Title for the app settings screen"
   },
+  "settingsUnitsLabel": "Units",
+  "@settingsUnitsLabel": {
+    "description": "Label for the distance and speed unit preference"
+  },
+  "settingsUnitsDescription": "Distance and paddling speed shown in the app.",
+  "@settingsUnitsDescription": {
+    "description": "Help text for the unit preference"
+  },
+  "settingsUnitsMetric": "Metric",
+  "@settingsUnitsMetric": {
+    "description": "Metric unit option label"
+  },
+  "settingsUnitsImperial": "Imperial",
+  "@settingsUnitsImperial": {
+    "description": "Imperial unit option label"
+  },
   "settingsPaddleSpeedLabel": "Paddling speed",
   "@settingsPaddleSpeedLabel": {
     "description": "Label for the paddling speed preference"
   },
   "settingsPaddleSpeedValue": "{speed} km/h",
   "@settingsPaddleSpeedValue": {
-    "description": "Formatted paddling speed value",
+    "description": "Formatted paddling speed value in metric units",
+    "placeholders": {
+      "speed": {"type": "String"}
+    }
+  },
+  "settingsPaddleSpeedValueMph": "{speed} mph",
+  "@settingsPaddleSpeedValueMph": {
+    "description": "Formatted paddling speed value in imperial units",
     "placeholders": {
       "speed": {"type": "String"}
     }
@@ -412,6 +444,17 @@
       "km": {"type": "String"}
     }
   },
+  "savedRoutesDistanceMi": "{mi} mi",
+  "@savedRoutesDistanceMi": {
+    "description": "Saved route distance in miles",
+    "placeholders": {
+      "mi": {"type": "String"}
+    }
+  },
+  "savedRoutesDistanceLabel": "Distance",
+  "@savedRoutesDistanceLabel": {
+    "description": "Read-only distance label on saved route detail"
+  },
   "savedRoutesWaypointCount": "{count} stops",
   "@savedRoutesWaypointCount": {
     "placeholders": {
@@ -427,7 +470,14 @@
   "savedRoutesDescriptionLabel": "Description",
   "savedRoutesNotesLabel": "Notes",
   "savedRoutesDurationLabel": "Estimated duration (minutes)",
-  "savedRoutesDurationHint": "Optional — e.g. distance ÷ 4 km/h",
+  "savedRoutesDurationHintMetric": "Optional — e.g. distance ÷ 4 km/h",
+  "@savedRoutesDurationHintMetric": {
+    "description": "Duration field helper text when metric units are selected"
+  },
+  "savedRoutesDurationHintImperial": "Optional — e.g. distance ÷ 2.5 mph",
+  "@savedRoutesDurationHintImperial": {
+    "description": "Duration field helper text when imperial units are selected"
+  },
   "savedRoutesDifficultyLabel": "Difficulty",
   "savedRoutesDifficultyNone": "Not set",
   "savedRoutesDifficultyEasy": "Easy",

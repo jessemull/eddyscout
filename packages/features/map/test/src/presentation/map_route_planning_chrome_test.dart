@@ -1,17 +1,26 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_map/src/presentation/map_route_planning_chrome.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/memory_key_value_store.dart';
 import '../../helpers/test_localized_app.dart';
 
+List<Override> _kvOverrides(MemoryKeyValueStore store) => [
+  mapKeyValueStoreProvider.overrideWith((ref) async => store),
+  userPreferencesKeyValueStoreProvider.overrideWith((ref) async => store),
+];
+
 void main() {
   testWidgets('centers Done vertically in the footer band', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
+        overrides: _kvOverrides(MemoryKeyValueStore()),
         child: testLocalizedApp(
           child: MapRoutePlanningChrome(
             waypoints: [kLaunchPoints.first],
@@ -42,6 +51,7 @@ void main() {
   testWidgets('aligns footer edges with chrome columns', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
+        overrides: _kvOverrides(MemoryKeyValueStore()),
         child: testLocalizedApp(
           child: MapRoutePlanningChrome(
             waypoints: [kLaunchPoints[0], kLaunchPoints[1]],
@@ -76,9 +86,7 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          mapKeyValueStoreProvider.overrideWith((ref) async => store),
-        ],
+        overrides: _kvOverrides(store),
         child: testLocalizedApp(
           child: MapRoutePlanningChrome(
             waypoints: [kLaunchPoints[0], kLaunchPoints[1]],
@@ -94,5 +102,57 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Total trip: 60 min'), findsOneWidget);
+  });
+
+  testWidgets('shows metric distance in total trip footer by default', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: _kvOverrides(MemoryKeyValueStore()),
+        child: testLocalizedApp(
+          child: MapRoutePlanningChrome(
+            waypoints: [kLaunchPoints[0], kLaunchPoints[1]],
+            routeLengthKm: 5,
+            onBack: () {},
+            onDone: () {},
+            onRemoveStop: (_) {},
+            onReorderStop: (from, to) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Total trip: 75 min (5.0 km)'), findsOneWidget);
+  });
+
+  testWidgets('shows imperial distance when unit preference is imperial', (
+    tester,
+  ) async {
+    final store = MemoryKeyValueStore();
+    await store.setString(
+      kDisplayUnitSystemKey,
+      encodeDisplayUnitSystem(DisplayUnitSystem.imperial),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: _kvOverrides(store),
+        child: testLocalizedApp(
+          child: MapRoutePlanningChrome(
+            waypoints: [kLaunchPoints[0], kLaunchPoints[1]],
+            routeLengthKm: 5,
+            onBack: () {},
+            onDone: () {},
+            onRemoveStop: (_) {},
+            onReorderStop: (from, to) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Total trip: 75 min (3.1 mi)'), findsOneWidget);
   });
 }

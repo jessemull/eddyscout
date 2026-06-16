@@ -617,8 +617,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String mapRouteTotalTrip(int minutes, String miles) {
-    return 'Total trip: $minutes min ($miles mi)';
+  String mapRouteTotalTripMetric(int minutes, String distance) {
+    return 'Total trip: $minutes min ($distance km)';
+  }
+
+  @override
+  String mapRouteTotalTripImperial(int minutes, String distance) {
+    return 'Total trip: $minutes min ($distance mi)';
   }
 
   @override
@@ -689,11 +694,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsScreenTitle => 'Settings';
 
   @override
+  String get settingsUnitsLabel => 'Units';
+
+  @override
+  String get settingsUnitsDescription =>
+      'Distance and paddling speed shown in the app.';
+
+  @override
+  String get settingsUnitsMetric => 'Metric';
+
+  @override
+  String get settingsUnitsImperial => 'Imperial';
+
+  @override
   String get settingsPaddleSpeedLabel => 'Paddling speed';
 
   @override
   String settingsPaddleSpeedValue(String speed) {
     return '$speed km/h';
+  }
+
+  @override
+  String settingsPaddleSpeedValueMph(String speed) {
+    return '$speed mph';
   }
 
   @override
@@ -728,6 +751,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String savedRoutesDistanceMi(String mi) {
+    return '$mi mi';
+  }
+
+  @override
+  String get savedRoutesDistanceLabel => 'Distance';
+
+  @override
   String savedRoutesWaypointCount(int count) {
     return '$count stops';
   }
@@ -760,7 +791,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedRoutesDurationLabel => 'Estimated duration (minutes)';
 
   @override
-  String get savedRoutesDurationHint => 'Optional — e.g. distance ÷ 4 km/h';
+  String get savedRoutesDurationHintMetric =>
+      'Optional — e.g. distance ÷ 4 km/h';
+
+  @override
+  String get savedRoutesDurationHintImperial =>
+      'Optional — e.g. distance ÷ 2.5 mph';
 
   @override
   String get savedRoutesDifficultyLabel => 'Difficulty';

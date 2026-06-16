@@ -1,5 +1,6 @@
 import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
 import 'package:eddyscout/routing/settings_screen.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,9 +29,11 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('shows default paddling speed', (tester) async {
+  testWidgets('shows default units and paddling speed', (tester) async {
     await pumpSettings(tester);
 
+    expect(find.text('Units'), findsOneWidget);
+    expect(find.text('Metric'), findsOneWidget);
     expect(find.text('Paddling speed'), findsOneWidget);
     expect(find.text('4.0 km/h'), findsOneWidget);
   });
@@ -61,5 +64,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('4.0 km/h'), findsOneWidget);
+  });
+
+  testWidgets('shows mph when imperial units selected', (tester) async {
+    await pumpSettings(tester);
+
+    await tester.tap(find.text('Imperial'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('4.0 km/h'), findsNothing);
+    expect(find.text('2.5 mph'), findsOneWidget);
+  });
+
+  testWidgets('persists imperial unit preference', (tester) async {
+    await pumpSettings(tester);
+
+    await tester.tap(find.text('Imperial'));
+    await tester.pumpAndSettle();
+
+    expect(
+      await store.getString(kDisplayUnitSystemKey),
+      encodeDisplayUnitSystem(DisplayUnitSystem.imperial),
+    );
   });
 }

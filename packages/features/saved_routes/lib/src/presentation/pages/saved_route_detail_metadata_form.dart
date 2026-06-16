@@ -14,6 +14,7 @@ class SavedRouteDetailMetadataForm extends StatelessWidget {
     required this.durationController,
     required this.difficulty,
     required this.skillLevel,
+    required this.units,
     required this.onFieldChanged,
     required this.onDifficultyChanged,
     required this.onSkillChanged,
@@ -37,6 +38,9 @@ class SavedRouteDetailMetadataForm extends StatelessWidget {
 
   /// Selected recommended skill level, if any.
   final RecommendedSkillLevel? skillLevel;
+
+  /// User display unit preference for helper text.
+  final DisplayUnitSystem units;
 
   /// Called when any text field changes.
   final VoidCallback onFieldChanged;
@@ -82,7 +86,11 @@ class SavedRouteDetailMetadataForm extends StatelessWidget {
           controller: durationController,
           decoration: InputDecoration(
             labelText: l10n.savedRoutesDurationLabel,
-            helperText: l10n.savedRoutesDurationHint,
+            helperText: switch (units) {
+              DisplayUnitSystem.metric => l10n.savedRoutesDurationHintMetric,
+              DisplayUnitSystem.imperial =>
+                l10n.savedRoutesDurationHintImperial,
+            },
           ),
           keyboardType: TextInputType.number,
           onChanged: (_) => onFieldChanged(),

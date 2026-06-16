@@ -1,6 +1,7 @@
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_form_helpers.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_screen.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/memory_key_value_store.dart';
 import '../../helpers/test_localized_app.dart';
 import '../../helpers/test_saved_routes.dart';
 
@@ -29,13 +31,18 @@ void main() {
     repository = _MockSavedRouteRepository();
   });
 
-  Future<void> tapScrollable(WidgetTester tester, Finder finder) async {
+  Future<void> scrollToVisible(WidgetTester tester, Finder finder) async {
     final scrollable = find.byType(Scrollable).first;
     await tester.scrollUntilVisible(
       finder,
       800,
       scrollable: scrollable,
     );
+    await tester.pump();
+  }
+
+  Future<void> tapScrollable(WidgetTester tester, Finder finder) async {
+    await scrollToVisible(tester, finder);
     await tester.ensureVisible(finder);
     await tester.tap(finder, warnIfMissed: false);
     await tester.pump();
@@ -46,7 +53,11 @@ void main() {
     required String routeId,
     required List<Object?> overrides,
     void Function(SavedRoute route)? onLoadOnMap,
+    KeyValueStore? preferencesStore,
+    DisplayUnitSystem units = DisplayUnitSystem.metric,
   }) async {
+    final store = preferencesStore ?? MemoryKeyValueStore();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -55,6 +66,10 @@ void main() {
           ),
           launchPointLookupProvider.overrideWithValue((_) => null),
           savedRouteRepositoryProvider.overrideWithValue(repository),
+          userPreferencesKeyValueStoreProvider.overrideWith(
+            (ref) async => store,
+          ),
+          effectiveDisplayUnitsProvider.overrideWithValue(units),
           ...overrides.cast(),
         ],
         child: testLocalizedApp(
@@ -67,6 +82,8 @@ void main() {
     );
     await tester.pump();
     await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
   }
 
   testWidgets('shows not found when route is missing', (tester) async {
@@ -105,6 +122,49 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Load on map'), findsOneWidget);
+  });
+
+  testWidgets('shows metric distance on detail screen by default', (
+    tester,
+  ) async {
+    final route = testSavedRoute(name: 'Distance Route');
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+    );
+
+    expect(find.text('Distance'), findsOneWidget);
+    expect(find.text('5.2 km'), findsOneWidget);
+  });
+
+  testWidgets('shows imperial distance on detail when preference is imperial', (
+    tester,
+  ) async {
+    final route = testSavedRoute(name: 'Distance Route');
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+    final store = MemoryKeyValueStore();
+    await store.setString(
+      kDisplayUnitSystemKey,
+      encodeDisplayUnitSystem(DisplayUnitSystem.imperial),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+      preferencesStore: store,
+      units: DisplayUnitSystem.imperial,
+    );
+
+    expect(find.text('Distance'), findsOneWidget);
+    expect(find.text('3.2 mi'), findsOneWidget);
   });
 
   testWidgets('binds route fields when reopening with cached provider', (
@@ -282,18 +342,19 @@ void main() {
     when(() => repository.getById(route.id)).thenAnswer(
       (_) async => Result.success(route),
     );
+    when(() => repository.upsert(any())).thenAnswer(
+      (invocation) async => Result.success(
+        invocation.positionalArguments.first as SavedRoute,
+      ),
+    );
 
     await pumpDetail(
       tester,
       routeId: route.id,
       overrides: const [],
     );
-    await tester.scrollUntilVisible(
-      find.text('Custom tags'),
-      800,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pump();
+
+    await scrollToVisible(tester, find.text('Save changes'));
 
     final scenicChip = tester.widget<FilterChip>(
       find.widgetWithText(FilterChip, 'Scenic'),
@@ -328,18 +389,19 @@ void main() {
     );
 
     const tagField = Key('saved_route_custom_tag_field');
-    await tester.scrollUntilVisible(
-      find.byKey(tagField),
-      800,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await scrollToVisible(tester, find.text('Save changes'));
+    await scrollToVisible(tester, find.byKey(tagField));
     await tester.enterText(find.byKey(tagField), 'family');
-    await tester.scrollUntilVisible(
-      find.byIcon(Icons.add),
-      800,
-      scrollable: find.byType(Scrollable).first,
+    final tagRow = find.ancestor(
+      of: find.byKey(tagField),
+      matching: find.byType(Row),
     );
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(
+      find.descendant(
+        of: tagRow,
+        matching: find.byIcon(Icons.add),
+      ),
+    );
     await tester.pumpAndSettle();
 
     await tapScrollable(tester, find.text('Save changes'));

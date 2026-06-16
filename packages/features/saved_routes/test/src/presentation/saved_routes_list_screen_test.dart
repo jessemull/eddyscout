@@ -1,4 +1,5 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_routes_list_screen.dart';
 import 'package:eddyscout_saved_routes/src/presentation/providers/saved_routes_providers.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/memory_key_value_store.dart';
 import '../../helpers/test_localized_app.dart';
 import '../../helpers/test_saved_routes.dart';
 
@@ -45,10 +47,18 @@ void main() {
   Future<void> pumpList(
     WidgetTester tester, {
     required List<Object?> overrides,
+    KeyValueStore? preferencesStore,
   }) async {
+    final store = preferencesStore ?? MemoryKeyValueStore();
+
     await tester.pumpWidget(
       ProviderScope(
-        overrides: overrides.cast(),
+        overrides: [
+          userPreferencesKeyValueStoreProvider.overrideWith(
+            (ref) async => store,
+          ),
+          ...overrides.cast(),
+        ],
         child: testLocalizedApp(
           child: SavedRoutesListScreen(
             onOpenRouteDetail: (_) {},
@@ -87,6 +97,43 @@ void main() {
     );
 
     expect(find.text('Columbia Loop'), findsOneWidget);
+  });
+
+  testWidgets('shows metric distance in list subtitle by default', (
+    tester,
+  ) async {
+    await pumpList(
+      tester,
+      overrides: [
+        savedRoutesListProvider.overrideWith(
+          () => _FixedSavedRoutesList([testSavedRoute(name: 'River Run')]),
+        ),
+      ],
+    );
+
+    expect(find.textContaining('5.2 km'), findsOneWidget);
+  });
+
+  testWidgets('shows imperial distance when unit preference is imperial', (
+    tester,
+  ) async {
+    final store = MemoryKeyValueStore();
+    await store.setString(
+      kDisplayUnitSystemKey,
+      encodeDisplayUnitSystem(DisplayUnitSystem.imperial),
+    );
+
+    await pumpList(
+      tester,
+      overrides: [
+        savedRoutesListProvider.overrideWith(
+          () => _FixedSavedRoutesList([testSavedRoute(name: 'River Run')]),
+        ),
+      ],
+      preferencesStore: store,
+    );
+
+    expect(find.textContaining('3.2 mi'), findsOneWidget);
   });
 
   testWidgets('shows error with retry when list fails', (tester) async {
