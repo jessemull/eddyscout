@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-14T00:00:00.000Z",
+  "distanceModel": "graph_plus_snap",
+  "snapMaxMeters": 900.0,
+  "thresholdsMi": [
+    5,
+    10,
+    20
+  ],
+  "crossSystemReachability": false,
+  "entries": {
+    "cathedral_park": {
+      "5mi": [
+        "swan_island_boat_ramp"
+      ],
+      "10mi": [
+        "tom_mccall_waterfront",
+        "river_place_marina",
+        "portland_boathouse",
+        "sellwood_riverfront"
+      ],
+      "20mi": [
+        "jefferson_st_milwaukie",
+        "george_rogers_park"
+      ]
+    },
+    "clackamette_park": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
+    "frenchmans_bar": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
+    "george_rogers_park": {
+      "5mi": [
+        "jefferson_st_milwaukie"
+      ],
+      "10mi": [
+        "sellwood_riverfront",
+        "river_place_marina",
+        "tom_mccall_waterfront",
+        "portland_boathouse"
+      ],
+      "20mi": [
+        "swan_island_boat_ramp",
+        "cathedral_park"
+      ]
+    },
+    "glenn_otto_troutdale": {
+      "5mi": [
+        "washougal_waterfront"
+      ],
+      "10mi": [
+        "port_of_camas"
+      ],
+      "20mi": []
+    },
+    "jefferson_st_milwaukie": {
+      "5mi": [
+        "sellwood_riverfront",
+        "george_rogers_park"
+      ],
+      "10mi": [
+        "river_place_marina",
+        "tom_mccall_waterfront",
+        "portland_boathouse",
+        "swan_island_boat_ramp"
+      ],
+      "20mi": [
+        "cathedral_park"
+      ]
+    },
+    "kelley_point": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
+    "port_of_camas": {
+      "5mi": [],
+      "10mi": [
+        "washougal_waterfront",
+        "glenn_otto_troutdale"
+      ],
+      "20mi": []
+    },
+    "portland_boathouse": {
+      "5mi": [
+        "tom_mccall_waterfront",
+        "river_place_marina",
+        "sellwood_riverfront",
+        "swan_island_boat_ramp"
+      ],
+      "10mi": [
+        "cathedral_park",
+        "jefferson_st_milwaukie",
+        "george_rogers_park"
+      ],
+      "20mi": []
+    },
+    "river_place_marina": {
+      "5mi": [
+        "tom_mccall_waterfront",
+        "portland_boathouse",
+        "sellwood_riverfront",
+        "swan_island_boat_ramp"
+      ],
+      "10mi": [
+        "cathedral_park",
+        "jefferson_st_milwaukie",
+        "george_rogers_park"
+      ],
+      "20mi": []
+    },
+    "scappoose_bay_marina": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
+    "sellwood_riverfront": {
+      "5mi": [
+        "jefferson_st_milwaukie",
+        "river_place_marina",
+        "tom_mccall_waterfront",
+        "portland_boathouse"
+      ],
+      "10mi": [
+        "george_rogers_park",
+        "swan_island_boat_ramp",
+        "cathedral_park"
+      ],
+      "20mi": []
+    },
+    "sportcraft_enrg_oc": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
+    "st_helens_public_marina": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
+    "swan_island_boat_ramp": {
+      "5mi": [
+        "cathedral_park",
+        "tom_mccall_waterfront",
+        "river_place_marina",
+        "portland_boathouse"
+      ],
+      "10mi": [
+        "sellwood_riverfront",
+        "jefferson_st_milwaukie"
+      ],
+      "20mi": [
+        "george_rogers_park"
+      ]
+    },
+    "tom_mccall_waterfront": {
+      "5mi": [
+        "river_place_marina",
+        "portland_boathouse",
+        "sellwood_riverfront",
+        "swan_island_boat_ramp"
+      ],
+      "10mi": [
+        "cathedral_park",
+        "jefferson_st_milwaukie",
+        "george_rogers_park"
+      ],
+      "20mi": []
+    },
+    "vancouver_wintler": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
+    "washougal_waterfront": {
+      "5mi": [
+        "glenn_otto_troutdale"
+      ],
+      "10mi": [
+        "port_of_camas"
+      ],
+      "20mi": []
+    },
+    "willamette_park_sw": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    }
+  }
+}

@@ -8,8 +8,8 @@
 INTEGRATION_DEVICE := $(shell uname -s | grep -q Darwin && echo macos || echo linux)
 
 .PHONY: help analyze bootstrap ci clean coverage coverage-check dev ensure-husky \
-	format format-fix gen gen-check integration-test kill-emulator preflight \
-	run setup test
+	format format-fix gen gen-check gen-reachability gen-reachability-check \
+	integration-test kill-emulator preflight run setup test
 
 help: ## Help@show targets
 	@printf 'EddyScout — make <target>\n\n'
@@ -56,6 +56,12 @@ gen: ## Quality@run code generation
 
 gen-check: ## Quality@verify codegen is fresh
 	dart run melos run gen:check
+
+gen-reachability: ## Quality@generate launch reachability index JSON
+	cd scripts && dart pub get && dart run generate_launch_reachability_index.dart
+
+gen-reachability-check: ## Quality@verify reachability index is fresh
+	cd scripts && dart pub get && dart run generate_launch_reachability_index.dart --check
 
 preflight: ## Quality@format, analyze, test, gen-check, coverage
 	./scripts/preflight.sh

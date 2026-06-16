@@ -4,5 +4,11 @@ publish_to: none
 environment:
   sdk: ^3.11.4
 
+dependencies:
+  eddyscout_core:
+    path: ../packages/core
+  eddyscout_hydro_routing:
+    path: ../packages/features/hydro_routing
+
 dev_dependencies:
   test: ^1.31.0

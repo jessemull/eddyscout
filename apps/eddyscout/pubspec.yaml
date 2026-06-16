@@ -60,3 +60,4 @@ flutter:
   assets:
     - assets/hydro/willamette_waterway.geojson
     - assets/hydro/columbia_gorge_waterway.geojson
+    - assets/data/launch_reachability_index.json
