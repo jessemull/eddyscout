@@ -23,6 +23,7 @@ Future<String> readBundledHydroAsset(String assetPath) async {
 Future<List<String>> readBundledHydroGeoJsonDocuments() async {
   return [
     await readBundledHydroAsset('assets/hydro/willamette_waterway.geojson'),
+    await readBundledHydroAsset('assets/hydro/columbia_lower_waterway.geojson'),
     await readBundledHydroAsset(
       'assets/hydro/columbia_gorge_waterway.geojson',
     ),

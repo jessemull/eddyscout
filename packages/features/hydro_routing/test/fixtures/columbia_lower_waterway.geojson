@@ -1,0 +1,35 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "river_system": "columbia",
+        "reach_id": "columbia_lower",
+        "name": "Columbia mainstem — Portland pool to gorge approach (curated)",
+        "source": "Curated centerline approximation until R1 OSM/NHD import. Shares endpoints with Willamette mouth and columbia_gorge segment."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-122.7909498, 45.6178872],
+          [-122.775, 45.6205],
+          [-122.755, 45.624],
+          [-122.735, 45.6265],
+          [-122.71, 45.628],
+          [-122.685, 45.627],
+          [-122.66, 45.624],
+          [-122.635, 45.62],
+          [-122.61, 45.615],
+          [-122.585, 45.61],
+          [-122.56, 45.604],
+          [-122.535, 45.598],
+          [-122.51, 45.592],
+          [-122.485, 45.588],
+          [-122.46, 45.586],
+          [-122.4244, 45.5856]
+        ]
+      }
+    }
+  ]
+}

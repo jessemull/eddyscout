@@ -372,7 +372,7 @@ Waterway GeoJSON (OSM / NHD / curated)
 | System | Status |
 |--------|--------|
 | Willamette (main stem Portland reach) | Done (bundled GeoJSON) |
-| Columbia (Portland–Sauvie–St. Helens) | Not started |
+| Columbia (Portland–Sauvie–St. Helens) | Partial — `columbia_lower_waterway.geojson` (curated mouth→gorge link; replace with OSM/NHD in R1) + `columbia_gorge_waterway.geojson` |
 | Clackamas | Not started |
 | Multnomah Channel / slough | Not started |
 | Tualatin | Not started |

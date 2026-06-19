@@ -51,7 +51,7 @@ void main() {
   });
 
   test(
-    'hydroGeoJsonLoaderProvider loads Willamette and Columbia gorge assets',
+    'hydroGeoJsonLoaderProvider loads Willamette and Columbia assets',
     () async {
       final container = ProviderContainer(
         overrides: buildAppProviderOverrides(keyValueStore: store),
@@ -59,10 +59,10 @@ void main() {
       addTearDown(container.dispose);
 
       final docs = await container.read(hydroGeoJsonLoaderProvider)();
-      expect(docs, hasLength(2));
-      expect(docs.first, contains('FeatureCollection'));
-      expect(docs.first, contains('willamette'));
-      expect(docs.last, contains('columbia_gorge'));
+      expect(docs, hasLength(3));
+      expect(docs[0], contains('willamette'));
+      expect(docs[1], contains('columbia_lower'));
+      expect(docs[2], contains('columbia_gorge'));
     },
   );
 
@@ -100,7 +100,7 @@ void main() {
   );
 
   test(
-    'riverRoutePlannerProvider routes cross-system launches via bridge',
+    'riverRoutePlannerProvider routes cross-system launches on unified graph',
     () async {
       final container = ProviderContainer(
         overrides: buildAppProviderOverrides(keyValueStore: store),
