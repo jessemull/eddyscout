@@ -397,7 +397,7 @@ void main() {
     );
 
     expect(find.textContaining('Total trip:'), findsOneWidget);
-    expect(find.textContaining('mi)'), findsOneWidget);
+    expect(find.textContaining('km)'), findsOneWidget);
   });
 }
 
