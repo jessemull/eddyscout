@@ -96,14 +96,7 @@ void main() {
   });
 
   group('GoNoGoEvaluator additional branches', () {
-    test('GoNoGoVerdictUi.headline returns expected labels', () {
-      expect(GoNoGoVerdict.go.headline, contains('Go'));
-      expect(GoNoGoVerdict.marginal.headline, 'Marginal');
-      expect(GoNoGoVerdict.noGo.headline, contains('No-go'));
-      expect(GoNoGoVerdict.insufficientData.headline, 'Insufficient data');
-    });
-
-    test('missing weather with explicit weatherError includes details', () {
+    test('missing weather with explicit weatherError stores error param', () {
       const launch = LaunchPoint(
         id: 'id',
         name: 'n',
@@ -123,10 +116,15 @@ void main() {
         snapshot,
         now: DateTime(2026, 6, 1),
       );
-      expect(result.reasons.any((r) => r.code == 'weather_missing'), isTrue);
       expect(
-        result.reasons.firstWhere((r) => r.code == 'weather_missing').message,
-        contains('weather_nws_error'),
+        result.reasons.any((r) => r.code == GoNoGoReasonCode.weatherMissing),
+        isTrue,
+      );
+      expect(
+        result.reasons
+            .firstWhere((r) => r.code == GoNoGoReasonCode.weatherMissing)
+            .weatherError,
+        'weather_nws_error',
       );
     });
 
@@ -155,7 +153,9 @@ void main() {
         now: DateTime(2026, 6, 1),
       );
       expect(
-        result.reasons.any((r) => r.code == 'forecast_time_low_light'),
+        result.reasons.any(
+          (r) => r.code == GoNoGoReasonCode.forecastLowLightHours,
+        ),
         isFalse,
       );
     });

@@ -43,15 +43,53 @@ enum GoNoGoVerdict {
   insufficientData,
 }
 
-/// UI headlines for [GoNoGoVerdict].
-extension GoNoGoVerdictUi on GoNoGoVerdict {
-  /// Short label for chips and cards.
-  String get headline => switch (this) {
-    GoNoGoVerdict.go => 'Go (planning hint)',
-    GoNoGoVerdict.marginal => 'Marginal',
-    GoNoGoVerdict.noGo => 'No-go (planning hint)',
-    GoNoGoVerdict.insufficientData => 'Insufficient data',
-  };
+/// Machine-readable go/no-go reason codes.
+///
+/// UI must localize via generated localization strings.
+enum GoNoGoReasonCode {
+  /// Cold-water season safety reminder (Nov–Apr).
+  @JsonValue('cold_water_season')
+  coldWaterSeason,
+
+  /// Weather data unavailable for wind assessment.
+  @JsonValue('weather_missing')
+  weatherMissing,
+
+  /// Wind speed/gust missing from forecast.
+  @JsonValue('wind_unknown')
+  windUnknown,
+
+  /// Effective wind at or above no-go threshold.
+  @JsonValue('wind_high')
+  windHigh,
+
+  /// Effective wind at or above marginal threshold.
+  @JsonValue('wind_elevated')
+  windElevated,
+
+  /// Marine forecast text matches a severe pattern.
+  @JsonValue('marine_severe')
+  marineSevere,
+
+  /// Marine forecast text matches an advisory pattern.
+  @JsonValue('marine_advisory')
+  marineAdvisory,
+
+  /// Forecast period starts during low-light hours.
+  @JsonValue('forecast_low_light_hours')
+  forecastLowLightHours,
+
+  /// Discharge at or above no-go flow band.
+  @JsonValue('flow_very_high')
+  flowVeryHigh,
+
+  /// Discharge at or above elevated flow band.
+  @JsonValue('flow_high')
+  flowHigh,
+
+  /// Discharge below launch low-flow cue.
+  @JsonValue('flow_low')
+  flowLow,
 }
 
 /// How a single reason affects the aggregated verdict.
@@ -66,19 +104,42 @@ enum GoNoGoReasonSeverity {
   noGo,
 }
 
-/// One human-readable explanation for a go/no-go outcome.
+/// One typed explanation for a go/no-go outcome.
 @freezed
 abstract class GoNoGoReason with _$GoNoGoReason {
   /// Creates a stable-coded reason line.
   const factory GoNoGoReason({
     /// Machine-readable reason id for analytics and tests.
-    required String code,
-
-    /// Paddler-facing explanation.
-    required String message,
+    required GoNoGoReasonCode code,
 
     /// How this reason affects [GoNoGoVerdict].
     required GoNoGoReasonSeverity severity,
+
+    /// Effective wind in mph
+    /// ([GoNoGoReasonCode.windHigh], [GoNoGoReasonCode.windElevated]).
+    int? windMph,
+
+    /// Wind exposure label, lowercased
+    /// ([GoNoGoReasonCode.windHigh], [GoNoGoReasonCode.windElevated]).
+    String? exposure,
+
+    /// Matched marine forecast phrase
+    /// ([GoNoGoReasonCode.marineSevere], [GoNoGoReasonCode.marineAdvisory]).
+    String? pattern,
+
+    /// Formatted discharge
+    /// ([GoNoGoReasonCode.flowVeryHigh], [GoNoGoReasonCode.flowHigh],
+    /// [GoNoGoReasonCode.flowLow]).
+    String? cfs,
+
+    /// USGS site id for flow readings.
+    String? siteId,
+
+    /// Weather fetch error code ([GoNoGoReasonCode.weatherMissing]).
+    String? weatherError,
+
+    /// True when flow bands come from launch-specific [LaunchFlowBands].
+    bool? usesLaunchFlowBands,
   }) = _GoNoGoReason;
 
   /// Parses a reason from JSON.
@@ -120,10 +181,7 @@ class GoNoGoEvaluator {
     if (coldWaterSeasonMonths.contains(effectiveNow.month)) {
       reasons.add(
         const GoNoGoReason(
-          code: 'cold_water_season',
-          message:
-              'Cold-water season in the PNW—dress for immersion, know '
-              'hypothermia risk, and carry safety gear.',
+          code: GoNoGoReasonCode.coldWaterSeason,
           severity: GoNoGoReasonSeverity.info,
         ),
       );
@@ -133,13 +191,9 @@ class GoNoGoEvaluator {
     if (weatherMissing) {
       reasons.add(
         GoNoGoReason(
-          code: 'weather_missing',
-          message: snapshot.weatherError != null
-              ? 'Weather data failed to load (${snapshot.weatherError}). '
-                    'Cannot assess wind from forecast.'
-              : 'Weather data was not available. '
-                    'Cannot assess wind from forecast.',
+          code: GoNoGoReasonCode.weatherMissing,
           severity: GoNoGoReasonSeverity.info,
+          weatherError: snapshot.weatherError,
         ),
       );
     } else {
@@ -180,10 +234,7 @@ class GoNoGoEvaluator {
     if (eff == null) {
       reasons.add(
         const GoNoGoReason(
-          code: 'wind_unknown',
-          message:
-              'Wind speed or gust was not available from the forecast—use '
-              'caution, especially in open or exposed areas.',
+          code: GoNoGoReasonCode.windUnknown,
           severity: GoNoGoReasonSeverity.marginal,
         ),
       );
@@ -194,21 +245,19 @@ class GoNoGoEvaluator {
     if (eff >= noGoAt) {
       reasons.add(
         GoNoGoReason(
-          code: 'wind_high',
-          message:
-              'Effective wind about $eff mph (${exposure.label.toLowerCase()} '
-              'site)—our stub rules treat this as strong for paddling.',
+          code: GoNoGoReasonCode.windHigh,
           severity: GoNoGoReasonSeverity.noGo,
+          windMph: eff,
+          exposure: exposure.label.toLowerCase(),
         ),
       );
     } else if (eff >= marginalAt) {
       reasons.add(
         GoNoGoReason(
-          code: 'wind_elevated',
-          message:
-              'Effective wind about $eff mph (${exposure.label.toLowerCase()} '
-              'site)—conditions may feel rougher on open water.',
+          code: GoNoGoReasonCode.windElevated,
           severity: GoNoGoReasonSeverity.marginal,
+          windMph: eff,
+          exposure: exposure.label.toLowerCase(),
         ),
       );
     }
@@ -243,11 +292,9 @@ class GoNoGoEvaluator {
       if (text.contains(pattern)) {
         reasons.add(
           GoNoGoReason(
-            code: 'marine_severe',
-            message:
-                'Marine forecast text mentions “$pattern”—treat as hazardous '
-                'until you verify locally.',
+            code: GoNoGoReasonCode.marineSevere,
             severity: GoNoGoReasonSeverity.noGo,
+            pattern: pattern,
           ),
         );
         return;
@@ -257,11 +304,9 @@ class GoNoGoEvaluator {
       if (text.contains(pattern)) {
         reasons.add(
           GoNoGoReason(
-            code: 'marine_advisory',
-            message:
-                'Marine forecast includes “$pattern”—expect rougher water, '
-                'current, or advisories near the estuary/coast.',
+            code: GoNoGoReasonCode.marineAdvisory,
             severity: GoNoGoReasonSeverity.marginal,
+            pattern: pattern,
           ),
         );
         return;
@@ -281,11 +326,7 @@ class GoNoGoEvaluator {
     if (h >= 20 || h < 6) {
       reasons.add(
         const GoNoGoReason(
-          code: 'forecast_low_light_hours',
-          message:
-              'This forecast period starts during typical low-light hours '
-              'locally—verify visibility, hazards, and your comfort paddling '
-              'after dark.',
+          code: GoNoGoReasonCode.forecastLowLightHours,
           severity: GoNoGoReasonSeverity.info,
         ),
       );
@@ -306,12 +347,11 @@ class GoNoGoEvaluator {
       if (noGoAt != null && cfs >= noGoAt) {
         reasons.add(
           GoNoGoReason(
-            code: 'flow_very_high',
-            message:
-                'Discharge about ${_cfsShort(cfs)} cfs at site '
-                '${reading.siteId}—above this launch’s curated upper band; '
-                'verify hazards and skill match.',
+            code: GoNoGoReasonCode.flowVeryHigh,
             severity: GoNoGoReasonSeverity.noGo,
+            cfs: _cfsShort(cfs),
+            siteId: reading.siteId,
+            usesLaunchFlowBands: true,
           ),
         );
         return;
@@ -319,12 +359,11 @@ class GoNoGoEvaluator {
       if (comfortMax != null && cfs >= comfortMax) {
         reasons.add(
           GoNoGoReason(
-            code: 'flow_high',
-            message:
-                'Discharge about ${_cfsShort(cfs)} cfs at site '
-                '${reading.siteId}—at or above this launch’s “elevated flow” '
-                'band; double-check strainers and current.',
+            code: GoNoGoReasonCode.flowHigh,
             severity: GoNoGoReasonSeverity.marginal,
+            cfs: _cfsShort(cfs),
+            siteId: reading.siteId,
+            usesLaunchFlowBands: true,
           ),
         );
         return;
@@ -332,12 +371,11 @@ class GoNoGoEvaluator {
       if (lowMarginal != null && cfs < lowMarginal) {
         reasons.add(
           GoNoGoReason(
-            code: 'flow_low',
-            message:
-                'Discharge about ${_cfsShort(cfs)} cfs at site '
-                '${reading.siteId}—below this launch’s low-flow cue; watch for '
-                'shallow spots and wood.',
+            code: GoNoGoReasonCode.flowLow,
             severity: GoNoGoReasonSeverity.marginal,
+            cfs: _cfsShort(cfs),
+            siteId: reading.siteId,
+            usesLaunchFlowBands: true,
           ),
         );
       }
@@ -350,23 +388,21 @@ class GoNoGoEvaluator {
     if (noGoAt != null && cfs >= noGoAt) {
       reasons.add(
         GoNoGoReason(
-          code: 'flow_very_high',
-          message:
-              'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}'
-              '—stub upper band for this river class suggests very high water; '
-              'verify hazards and skill match.',
+          code: GoNoGoReasonCode.flowVeryHigh,
           severity: GoNoGoReasonSeverity.noGo,
+          cfs: _cfsShort(cfs),
+          siteId: reading.siteId,
+          usesLaunchFlowBands: false,
         ),
       );
     } else if (marginalAt != null && cfs >= marginalAt) {
       reasons.add(
         GoNoGoReason(
-          code: 'flow_high',
-          message:
-              'Discharge about ${_cfsShort(cfs)} cfs at site ${reading.siteId}'
-              '—above our placeholder “elevated” band for this river class; '
-              'double-check strainers and current.',
+          code: GoNoGoReasonCode.flowHigh,
           severity: GoNoGoReasonSeverity.marginal,
+          cfs: _cfsShort(cfs),
+          siteId: reading.siteId,
+          usesLaunchFlowBands: false,
         ),
       );
     }
