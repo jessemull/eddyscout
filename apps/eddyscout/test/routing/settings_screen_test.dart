@@ -1,6 +1,7 @@
 import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
 import 'package:eddyscout/routing/settings_screen.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../test_localized_app.dart';
+
+class _FailingUnitSystem extends UnitSystem {
+  @override
+  Future<DisplayUnitSystem> build() async {
+    throw StateError('units load failed');
+  }
+}
+
+class _FailingPaddleSpeed extends PaddleSpeed {
+  @override
+  Future<double> build() async {
+    throw StateError('paddle speed load failed');
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -102,6 +117,33 @@ void main() {
     expect(
       await store.getString(kDisplayUnitSystemKey),
       displayUnitSystemToStored(DisplayUnitSystem.imperial),
+    );
+  });
+
+  testWidgets('shows units load error when unitSystemProvider fails', (
+    tester,
+  ) async {
+    await pumpSettings(
+      tester,
+      extraOverrides: [unitSystemProvider.overrideWith(_FailingUnitSystem.new)],
+    );
+
+    expect(find.text('Could not load unit preferences.'), findsOneWidget);
+  });
+
+  testWidgets('shows paddle speed load error when paddleSpeedProvider fails', (
+    tester,
+  ) async {
+    await pumpSettings(
+      tester,
+      extraOverrides: [
+        paddleSpeedProvider.overrideWith(_FailingPaddleSpeed.new),
+      ],
+    );
+
+    expect(
+      find.text('Could not load paddling speed preference.'),
+      findsOneWidget,
     );
   });
 }

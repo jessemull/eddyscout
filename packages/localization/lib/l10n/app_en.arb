@@ -421,6 +421,10 @@
   "@settingsUnitsLoadError": {
     "description": "Error message when the units preference fails to load"
   },
+  "settingsPaddleSpeedLoadError": "Could not load paddling speed preference.",
+  "@settingsPaddleSpeedLoadError": {
+    "description": "Error message when the paddling speed preference fails to load"
+  },
   "displayDistanceKm": "{value} km",
   "@displayDistanceKm": {
     "description": "Formatted distance in kilometers",

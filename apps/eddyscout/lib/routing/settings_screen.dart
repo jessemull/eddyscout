@@ -43,7 +43,7 @@ class SettingsScreen extends ConsumerWidget {
           error: (error, _) => Center(
             child: Padding(
               padding: const EdgeInsets.all(Spacing.lg),
-              child: Text(l10n.launchDetailSkillProfileErrorGeneric),
+              child: Text(l10n.settingsPaddleSpeedLoadError),
             ),
           ),
           data: (speedKmh) => ListView(

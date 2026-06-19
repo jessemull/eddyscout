@@ -720,6 +720,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsUnitsLoadError => 'Could not load unit preferences.';
 
   @override
+  String get settingsPaddleSpeedLoadError =>
+      'Could not load paddling speed preference.';
+
+  @override
   String displayDistanceKm(String value) {
     return '$value km';
   }

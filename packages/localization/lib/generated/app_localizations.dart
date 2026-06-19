@@ -1279,6 +1279,12 @@ abstract class AppLocalizations {
   /// **'Could not load unit preferences.'**
   String get settingsUnitsLoadError;
 
+  /// Error message when the paddling speed preference fails to load
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load paddling speed preference.'**
+  String get settingsPaddleSpeedLoadError;
+
   /// Formatted distance in kilometers
   ///
   /// In en, this message translates to:
