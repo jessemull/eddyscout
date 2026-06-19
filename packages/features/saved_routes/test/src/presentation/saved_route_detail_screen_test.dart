@@ -1,6 +1,7 @@
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_form_helpers.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_screen.dart';
@@ -52,6 +53,9 @@ void main() {
         overrides: [
           analyticsClientProvider.overrideWithValue(
             const NoOpAnalyticsClient(),
+          ),
+          effectiveDisplayUnitSystemProvider.overrideWithValue(
+            DisplayUnitSystem.metric,
           ),
           launchPointLookupProvider.overrideWithValue((_) => null),
           savedRouteRepositoryProvider.overrideWithValue(repository),

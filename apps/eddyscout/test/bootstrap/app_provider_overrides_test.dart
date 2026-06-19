@@ -35,6 +35,10 @@ void main() {
       await container.read(mapKeyValueStoreProvider.future),
       same(store),
     );
+    expect(
+      await container.read(userPreferencesKeyValueStoreProvider.future),
+      same(store),
+    );
   });
 
   test('buildAppProviderOverrides applies optional map overrides', () {

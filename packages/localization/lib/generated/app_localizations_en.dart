@@ -124,8 +124,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String mapPlanningRouteLengthKm(String km) {
-    return 'Along river (estimate): $km km';
+  String mapPlanningRouteLength(String distance) {
+    return 'Along river (estimate): $distance';
   }
 
   @override
@@ -617,8 +617,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String mapRouteTotalTrip(int minutes, String miles) {
-    return 'Total trip: $minutes min ($miles mi)';
+  String mapRouteTotalTrip(int minutes, String distance) {
+    return 'Total trip: $minutes min ($distance)';
   }
 
   @override
@@ -704,6 +704,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPaddleSpeedReset => 'Reset';
 
   @override
+  String get settingsUnitsSectionTitle => 'Units';
+
+  @override
+  String get settingsUnitsDescription =>
+      'Choose how distance and speed are shown in route planning and saved routes.';
+
+  @override
+  String get settingsUnitsMetricLabel => 'Metric (km, km/h)';
+
+  @override
+  String get settingsUnitsImperialLabel => 'Imperial (mi, mph)';
+
+  @override
+  String displayDistanceKm(String value) {
+    return '$value km';
+  }
+
+  @override
+  String displayDistanceMi(String value) {
+    return '$value mi';
+  }
+
+  @override
+  String displaySpeedKmh(String value) {
+    return '$value km/h';
+  }
+
+  @override
+  String displaySpeedMph(String value) {
+    return '$value mph';
+  }
+
+  @override
   String get savedRoutesListTitle => 'Saved routes';
 
   @override
@@ -723,8 +756,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedRoutesListError => 'Could not load saved routes.';
 
   @override
-  String savedRoutesDistanceKm(String km) {
-    return '$km km';
+  String savedRoutesDistance(String distance) {
+    return '$distance';
   }
 
   @override
@@ -740,6 +773,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savedRoutesDetailTitle => 'Route details';
+
+  @override
+  String get savedRoutesDetailDistanceLabel => 'Distance';
 
   @override
   String get savedRoutesDetailError => 'Could not load this route.';
@@ -760,7 +796,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedRoutesDurationLabel => 'Estimated duration (minutes)';
 
   @override
-  String get savedRoutesDurationHint => 'Optional — e.g. distance ÷ 4 km/h';
+  String get savedRoutesDurationHint =>
+      'Optional — estimated paddling time in minutes';
 
   @override
   String get savedRoutesDifficultyLabel => 'Difficulty';

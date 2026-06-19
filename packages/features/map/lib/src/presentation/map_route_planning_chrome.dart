@@ -2,6 +2,7 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/src/domain/map_trip_duration.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -67,12 +68,18 @@ class MapRoutePlanningChrome extends ConsumerWidget {
     final hasDestination = waypoints.length >= 2;
     final canDone = waypoints.length >= 2;
     final speedKmh = ref.watch(effectivePaddleSpeedKmhProvider);
+    final displayUnits = ref.watch(effectiveDisplayUnitSystemProvider);
     final tripMinutes = estimateTripDurationMinutes(
       distanceKm: routeLengthKm,
       speedKmh: speedKmh,
     );
-    final tripMiles = formatDistanceMiles(routeLengthKm);
-    final showTotalTrip = canDone && tripMinutes != null && tripMiles != null;
+    final tripDistance = localizedDistanceFromKm(
+      l10n,
+      routeLengthKm,
+      displayUnits,
+    );
+    final showTotalTrip =
+        canDone && tripMinutes != null && tripDistance != null;
 
     return Material(
       elevation: 4,
@@ -113,8 +120,8 @@ class MapRoutePlanningChrome extends ConsumerWidget {
           const Divider(height: 1),
           _PlanningChromeFooter(
             showTotalTrip: showTotalTrip,
-            totalTripLabel: tripMinutes != null && tripMiles != null
-                ? l10n.mapRouteTotalTrip(tripMinutes, tripMiles)
+            totalTripLabel: tripMinutes != null && tripDistance != null
+                ? l10n.mapRouteTotalTrip(tripMinutes, tripDistance)
                 : null,
             canDone: canDone,
             doneLabel: l10n.mapPlanningDoneLabel,

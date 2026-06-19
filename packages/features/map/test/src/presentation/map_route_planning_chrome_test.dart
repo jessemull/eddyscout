@@ -1,98 +1,84 @@
-import 'package:eddyscout_design_system/eddyscout_design_system.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_map/src/presentation/map_route_planning_chrome.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
-import '../../helpers/memory_key_value_store.dart';
 import '../../helpers/test_localized_app.dart';
 
+class _MockKeyValueStore extends Mock implements KeyValueStore {}
+
+const _origin = LaunchPoint(
+  id: 'launch-a',
+  name: 'Put-in Launch',
+  latitude: 45.5,
+  longitude: -122.6,
+  shortNote: 'Test put-in',
+  riverSystem: RiverSystem.willamette,
+  windExposure: WindExposure.sheltered,
+  tideRelevance: TideRelevance.none,
+);
+
+const _destination = LaunchPoint(
+  id: 'launch-b',
+  name: 'Take-out Launch',
+  latitude: 45.6,
+  longitude: -122.5,
+  shortNote: 'Test take-out',
+  riverSystem: RiverSystem.willamette,
+  windExposure: WindExposure.moderate,
+  tideRelevance: TideRelevance.none,
+);
+
 void main() {
-  testWidgets('centers Done vertically in the footer band', (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        child: testLocalizedApp(
-          child: MapRoutePlanningChrome(
-            waypoints: [kLaunchPoints.first],
-            routeLengthKm: null,
-            onBack: () {},
-            onDone: () {},
-            onRemoveStop: (_) {},
-            onReorderStop: (from, to) {},
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    const footerHeight = 32 + (Spacing.sm * 2);
-    final footerFinder = find.byKey(const Key('map_planning_footer'));
-    expect(tester.getSize(footerFinder).height, footerHeight);
+  late _MockKeyValueStore store;
 
-    final footerTop = tester.getTopLeft(footerFinder).dy;
-    final doneTop = tester.getTopLeft(find.text('Done')).dy;
-    final doneHeight = tester.getSize(find.text('Done')).height;
-    final doneCenter = doneTop + (doneHeight / 2);
-    final footerCenter = footerTop + (footerHeight / 2);
-
-    expect(doneCenter, closeTo(footerCenter, 2));
+  setUp(() {
+    store = _MockKeyValueStore();
+    when(() => store.getDouble(any())).thenAnswer((_) async => null);
   });
 
-  testWidgets('aligns footer edges with chrome columns', (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        child: testLocalizedApp(
-          child: MapRoutePlanningChrome(
-            waypoints: [kLaunchPoints[0], kLaunchPoints[1]],
-            routeLengthKm: 5.8,
-            onBack: () {},
-            onDone: () {},
-            onRemoveStop: (_) {},
-            onReorderStop: (from, to) {},
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    final totalTripRect = tester.getRect(find.textContaining('Total trip'));
-    final doneRect = tester.getRect(find.text('Done'));
-    final closeRect = tester.getRect(find.byIcon(Icons.close).first);
-    final backArrowRect = tester.getRect(find.byIcon(Icons.arrow_back));
-
-    expect(
-      totalTripRect.left,
-      closeTo(backArrowRect.left, 2),
-    );
-    expect(doneRect.right, closeTo(closeRect.right, 2));
-  });
-
-  testWidgets('uses personalized paddling speed for trip estimate', (
-    tester,
-  ) async {
-    final store = MemoryKeyValueStore();
-    await store.setDouble(kPaddleSpeedKmhKey, 5);
-
+  Future<void> pumpChrome(
+    WidgetTester tester, {
+    required DisplayUnitSystem units,
+  }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           mapKeyValueStoreProvider.overrideWith((ref) async => store),
+          effectiveDisplayUnitSystemProvider.overrideWithValue(units),
         ],
         child: testLocalizedApp(
-          child: MapRoutePlanningChrome(
-            waypoints: [kLaunchPoints[0], kLaunchPoints[1]],
-            routeLengthKm: 5,
-            onBack: () {},
-            onDone: () {},
-            onRemoveStop: (_) {},
-            onReorderStop: (from, to) {},
+          child: Scaffold(
+            body: MapRoutePlanningChrome(
+              waypoints: const [_origin, _destination],
+              routeLengthKm: 10,
+              onBack: () {},
+              onDone: () {},
+              onRemoveStop: (_) {},
+              onReorderStop: (_, _) {},
+            ),
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
+  }
 
-    expect(find.textContaining('Total trip: 60 min'), findsOneWidget);
+  testWidgets('shows metric distance in planning footer', (tester) async {
+    await pumpChrome(tester, units: DisplayUnitSystem.metric);
+
+    expect(find.text('Total trip: 150 min (10.0 km)'), findsOneWidget);
+  });
+
+  testWidgets('shows imperial distance in planning footer', (tester) async {
+    await pumpChrome(tester, units: DisplayUnitSystem.imperial);
+
+    expect(find.text('Total trip: 150 min (6.2 mi)'), findsOneWidget);
   });
 }

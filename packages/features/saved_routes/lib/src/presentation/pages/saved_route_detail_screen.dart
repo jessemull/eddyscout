@@ -3,7 +3,9 @@ import 'dart:async' show unawaited;
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_actions.dart';
+import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_distance_section.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_form_helpers.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_metadata_form.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_tags_section.dart';
@@ -143,6 +145,7 @@ class _SavedRouteDetailScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final displayUnits = ref.watch(effectiveDisplayUnitSystemProvider);
     final routeAsync = ref.watch(savedRouteByIdProvider(widget.routeId));
 
     return routeAsync.when(
@@ -163,6 +166,15 @@ class _SavedRouteDetailScreenState
         }
 
         _scheduleBindFromRoute(route);
+
+        final distanceMeters = route.metadata.distanceMeters;
+        final distanceLabel = distanceMeters == null
+            ? null
+            : localizedDistanceFromMeters(
+                l10n,
+                distanceMeters,
+                displayUnits,
+              );
 
         return Scaffold(
           appBar: AppBar(
@@ -197,6 +209,11 @@ class _SavedRouteDetailScreenState
                   _dirty = true;
                 }),
               ),
+              if (distanceLabel != null)
+                SavedRouteDetailDistanceSection(
+                  label: l10n.savedRoutesDetailDistanceLabel,
+                  distanceLabel: distanceLabel,
+                ),
               const SizedBox(height: Spacing.md),
               SavedRouteDetailTagsSection(
                 selectedCategories: _selectedCategories,
