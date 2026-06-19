@@ -1,6 +1,6 @@
-import 'package:eddyscout_persistence/eddyscout_persistence.dart';
+import 'package:eddyscout_persistence/src/key_value_store.dart';
 
-/// In-memory [KeyValueStore] for persistence package tests.
+/// In-memory [KeyValueStore] for tests and local development.
 final class MemoryKeyValueStore implements KeyValueStore {
   final Map<String, Object> _values = {};
 

@@ -3,8 +3,6 @@ import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'helpers/memory_key_value_store.dart';
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

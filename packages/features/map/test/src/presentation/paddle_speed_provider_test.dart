@@ -1,10 +1,9 @@
 import 'package:eddyscout_map/src/domain/map_trip_duration.dart';
 import 'package:eddyscout_map/src/presentation/map_key_value_store_provider.dart';
 import 'package:eddyscout_map/src/presentation/paddle_speed_provider.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import '../../helpers/memory_key_value_store.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

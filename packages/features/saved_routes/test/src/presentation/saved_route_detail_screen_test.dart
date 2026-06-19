@@ -12,7 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../helpers/memory_key_value_store.dart';
 import '../../helpers/test_localized_app.dart';
 import '../../helpers/test_saved_routes.dart';
 
@@ -55,6 +54,7 @@ void main() {
     void Function(SavedRoute route)? onLoadOnMap,
     KeyValueStore? preferencesStore,
     DisplayUnitSystem units = DisplayUnitSystem.metric,
+    bool overrideEffectiveUnits = true,
   }) async {
     final store = preferencesStore ?? MemoryKeyValueStore();
 
@@ -69,7 +69,8 @@ void main() {
           userPreferencesKeyValueStoreProvider.overrideWith(
             (ref) async => store,
           ),
-          effectiveDisplayUnitsProvider.overrideWithValue(units),
+          if (overrideEffectiveUnits)
+            effectiveDisplayUnitsProvider.overrideWithValue(units),
           ...overrides.cast(),
         ],
         child: testLocalizedApp(
@@ -166,6 +167,32 @@ void main() {
     expect(find.text('Distance'), findsOneWidget);
     expect(find.text('3.2 mi'), findsOneWidget);
   });
+
+  testWidgets(
+    'shows imperial distance when unit preference loads from store',
+    (tester) async {
+      final route = testSavedRoute(name: 'Stored Units Route');
+      when(() => repository.getById(route.id)).thenAnswer(
+        (_) async => Result.success(route),
+      );
+      final store = MemoryKeyValueStore();
+      await store.setString(
+        kDisplayUnitSystemKey,
+        encodeDisplayUnitSystem(DisplayUnitSystem.imperial),
+      );
+
+      await pumpDetail(
+        tester,
+        routeId: route.id,
+        overrides: const [],
+        preferencesStore: store,
+        overrideEffectiveUnits: false,
+      );
+
+      expect(find.text('Distance'), findsOneWidget);
+      expect(find.text('3.2 mi'), findsOneWidget);
+    },
+  );
 
   testWidgets('binds route fields when reopening with cached provider', (
     tester,
