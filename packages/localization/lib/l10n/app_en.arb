@@ -417,6 +417,10 @@
   "@settingsUnitsImperialLabel": {
     "description": "Label for imperial unit system option"
   },
+  "settingsUnitsLoadError": "Could not load unit preferences.",
+  "@settingsUnitsLoadError": {
+    "description": "Error message when the units preference fails to load"
+  },
   "displayDistanceKm": "{value} km",
   "@displayDistanceKm": {
     "description": "Formatted distance in kilometers",

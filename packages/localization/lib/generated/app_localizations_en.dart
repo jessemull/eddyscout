@@ -717,6 +717,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsUnitsImperialLabel => 'Imperial (mi, mph)';
 
   @override
+  String get settingsUnitsLoadError => 'Could not load unit preferences.';
+
+  @override
   String displayDistanceKm(String value) {
     return '$value km';
   }

@@ -18,18 +18,20 @@ class SavedRouteDetailDistanceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-        const SizedBox(height: Spacing.xs),
-        Text(
-          distanceLabel,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      ],
+    return MergeSemantics(
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: Spacing.xs),
+          Text(
+            distanceLabel,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ],
+      ),
     );
   }
 }

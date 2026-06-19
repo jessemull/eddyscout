@@ -1273,6 +1273,12 @@ abstract class AppLocalizations {
   /// **'Imperial (mi, mph)'**
   String get settingsUnitsImperialLabel;
 
+  /// Error message when the units preference fails to load
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load unit preferences.'**
+  String get settingsUnitsLoadError;
+
   /// Formatted distance in kilometers
   ///
   /// In en, this message translates to:

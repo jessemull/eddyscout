@@ -46,6 +46,7 @@ void main() {
     WidgetTester tester, {
     required String routeId,
     required List<Object?> overrides,
+    DisplayUnitSystem displayUnits = DisplayUnitSystem.metric,
     void Function(SavedRoute route)? onLoadOnMap,
   }) async {
     await tester.pumpWidget(
@@ -54,9 +55,7 @@ void main() {
           analyticsClientProvider.overrideWithValue(
             const NoOpAnalyticsClient(),
           ),
-          effectiveDisplayUnitSystemProvider.overrideWithValue(
-            DisplayUnitSystem.metric,
-          ),
+          effectiveDisplayUnitSystemProvider.overrideWithValue(displayUnits),
           launchPointLookupProvider.overrideWithValue((_) => null),
           savedRouteRepositoryProvider.overrideWithValue(repository),
           ...overrides.cast(),
@@ -109,6 +108,43 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Load on map'), findsOneWidget);
+  });
+
+  testWidgets('shows metric distance for route with distance metadata', (
+    tester,
+  ) async {
+    final route = testSavedRoute();
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+    );
+
+    expect(find.text('Distance'), findsOneWidget);
+    expect(find.text('5.2 km'), findsOneWidget);
+  });
+
+  testWidgets('shows imperial distance when units preference is imperial', (
+    tester,
+  ) async {
+    final route = testSavedRoute();
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+      displayUnits: DisplayUnitSystem.imperial,
+    );
+
+    expect(find.text('Distance'), findsOneWidget);
+    expect(find.text('3.2 mi'), findsOneWidget);
   });
 
   testWidgets('binds route fields when reopening with cached provider', (
