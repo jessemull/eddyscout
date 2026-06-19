@@ -1,14 +1,8 @@
-import 'dart:io';
-
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<String> _loadCommittedReachabilityIndex() async {
-  return File(
-    '../../../apps/eddyscout/assets/data/launch_reachability_index.json',
-  ).readAsString();
-}
+import 'helpers/committed_reachability_index.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +12,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           launchReachabilityIndexLoaderProvider.overrideWithValue(
-            _loadCommittedReachabilityIndex,
+            readCommittedReachabilityIndex,
           ),
         ],
       );

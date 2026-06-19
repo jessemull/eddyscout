@@ -14,7 +14,6 @@ abstract final class LaunchReachabilityIndexGenerator {
     required List<LaunchPoint> catalog,
     DateTime? generatedAt,
     bool crossSystemReachability = false,
-    double snapMaxMeters = kReachabilitySnapMaxMeters,
     void Function(String message)? onWarning,
   }) {
     final entries = <String, LaunchReachabilityEntry>{};
@@ -90,7 +89,7 @@ abstract final class LaunchReachabilityIndexGenerator {
       schemaVersion: 1,
       generatedAt: (generatedAt ?? DateTime.now()).toUtc(),
       distanceModel: 'graph_plus_snap',
-      snapMaxMeters: snapMaxMeters,
+      snapMaxMeters: kReachabilitySnapMaxMeters,
       thresholdsMi: kReachabilityThresholdsMi,
       crossSystemReachability: crossSystemReachability,
       entries: entries,
@@ -103,7 +102,6 @@ abstract final class LaunchReachabilityIndexGenerator {
     required List<LaunchPoint> catalog,
     DateTime? generatedAt,
     bool crossSystemReachability = false,
-    double snapMaxMeters = kReachabilitySnapMaxMeters,
     void Function(String message)? onWarning,
   }) {
     final index = generate(
@@ -111,7 +109,6 @@ abstract final class LaunchReachabilityIndexGenerator {
       catalog: catalog,
       generatedAt: generatedAt,
       crossSystemReachability: crossSystemReachability,
-      snapMaxMeters: snapMaxMeters,
       onWarning: onWarning,
     );
     return encodeLaunchReachabilityIndex(index);

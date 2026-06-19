@@ -319,6 +319,96 @@ void main() {
         expect(graph.vertexCount, syntheticGridVertexCount(target));
       }
     });
+
+    group('reachability graph helpers', () {
+      late RiverLineGraph chainGraph;
+
+      setUp(() {
+        const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "chain"},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[0, 0], [0, 0.01], [0, 0.02], [0, 0.03]]
+      }
+    }
+  ]
+}
+''';
+        chainGraph = RiverLineGraph.fromFeatures(
+          parseHydroGeoJson(json),
+          riverSystemName: 'chain',
+        );
+      });
+
+      test('snapToVertex returns nearest vertex within threshold', () {
+        final snap = chainGraph.snapToVertex(0.01, 0.0);
+        expect(snap, isNotNull);
+        expect(snap!.vertexIndex, isNotNull);
+        expect(snap.snapMeters, lessThan(2000));
+      });
+
+      test('snapToVertex returns null when too far from geometry', () {
+        expect(
+          chainGraph.snapToVertex(40.0, -100.0, maxSnapMeters: 50),
+          isNull,
+        );
+      });
+
+      test('graphDistanceMeters matches A* path length', () {
+        final last = chainGraph.vertexCount - 1;
+        expect(
+          chainGraph.graphDistanceMeters(0, last),
+          chainGraph.shortestPathDistanceForTesting(0, last),
+        );
+      });
+
+      test(
+        'graphDistanceMeters returns null across disconnected components',
+        () {
+          const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "split"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0], [0, 0.01]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "split"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 1], [0, 1.01]]}
+    }
+  ]
+}
+''';
+          final split = RiverLineGraph.fromFeatures(
+            parseHydroGeoJson(json),
+            riverSystemName: 'split',
+          );
+          expect(split.graphDistanceMeters(0, 2), isNull);
+        },
+      );
+
+      test('distancesWithin respects graph cutoff', () {
+        final firstEdge = chainGraph.shortestPathDistanceForTesting(0, 1);
+        final within = chainGraph.distancesWithin(0, firstEdge + 1);
+        expect(within.keys, containsAll([0, 1]));
+        expect(within[1], lessThanOrEqualTo(firstEdge + 1));
+        expect(within.containsKey(chainGraph.vertexCount - 1), isFalse);
+      });
+
+      test('routeDistanceMeters matches route success length', () {
+        final distance = chainGraph.routeDistanceMeters(0, 0, 0.03, 0);
+        final result = chainGraph.route(0, 0, 0.03, 0);
+        expect(distance, (result as RouteSuccess).lengthMeters);
+      });
+    });
   });
 
   group('parseHydroGeoJson', () {
