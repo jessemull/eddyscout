@@ -62,7 +62,7 @@ final class LaunchReachabilityIndexLoaderProvider
 }
 
 String _$launchReachabilityIndexLoaderHash() =>
-    r'78147cdd742841b3bdc9f22afb6ca75eeea1b579';
+    r'fd4a8e82084c6e7950fca17b63d68b991d7ed259';
 
 /// Pre-computed launch reachability index (graph distance bands).
 
