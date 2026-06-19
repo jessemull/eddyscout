@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
 import 'package:eddyscout/routing/settings_screen.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +11,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../test_localized_app.dart';
+
+class _LoadingPaddleSpeed extends PaddleSpeed {
+  @override
+  Future<double> build() => Completer<double>().future;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +44,37 @@ void main() {
     expect(find.text('Metric'), findsOneWidget);
     expect(find.text('Paddling speed'), findsOneWidget);
     expect(find.text('4.0 km/h'), findsOneWidget);
+  });
+
+  testWidgets('units segment stays tappable while paddle speed loads', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          ...buildAppProviderOverrides(keyValueStore: store),
+          paddleSpeedProvider.overrideWith(_LoadingPaddleSpeed.new),
+        ],
+        child: testLocalizedApp(child: const SettingsScreen()),
+      ),
+    );
+    await tester.pump();
+
+    expect(
+      find.byKey(const Key('settings_display_units_segment')),
+      findsOneWidget,
+    );
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byKey(const Key('settings_paddle_speed_slider')), findsNothing);
+
+    await tester.tap(find.text('Imperial'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(
+      await store.getString(kDisplayUnitSystemKey),
+      encodeDisplayUnitSystem(DisplayUnitSystem.imperial),
+    );
   });
 
   testWidgets('updates displayed speed when slider changes', (tester) async {

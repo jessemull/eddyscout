@@ -143,7 +143,7 @@ void main() {
     expect(find.text('5.2 km'), findsOneWidget);
   });
 
-  testWidgets('shows imperial distance on detail when preference is imperial', (
+  testWidgets('shows imperial distance when preference is imperial', (
     tester,
   ) async {
     final route = testSavedRoute(name: 'Distance Route');
@@ -161,38 +161,12 @@ void main() {
       routeId: route.id,
       overrides: const [],
       preferencesStore: store,
-      units: DisplayUnitSystem.imperial,
+      overrideEffectiveUnits: false,
     );
 
     expect(find.text('Distance'), findsOneWidget);
     expect(find.text('3.2 mi'), findsOneWidget);
   });
-
-  testWidgets(
-    'shows imperial distance when unit preference loads from store',
-    (tester) async {
-      final route = testSavedRoute(name: 'Stored Units Route');
-      when(() => repository.getById(route.id)).thenAnswer(
-        (_) async => Result.success(route),
-      );
-      final store = MemoryKeyValueStore();
-      await store.setString(
-        kDisplayUnitSystemKey,
-        encodeDisplayUnitSystem(DisplayUnitSystem.imperial),
-      );
-
-      await pumpDetail(
-        tester,
-        routeId: route.id,
-        overrides: const [],
-        preferencesStore: store,
-        overrideEffectiveUnits: false,
-      );
-
-      expect(find.text('Distance'), findsOneWidget);
-      expect(find.text('3.2 mi'), findsOneWidget);
-    },
-  );
 
   testWidgets('binds route fields when reopening with cached provider', (
     tester,
