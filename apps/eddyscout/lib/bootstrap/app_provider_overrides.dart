@@ -1,4 +1,3 @@
-import 'package:eddyscout/bootstrap/bundled_hydro_asset_paths.dart';
 import 'package:eddyscout/bootstrap/map_gpx_service_adapter.dart';
 import 'package:eddyscout/bootstrap/map_route_planner_adapter.dart';
 import 'package:eddyscout/preferences/key_value_store_provider.dart';

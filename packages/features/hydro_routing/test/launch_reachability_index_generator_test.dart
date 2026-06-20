@@ -78,5 +78,77 @@ void main() {
       );
       expect(entryA.within5Mi, isNot(contains('launch_d')));
     });
+
+    test('does not warn for singleton river-system launches', () {
+      const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "slough"},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[0, 0], [0, 0.01]]
+      }
+    }
+  ]
+}
+''';
+      final planner = RiverRoutePlanner.fromGeoJson(json);
+      final solo = LaunchPoint(
+        id: 'solo_slough',
+        name: 'Solo',
+        latitude: 0,
+        longitude: 0,
+        shortNote: 'Test',
+        riverSystem: RiverSystem.slough,
+        windExposure: WindExposure.moderate,
+        tideRelevance: TideRelevance.none,
+      );
+      final warnings = <String>[];
+      LaunchReachabilityIndexGenerator.generate(
+        planner: planner,
+        catalog: [solo],
+        onWarning: warnings.add,
+      );
+      expect(warnings, isEmpty);
+    });
+
+    test('warns when same-system peers exist but none route', () {
+      const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette"},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[0, 0], [0, 0.01]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette"},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[1, 1], [1, 1.01]]
+      }
+    }
+  ]
+}
+''';
+      final planner = RiverRoutePlanner.fromGeoJson(json);
+      final launchA = _launch(id: 'launch_a', lat: 0, lon: 0);
+      final launchB = _launch(id: 'launch_b', lat: 1, lon: 1);
+      final warnings = <String>[];
+      LaunchReachabilityIndexGenerator.generate(
+        planner: planner,
+        catalog: [launchA, launchB],
+        onWarning: warnings.add,
+      );
+      expect(warnings, contains(startsWith('Launch launch_a has no routable')));
+    });
   });
 }

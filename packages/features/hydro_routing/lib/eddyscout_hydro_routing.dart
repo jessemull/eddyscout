@@ -1,6 +1,7 @@
 /// River-line routing between launches on bundled hydro geometry.
 library;
 
+export 'src/bundled_hydro_asset_paths.dart';
 export 'src/data/geodesy.dart';
 export 'src/data/hydro_app_failure_exception.dart';
 export 'src/data/hydro_geojson_merge.dart';

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+
 Directory _repoRoot() {
   var dir = Directory.current;
   while (true) {
@@ -39,18 +41,12 @@ Future<String> readBundledHydroAsset(String assetPath) async {
 
 /// All bundled waterway GeoJSON documents from the app asset bundle.
 Future<List<String>> readBundledHydroGeoJsonDocuments() async {
-  const paths = [
-    'assets/hydro/willamette_waterway.geojson',
-    'assets/hydro/columbia_lower_waterway.geojson',
-    'assets/hydro/columbia_gorge_waterway.geojson',
-    'assets/hydro/clackamas_waterway.geojson',
-    'assets/hydro/slough_waterway.geojson',
-    'assets/hydro/tualatin_waterway.geojson',
-    'assets/hydro/sandy_waterway.geojson',
+  return [
+    for (final path in bundledHydroGeoJsonAssetPaths)
+      await readBundledHydroAsset(path),
   ];
-  return [for (final path in paths) await readBundledHydroAsset(path)];
 }
 
 /// Loads curated confluence bridge JSON from the app asset bundle.
 Future<String> readBundledConfluenceBridgesJson() =>
-    readBundledHydroAsset('assets/hydro/confluence_bridges.json');
+    readBundledHydroAsset(bundledConfluenceBridgesAssetPath);

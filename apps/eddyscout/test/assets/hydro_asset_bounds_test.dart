@@ -12,7 +12,7 @@ void main() {
       'willamette_waterway.geojson': 12000,
       'columbia_lower_waterway.geojson': 20000,
       'columbia_gorge_waterway.geojson': 15000,
-      'clackamas_waterway.geojson': 60000,
+      'clackamas_waterway.geojson': 45000,
       'slough_waterway.geojson': 20000,
       'tualatin_waterway.geojson': 20000,
       'sandy_waterway.geojson': 10000,

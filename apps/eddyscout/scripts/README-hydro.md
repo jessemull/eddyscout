@@ -35,6 +35,8 @@ Clackamas and Sandy joins to Willamette/Columbia are validated for internal grap
 
 Prefer shared geometry vertices at confluences (≤ 12 m gap, same threshold as `RiverLineGraph`). Bridge entries in `confluence_bridges.json` are a **temporary** fallback only; cross-system routing logic lives on `feat/cross-system-routing` (PR #62). This branch bundles the placeholder file but does not load it in Dart.
 
+Launch anchor extensions (Willamette Park, Sportcraft, Vancouver Wintler, Scappoose, St Helens) snap catalog pins to the graph when OSM centerlines end short. Frenchman's Bar uses a densified connector (up to ~12 km) when the Columbia River centerline is farther than the launch anchor from OSM.
+
 ## Refreshing data (Overpass)
 
 Requires network access. Fetchers overwrite assets and mirror copies to `packages/features/hydro_routing/test/fixtures/`.

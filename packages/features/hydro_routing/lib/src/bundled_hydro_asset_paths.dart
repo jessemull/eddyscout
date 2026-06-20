@@ -1,4 +1,4 @@
-/// Bundled hydro GeoJSON asset paths (single source of truth).
+/// Bundled hydro GeoJSON asset paths (single source of truth for app + tests).
 const bundledHydroGeoJsonAssetPaths = <String>[
   'assets/hydro/willamette_waterway.geojson',
   'assets/hydro/columbia_lower_waterway.geojson',
