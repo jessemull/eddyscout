@@ -179,18 +179,21 @@ void main() {
     test('GoNoGoReason and GoNoGoResult fromJson round-trip', () {
       final reason = GoNoGoReason.fromJson(<String, dynamic>{
         'code': 'wind_high',
-        'message': 'High wind',
         'severity': 'noGo',
+        'windMph': 25,
+        'exposure': 'exposed',
       });
-      expect(reason.code, 'wind_high');
+      expect(reason.code, GoNoGoReasonCode.windHigh);
+      expect(reason.windMph, 25);
 
       final result = GoNoGoResult.fromJson(<String, dynamic>{
         'verdict': 'go',
         'reasons': [
           <String, dynamic>{
             'code': 'wind_high',
-            'message': 'High wind',
             'severity': 'noGo',
+            'windMph': 25,
+            'exposure': 'exposed',
           },
         ],
         'computedAt': '2026-01-01T00:00:00.000Z',
@@ -217,7 +220,10 @@ void main() {
         ),
         now: DateTime(2026, 6, 1, 12),
       );
-      expect(result.reasons.any((r) => r.code == 'wind_unknown'), isTrue);
+      expect(
+        result.reasons.any((r) => r.code == GoNoGoReasonCode.windUnknown),
+        isTrue,
+      );
     });
 
     test('marine text scan truncates very long forecasts', () {
@@ -251,7 +257,14 @@ void main() {
         ),
         now: DateTime(2026, 6, 1, 12),
       );
-      expect(result.reasons.any((r) => r.code.startsWith('marine_')), isTrue);
+      expect(
+        result.reasons.any(
+          (r) =>
+              r.code == GoNoGoReasonCode.marineAdvisory ||
+              r.code == GoNoGoReasonCode.marineSevere,
+        ),
+        isTrue,
+      );
     });
 
     test('launch flowBands noGo threshold triggers flow_very_high', () {
@@ -288,7 +301,10 @@ void main() {
         ),
         now: DateTime(2026, 6, 1, 12),
       );
-      expect(result.reasons.any((r) => r.code == 'flow_very_high'), isTrue);
+      expect(
+        result.reasons.any((r) => r.code == GoNoGoReasonCode.flowVeryHigh),
+        isTrue,
+      );
     });
   });
 
