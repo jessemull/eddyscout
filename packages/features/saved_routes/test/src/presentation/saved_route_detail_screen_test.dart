@@ -1,6 +1,7 @@
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_form_helpers.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_route_detail_screen.dart';
@@ -45,6 +46,7 @@ void main() {
     WidgetTester tester, {
     required String routeId,
     required List<Object?> overrides,
+    DisplayUnitSystem displayUnits = DisplayUnitSystem.metric,
     void Function(SavedRoute route)? onLoadOnMap,
   }) async {
     await tester.pumpWidget(
@@ -53,6 +55,7 @@ void main() {
           analyticsClientProvider.overrideWithValue(
             const NoOpAnalyticsClient(),
           ),
+          effectiveDisplayUnitSystemProvider.overrideWithValue(displayUnits),
           launchPointLookupProvider.overrideWithValue((_) => null),
           savedRouteRepositoryProvider.overrideWithValue(repository),
           ...overrides.cast(),
@@ -105,6 +108,43 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Load on map'), findsOneWidget);
+  });
+
+  testWidgets('shows metric distance for route with distance metadata', (
+    tester,
+  ) async {
+    final route = testSavedRoute();
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+    );
+
+    expect(find.text('Distance'), findsOneWidget);
+    expect(find.text('5.2 km'), findsOneWidget);
+  });
+
+  testWidgets('shows imperial distance when units preference is imperial', (
+    tester,
+  ) async {
+    final route = testSavedRoute();
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+      displayUnits: DisplayUnitSystem.imperial,
+    );
+
+    expect(find.text('Distance'), findsOneWidget);
+    expect(find.text('3.2 mi'), findsOneWidget);
   });
 
   testWidgets('binds route fields when reopening with cached provider', (

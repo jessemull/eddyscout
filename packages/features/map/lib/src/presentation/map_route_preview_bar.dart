@@ -1,11 +1,13 @@
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'map_sheet_header_icon_button.dart';
 
 /// Bottom preview bar after Done — trip time and actions.
-class MapRoutePreviewBar extends StatelessWidget {
+class MapRoutePreviewBar extends ConsumerWidget {
   const MapRoutePreviewBar({
     required this.tripTimeLabel,
     required this.routeLengthKm,
@@ -26,10 +28,17 @@ class MapRoutePreviewBar extends StatelessWidget {
   final VoidCallback onSave;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final backTooltip = MaterialLocalizations.of(context).backButtonTooltip;
+    final displayUnits = ref.watch(effectiveDisplayUnitSystemProvider);
+    final routeLengthLabel = routeLengthKm == null
+        ? null
+        : l10n.mapPlanningRouteLength(
+            localizedDistanceFromKm(l10n, routeLengthKm, displayUnits)!,
+          );
+
     return Material(
       elevation: 8,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -76,11 +85,9 @@ class MapRoutePreviewBar extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        if (routeLengthKm != null)
+                        if (routeLengthLabel != null)
                           Text(
-                            l10n.mapPlanningRouteLengthKm(
-                              routeLengthKm!.toStringAsFixed(1),
-                            ),
+                            routeLengthLabel,
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: scheme.onSurfaceVariant),
                             maxLines: 2,

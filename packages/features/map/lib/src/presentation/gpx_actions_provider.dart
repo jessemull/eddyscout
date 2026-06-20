@@ -7,8 +7,6 @@ import 'package:eddyscout_map/src/presentation/map_planning_provider.dart';
 import 'package:eddyscout_map/src/presentation/mapbox/mapbox_map_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../domain/launch_points.dart';
-
 part 'gpx_actions_provider.g.dart';
 
 /// Domain or platform failure surfaced from GPX export/import.

@@ -12,6 +12,16 @@ void main() {
       expect(meters, greaterThan(1000));
       expect(meters, lessThan(1200));
     });
+
+    test('polylinePathLengthMeters sums segment lengths', () {
+      const points = [
+        GpxPoint(latitude: 45.5, longitude: -122.6),
+        GpxPoint(latitude: 45.51, longitude: -122.6),
+      ];
+      final meters = polylinePathLengthMeters(points);
+      expect(meters, greaterThan(1000));
+      expect(meters, lessThan(1200));
+    });
   });
 
   group('AppFailureException', () {
@@ -98,6 +108,29 @@ void main() {
           [-122.61, 45.51],
         ],
       );
+    });
+
+    test('resolvedLengthMeters derives from points when unset', () {
+      const route = PlannedRoute(
+        points: [
+          GpxPoint(latitude: 45.5, longitude: -122.6),
+          GpxPoint(latitude: 45.51, longitude: -122.6),
+        ],
+      );
+
+      expect(route.resolvedLengthMeters, greaterThan(1000));
+    });
+
+    test('resolvedLengthMeters prefers explicit lengthMeters', () {
+      const route = PlannedRoute(
+        points: [
+          GpxPoint(latitude: 45.5, longitude: -122.6),
+          GpxPoint(latitude: 45.51, longitude: -122.6),
+        ],
+        lengthMeters: 42,
+      );
+
+      expect(route.resolvedLengthMeters, 42);
     });
   });
 

@@ -9,6 +9,8 @@ environment:
   sdk: ^3.11.4
 
 dependencies:
+  eddyscout_core:
+    path: ../core
   flutter:
     sdk: flutter
   flutter_localizations:

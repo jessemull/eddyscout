@@ -182,6 +182,8 @@ void main() {
     final planning = container.read(routePlanningProvider);
     expect(planning.polylineLonLat?.length, 2);
     expect(planning.routeOrigin, RouteOrigin.imported);
+    expect(planning.routeLengthKm, isNotNull);
+    expect(planning.routeLengthKm, greaterThan(0));
   });
 
   test(

@@ -85,3 +85,16 @@ Loaded in production via `hydroConfluenceBridgesLoaderProvider` in `app_provider
 ## Disclaimer
 
 These lines are for **planning visualization only**, not navigation. Verify flow direction, hazards, and access on the water.
+
+## Launch reachability index
+
+Pre-computed graph-distance bands (5 / 10 / 20 statute miles, exclusive) per catalog launch live at `assets/data/launch_reachability_index.json`.
+
+Regenerate after hydro geometry or catalog changes:
+
+```bash
+make gen-reachability
+make gen-reachability-check   # CI-friendly stale check
+```
+
+Expected runtime: **< 2 s** for the full catalog on CI hardware. Cross-system pairs are excluded until unified multi-system routing lands (`crossSystemReachability: false` in the JSON).

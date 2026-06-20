@@ -5,3 +5,4 @@ targets:
         generate_for:
           - lib/src/domain/planned_route.dart
           - lib/src/domain/route_result.dart
+          - lib/src/domain/launch_reachability_index.dart

@@ -32,6 +32,7 @@ flowchart TB
   end
   subgraph plan [Plan]
     routes[Route_planner]
+    multiday[Multi_day_trips]
     export[GPX_export_import]
   end
   subgraph onwater [On_water]
@@ -52,9 +53,9 @@ flowchart TB
 | Pillar | Intent |
 |--------|--------|
 | **Discover** | Map, launches, filters (skill, access, hazards); optional **semantic “similar to”** via embeddings. |
-| **Decide** | Fuse weather, wind, flow, tides where relevant; output Go / marginal / no-go + reasons. |
+| **Decide** | Fuse weather, wind, flow, tides where relevant; output Go / marginal / no-go + reasons (per launch today; **per route** planned). |
 | **Assist (LLM)** | Summaries, Q&A, and coaching **grounded in fetched data + curated metadata**—not a replacement for judgment. |
-| **Plan** | Routes, put-in / take-out, GPX. |
+| **Plan** | Routes, put-in / take-out, GPX; **multi-day** river descents and sea-kayak archipelago hops (daily legs, overnight stops). |
 | **On-water** | Location, bearing, later drift-aware hints; optional offline. |
 | **Community** | Trips, condition reports, finding paddlers—without unsafe defaults on live tracking. |
 
@@ -68,8 +69,10 @@ flowchart TB
 | 2 | **River conditions** | Wood, dam releases, “sketchy at this flow,” closures | Largely **not** in public APIs → crowdsourced + curated **local intelligence**. |
 | 3 | **Wind** | Speed + **gusts**, direction; marine zones where relevant | Open water and fetch; tie to **segment exposure** over time. |
 | 4 | **River flow / speed** | USGS cfs / gauge height; **gauge → launch or segment**, not one number per whole river | **Per-stretch** flow bands (min / optimal / max). |
-| 5 | **Go / no-go** | Clear call + reasons + **marginal**; legal/UX **disclaimer** | Include cold water and skill; avoid false confidence. |
-| 6 | **Route planner** | Put-in / take-out, snap or align to water; later drift vs wind | Needs **river geometry** or curated segments. |
+| 5 | **Go / no-go** | Clear call + reasons + **marginal**; legal/UX **disclaimer** | Per-launch today (launch detail). Include cold water and skill; avoid false confidence. |
+| — | **Route Go / No-Go** | Same deterministic verdict + reasons for a **planned route** (waypoints now; polyline segments later) | Roll up **worst** segment/waypoint; show **which part** triggered it; reuse launch evaluator + skill profile; same disclaimers—not a safety guarantee. |
+| 6 | **Route planner** | Put-in / take-out, snap or align to water; later drift vs wind | Needs **river geometry** or curated segments. Route Go/No-Go depends on planner waypoints (Phase E). |
+| — | **Multi-day trip planning** | Plan **multi-leg expeditions**: downriver trips with daily segments + overnight stops; **archipelago / island-hopping** sea-kayak routes with tide/current windows per day | Exploration → v1: **days** as first-class (not one long polyline only); per-day distance/time; conditions rollup per day; portage gaps between water bodies. |
 | 7 | **Social** | Trip intent, post-trip reports (conditions, wildlife), find paddlers | Start with **planned trips + TTL**; moderation + privacy before heavy live location. |
 | 8 | **Authentication** | Accounts, saved content, posts | Defer until social or saved routes need identity. |
 | — | **Tides / currents** | Estuary, coastal, Sauvie-adjacent | NOAA tides/currents APIs. |
@@ -245,6 +248,8 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase C)** Saved routes (v1) — name/description, categories, favorites, notes, private by default
 - [ ] **(Phase C)** Saved routes metadata (v1) — difficulty, distance, time estimate, exposure, tide dependency, skill level
 - [ ] **(Phase C)** **Auth** when identity is required for saves — accounts, `flutter_secure_storage` for credentials, session router guards (see § Engineering standards)
+- [ ] **(Phase D)** **Multi-day trip planning (exploration)** — user research + product spec for **river multi-day** (daily legs, flow/camp constraints) vs **sea-kayak archipelago** (island hops, tide/current day windows, portage); define overnight-stop / campsite waypoint model; daily distance-time budgets; how per-day **route Go/No-Go** and float plans attach to each leg
+- [ ] **(Phase D / R4)** **Multi-day trips (v1)** — plan a trip as ordered **days**, each with its own waypoints and overnight stop; per-day route preview + distance/time estimate; disconnected segments (archipelago/portage) with explicit gaps; save as multi-day saved route; GPX export per day or whole trip
 - [ ] **(Phase D)** Planned trips / trip intent
 - [ ] **(Phase D)** Moderation posture (policy + product, beyond technical queue above)
 - [ ] **(Phase D)** **Live pins** only with explicit privacy/product decision
@@ -260,7 +265,8 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase E)** **Route validation** (LLM + structured gaps, no invented hazards)
 - [ ] **(Phase E)** **Safety intelligence** (canonical facts + optional LLM phrasing)
 - [ ] **(Phase E)** **Ops** — quotas, logging, cost dashboards
-- [ ] **(Phase E)** Go / No-go typed reasons → localized labels (enum/codes + ARB; no raw reason strings in UI)
+- [x] **(Phase E)** Go / No-go typed reasons → localized labels (enum/codes + ARB; no raw reason strings in UI)
+- [ ] **(Phase E)** **Route Go / No-Go (v1)** — evaluate go/no-go at each planned-route waypoint (put-in / stops / take-out) via existing `GoNoGoEvaluator`; roll up worst verdict (no-go > marginal > insufficient data > go); surface triggering waypoint + localized reasons on route preview / saved route detail; same informational disclaimers as launch detail; later sample exposure along polyline segments
 - [ ] **(Phase E)** Conditions intelligence (v2) — user thresholds (wind/current/temp), alerts, time windows
 - [ ] **(Phase E)** Dynamic risk scoring (v1) — beginner safe / caution / expert only (wind/gust/current/tide/darkness/temp/exposure)
 - [ ] **(Phase E)** Float plans (v1) — route + emergency contacts + return time + overdue reminder flow
@@ -284,9 +290,10 @@ Single list of **everything** tracked for build progress. Tags show the original
 These themes in **Feature list (your themes + gaps)** are still largely **future** relative to what the checklist tracks explicitly:
 
 - **Map / discover:** skill & access **filters** on the map; **alerts** (flow/wind thresholds); **tab shell** (`StatefulShellRoute`) when adding secondary top-level destinations
-- **Decide:** richer **time windows**; **cold water / safety UX** beyond the launch disclaimer
+- **Decide:** **route Go / No-Go** (aggregate verdict across planned waypoints/segments); richer **time windows**; **cold water / safety UX** beyond the launch disclaimer
 - **On-water:** **User location + bearing** to waypoint; **offline** maps / cached conditions
 - **Data / trust:** **Access / permits / tribal** metadata + UI tags
+- **Plan:** **multi-day trip planning** (river descents + archipelago hops; daily legs, overnight stops, per-day conditions); saved routes metadata expansion
 - **Social (beyond reports):** **Trip log** as history; fuller **social** (find paddlers, etc.) with the MVP non-goals still in mind
 
 Additional feature themes explicitly on the product roadmap but not fully itemized above yet:
@@ -297,6 +304,34 @@ Additional feature themes explicitly on the product roadmap but not fully itemiz
 - **Media** — photos/videos, trip cards, auto-generated summaries (`CachedNetworkImage` when showing remote images; see § Engineering standards)
 - **Search & filtering** — route + launch search with facets (distance/difficulty/water type/wind protection/tide suitability/scenic)
 - **Gamification** — achievements, challenges, streaks
+
+---
+
+## Multi-day trip planning (exploration)
+
+Many paddlers plan **multi-day** trips—not single put-in/take-out day paddles. EddyScout should eventually support both dominant patterns:
+
+| Pattern | Examples (PNW) | Planning needs |
+|---------|------------------|----------------|
+| **River multi-day** | Willamette/Columbia multi-day descents; multi-day on Class I–II stretches | Daily **distance/time budgets**; flow trend over days; camp/overnight stop waypoints; strainer/hazard notes by river mile |
+| **Sea kayak / archipelago** | San Juan Islands, Puget Sound hops, coastal camp-to-camp | **Tide/current windows per day**; marine forecast day blocks; island-hopping segments; **portage** or launch gaps between water bodies; exposure along open crossings |
+
+### Product questions (exploration)
+
+- **Day as first-class object** — Is a multi-day trip an ordered list of **days**, each with waypoints + route polyline, rather than one monolithic route?
+- **Overnight stops** — Catalog launches vs user-placed camp pins vs editorial campsite POIs?
+- **Disconnected geometry** — How to represent archipelago legs (segment A → portage → segment B) without implying continuous water?
+- **Conditions over time** — Per-day go/no-go rollup vs “best departure window” within a trip date range (ties to **time windows**, **route Go/No-Go**, **float plans**).
+- **Offline** — Multi-day trips amplify need for offline maps, saved routes, and last-known conditions on route.
+
+### Suggested v1 slice (after R4 routing basics)
+
+1. **Trip = N days**, each day has waypoints + optional overnight stop label.
+2. **Per-day** route preview (reuse planner graph per leg).
+3. **Per-day** distance, time estimate (paddling speed), and conditions summary when data exists.
+4. **Save / GPX** — export whole trip or single day.
+
+Deeper v2: tide-optimized day start times, resupply points, group trip sharing, LLM “sanity check” per day (Assist pillar).
 
 ---
 

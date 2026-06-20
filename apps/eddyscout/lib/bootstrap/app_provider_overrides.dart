@@ -41,6 +41,9 @@ List<Override> buildAppProviderOverrides({
       GoNoGoProfileRepositoryImpl(keyValueStore),
     ),
     mapKeyValueStoreProvider.overrideWith((ref) async => keyValueStore),
+    userPreferencesKeyValueStoreProvider.overrideWith(
+      (ref) async => keyValueStore,
+    ),
     hydroGeoJsonLoaderProvider.overrideWithValue(
       () async => [
         await rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
@@ -54,6 +57,11 @@ List<Override> buildAppProviderOverrides({
     ),
     hydroConfluenceBridgesLoaderProvider.overrideWithValue(
       () async => rootBundle.loadString('assets/hydro/confluence_bridges.json'),
+    ),
+    launchReachabilityIndexLoaderProvider.overrideWithValue(
+      () => rootBundle.loadString(
+        'assets/data/launch_reachability_index.json',
+      ),
     ),
     gpxFileGatewayProvider.overrideWithValue(
       gpxFileGatewayOverride ?? const GpxFileGatewayImpl(),

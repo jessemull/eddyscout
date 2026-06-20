@@ -1,4 +1,5 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_saved_routes/src/domain/repositories/saved_route_repository.dart';
 import 'package:eddyscout_saved_routes/src/presentation/pages/saved_routes_list_screen.dart';
 import 'package:eddyscout_saved_routes/src/presentation/providers/saved_routes_providers.dart';
@@ -87,6 +88,24 @@ void main() {
     );
 
     expect(find.text('Columbia Loop'), findsOneWidget);
+  });
+
+  testWidgets('shows imperial distance when units preference is imperial', (
+    tester,
+  ) async {
+    await pumpList(
+      tester,
+      overrides: [
+        effectiveDisplayUnitSystemProvider.overrideWithValue(
+          DisplayUnitSystem.imperial,
+        ),
+        savedRoutesListProvider.overrideWith(
+          () => _FixedSavedRoutesList([testSavedRoute()]),
+        ),
+      ],
+    );
+
+    expect(find.textContaining('3.2 mi'), findsOneWidget);
   });
 
   testWidgets('shows error with retry when list fails', (tester) async {

@@ -124,8 +124,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String mapPlanningRouteLengthKm(String km) {
-    return 'Along river (estimate): $km km';
+  String mapPlanningRouteLength(String distance) {
+    return 'Along river (estimate): $distance';
   }
 
   @override
@@ -413,6 +413,84 @@ class AppLocalizationsEn extends AppLocalizations {
       'Stub rules only—not a substitute for your judgment, skill, or scouting on site.';
 
   @override
+  String get launchDetailGoNoGoVerdictGo => 'Go (planning hint)';
+
+  @override
+  String get launchDetailGoNoGoVerdictMarginal => 'Marginal';
+
+  @override
+  String get launchDetailGoNoGoVerdictNoGo => 'No-go (planning hint)';
+
+  @override
+  String get launchDetailGoNoGoVerdictInsufficientData => 'Insufficient data';
+
+  @override
+  String get launchDetailGoNoGoReasonColdWaterSeason =>
+      'Cold-water season in the PNW—dress for immersion, know hypothermia risk, and carry safety gear.';
+
+  @override
+  String get launchDetailGoNoGoReasonWeatherMissing =>
+      'Weather data was not available. Cannot assess wind from forecast.';
+
+  @override
+  String launchDetailGoNoGoReasonWeatherMissingWithError(String error) {
+    return 'Weather data failed to load ($error). Cannot assess wind from forecast.';
+  }
+
+  @override
+  String get launchDetailGoNoGoReasonWindUnknown =>
+      'Wind speed or gust was not available from the forecast—use caution, especially in open or exposed areas.';
+
+  @override
+  String launchDetailGoNoGoReasonWindHigh(int mph, String exposure) {
+    return 'Effective wind about $mph mph ($exposure site)—our stub rules treat this as strong for paddling.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonWindElevated(int mph, String exposure) {
+    return 'Effective wind about $mph mph ($exposure site)—conditions may feel rougher on open water.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonMarineSevere(String pattern) {
+    return 'Marine forecast text mentions “$pattern”—treat as hazardous until you verify locally.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonMarineAdvisory(String pattern) {
+    return 'Marine forecast includes “$pattern”—expect rougher water, current, or advisories near the estuary/coast.';
+  }
+
+  @override
+  String get launchDetailGoNoGoReasonForecastLowLight =>
+      'This forecast period starts during typical low-light hours locally—verify visibility, hazards, and your comfort paddling after dark.';
+
+  @override
+  String launchDetailGoNoGoReasonFlowVeryHighLaunch(String cfs, String siteId) {
+    return 'Discharge about $cfs cfs at site $siteId—above this launch’s curated upper band; verify hazards and skill match.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonFlowVeryHighRiver(String cfs, String siteId) {
+    return 'Discharge about $cfs cfs at site $siteId—stub upper band for this river class suggests very high water; verify hazards and skill match.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonFlowHighLaunch(String cfs, String siteId) {
+    return 'Discharge about $cfs cfs at site $siteId—at or above this launch’s “elevated flow” band; double-check strainers and current.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonFlowHighRiver(String cfs, String siteId) {
+    return 'Discharge about $cfs cfs at site $siteId—above our placeholder “elevated” band for this river class; double-check strainers and current.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonFlowLow(String cfs, String siteId) {
+    return 'Discharge about $cfs cfs at site $siteId—below this launch’s low-flow cue; watch for shallow spots and wood.';
+  }
+
+  @override
   String get launchDetailWeatherTitle => 'Weather';
 
   @override
@@ -617,8 +695,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String mapRouteTotalTrip(int minutes, String miles) {
-    return 'Total trip: $minutes min ($miles mi)';
+  String mapRouteTotalTrip(int minutes, String distance) {
+    return 'Total trip: $minutes min ($distance)';
   }
 
   @override
@@ -704,6 +782,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPaddleSpeedReset => 'Reset';
 
   @override
+  String get settingsUnitsSectionTitle => 'Units';
+
+  @override
+  String get settingsUnitsDescription =>
+      'Choose how distance and speed are shown in route planning and saved routes.';
+
+  @override
+  String get settingsUnitsMetricLabel => 'Metric (km, km/h)';
+
+  @override
+  String get settingsUnitsImperialLabel => 'Imperial (mi, mph)';
+
+  @override
+  String get settingsUnitsLoadError => 'Could not load unit preferences.';
+
+  @override
+  String get settingsPaddleSpeedLoadError =>
+      'Could not load paddling speed preference.';
+
+  @override
+  String displayDistanceKm(String value) {
+    return '$value km';
+  }
+
+  @override
+  String displayDistanceMi(String value) {
+    return '$value mi';
+  }
+
+  @override
+  String displaySpeedKmh(String value) {
+    return '$value km/h';
+  }
+
+  @override
+  String displaySpeedMph(String value) {
+    return '$value mph';
+  }
+
+  @override
   String get savedRoutesListTitle => 'Saved routes';
 
   @override
@@ -723,8 +841,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedRoutesListError => 'Could not load saved routes.';
 
   @override
-  String savedRoutesDistanceKm(String km) {
-    return '$km km';
+  String savedRoutesDistance(String distance) {
+    return '$distance';
   }
 
   @override
@@ -740,6 +858,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savedRoutesDetailTitle => 'Route details';
+
+  @override
+  String get savedRoutesDetailDistanceLabel => 'Distance';
 
   @override
   String get savedRoutesDetailError => 'Could not load this route.';
@@ -760,7 +881,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedRoutesDurationLabel => 'Estimated duration (minutes)';
 
   @override
-  String get savedRoutesDurationHint => 'Optional — e.g. distance ÷ 4 km/h';
+  String get savedRoutesDurationHint =>
+      'Optional — estimated paddling time in minutes';
 
   @override
   String get savedRoutesDifficultyLabel => 'Difficulty';

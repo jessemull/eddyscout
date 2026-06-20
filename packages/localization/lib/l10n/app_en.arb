@@ -65,10 +65,11 @@
       "name": {"type": "String"}
     }
   },
-  "mapPlanningRouteLengthKm": "Along river (estimate): {km} km",
-  "@mapPlanningRouteLengthKm": {
+  "mapPlanningRouteLength": "Along river (estimate): {distance}",
+  "@mapPlanningRouteLength": {
+    "description": "Estimated river route length in user-selected units",
     "placeholders": {
-      "km": {"type": "String"}
+      "distance": {"type": "String"}
     }
   },
   "mapPlanningClearLabel": "Clear",
@@ -210,6 +211,115 @@
   "launchDetailGoNoGoTitle": "Go / No-go (informational)",
   "launchDetailGoNoGoNoWarnings": "No stub warnings from wind, marine text, or flow thresholds for this launch.",
   "launchDetailGoNoGoStubDisclaimer": "Stub rules only—not a substitute for your judgment, skill, or scouting on site.",
+  "launchDetailGoNoGoVerdictGo": "Go (planning hint)",
+  "@launchDetailGoNoGoVerdictGo": {
+    "description": "Headline when go/no-go verdict is go"
+  },
+  "launchDetailGoNoGoVerdictMarginal": "Marginal",
+  "@launchDetailGoNoGoVerdictMarginal": {
+    "description": "Headline when go/no-go verdict is marginal"
+  },
+  "launchDetailGoNoGoVerdictNoGo": "No-go (planning hint)",
+  "@launchDetailGoNoGoVerdictNoGo": {
+    "description": "Headline when go/no-go verdict is no-go"
+  },
+  "launchDetailGoNoGoVerdictInsufficientData": "Insufficient data",
+  "@launchDetailGoNoGoVerdictInsufficientData": {
+    "description": "Headline when go/no-go verdict lacks weather data"
+  },
+  "launchDetailGoNoGoReasonColdWaterSeason": "Cold-water season in the PNW—dress for immersion, know hypothermia risk, and carry safety gear.",
+  "@launchDetailGoNoGoReasonColdWaterSeason": {
+    "description": "Info reason during cold-water months"
+  },
+  "launchDetailGoNoGoReasonWeatherMissing": "Weather data was not available. Cannot assess wind from forecast.",
+  "@launchDetailGoNoGoReasonWeatherMissing": {
+    "description": "Info reason when weather data is missing"
+  },
+  "launchDetailGoNoGoReasonWeatherMissingWithError": "Weather data failed to load ({error}). Cannot assess wind from forecast.",
+  "@launchDetailGoNoGoReasonWeatherMissingWithError": {
+    "description": "Info reason when weather fetch failed with an error code",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonWindUnknown": "Wind speed or gust was not available from the forecast—use caution, especially in open or exposed areas.",
+  "@launchDetailGoNoGoReasonWindUnknown": {
+    "description": "Marginal reason when wind speed/gust is unavailable"
+  },
+  "launchDetailGoNoGoReasonWindHigh": "Effective wind about {mph} mph ({exposure} site)—our stub rules treat this as strong for paddling.",
+  "@launchDetailGoNoGoReasonWindHigh": {
+    "description": "No-go reason when effective wind exceeds threshold",
+    "placeholders": {
+      "mph": {"type": "int"},
+      "exposure": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonWindElevated": "Effective wind about {mph} mph ({exposure} site)—conditions may feel rougher on open water.",
+  "@launchDetailGoNoGoReasonWindElevated": {
+    "description": "Marginal reason when effective wind is elevated",
+    "placeholders": {
+      "mph": {"type": "int"},
+      "exposure": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonMarineSevere": "Marine forecast text mentions “{pattern}”—treat as hazardous until you verify locally.",
+  "@launchDetailGoNoGoReasonMarineSevere": {
+    "description": "No-go reason when marine text matches a severe pattern",
+    "placeholders": {
+      "pattern": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonMarineAdvisory": "Marine forecast includes “{pattern}”—expect rougher water, current, or advisories near the estuary/coast.",
+  "@launchDetailGoNoGoReasonMarineAdvisory": {
+    "description": "Marginal reason when marine text matches an advisory pattern",
+    "placeholders": {
+      "pattern": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonForecastLowLight": "This forecast period starts during typical low-light hours locally—verify visibility, hazards, and your comfort paddling after dark.",
+  "@launchDetailGoNoGoReasonForecastLowLight": {
+    "description": "Info reason when forecast period starts at night"
+  },
+  "launchDetailGoNoGoReasonFlowVeryHighLaunch": "Discharge about {cfs} cfs at site {siteId}—above this launch’s curated upper band; verify hazards and skill match.",
+  "@launchDetailGoNoGoReasonFlowVeryHighLaunch": {
+    "description": "No-go reason when discharge exceeds launch-specific upper band",
+    "placeholders": {
+      "cfs": {"type": "String"},
+      "siteId": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonFlowVeryHighRiver": "Discharge about {cfs} cfs at site {siteId}—stub upper band for this river class suggests very high water; verify hazards and skill match.",
+  "@launchDetailGoNoGoReasonFlowVeryHighRiver": {
+    "description": "No-go reason when discharge exceeds river-class upper band",
+    "placeholders": {
+      "cfs": {"type": "String"},
+      "siteId": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonFlowHighLaunch": "Discharge about {cfs} cfs at site {siteId}—at or above this launch’s “elevated flow” band; double-check strainers and current.",
+  "@launchDetailGoNoGoReasonFlowHighLaunch": {
+    "description": "Marginal reason when discharge exceeds launch elevated band",
+    "placeholders": {
+      "cfs": {"type": "String"},
+      "siteId": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonFlowHighRiver": "Discharge about {cfs} cfs at site {siteId}—above our placeholder “elevated” band for this river class; double-check strainers and current.",
+  "@launchDetailGoNoGoReasonFlowHighRiver": {
+    "description": "Marginal reason when discharge exceeds river-class elevated band",
+    "placeholders": {
+      "cfs": {"type": "String"},
+      "siteId": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonFlowLow": "Discharge about {cfs} cfs at site {siteId}—below this launch’s low-flow cue; watch for shallow spots and wood.",
+  "@launchDetailGoNoGoReasonFlowLow": {
+    "description": "Marginal reason when discharge is below launch low-flow cue",
+    "placeholders": {
+      "cfs": {"type": "String"},
+      "siteId": {"type": "String"}
+    }
+  },
   "launchDetailWeatherTitle": "Weather",
   "launchDetailRiverFlowTitle": "River flow (USGS)",
   "launchDetailRiverFlowSubtitle": "{cfs} cfs · {time}",
@@ -331,11 +441,11 @@
       "minutes": {"type": "int"}
     }
   },
-  "mapRouteTotalTrip": "Total trip: {minutes} min ({miles} mi)",
+  "mapRouteTotalTrip": "Total trip: {minutes} min ({distance})",
   "@mapRouteTotalTrip": {
     "placeholders": {
       "minutes": {"type": "int"},
-      "miles": {"type": "String"}
+      "distance": {"type": "String"}
     }
   },
   "mapRouteReorderStopHint": "Drag to reorder stop",
@@ -400,16 +510,69 @@
   "@settingsPaddleSpeedReset": {
     "description": "Button label to restore default paddling speed"
   },
+  "settingsUnitsSectionTitle": "Units",
+  "@settingsUnitsSectionTitle": {
+    "description": "Section title for distance and speed display units"
+  },
+  "settingsUnitsDescription": "Choose how distance and speed are shown in route planning and saved routes.",
+  "@settingsUnitsDescription": {
+    "description": "Help text for the units preference"
+  },
+  "settingsUnitsMetricLabel": "Metric (km, km/h)",
+  "@settingsUnitsMetricLabel": {
+    "description": "Label for metric unit system option"
+  },
+  "settingsUnitsImperialLabel": "Imperial (mi, mph)",
+  "@settingsUnitsImperialLabel": {
+    "description": "Label for imperial unit system option"
+  },
+  "settingsUnitsLoadError": "Could not load unit preferences.",
+  "@settingsUnitsLoadError": {
+    "description": "Error message when the units preference fails to load"
+  },
+  "settingsPaddleSpeedLoadError": "Could not load paddling speed preference.",
+  "@settingsPaddleSpeedLoadError": {
+    "description": "Error message when the paddling speed preference fails to load"
+  },
+  "displayDistanceKm": "{value} km",
+  "@displayDistanceKm": {
+    "description": "Formatted distance in kilometers",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "displayDistanceMi": "{value} mi",
+  "@displayDistanceMi": {
+    "description": "Formatted distance in miles",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "displaySpeedKmh": "{value} km/h",
+  "@displaySpeedKmh": {
+    "description": "Formatted speed in kilometers per hour",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "displaySpeedMph": "{value} mph",
+  "@displaySpeedMph": {
+    "description": "Formatted speed in miles per hour",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
   "savedRoutesListTitle": "Saved routes",
   "savedRoutesAllTab": "All",
   "savedRoutesFavoritesTab": "Favorites",
   "savedRoutesListEmpty": "No saved routes yet. Plan a route on the Map tab and tap Save.",
   "savedRoutesFavoritesEmpty": "No favorite routes yet.",
   "savedRoutesListError": "Could not load saved routes.",
-  "savedRoutesDistanceKm": "{km} km",
-  "@savedRoutesDistanceKm": {
+  "savedRoutesDistance": "{distance}",
+  "@savedRoutesDistance": {
+    "description": "Route distance with unit in user-selected system",
     "placeholders": {
-      "km": {"type": "String"}
+      "distance": {"type": "String"}
     }
   },
   "savedRoutesWaypointCount": "{count} stops",
@@ -421,13 +584,17 @@
   "savedRoutesFavoriteTooltip": "Add to favorites",
   "savedRoutesUnfavoriteTooltip": "Remove from favorites",
   "savedRoutesDetailTitle": "Route details",
+  "savedRoutesDetailDistanceLabel": "Distance",
+  "@savedRoutesDetailDistanceLabel": {
+    "description": "Label for read-only route distance on detail screen"
+  },
   "savedRoutesDetailError": "Could not load this route.",
   "savedRoutesNotFound": "Route not found.",
   "savedRoutesNameLabel": "Name",
   "savedRoutesDescriptionLabel": "Description",
   "savedRoutesNotesLabel": "Notes",
   "savedRoutesDurationLabel": "Estimated duration (minutes)",
-  "savedRoutesDurationHint": "Optional — e.g. distance ÷ 4 km/h",
+  "savedRoutesDurationHint": "Optional — estimated paddling time in minutes",
   "savedRoutesDifficultyLabel": "Difficulty",
   "savedRoutesDifficultyNone": "Not set",
   "savedRoutesDifficultyEasy": "Easy",
