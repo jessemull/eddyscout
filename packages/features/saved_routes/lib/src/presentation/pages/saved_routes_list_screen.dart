@@ -1,6 +1,7 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:eddyscout_saved_routes/src/presentation/providers/saved_routes_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -138,11 +139,18 @@ class _SavedRouteListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final distanceKm = route.metadata.distanceMeters != null
-        ? (route.metadata.distanceMeters! / 1000).toStringAsFixed(1)
-        : null;
+    final displayUnits = ref.watch(effectiveDisplayUnitSystemProvider);
+    final distanceLabel = route.metadata.distanceMeters == null
+        ? null
+        : l10n.savedRoutesDistance(
+            localizedDistanceFromMeters(
+              l10n,
+              route.metadata.distanceMeters,
+              displayUnits,
+            )!,
+          );
     final subtitleParts = <String>[
-      if (distanceKm != null) l10n.savedRoutesDistanceKm(distanceKm),
+      ?distanceLabel,
       l10n.savedRoutesWaypointCount(route.waypoints.length),
     ];
 

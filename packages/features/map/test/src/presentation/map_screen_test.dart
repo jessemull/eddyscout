@@ -1,5 +1,6 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -393,11 +394,14 @@ void main() {
         mapInteractiveProvider.overrideWithValue(true),
         routePlanningProvider.overrideWith(_RoutedTwoStopPlanning.new),
         mapSheetVisibilityStateProvider.overrideWith(_PlanningEditSheet.new),
+        effectiveDisplayUnitSystemProvider.overrideWithValue(
+          DisplayUnitSystem.metric,
+        ),
       ],
     );
 
     expect(find.textContaining('Total trip:'), findsOneWidget);
-    expect(find.textContaining('mi)'), findsOneWidget);
+    expect(find.text('Total trip: 63 min (4.2 km)'), findsOneWidget);
   });
 }
 

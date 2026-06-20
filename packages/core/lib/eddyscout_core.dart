@@ -3,6 +3,8 @@ library;
 
 export 'src/app_failure.dart';
 export 'src/app_failure_exception.dart';
+export 'src/display_unit_formatting.dart';
+export 'src/display_unit_system.dart';
 export 'src/geodesy.dart';
 export 'src/gpx_failure.dart';
 export 'src/gpx_failure_mapper.dart';

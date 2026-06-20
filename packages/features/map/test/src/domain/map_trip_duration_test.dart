@@ -28,17 +28,4 @@ void main() {
       );
     });
   });
-
-  group('formatDistanceMiles', () {
-    test('returns null for null or non-positive distance', () {
-      expect(formatDistanceMiles(null), isNull);
-      expect(formatDistanceMiles(0), isNull);
-      expect(formatDistanceMiles(-1), isNull);
-    });
-
-    test('converts km to miles with one decimal', () {
-      expect(formatDistanceMiles(4.2), '2.6');
-      expect(formatDistanceMiles(10), '6.2');
-    });
-  });
 }
