@@ -54,9 +54,7 @@
       "5mi": [
         "washougal_waterfront"
       ],
-      "10mi": [
-        "port_of_camas"
-      ],
+      "10mi": [],
       "20mi": []
     },
     "jefferson_st_milwaukie": {
@@ -81,10 +79,7 @@
     },
     "port_of_camas": {
       "5mi": [],
-      "10mi": [
-        "washougal_waterfront",
-        "glenn_otto_troutdale"
-      ],
+      "10mi": [],
       "20mi": []
     },
     "portland_boathouse": {
@@ -182,9 +177,7 @@
       "5mi": [
         "glenn_otto_troutdale"
       ],
-      "10mi": [
-        "port_of_camas"
-      ],
+      "10mi": [],
       "20mi": []
     },
     "willamette_park_sw": {
