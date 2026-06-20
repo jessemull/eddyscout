@@ -1,3 +1,4 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_map/src/presentation/trips_from_here/nearby_launches_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,6 +59,29 @@ void main() {
       for (final band in kReachabilityBandsDisplayOrder) {
         expect(grouped[band], isEmpty);
       }
+    });
+
+    test('surfaces loader failure as AsyncError', () async {
+      final failingContainer = ProviderContainer(
+        overrides: [
+          launchReachabilityIndexLoaderProvider.overrideWithValue(
+            () async => throw Exception('index missing'),
+          ),
+        ],
+      );
+      addTearDown(failingContainer.dispose);
+
+      AsyncValue<Map<ReachabilityBand, List<LaunchPoint>>>? last;
+      final sub = failingContainer.listen(
+        nearbyLaunchesGroupedProvider('cathedral_park'),
+        (_, next) => last = next,
+        fireImmediately: true,
+      );
+      addTearDown(sub.close);
+
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+
+      expect(last?.hasError, isTrue);
     });
   });
 

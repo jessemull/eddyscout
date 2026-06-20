@@ -60,6 +60,47 @@ void main() {
       matchesGoldenFile('goldens/trips_from_here_section_light.png'),
     );
   });
+
+  testWidgets('TripsFromHereSection golden — dark theme with data', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 640));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          launchReachabilityIndexLoaderProvider.overrideWithValue(
+            readTestReachabilityIndex,
+          ),
+        ],
+        child: testLocalizedApp(
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          child: Scaffold(
+            body: Padding(
+              padding: EdgeInsets.all(Spacing.md),
+              child: TripsFromHereSection(
+                originLaunch: _origin,
+                onPlanToLaunch: _noopPlan,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await expectLater(
+      find.byType(TripsFromHereSection),
+      matchesGoldenFile('goldens/trips_from_here_section_dark.png'),
+    );
+  });
 }
 
 void _noopPlan(LaunchPoint _) {}

@@ -659,6 +659,12 @@
   "tripsFromHereBandEmpty20Mi": "No launches within 20 mi along the river",
   "tripsFromHereNoNearbyLaunches": "No nearby launches found along the river from here.",
   "tripsFromHereLoadError": "Couldn't load nearby launches.",
+  "tripsFromHereBandShowMore": "{count, plural, =1{Show 1 more launch} other{Show {count} more launches}}",
+  "@tripsFromHereBandShowMore": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
   "tripsFromHerePlanToLaunchSemantics": "Plan route to {launchName}, {riverName}",
   "@tripsFromHerePlanToLaunchSemantics": {
     "placeholders": {

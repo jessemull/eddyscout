@@ -1,19 +1,11 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
-import 'package:eddyscout_map/src/presentation/trips_from_here/trips_from_here_section.dart';
 import 'package:flutter/material.dart';
 
 import 'map_sheet_header_icon_button.dart';
-
-String mapLaunchRiverLabel(AppLocalizations l10n, RiverSystem river) {
-  return switch (river) {
-    RiverSystem.willamette => l10n.launchDetailRiverWillamette,
-    RiverSystem.columbia => l10n.launchDetailRiverColumbia,
-    RiverSystem.clackamas => l10n.launchDetailRiverClackamas,
-    RiverSystem.slough => l10n.launchDetailRiverSlough,
-  };
-}
+import 'trips_from_here/trips_from_here_l10n.dart';
+import 'trips_from_here/trips_from_here_section.dart';
 
 /// Compact bottom card for a selected launch (Plan paddle / View conditions).
 class MapPlacePeekBar extends StatelessWidget {

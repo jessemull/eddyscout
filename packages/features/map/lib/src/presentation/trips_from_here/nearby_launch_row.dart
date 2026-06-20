@@ -1,7 +1,8 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
-import 'package:eddyscout_map/src/presentation/map_place_peek_bar.dart';
 import 'package:flutter/material.dart';
+
+import 'trips_from_here_l10n.dart';
 
 /// One tappable nearby launch row in trips-from-here lists.
 class NearbyLaunchRow extends StatelessWidget {

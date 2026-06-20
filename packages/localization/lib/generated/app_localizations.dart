@@ -1819,6 +1819,12 @@ abstract class AppLocalizations {
   /// **'Couldn\'t load nearby launches.'**
   String get tripsFromHereLoadError;
 
+  /// No description provided for @tripsFromHereBandShowMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Show 1 more launch} other{Show {count} more launches}}'**
+  String tripsFromHereBandShowMore(int count);
+
   /// No description provided for @tripsFromHerePlanToLaunchSemantics.
   ///
   /// In en, this message translates to:

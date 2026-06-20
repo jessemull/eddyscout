@@ -30,7 +30,7 @@ final class NearbyLaunchesForBandProvider
     required NearbyLaunchesForBandFamily super.from,
     required NearbyLaunchesBandParams super.argument,
   }) : super(
-         retry: null,
+         retry: disableProviderRetry,
          name: r'nearbyLaunchesForBandProvider',
          isAutoDispose: true,
          dependencies: null,
@@ -71,7 +71,7 @@ final class NearbyLaunchesForBandProvider
 }
 
 String _$nearbyLaunchesForBandHash() =>
-    r'dcb88ed682a2307c2701c355d942b94b9a5103a7';
+    r'9a93aebc5daac8ed1ab2be58799570c3fdb3bbc0';
 
 /// Resolves catalog launches for one reachability band from a source launch.
 
@@ -83,7 +83,7 @@ final class NearbyLaunchesForBandFamily extends $Family
         > {
   NearbyLaunchesForBandFamily._()
     : super(
-        retry: null,
+        retry: disableProviderRetry,
         name: r'nearbyLaunchesForBandProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
@@ -121,7 +121,7 @@ final class NearbyLaunchesGroupedProvider
     required NearbyLaunchesGroupedFamily super.from,
     required String super.argument,
   }) : super(
-         retry: null,
+         retry: disableProviderRetry,
          name: r'nearbyLaunchesGroupedProvider',
          isAutoDispose: true,
          dependencies: null,
@@ -161,7 +161,7 @@ final class NearbyLaunchesGroupedProvider
 }
 
 String _$nearbyLaunchesGroupedHash() =>
-    r'4c083ecfa7f9c7d98c585879b625c145dd02fcbc';
+    r'd3725d0568e365128feed964af1224691dbddb92';
 
 /// Nearby launches grouped by exclusive reachability band.
 
@@ -173,7 +173,7 @@ final class NearbyLaunchesGroupedFamily extends $Family
         > {
   NearbyLaunchesGroupedFamily._()
     : super(
-        retry: null,
+        retry: disableProviderRetry,
         name: r'nearbyLaunchesGroupedProvider',
         dependencies: null,
         $allTransitiveDependencies: null,

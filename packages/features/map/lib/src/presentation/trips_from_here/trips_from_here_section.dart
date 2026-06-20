@@ -2,12 +2,13 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
-import 'package:eddyscout_map/src/presentation/trips_from_here/nearby_launches_band_card.dart';
-import 'package:eddyscout_map/src/presentation/trips_from_here/nearby_launches_provider.dart';
-import 'package:eddyscout_map/src/presentation/trips_from_here/suggested_trips_section.dart';
-import 'package:eddyscout_map/src/presentation/trips_from_here/trips_from_here_loading_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'nearby_launches_band_card.dart';
+import 'nearby_launches_provider.dart';
+import 'suggested_trips_section.dart';
+import 'trips_from_here_loading_skeleton.dart';
 
 /// Nearby launches and (v2) suggested trips from a source launch.
 class TripsFromHereSection extends ConsumerWidget {
@@ -45,9 +46,11 @@ class TripsFromHereSection extends ConsumerWidget {
         groupedAsync.when(
           loading: () => const TripsFromHereLoadingSkeleton(),
           error: (_, _) => _TripsFromHereErrorBody(
-            onRetry: () => ref.invalidate(
-              nearbyLaunchesGroupedProvider(originLaunch.id),
-            ),
+            onRetry: () {
+              ref
+                ..invalidate(launchReachabilityIndexProvider)
+                ..invalidate(nearbyLaunchesGroupedProvider(originLaunch.id));
+            },
           ),
           data: (grouped) {
             if (_allBandsEmpty(grouped)) {

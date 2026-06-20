@@ -18,7 +18,7 @@ typedef NearbyLaunchesBandParams = ({
 });
 
 /// Resolves catalog launches for one reachability band from a source launch.
-@riverpod
+@Riverpod(retry: disableProviderRetry)
 Future<List<LaunchPoint>> nearbyLaunchesForBand(
   Ref ref,
   NearbyLaunchesBandParams params,
@@ -29,7 +29,7 @@ Future<List<LaunchPoint>> nearbyLaunchesForBand(
 }
 
 /// Nearby launches grouped by exclusive reachability band.
-@riverpod
+@Riverpod(retry: disableProviderRetry)
 Future<Map<ReachabilityBand, List<LaunchPoint>>> nearbyLaunchesGrouped(
   Ref ref,
   String originLaunchId,

@@ -117,5 +117,48 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('shows error with retry that reloads nearby launches', (
+      tester,
+    ) async {
+      var loadAttempts = 0;
+
+      Future<String> loader() async {
+        loadAttempts++;
+        if (loadAttempts == 1) {
+          throw Exception('index missing');
+        }
+        return kTestReachabilityIndexJson;
+      }
+
+      await tester.pumpWidget(
+        testLocalizedApp(
+          child: ProviderScope(
+            overrides: [
+              launchReachabilityIndexLoaderProvider.overrideWithValue(loader),
+            ],
+            child: Scaffold(
+              body: TripsFromHereSection(
+                originLaunch: _origin,
+                onPlanToLaunch: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text("Couldn't load nearby launches."), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
+
+      await tester.tap(find.text('Retry'));
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      expect(loadAttempts, 2);
+      expect(find.text('Within 5 mi'), findsOneWidget);
+      expect(find.text('Swan Island Boat Ramp'), findsOneWidget);
+    });
   });
 }

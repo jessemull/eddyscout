@@ -1042,6 +1042,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsFromHereLoadError => 'Couldn\'t load nearby launches.';
 
   @override
+  String tripsFromHereBandShowMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Show $count more launches',
+      one: 'Show 1 more launch',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String tripsFromHerePlanToLaunchSemantics(
     String launchName,
     String riverName,
