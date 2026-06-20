@@ -59,10 +59,10 @@ gen-check: ## Quality@verify codegen is fresh
 	dart run melos run gen:check
 
 gen-reachability: ## Quality@generate launch reachability index JSON
-	cd scripts && dart pub get && dart run generate_launch_reachability_index.dart
+	cd scripts && flutter pub get && dart run generate_launch_reachability_index.dart
 
 gen-reachability-check: ## Quality@verify reachability index is fresh
-	cd scripts && dart pub get && dart run generate_launch_reachability_index.dart --check
+	cd scripts && flutter pub get && dart run generate_launch_reachability_index.dart --check
 
 gen-suggested-trips: ## Quality@generate launch suggested trips index JSON
 	cd scripts && flutter pub get && dart run generate_launch_suggested_trips_index.dart

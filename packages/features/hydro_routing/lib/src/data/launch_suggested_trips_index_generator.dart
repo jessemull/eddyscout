@@ -148,11 +148,17 @@ abstract final class LaunchSuggestedTripsIndexGenerator {
       distanceKm: distanceKm,
       speedKmh: paddleSpeedKmh,
     );
+    if (minutes == null) {
+      throw StateError(
+        'Cannot estimate trip time from ${source.id} to ${target.id} '
+        'at ${distanceKm}km and ${paddleSpeedKmh}km/h',
+      );
+    }
 
     return SuggestedTrip(
       destination: target.id,
       distanceKm: distanceKm,
-      estimatedMinutes: minutes ?? 0,
+      estimatedMinutes: minutes,
       waypoints: waypoints,
     );
   }
