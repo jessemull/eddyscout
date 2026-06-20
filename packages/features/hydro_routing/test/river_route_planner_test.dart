@@ -4,6 +4,8 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'helpers/bundled_hydro_assets.dart';
+
 LaunchPoint _launch({
   required String id,
   required RiverSystem river,
@@ -32,6 +34,15 @@ Future<RiverRoutePlanner> _plannerFromFixtures() async {
   return RiverRoutePlanner.fromGeoJsonDocuments([willamette, columbia]);
 }
 
+Future<RiverRoutePlanner> _plannerFromBundledAssets() async {
+  final docs = await readBundledHydroGeoJsonDocuments();
+  final bridges = await readBundledConfluenceBridgesJson();
+  return RiverRoutePlanner.fromGeoJsonDocuments(
+    docs,
+    confluenceBridgesJson: bridges,
+  );
+}
+
 void main() {
   group('RiverRoutePlanner.plan', () {
     test('sameLaunch returns sameLaunch failure', () async {
@@ -47,26 +58,96 @@ void main() {
       expect((result as RouteFailure).code, RouteFailureCode.sameLaunch);
     });
 
-    test('differentSystem returns differentSystem failure', () async {
-      final planner = await _plannerFromFixtures();
+    test(
+      'differentSystem when cross-system launches are not connected',
+      () {
+        const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette"},
+      "geometry": {"type": "LineString", "coordinates": [[-122.67, 45.51], [-122.66, 45.51]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "columbia"},
+      "geometry": {"type": "LineString", "coordinates": [[-122.42, 45.58], [-122.41, 45.58]]}
+    }
+  ]
+}
+''';
+        final planner = RiverRoutePlanner.fromGeoJson(json);
+        final putIn = _launch(
+          id: 'w',
+          river: RiverSystem.willamette,
+          lat: 45.51,
+          lon: -122.67,
+        );
+        final takeOut = _launch(
+          id: 'c',
+          river: RiverSystem.columbia,
+          lat: 45.58,
+          lon: -122.42,
+        );
+        final result = planner.plan(putIn, takeOut);
+        expect(result, isA<RouteFailure>());
+        expect((result as RouteFailure).code, RouteFailureCode.differentSystem);
+      },
+    );
+
+    test('crossSystem routes when confluence bridge connects systems', () {
+      const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette", "reach_id": "w_reach"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0], [0, 0.01]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "columbia", "reach_id": "c_reach"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0.02], [0, 0.03]]}
+    }
+  ]
+}
+''';
+      const bridgesJson = '''
+[
+  {
+    "id": "test_confluence",
+    "a": {"lat": 0.01, "lon": 0},
+    "b": {"lat": 0.02, "lon": 0}
+  }
+]
+''';
+      final planner = RiverRoutePlanner.fromGeoJson(
+        json,
+        confluenceBridgesJson: bridgesJson,
+      );
       final putIn = _launch(
         id: 'w',
         river: RiverSystem.willamette,
-        lat: 45.5124,
-        lon: -122.6754,
+        lat: 0.0,
+        lon: 0.0,
       );
       final takeOut = _launch(
         id: 'c',
         river: RiverSystem.columbia,
-        lat: 45.5856,
-        lon: -122.4244,
+        lat: 0.03,
+        lon: 0.0,
       );
       final result = planner.plan(putIn, takeOut);
-      expect(result, isA<RouteFailure>());
-      expect((result as RouteFailure).code, RouteFailureCode.differentSystem);
+      expect(result, isA<RouteSuccess>());
+      final ok = result as RouteSuccess;
+      expect(ok.lengthMeters, greaterThan(0));
+      expect(ok.polylineLonLat.length, greaterThan(2));
     });
 
-    test('noBundledLine when river system has no geometry', () {
+    test('putInTooFar when launch has no nearby geometry', () {
       const json = '''
 {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"river_system":"willamette"},"geometry":{"type":"LineString","coordinates":[[-122.67,45.51],[-122.66,45.51]]}}]}
 ''';
@@ -87,10 +168,86 @@ void main() {
         ),
       );
       expect(result, isA<RouteFailure>());
-      final failure = result as RouteFailure;
-      expect(failure.code, RouteFailureCode.noBundledLine);
-      expect(failure.riverSystemName, 'slough');
+      expect((result as RouteFailure).code, RouteFailureCode.putInTooFar);
     });
+
+    test(
+      'cross-system putInTooFar is not remapped to differentSystem',
+      () {
+        const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette"},
+      "geometry": {"type": "LineString", "coordinates": [[-122.67, 45.51], [-122.66, 45.51]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "columbia"},
+      "geometry": {"type": "LineString", "coordinates": [[-122.42, 45.58], [-122.41, 45.58]]}
+    }
+  ]
+}
+''';
+        final planner = RiverRoutePlanner.fromGeoJson(json);
+        final putIn = _launch(
+          id: 'far',
+          river: RiverSystem.willamette,
+          lat: 45.6463,
+          lon: -122.7580,
+        );
+        final takeOut = _launch(
+          id: 'c',
+          river: RiverSystem.columbia,
+          lat: 45.58,
+          lon: -122.42,
+        );
+        final result = planner.plan(putIn, takeOut);
+        expect(result, isA<RouteFailure>());
+        expect((result as RouteFailure).code, RouteFailureCode.putInTooFar);
+      },
+    );
+
+    test(
+      'cross-system takeOutTooFar is not remapped to differentSystem',
+      () {
+        const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette"},
+      "geometry": {"type": "LineString", "coordinates": [[-122.67, 45.51], [-122.66, 45.51]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "columbia"},
+      "geometry": {"type": "LineString", "coordinates": [[-122.42, 45.58], [-122.41, 45.58]]}
+    }
+  ]
+}
+''';
+        final planner = RiverRoutePlanner.fromGeoJson(json);
+        final putIn = _launch(
+          id: 'w',
+          river: RiverSystem.willamette,
+          lat: 45.51,
+          lon: -122.67,
+        );
+        final takeOut = _launch(
+          id: 'far',
+          river: RiverSystem.columbia,
+          lat: 45.6463,
+          lon: -122.7580,
+        );
+        final result = planner.plan(putIn, takeOut);
+        expect(result, isA<RouteFailure>());
+        expect((result as RouteFailure).code, RouteFailureCode.takeOutTooFar);
+      },
+    );
 
     test('routes Willamette launches along bundled geometry', () async {
       final planner = await _plannerFromFixtures();
@@ -113,19 +270,83 @@ void main() {
       expect(ok.polylineLonLat.length, greaterThan(2));
     });
 
+    test('same-system regression on bundled app assets', () async {
+      final planner = await _plannerFromBundledAssets();
+      final putIn = _launch(
+        id: 'cathedral_park',
+        river: RiverSystem.willamette,
+        lat: 45.5621,
+        lon: -122.7328,
+      );
+      final takeOut = _launch(
+        id: 'sellwood_riverfront',
+        river: RiverSystem.willamette,
+        lat: 45.4709,
+        lon: -122.6617,
+      );
+      final result = planner.plan(putIn, takeOut);
+      expect(result, isA<RouteSuccess>());
+    });
+
+    test(
+      'cross-system routes on bundled assets via lower Columbia geometry',
+      () async {
+        final planner = await _plannerFromBundledAssets();
+        final putIn = _launch(
+          id: 'cathedral_park',
+          river: RiverSystem.willamette,
+          lat: 45.5621,
+          lon: -122.7328,
+        );
+        final takeOut = _launch(
+          id: 'glenn_otto_troutdale',
+          river: RiverSystem.columbia,
+          lat: 45.5365,
+          lon: -122.3858,
+        );
+        final result = planner.plan(putIn, takeOut);
+        expect(result, isA<RouteSuccess>());
+        final ok = result as RouteSuccess;
+        expect(ok.lengthMeters, greaterThan(1000));
+        expect(ok.polylineLonLat.length, greaterThan(2));
+      },
+    );
+
+    test(
+      'cross-system routes on bundled assets without confluence bridges',
+      () async {
+        final docs = await readBundledHydroGeoJsonDocuments();
+        final planner = RiverRoutePlanner.fromGeoJsonDocuments(docs);
+        final putIn = _launch(
+          id: 'cathedral_park',
+          river: RiverSystem.willamette,
+          lat: 45.5621,
+          lon: -122.7328,
+        );
+        final takeOut = _launch(
+          id: 'glenn_otto_troutdale',
+          river: RiverSystem.columbia,
+          lat: 45.5365,
+          lon: -122.3858,
+        );
+        final result = planner.plan(putIn, takeOut);
+        expect(result, isA<RouteSuccess>());
+      },
+    );
+
     test('routes Columbia gorge launches along bundled geometry', () async {
       final planner = await _plannerFromFixtures();
       final putIn = _launch(
-        id: 'port_of_camas',
-        river: RiverSystem.columbia,
-        lat: 45.5856,
-        lon: -122.4244,
-      );
-      final takeOut = _launch(
-        id: 'washougal',
+        id: 'washougal_waterfront',
         river: RiverSystem.columbia,
         lat: 45.5791,
         lon: -122.3870,
+      );
+      final takeOut = _launch(
+        id: 'glenn_otto_troutdale',
+        river: RiverSystem.columbia,
+        lat: 45.5365,
+        lon: -122.3858,
       );
       final result = planner.plan(putIn, takeOut);
       expect(result, isA<RouteSuccess>());
@@ -220,22 +441,22 @@ void main() {
     test('returns result and planned route together on success', () async {
       final planner = await _plannerFromFixtures();
       final putIn = _launch(
-        id: 'port_of_camas',
-        river: RiverSystem.columbia,
-        lat: 45.5856,
-        lon: -122.4244,
-      );
-      final takeOut = _launch(
-        id: 'washougal',
+        id: 'washougal_waterfront',
         river: RiverSystem.columbia,
         lat: 45.5791,
         lon: -122.3870,
       );
+      final takeOut = _launch(
+        id: 'glenn_otto_troutdale',
+        river: RiverSystem.columbia,
+        lat: 45.5365,
+        lon: -122.3858,
+      );
       final (:result, :planned) = planner.planLaunches(putIn, takeOut);
       expect(result, isA<RouteSuccess>());
       expect(planned, isNotNull);
-      expect(planned!.putIn?.id, 'port_of_camas');
-      expect(planned.takeOut?.id, 'washougal');
+      expect(planned!.putIn?.id, 'washougal_waterfront');
+      expect(planned.takeOut?.id, 'glenn_otto_troutdale');
       expect(planned.points.length, greaterThan(1));
     });
   });
@@ -244,21 +465,21 @@ void main() {
     test('returns PlannedRoute on success and null on failure', () async {
       final planner = await _plannerFromFixtures();
       final putIn = _launch(
-        id: 'port_of_camas',
-        river: RiverSystem.columbia,
-        lat: 45.5856,
-        lon: -122.4244,
-      );
-      final takeOut = _launch(
-        id: 'washougal',
+        id: 'washougal_waterfront',
         river: RiverSystem.columbia,
         lat: 45.5791,
         lon: -122.3870,
       );
+      final takeOut = _launch(
+        id: 'glenn_otto_troutdale',
+        river: RiverSystem.columbia,
+        lat: 45.5365,
+        lon: -122.3858,
+      );
       final planned = planner.planRoute(putIn, takeOut);
       expect(planned, isNotNull);
-      expect(planned!.putIn?.id, 'port_of_camas');
-      expect(planned.takeOut?.id, 'washougal');
+      expect(planned!.putIn?.id, 'washougal_waterfront');
+      expect(planned.takeOut?.id, 'glenn_otto_troutdale');
       expect(planned.lengthMeters, greaterThan(100));
       expect(planned.toPolylineLonLat().length, greaterThan(1));
 

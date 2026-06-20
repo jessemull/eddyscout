@@ -9,6 +9,9 @@ part 'river_route_planner_provider.g.dart';
 /// Loads bundled hydro GeoJSON from the app asset bundle.
 typedef HydroGeoJsonLoader = Future<List<String>> Function();
 
+/// Loads curated confluence bridge JSON, or null when none are bundled.
+typedef HydroConfluenceBridgesLoader = Future<String?> Function();
+
 /// Override in the app shell with rootBundle.loadString for hydro assets.
 @Riverpod(keepAlive: true)
 HydroGeoJsonLoader hydroGeoJsonLoader(Ref ref) {
@@ -17,13 +20,24 @@ HydroGeoJsonLoader hydroGeoJsonLoader(Ref ref) {
   );
 }
 
+/// Optional confluence bridge JSON for cross-system routing.
+@Riverpod(keepAlive: true)
+HydroConfluenceBridgesLoader hydroConfluenceBridgesLoader(Ref ref) {
+  return () async => null;
+}
+
 /// Bundled hydro graphs for river routing between launches.
 @Riverpod(keepAlive: true, retry: disableProviderRetry)
 Future<RiverRoutePlanner> riverRoutePlanner(Ref ref) async {
   final load = ref.read(hydroGeoJsonLoaderProvider);
+  final loadBridges = ref.read(hydroConfluenceBridgesLoaderProvider);
   try {
     final rawDocs = await load();
-    return RiverRoutePlanner.fromGeoJsonDocuments(rawDocs);
+    final bridgesJson = await loadBridges();
+    return RiverRoutePlanner.fromGeoJsonDocuments(
+      rawDocs,
+      confluenceBridgesJson: bridgesJson,
+    );
   } on Object catch (e, st) {
     throw HydroAppFailureException(mapHydroToAppFailure(e, st));
   }
