@@ -52,20 +52,54 @@ void main() {
 
       final planner = await container.read(riverRoutePlannerProvider.future);
       final putIn = LaunchPoint(
-        id: 'camas',
-        name: 'Camas',
-        latitude: 45.5856,
-        longitude: -122.4244,
+        id: 'washougal_waterfront',
+        name: 'Washougal Waterfront Park',
+        latitude: 45.5791,
+        longitude: -122.3870,
         shortNote: 'Test',
         riverSystem: RiverSystem.columbia,
         windExposure: WindExposure.moderate,
         tideRelevance: TideRelevance.none,
       );
       final takeOut = LaunchPoint(
-        id: 'washougal',
-        name: 'Washougal',
-        latitude: 45.5791,
-        longitude: -122.3870,
+        id: 'glenn_otto_troutdale',
+        name: 'Glenn Otto Park',
+        latitude: 45.5365,
+        longitude: -122.3858,
+        shortNote: 'Test',
+        riverSystem: RiverSystem.columbia,
+        windExposure: WindExposure.moderate,
+        tideRelevance: TideRelevance.none,
+      );
+      expect(planner.plan(putIn, takeOut), isA<RouteSuccess>());
+    });
+
+    test('routes cross-system launches from merged fixture assets', () async {
+      final container = ProviderContainer(
+        overrides: [
+          hydroGeoJsonLoaderProvider.overrideWithValue(
+            _loadFixtureHydroGeoJson,
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(riverRoutePlannerProvider.future);
+      final putIn = LaunchPoint(
+        id: 'cathedral_park',
+        name: 'Cathedral Park',
+        latitude: 45.5621,
+        longitude: -122.7328,
+        shortNote: 'Test',
+        riverSystem: RiverSystem.willamette,
+        windExposure: WindExposure.moderate,
+        tideRelevance: TideRelevance.none,
+      );
+      final takeOut = LaunchPoint(
+        id: 'glenn_otto_troutdale',
+        name: 'Glenn Otto Park',
+        latitude: 45.5365,
+        longitude: -122.3858,
         shortNote: 'Test',
         riverSystem: RiverSystem.columbia,
         windExposure: WindExposure.moderate,

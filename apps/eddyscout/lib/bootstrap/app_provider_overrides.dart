@@ -51,6 +51,9 @@ List<Override> buildAppProviderOverrides({
           await rootBundle.loadString(path),
       ],
     ),
+    hydroConfluenceBridgesLoaderProvider.overrideWithValue(
+      () async => rootBundle.loadString(bundledConfluenceBridgesAssetPath),
+    ),
     launchReachabilityIndexLoaderProvider.overrideWithValue(
       () => rootBundle.loadString(
         'assets/data/launch_reachability_index.json',

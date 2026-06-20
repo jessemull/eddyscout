@@ -15,6 +15,33 @@ CircleAnnotation _launchAnnotation(String launchId) {
   );
 }
 
+const _emptyHydroGeoJson = '{"type":"FeatureCollection","features":[]}';
+
+/// Willamette + slough segments with no graph connection (cross-system fail).
+const _disconnectedCrossSystemHydroGeoJson = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette", "reach_id": "w_reach"},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[-122.733, 45.562], [-122.732, 45.561]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "slough", "reach_id": "s_reach"},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[-122.758, 45.646], [-122.757, 45.645]]
+      }
+    }
+  ]
+}
+''';
+
 void _enterPlanningEdit(ProviderContainer container) {
   container.read(routePlanningProvider.notifier).togglePlanningMode();
   container.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
@@ -23,15 +50,16 @@ void _enterPlanningEdit(ProviderContainer container) {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<ProviderContainer> pumpMap(WidgetTester tester) async {
+  Future<ProviderContainer> pumpMap(
+    WidgetTester tester, {
+    String hydroGeoJson = _emptyHydroGeoJson,
+  }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           mapInteractiveProvider.overrideWithValue(true),
           ...testHydroMapProviderOverrides(
-            hydroLoader: () async => [
-              '{"type":"FeatureCollection","features":[]}',
-            ],
+            hydroLoader: () async => [hydroGeoJson],
           ),
         ],
         child: testLocalizedApp(
@@ -65,7 +93,10 @@ void main() {
   });
 
   testWidgets('shows snackbar for different river systems', (tester) async {
-    final container = await pumpMap(tester);
+    final container = await pumpMap(
+      tester,
+      hydroGeoJson: _disconnectedCrossSystemHydroGeoJson,
+    );
     final map = container.read(mapboxMapControllerProvider.notifier);
 
     _enterPlanningEdit(container);
@@ -86,7 +117,7 @@ void main() {
     );
   });
 
-  testWidgets('shows snackbar when bundled hydro line is missing', (
+  testWidgets('shows snackbar when river geometry is missing', (
     tester,
   ) async {
     final container = await pumpMap(tester);
@@ -104,7 +135,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byType(SnackBar),
-        matching: find.textContaining('No bundled river line'),
+        matching: find.textContaining('River route data is not available yet'),
       ),
       findsOneWidget,
     );

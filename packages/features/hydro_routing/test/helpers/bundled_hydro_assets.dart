@@ -19,6 +19,9 @@ Directory _repoRoot() {
 }
 
 /// Reads bundled hydro GeoJSON from the app shell (single source of truth).
+///
+/// [assetPath] must be under `assets/hydro/`, e.g.
+/// `assets/hydro/willamette_waterway.geojson`.
 Future<String> readBundledHydroAsset(String assetPath) async {
   if (!assetPath.startsWith('assets/hydro/')) {
     throw ArgumentError.value(
@@ -47,3 +50,7 @@ Future<List<String>> readBundledHydroGeoJsonDocuments() async {
   ];
   return [for (final path in paths) await readBundledHydroAsset(path)];
 }
+
+/// Loads curated confluence bridge JSON from the app asset bundle.
+Future<String> readBundledConfluenceBridgesJson() =>
+    readBundledHydroAsset('assets/hydro/confluence_bridges.json');

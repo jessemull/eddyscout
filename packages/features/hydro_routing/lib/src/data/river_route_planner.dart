@@ -1,5 +1,6 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 
+import 'package:eddyscout_hydro_routing/src/data/confluence_bridges.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_debug_log.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_geojson_merge.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
@@ -9,87 +10,101 @@ import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
 
 /// Loads bundled hydro GeoJSON and plans routes between launches.
 class RiverRoutePlanner {
-  /// Builds graphs from raw GeoJSON text (single bundled document).
+  /// Builds a planner from raw GeoJSON text (single bundled document).
   factory RiverRoutePlanner.fromGeoJson(
     String raw, {
     double mergeVertexMeters = 12,
+    String? confluenceBridgesJson,
   }) {
     return RiverRoutePlanner.fromGeoJsonDocuments(
       [raw],
       mergeVertexMeters: mergeVertexMeters,
+      confluenceBridgesJson: confluenceBridgesJson,
     );
   }
 
-  /// Builds graphs from one or more bundled GeoJSON documents.
+  /// Builds a planner from one or more bundled GeoJSON documents.
   factory RiverRoutePlanner.fromGeoJsonDocuments(
     List<String> rawDocs, {
     double mergeVertexMeters = 12,
+    String? confluenceBridgesJson,
   }) {
     final features = parseAndMergeHydroGeoJson(rawDocs);
+    final bridges = parseConfluenceBridgesJson(confluenceBridgesJson);
     return RiverRoutePlanner._fromFeatures(
       features,
       mergeVertexMeters: mergeVertexMeters,
+      confluenceBridges: bridges,
     );
   }
 
-  /// Builds graphs from parsed hydro line features.
+  /// Builds a planner from parsed hydro line features.
   factory RiverRoutePlanner._fromFeatures(
     List<HydroLineFeature> features, {
     double mergeVertexMeters = 12,
+    List<ConfluenceBridge> confluenceBridges = const [],
   }) {
-    final graphs = <String, RiverLineGraph>{};
-    final systems = <String>{};
-    for (final f in features) {
-      if (f.riverSystemKey != null) {
-        systems.add(f.riverSystemKey!);
-      }
-    }
-    for (final name in systems) {
-      final g = RiverLineGraph.fromFeatures(
-        features,
-        riverSystemName: name,
-        mergeVertexMeters: mergeVertexMeters,
-      );
-      if (g.vertexCount > 0) {
-        graphs[name] = g;
-      }
-    }
-    hydroDebugLog(
-      'RiverRoutePlanner.fromGeoJson: graphCount=${graphs.length} '
-      'keys=${graphs.keys.toList()}',
+    var graph = RiverLineGraph.fromAllFeatures(
+      features,
+      mergeVertexMeters: mergeVertexMeters,
     );
-    for (final e in graphs.entries) {
-      hydroDebugLog('  river "${e.key}" vertexCount=${e.value.vertexCount}');
-    }
-    return RiverRoutePlanner._(graphs);
+    graph = graph.addConfluenceBridges(confluenceBridges);
+    hydroDebugLog(
+      'RiverRoutePlanner.fromGeoJson: unified vertexCount=${graph.vertexCount} '
+      'bridgeCount=${confluenceBridges.length}',
+    );
+    return RiverRoutePlanner._(graph);
   }
 
-  RiverRoutePlanner._(this._graphsByRiver);
+  RiverRoutePlanner._(this._graph);
 
-  final Map<String, RiverLineGraph> _graphsByRiver;
+  final RiverLineGraph _graph;
 
-  /// Plans a river-line path between [putIn] and [takeOut] on the same system.
+  /// Plans a river-line path between [putIn] and [takeOut].
   RouteResult plan(LaunchPoint putIn, LaunchPoint takeOut) {
     if (putIn.id == takeOut.id) {
       return const RouteFailure(code: RouteFailureCode.sameLaunch);
     }
-    if (putIn.riverSystem != takeOut.riverSystem) {
-      return const RouteFailure(code: RouteFailureCode.differentSystem);
+    if (_graph.vertexCount == 0) {
+      return const RouteFailure(code: RouteFailureCode.noRiverGeometryLoaded);
     }
-    final key = putIn.riverSystem.name;
-    final graph = _graphsByRiver[key];
-    if (graph == null) {
-      return RouteFailure(
-        code: RouteFailureCode.noBundledLine,
-        riverSystemName: putIn.riverSystem.name,
-      );
-    }
-    return graph.route(
+
+    final result = _graph.route(
       putIn.latitude,
       putIn.longitude,
       takeOut.latitude,
       takeOut.longitude,
     );
+
+    if (result is! RouteFailure) {
+      return result;
+    }
+
+    return _mapDisconnectFailure(
+      result,
+      putIn: putIn,
+      takeOut: takeOut,
+    );
+  }
+
+  RouteFailure _mapDisconnectFailure(
+    RouteFailure failure, {
+    required LaunchPoint putIn,
+    required LaunchPoint takeOut,
+  }) {
+    if (putIn.riverSystem == takeOut.riverSystem) {
+      return failure;
+    }
+
+    return switch (failure.code) {
+      RouteFailureCode.disconnectedReach ||
+      RouteFailureCode.noConnectedPath => RouteFailure(
+        code: RouteFailureCode.differentSystem,
+        putInReachId: failure.putInReachId,
+        takeOutReachId: failure.takeOutReachId,
+      ),
+      _ => failure,
+    };
   }
 
   /// Plans once and returns both [RouteResult] and optional [PlannedRoute].
