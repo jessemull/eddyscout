@@ -4,7 +4,6 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import '../../domain/launch_points.dart';
 import '../map_constants.dart';
 import '../map_session_provider.dart';
 import '../map_sheet_provider.dart';

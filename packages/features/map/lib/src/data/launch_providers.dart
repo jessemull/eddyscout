@@ -1,5 +1,4 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_map/src/domain/launch_points.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'launch_providers.g.dart';

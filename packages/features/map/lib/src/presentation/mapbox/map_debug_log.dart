@@ -5,8 +5,6 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import '../../domain/launch_points.dart';
-
 /// Prefix on every line so `flutter run` shows them (`debugPrint`).
 /// `developer.log` alone often does not appear in the Flutter CLI—use this
 /// prefix to filter: `[eddyscout.map]`

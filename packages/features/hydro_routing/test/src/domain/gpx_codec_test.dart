@@ -45,6 +45,8 @@ void main() {
         parsed.valueOrNull!.points.first.longitude,
         closeTo(-122.73, 0.001),
       );
+      expect(parsed.valueOrNull!.lengthMeters, isNotNull);
+      expect(parsed.valueOrNull!.lengthMeters, greaterThan(0));
     });
 
     test('fromRouteSuccess maps polyline lon/lat order', () {

@@ -287,6 +287,8 @@ final class MapboxMapController extends _$MapboxMapController
     if (!alive) {
       return;
     }
+    final lengthMeters = route.resolvedLengthMeters;
+    final polyline = route.toPolylineLonLat();
     ref
         .read(routePlanningProvider.notifier)
         .applyImportedWaypoints(
@@ -295,19 +297,16 @@ final class MapboxMapController extends _$MapboxMapController
             if (route.takeOut != null && route.takeOut!.id != route.putIn?.id)
               route.takeOut!,
           ],
-          geometry: route.toPolylineLonLat().length >= 2
+          geometry: polyline.length >= 2
               ? RouteGeometrySnapshot(
-                  polylineLonLat: route.toPolylineLonLat(),
-                  lengthMeters: route.lengthMeters ?? 0,
+                  polylineLonLat: polyline,
+                  lengthMeters: lengthMeters ?? 0,
                   computedAt: DateTime.now(),
                 )
               : null,
-          routeLengthKm: route.lengthMeters != null
-              ? route.lengthMeters! / 1000.0
-              : null,
+          routeLengthKm: lengthMeters != null ? lengthMeters / 1000.0 : null,
           routeOrigin: route.origin,
         );
-    final polyline = route.toPolylineLonLat();
     if (polyline.length >= 2) {
       await drawRouteLine(polyline);
       await fitCameraToRoute(polyline);

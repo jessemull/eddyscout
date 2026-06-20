@@ -20,3 +20,6 @@ else
 fi
 
 preflight_verify_generated_clean
+
+echo "--- Verifying launch reachability index is up to date ---"
+make gen-reachability-check

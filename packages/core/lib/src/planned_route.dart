@@ -1,3 +1,4 @@
+import 'package:eddyscout_core/src/geodesy.dart';
 import 'package:eddyscout_core/src/launch_models.dart';
 import 'package:eddyscout_core/src/route_origin.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -35,4 +36,9 @@ abstract class PlannedRoute with _$PlannedRoute {
   List<List<double>> toPolylineLonLat() => points
       .map((p) => <double>[p.longitude, p.latitude])
       .toList(growable: false);
+
+  /// Explicit [lengthMeters] when set, otherwise path length from [points].
+  double? get resolvedLengthMeters =>
+      lengthMeters ??
+      (points.length >= 2 ? polylinePathLengthMeters(points) : null);
 }

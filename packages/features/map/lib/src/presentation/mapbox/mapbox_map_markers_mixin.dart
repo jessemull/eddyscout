@@ -1,7 +1,6 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-import '../../domain/launch_points.dart';
 import '../../domain/launch_tap_hit_test.dart';
 import '../map_constants.dart';
 import '../map_session_provider.dart';

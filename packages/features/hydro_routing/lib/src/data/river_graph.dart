@@ -607,6 +607,93 @@ class RiverLineGraph {
     return _pathGraphDistance(path);
   }
 
+  /// Graph-only shortest-path meters between snapped vertices.
+  ///
+  /// Returns null when [srcVertex] and [dstVertex] are disconnected.
+  double? graphDistanceMeters(int srcVertex, int dstVertex) {
+    if (_componentId[srcVertex] != _componentId[dstVertex]) {
+      return null;
+    }
+    final dist = shortestPathDistanceForTesting(srcVertex, dstVertex);
+    return dist.isFinite ? dist : null;
+  }
+
+  /// Nearest graph snap within [maxSnapMeters].
+  ///
+  /// Returns null when the point is too far from geometry.
+  ({int? vertexIndex, double snapMeters})? snapToVertex(
+    double lat,
+    double lon, {
+    double maxSnapMeters = 900,
+  }) {
+    final snap = _nearestSnap(lat, lon, maxSnapMeters);
+    if (snap == null) {
+      return null;
+    }
+    return (vertexIndex: snap.vertexIndex, snapMeters: snap.distanceMeters);
+  }
+
+  /// Dijkstra distances from [srcVertex] in graph meters.
+  ///
+  /// Only vertices within [maxGraphMeters] are included.
+  Map<int, double> distancesWithin(int srcVertex, double maxGraphMeters) {
+    final n = _lat.length;
+    const inf = 1e30;
+    final dist = List<double>.filled(n, inf);
+    final heap = AStarMinHeap();
+    dist[srcVertex] = 0;
+    heap.add(vertex: srcVertex, fScore: 0);
+
+    while (!heap.isEmpty) {
+      final entry = heap.removeMin();
+      final u = entry.vertex;
+      if (entry.fScore > dist[u]) {
+        continue;
+      }
+      if (dist[u] > maxGraphMeters) {
+        break;
+      }
+      for (final e in _adj[u]) {
+        final nd = dist[u] + e.w;
+        if (nd < dist[e.to] && nd <= maxGraphMeters) {
+          dist[e.to] = nd;
+          heap.add(vertex: e.to, fScore: nd);
+        }
+      }
+    }
+
+    final out = <int, double>{};
+    for (var i = 0; i < n; i++) {
+      if (dist[i] < inf && dist[i] <= maxGraphMeters) {
+        out[i] = dist[i];
+      }
+    }
+    return out;
+  }
+
+  /// Total river-line distance between two points (includes snap legs).
+  ///
+  /// Returns null when routing fails.
+  double? routeDistanceMeters(
+    double startLat,
+    double startLon,
+    double endLat,
+    double endLon, {
+    double maxSnapMeters = 900,
+  }) {
+    final result = route(
+      startLat,
+      startLon,
+      endLat,
+      endLon,
+      maxSnapMeters: maxSnapMeters,
+    );
+    if (result is! RouteSuccess) {
+      return null;
+    }
+    return result.lengthMeters;
+  }
+
   List<int>? _reconstructPath(List<int> prev, int src, int dst) {
     final rev = <int>[dst];
     var cur = dst;

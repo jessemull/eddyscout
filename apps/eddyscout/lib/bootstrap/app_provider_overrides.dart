@@ -49,6 +49,11 @@ List<Override> buildAppProviderOverrides({
         ),
       ],
     ),
+    launchReachabilityIndexLoaderProvider.overrideWithValue(
+      () => rootBundle.loadString(
+        'assets/data/launch_reachability_index.json',
+      ),
+    ),
     gpxFileGatewayProvider.overrideWithValue(
       gpxFileGatewayOverride ?? const GpxFileGatewayImpl(),
     ),

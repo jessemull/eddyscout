@@ -63,13 +63,17 @@ abstract final class GpxCodec {
     }
 
     return _extractPoints(gpx).when(
-      success: (points) => Result.success(
-        PlannedRoute(
-          points: points,
-          name: gpx.metadata?.name ?? gpx.trks.firstOrNull?.name,
-          origin: RouteOrigin.imported,
-        ),
-      ),
+      success: (points) {
+        final lengthMeters = polylinePathLengthMeters(points);
+        return Result.success(
+          PlannedRoute(
+            points: points,
+            lengthMeters: lengthMeters > 0 ? lengthMeters : null,
+            name: gpx.metadata?.name ?? gpx.trks.firstOrNull?.name,
+            origin: RouteOrigin.imported,
+          ),
+        );
+      },
       failure: Result.failure,
     );
   }
