@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_map/src/presentation/trips_from_here/nearby_launches_provider.dart';
 import 'package:eddyscout_map/src/presentation/trips_from_here/trips_from_here_loading_skeleton.dart';
 import 'package:eddyscout_map/src/presentation/trips_from_here/trips_from_here_section.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,33 @@ List<Override> _reachabilityOverrides() => [
     readTestReachabilityIndex,
   ),
 ];
+
+LaunchPoint _testLaunch({required String id, required String name}) {
+  return LaunchPoint(
+    id: id,
+    name: name,
+    latitude: 45.5,
+    longitude: -122.6,
+    shortNote: 'Test',
+    riverSystem: RiverSystem.willamette,
+    windExposure: WindExposure.moderate,
+    tideRelevance: TideRelevance.none,
+  );
+}
+
+Map<ReachabilityBand, List<LaunchPoint>> _groupedFiveWithin5Mi() {
+  return {
+    ReachabilityBand.within5Mi: [
+      _testLaunch(id: 'launch_a', name: 'Launch Alpha'),
+      _testLaunch(id: 'launch_b', name: 'Launch Beta'),
+      _testLaunch(id: 'launch_c', name: 'Launch Gamma'),
+      _testLaunch(id: 'launch_d', name: 'Launch Delta'),
+      _testLaunch(id: 'launch_e', name: 'Launch Epsilon'),
+    ],
+    ReachabilityBand.within10Mi: const [],
+    ReachabilityBand.within20Mi: const [],
+  };
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -159,6 +187,44 @@ void main() {
       expect(loadAttempts, 2);
       expect(find.text('Within 5 mi'), findsOneWidget);
       expect(find.text('Swan Island Boat Ramp'), findsOneWidget);
+    });
+
+    testWidgets('compact mode shows show-more and expands hidden launches', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        testLocalizedApp(
+          child: ProviderScope(
+            overrides: [
+              nearbyLaunchesGroupedProvider('cathedral_park').overrideWith(
+                (ref) async => _groupedFiveWithin5Mi(),
+              ),
+            ],
+            child: Scaffold(
+              body: TripsFromHereSection(
+                originLaunch: _origin,
+                onPlanToLaunch: (_) {},
+                compact: true,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Show 2 more launches'), findsOneWidget);
+      expect(find.text('Launch Alpha'), findsOneWidget);
+      expect(find.text('Launch Beta'), findsOneWidget);
+      expect(find.text('Launch Gamma'), findsOneWidget);
+      expect(find.text('Launch Delta'), findsNothing);
+      expect(find.text('Launch Epsilon'), findsNothing);
+
+      await tester.tap(find.text('Show 2 more launches'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Show 2 more launches'), findsNothing);
+      expect(find.text('Launch Delta'), findsOneWidget);
+      expect(find.text('Launch Epsilon'), findsOneWidget);
     });
   });
 }

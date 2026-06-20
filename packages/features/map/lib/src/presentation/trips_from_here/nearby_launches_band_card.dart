@@ -94,9 +94,15 @@ class _NearbyLaunchesBandCardState extends State<NearbyLaunchesBandCard> {
                 if (hiddenCount > 0)
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: TextButton(
-                      onPressed: () => setState(() => _expanded = true),
-                      child: Text(l10n.tripsFromHereBandShowMore(hiddenCount)),
+                    child: Semantics(
+                      button: true,
+                      label: l10n.tripsFromHereBandShowMore(hiddenCount),
+                      child: TextButton(
+                        onPressed: () => setState(() => _expanded = true),
+                        child: Text(
+                          l10n.tripsFromHereBandShowMore(hiddenCount),
+                        ),
+                      ),
                     ),
                   ),
               ],
