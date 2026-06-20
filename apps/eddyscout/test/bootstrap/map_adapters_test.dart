@@ -72,9 +72,10 @@ void main() {
       final planner = await container.read(mapRoutePlannerProvider.future);
       expect(planner, isA<HydroMapRoutePlanner>());
 
-      final putIn = kLaunchPoints.firstWhere((l) => l.id == 'port_of_camas');
+      // Port of Camas marina is not on bundled Columbia mainstem (~2.2 km gap).
+      final putIn = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
       final takeOut = kLaunchPoints.firstWhere(
-        (l) => l.id == 'washougal_waterfront',
+        (l) => l.id == 'glenn_otto_troutdale',
       );
       final result = await planner.planMultiSegment([putIn, takeOut]);
 

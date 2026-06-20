@@ -61,6 +61,60 @@ final class HydroGeoJsonLoaderProvider
 String _$hydroGeoJsonLoaderHash() =>
     r'e246a42633ff5334c84bf4dff226085f28424bfa';
 
+/// Optional confluence bridge JSON for cross-system routing.
+
+@ProviderFor(hydroConfluenceBridgesLoader)
+final hydroConfluenceBridgesLoaderProvider =
+    HydroConfluenceBridgesLoaderProvider._();
+
+/// Optional confluence bridge JSON for cross-system routing.
+
+final class HydroConfluenceBridgesLoaderProvider
+    extends
+        $FunctionalProvider<
+          HydroConfluenceBridgesLoader,
+          HydroConfluenceBridgesLoader,
+          HydroConfluenceBridgesLoader
+        >
+    with $Provider<HydroConfluenceBridgesLoader> {
+  /// Optional confluence bridge JSON for cross-system routing.
+  HydroConfluenceBridgesLoaderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'hydroConfluenceBridgesLoaderProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$hydroConfluenceBridgesLoaderHash();
+
+  @$internal
+  @override
+  $ProviderElement<HydroConfluenceBridgesLoader> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  HydroConfluenceBridgesLoader create(Ref ref) {
+    return hydroConfluenceBridgesLoader(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(HydroConfluenceBridgesLoader value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<HydroConfluenceBridgesLoader>(value),
+    );
+  }
+}
+
+String _$hydroConfluenceBridgesLoaderHash() =>
+    r'459df32b618f00200a0aadff7bf926daa1f2f4e0';
+
 /// Bundled hydro graphs for river routing between launches.
 
 @ProviderFor(riverRoutePlanner)
@@ -105,4 +159,4 @@ final class RiverRoutePlannerProvider
   }
 }
 
-String _$riverRoutePlannerHash() => r'e7707107e22a7eff927dec2e03f7d88379d9af22';
+String _$riverRoutePlannerHash() => r'dc7b53089ff4b06eb89c308f8737ccc2263197ec';
