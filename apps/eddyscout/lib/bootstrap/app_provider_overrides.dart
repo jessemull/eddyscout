@@ -48,13 +48,24 @@ List<Override> buildAppProviderOverrides({
       () async => [
         await rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
         await rootBundle.loadString(
+          'assets/hydro/columbia_lower_waterway.geojson',
+        ),
+        await rootBundle.loadString(
           'assets/hydro/columbia_gorge_waterway.geojson',
         ),
       ],
     ),
+    hydroConfluenceBridgesLoaderProvider.overrideWithValue(
+      () async => rootBundle.loadString('assets/hydro/confluence_bridges.json'),
+    ),
     launchReachabilityIndexLoaderProvider.overrideWithValue(
       () => rootBundle.loadString(
         'assets/data/launch_reachability_index.json',
+      ),
+    ),
+    launchSuggestedTripsIndexLoaderProvider.overrideWithValue(
+      () => rootBundle.loadString(
+        'assets/data/launch_suggested_trips_index.json',
       ),
     ),
     gpxFileGatewayProvider.overrideWithValue(
