@@ -62,7 +62,7 @@ void main() {
       now: DateTime.parse('2026-06-15T12:00:00-07:00'),
     );
     expect(r.verdict, GoNoGoVerdict.noGo);
-    expect(r.reasons.any((x) => x.code == 'wind_high'), true);
+    expect(r.reasons.any((x) => x.code == GoNoGoReasonCode.windHigh), true);
   });
 
   test('elevated wind moderate → marginal', () {
@@ -75,7 +75,7 @@ void main() {
       now: DateTime.parse('2026-06-15T12:00:00-07:00'),
     );
     expect(r.verdict, GoNoGoVerdict.marginal);
-    expect(r.reasons.any((x) => x.code == 'wind_elevated'), true);
+    expect(r.reasons.any((x) => x.code == GoNoGoReasonCode.windElevated), true);
   });
 
   test('marine small craft → marginal', () {
@@ -98,7 +98,10 @@ void main() {
       now: DateTime.parse('2026-06-15T12:00:00-07:00'),
     );
     expect(r.verdict, GoNoGoVerdict.marginal);
-    expect(r.reasons.any((x) => x.code == 'marine_advisory'), true);
+    expect(
+      r.reasons.any((x) => x.code == GoNoGoReasonCode.marineAdvisory),
+      true,
+    );
   });
 
   test('marine storm warning → noGo overrides marginal wind', () {
@@ -120,7 +123,7 @@ void main() {
       now: DateTime.parse('2026-06-15T12:00:00-07:00'),
     );
     expect(r.verdict, GoNoGoVerdict.noGo);
-    expect(r.reasons.any((x) => x.code == 'marine_severe'), true);
+    expect(r.reasons.any((x) => x.code == GoNoGoReasonCode.marineSevere), true);
   });
 
   test('missing weather → insufficientData', () {
@@ -134,7 +137,10 @@ void main() {
       now: DateTime.parse('2026-06-15T12:00:00-07:00'),
     );
     expect(r.verdict, GoNoGoVerdict.insufficientData);
-    expect(r.reasons.any((x) => x.code == 'weather_missing'), true);
+    expect(
+      r.reasons.any((x) => x.code == GoNoGoReasonCode.weatherMissing),
+      true,
+    );
   });
 
   test('missing weather but marine noGo → noGo', () {
@@ -173,7 +179,7 @@ void main() {
       now: DateTime.parse('2026-06-15T12:00:00-07:00'),
     );
     expect(r.verdict, GoNoGoVerdict.noGo);
-    expect(r.reasons.any((x) => x.code == 'flow_very_high'), true);
+    expect(r.reasons.any((x) => x.code == GoNoGoReasonCode.flowVeryHigh), true);
   });
 
   test('cold season adds info reason', () {
@@ -186,7 +192,10 @@ void main() {
       now: DateTime.parse('2026-01-15T12:00:00-07:00'),
     );
     expect(r.verdict, GoNoGoVerdict.go);
-    expect(r.reasons.any((x) => x.code == 'cold_water_season'), true);
+    expect(
+      r.reasons.any((x) => x.code == GoNoGoReasonCode.coldWaterSeason),
+      true,
+    );
   });
 
   test('beginner treats moderate wind 19 mph as noGo; advanced as go', () {
@@ -208,7 +217,10 @@ void main() {
       now: now,
     );
     expect(beginner.verdict, GoNoGoVerdict.noGo);
-    expect(beginner.reasons.any((x) => x.code == 'wind_high'), true);
+    expect(
+      beginner.reasons.any((x) => x.code == GoNoGoReasonCode.windHigh),
+      true,
+    );
     expect(advanced.verdict, GoNoGoVerdict.go);
   });
 
@@ -239,7 +251,10 @@ void main() {
       now: now,
     );
     expect(withBands.verdict, GoNoGoVerdict.marginal);
-    expect(withBands.reasons.any((x) => x.code == 'flow_high'), true);
+    expect(
+      withBands.reasons.any((x) => x.code == GoNoGoReasonCode.flowHigh),
+      true,
+    );
     expect(noBands.verdict, GoNoGoVerdict.go);
   });
 
@@ -261,6 +276,9 @@ void main() {
       now: DateTime.parse('2026-06-15T12:00:00-07:00'),
     );
     expect(r.verdict, GoNoGoVerdict.go);
-    expect(r.reasons.any((x) => x.code == 'forecast_low_light_hours'), true);
+    expect(
+      r.reasons.any((x) => x.code == GoNoGoReasonCode.forecastLowLightHours),
+      true,
+    );
   });
 }
