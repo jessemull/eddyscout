@@ -236,6 +236,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase C / R3)** Route planner: pre-snap launches to graph vertices at build time; snap quality validation
 - [ ] **(Phase C / R3)** Route planner: reachability index per launch (nearby launches within 5/10/20 mi graph distance)
 - [ ] **(Phase C / R3)** Route planner: suggested trips from each launch (distance, time, waypoints)
+- [ ] **(Phase C / R3)** Route planner: regenerate reachability + suggested trips indexes with unified cross-system graph (`crossSystemReachability: true`) after cross-system routing merges
 - [ ] **(Phase C / R3)** Route planner: "Trips from here" UI on place peek and launch detail
 - [x] **(Phase C)** Route planner: **personalized paddling speed** at sign-up / profile for trip-time estimates (default 4 km/h until set; optional learning from trip log)
 - [ ] **(Phase C)** **Metric / imperial units** — user preference for distance (km/mi) and speed (km/h/mph) across settings, route planner, and saved routes
