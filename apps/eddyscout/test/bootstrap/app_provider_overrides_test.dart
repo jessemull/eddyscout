@@ -55,7 +55,7 @@ void main() {
   });
 
   test(
-    'hydroGeoJsonLoaderProvider loads Willamette and Columbia gorge assets',
+    'hydroGeoJsonLoaderProvider loads all bundled hydro assets',
     () async {
       final container = ProviderContainer(
         overrides: buildAppProviderOverrides(keyValueStore: store),
@@ -63,10 +63,13 @@ void main() {
       addTearDown(container.dispose);
 
       final docs = await container.read(hydroGeoJsonLoaderProvider)();
-      expect(docs, hasLength(2));
+      expect(docs, hasLength(7));
       expect(docs.first, contains('FeatureCollection'));
       expect(docs.first, contains('willamette'));
-      expect(docs.last, contains('columbia_gorge'));
+      expect(
+        docs.any((doc) => doc.contains('columbia_lower')),
+        isTrue,
+      );
     },
   );
 

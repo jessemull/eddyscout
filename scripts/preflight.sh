@@ -79,7 +79,8 @@ else
     "Format" _preflight_format \
     "Analyze" _preflight_analyze \
     "Import boundaries" "$SCRIPT_DIR/check_imports.sh" \
-    "Architecture" "$SCRIPT_DIR/check_architecture.sh"
+    "Architecture" "$SCRIPT_DIR/check_architecture.sh" \
+    "Hydro geometry" "$SCRIPT_DIR/check_hydro_geometry.sh"
 
   preflight_phase_start "Codegen verification"
   "$SCRIPT_DIR/codegen_verify.sh"

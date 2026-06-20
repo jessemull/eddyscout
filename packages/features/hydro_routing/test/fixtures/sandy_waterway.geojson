@@ -5,81 +5,13 @@
       "type": "Feature",
       "properties": {
         "river_system": "columbia",
-        "reach_id": "columbia_gorge",
-        "name": "Columbia mainstem \u2014 Camas to Glenn Otto (OSM merged)",
-        "source": "OpenStreetMap ODbL. Way 163917830 mainstem subline plus connected Sandy River / side-channel ways to Glenn Otto Park anchor."
+        "reach_id": "sandy_main",
+        "name": "Sandy River \u2014 Troutdale to Columbia mouth (OSM waterway=river)",
+        "source": "OpenStreetMap ODbL. Sandy River way 128946456 subline from Columbia junction to Glenn Otto Park anchor."
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [
-            -122.4300244,
-            45.5659948
-          ],
-          [
-            -122.429087,
-            45.5692623
-          ],
-          [
-            -122.4281496,
-            45.5725299
-          ],
-          [
-            -122.4272122,
-            45.5757974
-          ],
-          [
-            -122.4262748,
-            45.5790649
-          ],
-          [
-            -122.4253374,
-            45.5823325
-          ],
-          [
-            -122.4244,
-            45.5856
-          ],
-          [
-            -122.4227339,
-            45.5822924
-          ],
-          [
-            -122.4210677,
-            45.5789848
-          ],
-          [
-            -122.4194016,
-            45.5756772
-          ],
-          [
-            -122.4177355,
-            45.5723696
-          ],
-          [
-            -122.4160693,
-            45.569062
-          ],
-          [
-            -122.4144032,
-            45.5657544
-          ],
-          [
-            -122.4017553,
-            45.5691143
-          ],
-          [
-            -122.3951134,
-            45.5716847
-          ],
-          [
-            -122.3877743,
-            45.5736406
-          ],
-          [
-            -122.3951134,
-            45.5716847
-          ],
           [
             -122.4017553,
             45.5691143
