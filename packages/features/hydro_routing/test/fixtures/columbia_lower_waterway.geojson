@@ -7,7 +7,7 @@
         "river_system": "columbia",
         "reach_id": "columbia_lower",
         "name": "Columbia mainstem \u2014 Willamette mouth to Camas (OSM merged)",
-        "source": "OpenStreetMap ODbL. Overpass merge of connected waterway=river|canal|fairway ways; shortest path from Willamette mouth to Camas split."
+        "source": "OpenStreetMap ODbL. Overpass merge of connected waterway=river|canal|fairway ways; shortest path from Willamette mouth to Camas split; Vancouver launch anchor."
       },
       "geometry": {
         "type": "LineString",
@@ -479,7 +479,7 @@
         "river_system": "columbia",
         "reach_id": "columbia_lower_pool_north",
         "name": "Columbia lower pool \u2014 St Helens to Frenchman's Bar (OSM Columbia River)",
-        "source": "OpenStreetMap ODbL. Subline of Columbia River with connector to lower mainstem."
+        "source": "OpenStreetMap ODbL. Subline of Columbia River ways with connectors to lower mainstem and catalog launch anchors."
       },
       "geometry": {
         "type": "LineString",
