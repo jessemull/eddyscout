@@ -1764,6 +1764,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get commonCancel;
+
+  /// Title for rolled route go/no-go card on map preview and saved route detail
+  ///
+  /// In en, this message translates to:
+  /// **'Route go / no-go (informational)'**
+  String get routeGoNoGoTitle;
+
+  /// Accessibility label while route go/no-go rollup loads
+  ///
+  /// In en, this message translates to:
+  /// **'Loading route conditions…'**
+  String get routeGoNoGoLoading;
+
+  /// No description provided for @routeGoNoGoErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Route conditions could not be loaded.'**
+  String get routeGoNoGoErrorGeneric;
+
+  /// No description provided for @routeGoNoGoTriggeringStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Worst at {stopName}'**
+  String routeGoNoGoTriggeringStop(String stopName);
+
+  /// No description provided for @routeGoNoGoAllStopsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All stops'**
+  String get routeGoNoGoAllStopsTitle;
+
+  /// No description provided for @routeGoNoGoStopLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{position}. {name} — {verdict}'**
+  String routeGoNoGoStopLine(int position, String name, String verdict);
+
+  /// No description provided for @routeGoNoGoPartialFailuresTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Some stops could not load conditions:'**
+  String get routeGoNoGoPartialFailuresTitle;
+
+  /// No description provided for @routeGoNoGoStopFailureLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{position}. {name}: {message}'**
+  String routeGoNoGoStopFailureLine(int position, String name, String message);
+
+  /// No description provided for @routeGoNoGoRouteDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Stub rules across route stops—not a substitute for your judgment, skill, or scouting on site.'**
+  String get routeGoNoGoRouteDisclaimer;
+
+  /// No description provided for @routeGoNoGoSemanticsVerdictOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Route go no-go: {verdict}'**
+  String routeGoNoGoSemanticsVerdictOnly(String verdict);
+
+  /// No description provided for @routeGoNoGoSemanticsVerdictWithStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Route go no-go: {verdict}. Worst at {stopName}.'**
+  String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName);
 }
 
 class _AppLocalizationsDelegate

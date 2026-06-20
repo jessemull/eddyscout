@@ -48,6 +48,7 @@ void main() {
     required List<Object?> overrides,
     DisplayUnitSystem displayUnits = DisplayUnitSystem.metric,
     void Function(SavedRoute route)? onLoadOnMap,
+    Widget? goNoGoSection,
   }) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -64,6 +65,7 @@ void main() {
           child: SavedRouteDetailScreen(
             routeId: routeId,
             onLoadOnMap: onLoadOnMap ?? (_) {},
+            goNoGoSection: goNoGoSection,
           ),
         ),
       ),
@@ -71,6 +73,22 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
   }
+
+  testWidgets('shows go/no-go section slot when provided', (tester) async {
+    final route = testSavedRoute(name: 'Willamette Shuttle');
+    when(() => repository.getById(route.id)).thenAnswer(
+      (_) async => Result.success(route),
+    );
+
+    await pumpDetail(
+      tester,
+      routeId: route.id,
+      overrides: const [],
+      goNoGoSection: const Text('Route go-no-go slot'),
+    );
+
+    expect(find.text('Route go-no-go slot'), findsOneWidget);
+  });
 
   testWidgets('shows not found when route is missing', (tester) async {
     when(() => repository.getById('missing')).thenAnswer(

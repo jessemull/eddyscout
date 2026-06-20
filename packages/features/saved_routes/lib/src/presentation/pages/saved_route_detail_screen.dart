@@ -20,6 +20,7 @@ class SavedRouteDetailScreen extends ConsumerStatefulWidget {
   const SavedRouteDetailScreen({
     required this.routeId,
     required this.onLoadOnMap,
+    this.goNoGoSection,
     super.key,
   });
 
@@ -28,6 +29,9 @@ class SavedRouteDetailScreen extends ConsumerStatefulWidget {
 
   /// Loads this route onto the map tab.
   final void Function(SavedRoute route) onLoadOnMap;
+
+  /// Optional route go/no-go rollup (injected from app shell).
+  final Widget? goNoGoSection;
 
   @override
   ConsumerState<SavedRouteDetailScreen> createState() =>
@@ -214,6 +218,10 @@ class _SavedRouteDetailScreenState
                   label: l10n.savedRoutesDetailDistanceLabel,
                   distanceLabel: distanceLabel,
                 ),
+              if (widget.goNoGoSection != null) ...[
+                const SizedBox(height: Spacing.md),
+                widget.goNoGoSection!,
+              ],
               const SizedBox(height: Spacing.md),
               SavedRouteDetailTagsSection(
                 selectedCategories: _selectedCategories,

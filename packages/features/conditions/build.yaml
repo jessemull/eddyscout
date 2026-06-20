@@ -7,6 +7,7 @@ targets:
             - lib/src/domain/conditions_models.dart
             - lib/src/domain/go_no_go.dart
             - lib/src/domain/go_no_go_thresholds.dart
+            - lib/src/domain/route_go_no_go.dart
             - lib/src/data/firebase/conditions_summary_payload.dart
       json_serializable:
         generate_for:
@@ -36,3 +37,4 @@ targets:
             - lib/src/presentation/firebase_bootstrap_provider.dart
             - lib/src/presentation/go_no_go_profile_provider.dart
             - lib/src/presentation/launch_reports_digest_provider.dart
+            - lib/src/presentation/route_go_no_go_rollup_provider.dart

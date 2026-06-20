@@ -1009,4 +1009,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonCancel => 'Cancel';
+
+  @override
+  String get routeGoNoGoTitle => 'Route go / no-go (informational)';
+
+  @override
+  String get routeGoNoGoLoading => 'Loading route conditions…';
+
+  @override
+  String get routeGoNoGoErrorGeneric => 'Route conditions could not be loaded.';
+
+  @override
+  String routeGoNoGoTriggeringStop(String stopName) {
+    return 'Worst at $stopName';
+  }
+
+  @override
+  String get routeGoNoGoAllStopsTitle => 'All stops';
+
+  @override
+  String routeGoNoGoStopLine(int position, String name, String verdict) {
+    return '$position. $name — $verdict';
+  }
+
+  @override
+  String get routeGoNoGoPartialFailuresTitle =>
+      'Some stops could not load conditions:';
+
+  @override
+  String routeGoNoGoStopFailureLine(int position, String name, String message) {
+    return '$position. $name: $message';
+  }
+
+  @override
+  String get routeGoNoGoRouteDisclaimer =>
+      'Stub rules across route stops—not a substitute for your judgment, skill, or scouting on site.';
+
+  @override
+  String routeGoNoGoSemanticsVerdictOnly(String verdict) {
+    return 'Route go no-go: $verdict';
+  }
+
+  @override
+  String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName) {
+    return 'Route go no-go: $verdict. Worst at $stopName.';
+  }
 }

@@ -649,5 +649,52 @@
     }
   },
   "commonRetry": "Retry",
-  "commonCancel": "Cancel"
+  "commonCancel": "Cancel",
+  "routeGoNoGoTitle": "Route go / no-go (informational)",
+  "@routeGoNoGoTitle": {
+    "description": "Title for rolled route go/no-go card on map preview and saved route detail"
+  },
+  "routeGoNoGoLoading": "Loading route conditions…",
+  "@routeGoNoGoLoading": {
+    "description": "Accessibility label while route go/no-go rollup loads"
+  },
+  "routeGoNoGoErrorGeneric": "Route conditions could not be loaded.",
+  "routeGoNoGoTriggeringStop": "Worst at {stopName}",
+  "@routeGoNoGoTriggeringStop": {
+    "placeholders": {
+      "stopName": {"type": "String"}
+    }
+  },
+  "routeGoNoGoAllStopsTitle": "All stops",
+  "routeGoNoGoStopLine": "{position}. {name} — {verdict}",
+  "@routeGoNoGoStopLine": {
+    "placeholders": {
+      "position": {"type": "int"},
+      "name": {"type": "String"},
+      "verdict": {"type": "String"}
+    }
+  },
+  "routeGoNoGoPartialFailuresTitle": "Some stops could not load conditions:",
+  "routeGoNoGoStopFailureLine": "{position}. {name}: {message}",
+  "@routeGoNoGoStopFailureLine": {
+    "placeholders": {
+      "position": {"type": "int"},
+      "name": {"type": "String"},
+      "message": {"type": "String"}
+    }
+  },
+  "routeGoNoGoRouteDisclaimer": "Stub rules across route stops—not a substitute for your judgment, skill, or scouting on site.",
+  "routeGoNoGoSemanticsVerdictOnly": "Route go no-go: {verdict}",
+  "@routeGoNoGoSemanticsVerdictOnly": {
+    "placeholders": {
+      "verdict": {"type": "String"}
+    }
+  },
+  "routeGoNoGoSemanticsVerdictWithStop": "Route go no-go: {verdict}. Worst at {stopName}.",
+  "@routeGoNoGoSemanticsVerdictWithStop": {
+    "placeholders": {
+      "verdict": {"type": "String"},
+      "stopName": {"type": "String"}
+    }
+  }
 }
