@@ -399,5 +399,45 @@ void main() {
         isA<RouteSuccess>(),
       );
     });
+
+    test(
+      'addConfluenceBridges skips bridge when endpoints are too far to snap',
+      () {
+        const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "alpha"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0], [0, 0.01]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "beta"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0.03], [0, 0.04]]}
+    }
+  ]
+}
+''';
+        final feats = parseHydroGeoJson(json);
+        final withoutBridge = RiverLineGraph.fromAllFeatures(feats);
+        final withBridge = withoutBridge.addConfluenceBridges([
+          const ConfluenceBridge(
+            id: 'placeholder_too_far',
+            aLat: 1.0,
+            aLon: 0,
+            bLat: 2.0,
+            bLon: 0,
+          ),
+        ]);
+
+        expect(withBridge.vertexCount, withoutBridge.vertexCount);
+        expect(
+          withBridge.route(0.0, 0.0, 0.04, 0.0, maxSnapMeters: 50000),
+          isA<RouteFailure>(),
+        );
+      },
+    );
   });
 }

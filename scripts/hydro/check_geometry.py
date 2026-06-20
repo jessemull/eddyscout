@@ -75,6 +75,25 @@ def _check_confluence_gaps(
     return errors
 
 
+def collect_geometry_errors(
+    hydro_dir: Path,
+    *,
+    max_edge_m: float = DEFAULT_MAX_EDGE_M,
+    confluence_gap_m: float = DEFAULT_CONFLUENCE_GAP_M,
+) -> list[str]:
+    """Return validation errors for bundled hydro GeoJSON in [hydro_dir]."""
+    geojson_files = sorted(hydro_dir.glob("*_waterway.geojson"))
+    if not geojson_files:
+        return [f"No *_waterway.geojson files in {hydro_dir}"]
+
+    errors: list[str] = []
+    for path in geojson_files:
+        errors.extend(_check_edges(path, max_edge_m))
+
+    errors.extend(_check_confluence_gaps(hydro_dir, confluence_gap_m))
+    return errors
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run geometry checks on bundled hydro assets.",
@@ -102,15 +121,11 @@ def main() -> None:
     max_edge_m: float = args.max_edge_m
     confluence_gap_m: float = args.confluence_gap_m
 
-    geojson_files = sorted(hydro_dir.glob("*_waterway.geojson"))
-    if not geojson_files:
-        parser.error(f"No *_waterway.geojson files in {hydro_dir}")
-
-    errors: list[str] = []
-    for path in geojson_files:
-        errors.extend(_check_edges(path, max_edge_m))
-
-    errors.extend(_check_confluence_gaps(hydro_dir, confluence_gap_m))
+    errors = collect_geometry_errors(
+        hydro_dir,
+        max_edge_m=max_edge_m,
+        confluence_gap_m=confluence_gap_m,
+    )
 
     if errors:
         print("=== Hydro geometry check FAILED ===", file=sys.stderr)
@@ -118,8 +133,9 @@ def main() -> None:
             print(f"ERROR: {error}", file=sys.stderr)
         raise SystemExit(1)
 
+    file_count = len(list(hydro_dir.glob("*_waterway.geojson")))
     print(
-        f"Hydro geometry OK ({len(geojson_files)} files, "
+        f"Hydro geometry OK ({file_count} files, "
         f"max edge {max_edge_m:.0f} m, confluence gap {confluence_gap_m:.0f} m)"
     )
 

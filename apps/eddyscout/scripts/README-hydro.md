@@ -32,6 +32,13 @@ The import script:
 
 CI / preflight runs `scripts/check_hydro_geometry.sh`, which fails when any edge exceeds **2000 m** or confluence gaps exceed **12 m** (same merge threshold as `RiverLineGraph`).
 
+## Launch snap gaps (known)
+
+| Launch | Gap to bundled geometry | Notes |
+|--------|------------------------|-------|
+| Port of Camas marina | ~2.2 km to Columbia mainstem | Not routable until Camas Slough OSM spur (way `130204446` or equivalent) is bundled; nearest slough point is ~890 m but not connected to mainstem within the 12 m merge threshold. |
+| Washougal Waterfront Park | ~610 m to gorge mainstem | Within the 900 m route snap threshold; routes on gorge geometry. |
+
 ## Confluence bridges (`confluence_bridges.json`)
 
 Use bridges only when two systems should route together but bundled GeoJSON does not yet share a vertex (within the 12 m merge threshold).

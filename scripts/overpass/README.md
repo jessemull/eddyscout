@@ -26,9 +26,20 @@ before write so bundled geometry passes `scripts/check_hydro_geometry.sh`.
 
 ## Validation
 
+Bundled assets, confluence bridges, and known launch snap gaps (e.g. Port of Camas
+marina) are documented in
+[`apps/eddyscout/scripts/README-hydro.md`](../../apps/eddyscout/scripts/README-hydro.md#launch-snap-gaps-known).
+
 ```bash
 ./scripts/check_hydro_geometry.sh
 ```
 
-Fails when any bundled edge exceeds **2000 m** or confluence gaps exceed **12 m**
-(the same merge threshold as `RiverLineGraph`).
+Runs bundled geometry validation plus `scripts/hydro/` unit tests. Fails when any
+bundled edge exceeds **2000 m** or confluence gaps exceed **12 m** (the same merge
+threshold as `RiverLineGraph`).
+
+Unit tests only:
+
+```bash
+python3 -m unittest discover -s scripts/hydro -p 'test_*.py'
+```
