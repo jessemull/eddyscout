@@ -35,7 +35,7 @@ Future<RouteGoNoGoResult> routeGoNoGoRollup(
             orderIndex: orderIndex,
             launchId: launchId,
             launchName: launchId,
-            failure: NotFoundFailure(message: 'Launch not found: $launchId'),
+            failure: NotFoundFailure(message: launchId),
           ),
         );
         return;

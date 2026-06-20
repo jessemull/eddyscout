@@ -281,7 +281,10 @@ class _RouteGoNoGoDataCard extends StatelessWidget {
                       l10n.routeGoNoGoStopFailureLine(
                         failure.orderIndex + 1,
                         failure.launchName,
-                        failure.failure.message,
+                        localizeRouteGoNoGoFailureMessage(
+                          l10n,
+                          failure.failure,
+                        ),
                       ),
                       style: Theme.of(
                         context,

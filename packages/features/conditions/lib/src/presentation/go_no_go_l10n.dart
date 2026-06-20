@@ -1,4 +1,5 @@
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 
 /// Localizes go/no-go verdict headlines for launch detail UI.
@@ -66,4 +67,13 @@ String localizeGoNoGoReason(
     reason.cfs ?? '',
     reason.siteId ?? '',
   ),
+};
+
+/// Localizes per-stop failure copy for route go/no-go partial-failure lines.
+String localizeRouteGoNoGoFailureMessage(
+  AppLocalizations l10n,
+  AppFailure failure,
+) => switch (failure) {
+  NotFoundFailure() => l10n.routeGoNoGoLaunchNotFound,
+  _ => failure.message,
 };

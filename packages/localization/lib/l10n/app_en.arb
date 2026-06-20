@@ -675,6 +675,10 @@
     }
   },
   "routeGoNoGoPartialFailuresTitle": "Some stops could not load conditions:",
+  "routeGoNoGoLaunchNotFound": "Launch not found in catalog.",
+  "@routeGoNoGoLaunchNotFound": {
+    "description": "Partial-failure message when a route stop references an unknown launch id"
+  },
   "routeGoNoGoStopFailureLine": "{position}. {name}: {message}",
   "@routeGoNoGoStopFailureLine": {
     "placeholders": {

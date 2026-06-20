@@ -233,4 +233,40 @@ void main() {
       expect(find.textContaining('network down'), findsOneWidget);
     },
   );
+
+  testWidgets('localizes unknown launch failure in partial failure banner', (
+    tester,
+  ) async {
+    final launchIds = ['cathedral_park', 'kelley_point'];
+    final waypointsKey = _waypointsKey(launchIds);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          routeGoNoGoRollupProvider(waypointsKey).overrideWith(
+            (_) async => _rollupResult(
+              verdict: GoNoGoVerdict.go,
+              waypointFailures: const [
+                RouteWaypointGoNoGoFailure(
+                  orderIndex: 1,
+                  launchId: 'missing_launch',
+                  launchName: 'missing_launch',
+                  failure: NotFoundFailure(message: 'missing_launch'),
+                ),
+              ],
+            ),
+          ),
+        ],
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: RouteGoNoGoSummarySection(launchIdsInOrder: launchIds),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Launch not found in catalog.'), findsOneWidget);
+    expect(find.textContaining('Launch not found:'), findsNothing);
+  });
 }

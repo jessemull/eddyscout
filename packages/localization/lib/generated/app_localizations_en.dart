@@ -1037,6 +1037,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some stops could not load conditions:';
 
   @override
+  String get routeGoNoGoLaunchNotFound => 'Launch not found in catalog.';
+
+  @override
   String routeGoNoGoStopFailureLine(int position, String name, String message) {
     return '$position. $name: $message';
   }

@@ -1807,6 +1807,12 @@ abstract class AppLocalizations {
   /// **'Some stops could not load conditions:'**
   String get routeGoNoGoPartialFailuresTitle;
 
+  /// Partial-failure message when a route stop references an unknown launch id
+  ///
+  /// In en, this message translates to:
+  /// **'Launch not found in catalog.'**
+  String get routeGoNoGoLaunchNotFound;
+
   /// No description provided for @routeGoNoGoStopFailureLine.
   ///
   /// In en, this message translates to:
