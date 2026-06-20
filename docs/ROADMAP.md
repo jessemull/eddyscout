@@ -4,7 +4,7 @@ High-level feature map for a PNW-focused kayak companion: **decision-first**, **
 
 > **Platform:** target architecture is **complete** (waves 1–3 merged; see § Platform architecture). **Product work** is Phase C+ below. New UI belongs in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
 >
-> **Last updated:** 2026-06-13
+> **Last updated:** 2026-06-14
 
 ## Vision
 
@@ -222,6 +222,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Reports / mod)** Moderation — admin queue, TTL, keyword hold (optional report-abuse UX)
 - [x] **(Phase C)** Route preview on map — planning mode, put-in / take-out from existing launches, path along bundled open hydro LineStrings (`assets/hydro/`; Willamette Portland reach first); not navigation-grade
 - [x] **(Phase C)** Route planner follow-ups — more rivers / segment snap (`feat/route-planner-hydro-expansion`; Willamette + Columbia gorge hydro, edge snap, `PlannedRoute` domain model)
+- [ ] **(Phase C / R1a)** Route planner: Columbia OSM import — repeatable Overpass merge, Willamette mouth tied to real OSM vertices, geometry gate in CI (scoped PR before full R1)
 - [ ] **(Phase C / R1)** Route planner: import Columbia, Clackamas, slough, Tualatin, Sandy waterway geometry from OSM Overpass; validate connectivity; bundle as `assets/hydro/`
 - [ ] **(Phase C / R1)** Route planner: add NHD download + conversion script for higher-quality river centerlines
 - [ ] **(Phase C / R2)** Route planner: upgrade Dijkstra to A* with priority queue and haversine heuristic
@@ -372,7 +373,7 @@ Waterway GeoJSON (OSM / NHD / curated)
 | System | Status |
 |--------|--------|
 | Willamette (main stem Portland reach) | Done (bundled GeoJSON) |
-| Columbia (Portland–Sauvie–St. Helens) | Partial — `columbia_lower_waterway.geojson` (curated mouth→gorge link; replace with OSM/NHD in R1) + `columbia_gorge_waterway.geojson` |
+| Columbia (Portland–Sauvie–St. Helens) | **R1a in progress** — OSM Overpass import (`scripts/overpass/fetch_columbia_waterway.py`); mouth shares Willamette vertex; geometry gate in preflight |
 | Clackamas | Not started |
 | Multnomah Channel / slough | Not started |
 | Tualatin | Not started |
@@ -382,12 +383,29 @@ Waterway GeoJSON (OSM / NHD / curated)
 
 **Tasks:**
 
-- [ ] Write Overpass query scripts for each target system (`scripts/overpass/`)
+- [x] Write Overpass import script for Columbia lower + gorge (`scripts/overpass/fetch_columbia_waterway.py`)
+- [x] Connect Willamette mouth via shared OSM vertices (no hand-drawn mouth connector)
+- [x] Add bundled geometry gate — fail CI when any edge > 2000 m or confluence gaps > 12 m (`scripts/check_hydro_geometry.sh`)
+- [ ] Write Overpass query scripts for remaining target systems (`scripts/overpass/`)
 - [ ] Validate geometry connectivity (no gaps between line segments)
 - [ ] Merge disconnected segments within snap threshold
 - [ ] Bundle as `assets/hydro/<system>_waterway.geojson`
 - [ ] Add NHD download + conversion script for higher-quality alternatives
-- [ ] Document geometry provenance per file in `scripts/README-hydro.md`
+- [x] Document geometry provenance per file in `scripts/README-hydro.md`
+
+### Phase R1a: Columbia OSM import (scoped — ship before full R1)
+
+**Goal:** Replace hand-curated Columbia mouth connector and land chords with repeatable OSM import; gate bundled geometry in CI.
+
+**Scope (one PR, not all of R1):**
+
+- [x] Import + merge real Columbia centerlines — Overpass merge of connected `waterway=river|canal|fairway` ways (`scripts/overpass/fetch_columbia_waterway.py`)
+- [x] Connect at Willamette mouth using shared OSM vertices — read mouth from `willamette_waterway.geojson`; no hand-drawn mouth connector
+- [x] Geometry gate — `scripts/check_hydro_geometry.sh` fails preflight when any edge > 2000 m or confluence gaps > 12 m
+- [ ] Commit bundled assets after manual route check (Cathedral Park → Glenn Otto follows channel, not Vancouver land)
+
+**Out of scope for R1a (defer to full R1):** Clackamas, slough, Tualatin, Sandy main-stem bundles; NHD pipeline as primary source; Overpass scripts per remaining system.
+
 
 ### Phase R2: Graph construction improvements
 
@@ -513,14 +531,15 @@ Client → Route API (POST /routes/plan)
 ### Routing decision tree (implementation order)
 
 ```
-1. Import Portland-area waterway geometry (all systems)  ← NEXT
-2. Upgrade pathfinder to A* with priority queue
-3. Pre-snap launches; build reachability index
-4. Surface "trips from here" in UI
-5. Cross-system routing (unified graph)
-6. Arbitrary waypoints + drag-to-edit
-7. Server-side routing when graph > 100k nodes
-8. Continental expansion
+1. Columbia OSM import + geometry gate (R1a)           ← IN PROGRESS
+2. Import remaining Portland-area waterway geometry (R1)
+3. Upgrade pathfinder to A* with priority queue
+4. Pre-snap launches; build reachability index
+5. Surface "trips from here" in UI
+6. Cross-system routing (unified graph)              ← DONE (R2)
+7. Arbitrary waypoints + drag-to-edit
+8. Server-side routing when graph > 100k nodes
+9. Continental expansion
 ```
 
 ---

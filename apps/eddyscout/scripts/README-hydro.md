@@ -7,11 +7,30 @@ Bundled GeoJSON under `assets/hydro/` supplies **approximate** river centerlines
 | File | `river_system` | Notes |
 |------|----------------|-------|
 | `willamette_waterway.geojson` | `willamette` | Main stem from OpenStreetMap (`waterway=river`, ways 163656027 + 164125011 merged). |
-| `columbia_lower_waterway.geojson` | `columbia` | Curated Portland-pool centerline from Willamette mouth to gorge segment start. Replace with OSM/NHD in R1. |
-| `columbia_gorge_waterway.geojson` | `columbia` | Bonneville pool / gorge reach (OSM ways merged; north extension curated near Port of Camas). |
+| `columbia_lower_waterway.geojson` | `columbia` | Willamette mouth → Camas from OSM Overpass merge (`scripts/overpass/fetch_columbia_waterway.py`); mouth shares Willamette end vertex. |
+| `columbia_gorge_waterway.geojson` | `columbia` | Camas → Glenn Otto from OSM way 163917830 + Sandy River way 128946456. |
 | `confluence_bridges.json` | — | Optional curated edges where geometry is missing but systems should connect (see below). |
 
 Coordinates must be **WGS84** `[longitude, latitude]` per GeoJSON. Feature property `river_system` must match Dart enum names: `willamette`, `columbia`, `clackamas`, `slough`.
+
+## Import pipeline (Columbia)
+
+Regenerate Columbia assets from OpenStreetMap:
+
+```bash
+python3 scripts/overpass/fetch_columbia_waterway.py
+./scripts/check_hydro_geometry.sh
+```
+
+The import script:
+
+1. Reads the Willamette mouth from bundled `willamette_waterway.geojson`.
+2. Merges connected `waterway=river|canal|fairway` ways via Overpass.
+3. Routes mouth → Camas on the merged graph (no hand-drawn mouth connector).
+4. Builds the gorge reach from OSM way `163917830` + Sandy River way `128946456`.
+5. Writes assets and matching test fixtures.
+
+CI / preflight runs `scripts/check_hydro_geometry.sh`, which fails when any edge exceeds **2000 m** or confluence gaps exceed **12 m** (same merge threshold as `RiverLineGraph`).
 
 ## Confluence bridges (`confluence_bridges.json`)
 
@@ -48,10 +67,10 @@ Loaded in production via `hydroConfluenceBridgesLoaderProvider` in `app_provider
 ## Refreshing or extending data
 
 1. **OpenStreetMap (Overpass API)**  
-   Query `waterway=river` / `waterway=stream` inside a bounding box, export as GeoJSON. Merge ways, simplify with [mapshaper](https://mapshaper.org/) or QGIS if needed.
+   Query `waterway=river` / `waterway=stream` inside a bounding box, export as GeoJSON. Use `scripts/overpass/fetch_columbia_waterway.py` for Columbia lower + gorge. Merge ways, simplify with [mapshaper](https://mapshaper.org/) or QGIS if needed.
 
 2. **US NHD (National Hydrography Dataset)**  
-   Download flowlines for your HUC, clip to region, export GeoJSON LineStrings. Often better connectivity than OSM for US rivers.
+   Download flowlines for your HUC via `scripts/nhd/` (`download.sh`, `convert.py`, `validate.py`). Often better connectivity than OSM for US rivers.
 
 3. **Replace or add assets**  
    Add new `.geojson` files, list them in `pubspec.yaml` under `flutter.assets`, and append paths in `hydroGeoJsonLoaderProvider` (`app_provider_overrides.dart`).

@@ -44,20 +44,20 @@ void main() {
 
       final planner = await container.read(riverRoutePlannerProvider.future);
       final putIn = LaunchPoint(
-        id: 'camas',
-        name: 'Camas',
-        latitude: 45.5856,
-        longitude: -122.4244,
+        id: 'washougal_waterfront',
+        name: 'Washougal Waterfront Park',
+        latitude: 45.5791,
+        longitude: -122.3870,
         shortNote: 'Test',
         riverSystem: RiverSystem.columbia,
         windExposure: WindExposure.moderate,
         tideRelevance: TideRelevance.none,
       );
       final takeOut = LaunchPoint(
-        id: 'washougal',
-        name: 'Washougal',
-        latitude: 45.5791,
-        longitude: -122.3870,
+        id: 'glenn_otto_troutdale',
+        name: 'Glenn Otto Park',
+        latitude: 45.5365,
+        longitude: -122.3858,
         shortNote: 'Test',
         riverSystem: RiverSystem.columbia,
         windExposure: WindExposure.moderate,
