@@ -11,8 +11,9 @@ part 'route_go_no_go_rollup_provider.g.dart';
 @Riverpod(retry: disableProviderRetry)
 Future<RouteGoNoGoResult> routeGoNoGoRollup(
   Ref ref,
-  RouteGoNoGoWaypointsKey launchIdsInOrder,
+  RouteGoNoGoWaypointsKey waypointsKey,
 ) async {
+  final launchIdsInOrder = waypointsKey.launchIdsInOrder;
   if (launchIdsInOrder.length < 2) {
     throw const UnexpectedFailure(
       message: 'Route go/no-go requires at least two waypoints.',
@@ -29,6 +30,14 @@ Future<RouteGoNoGoResult> routeGoNoGoRollup(
       final launchId = entry.value;
       final launch = findLaunchPointById(launchId);
       if (launch == null) {
+        failures.add(
+          RouteWaypointGoNoGoFailure(
+            orderIndex: orderIndex,
+            launchId: launchId,
+            launchName: launchId,
+            failure: NotFoundFailure(message: 'Launch not found: $launchId'),
+          ),
+        );
         return;
       }
 

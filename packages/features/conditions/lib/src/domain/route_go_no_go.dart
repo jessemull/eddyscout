@@ -1,5 +1,6 @@
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'route_go_no_go.freezed.dart';
@@ -17,26 +18,15 @@ abstract class RouteWaypointGoNoGoResult with _$RouteWaypointGoNoGoResult {
 }
 
 /// Per-stop conditions fetch failure (route rollup continues with other stops).
-class RouteWaypointGoNoGoFailure {
+@freezed
+abstract class RouteWaypointGoNoGoFailure with _$RouteWaypointGoNoGoFailure {
   /// Creates a failure record for one waypoint.
-  const RouteWaypointGoNoGoFailure({
-    required this.orderIndex,
-    required this.launchId,
-    required this.launchName,
-    required this.failure,
-  });
-
-  /// Zero-based order along the route.
-  final int orderIndex;
-
-  /// Catalog launch id for the stop.
-  final String launchId;
-
-  /// Display name for the stop.
-  final String launchName;
-
-  /// Typed failure from conditions fetch.
-  final AppFailure failure;
+  const factory RouteWaypointGoNoGoFailure({
+    required int orderIndex,
+    required String launchId,
+    required String launchName,
+    required AppFailure failure,
+  }) = _RouteWaypointGoNoGoFailure;
 }
 
 /// Rolled route verdict plus provenance for UI.
@@ -53,8 +43,40 @@ abstract class RouteGoNoGoResult with _$RouteGoNoGoResult {
   }) = _RouteGoNoGoResult;
 }
 
-/// Stable cache key: ordered launch ids for a planned route.
-typedef RouteGoNoGoWaypointsKey = List<String>;
+/// Stable cache key: ordered launch ids for a planned route (value equality).
+@immutable
+final class RouteGoNoGoWaypointsKey {
+  /// Creates a key from an unmodifiable ordered launch id list.
+  const RouteGoNoGoWaypointsKey(this.launchIdsInOrder);
+
+  /// Builds a key from ordered launch ids.
+  factory RouteGoNoGoWaypointsKey.fromOrdered(List<String> launchIdsInOrder) {
+    return RouteGoNoGoWaypointsKey(List<String>.unmodifiable(launchIdsInOrder));
+  }
+
+  /// Ordered catalog launch ids along the route.
+  final List<String> launchIdsInOrder;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! RouteGoNoGoWaypointsKey ||
+        launchIdsInOrder.length != other.launchIdsInOrder.length) {
+      return false;
+    }
+    for (var i = 0; i < launchIdsInOrder.length; i++) {
+      if (launchIdsInOrder[i] != other.launchIdsInOrder[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode => Object.hashAll(launchIdsInOrder);
+}
 
 /// Pure rollup of per-waypoint [GoNoGoResult] values.
 class RouteGoNoGoRollup {

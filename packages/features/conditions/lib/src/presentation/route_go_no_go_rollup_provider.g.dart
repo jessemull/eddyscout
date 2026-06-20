@@ -70,7 +70,7 @@ final class RouteGoNoGoRollupProvider
   }
 }
 
-String _$routeGoNoGoRollupHash() => r'854f77132a8fde896bbf0a212d13bf19d6fff4bc';
+String _$routeGoNoGoRollupHash() => r'e8a5c61602ca4f30e9a273f7448f5480c4b03717';
 
 /// Evaluates and rolls up go/no-go across ordered route waypoint launch ids.
 
@@ -91,8 +91,8 @@ final class RouteGoNoGoRollupFamily extends $Family
 
   /// Evaluates and rolls up go/no-go across ordered route waypoint launch ids.
 
-  RouteGoNoGoRollupProvider call(RouteGoNoGoWaypointsKey launchIdsInOrder) =>
-      RouteGoNoGoRollupProvider._(argument: launchIdsInOrder, from: this);
+  RouteGoNoGoRollupProvider call(RouteGoNoGoWaypointsKey waypointsKey) =>
+      RouteGoNoGoRollupProvider._(argument: waypointsKey, from: this);
 
   @override
   String toString() => r'routeGoNoGoRollupProvider';

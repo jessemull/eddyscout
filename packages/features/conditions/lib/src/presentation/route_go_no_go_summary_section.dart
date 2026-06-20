@@ -17,7 +17,7 @@ class RouteGoNoGoSummarySection extends ConsumerWidget {
   });
 
   /// Ordered catalog launch ids along the route.
-  final RouteGoNoGoWaypointsKey launchIdsInOrder;
+  final List<String> launchIdsInOrder;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,9 +25,8 @@ class RouteGoNoGoSummarySection extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final rollupAsync = ref.watch(
-      routeGoNoGoRollupProvider(launchIdsInOrder),
-    );
+    final waypointsKey = RouteGoNoGoWaypointsKey.fromOrdered(launchIdsInOrder);
+    final rollupAsync = ref.watch(routeGoNoGoRollupProvider(waypointsKey));
 
     return rollupAsync.when(
       loading: () => Semantics(
@@ -47,9 +46,7 @@ class RouteGoNoGoSummarySection extends ConsumerWidget {
         message: error is AppFailure
             ? error.message
             : context.l10n.routeGoNoGoErrorGeneric,
-        onRetry: () => ref.invalidate(
-          routeGoNoGoRollupProvider(launchIdsInOrder),
-        ),
+        onRetry: () => ref.invalidate(routeGoNoGoRollupProvider(waypointsKey)),
       ),
       data: (result) => _RouteGoNoGoDataCard(result: result),
     );

@@ -12,7 +12,7 @@ part of 'route_go_no_go.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$RouteWaypointGoNoGoResult {
+mixin _$RouteWaypointGoNoGoResult implements DiagnosticableTreeMixin {
 
  int get orderIndex; String get launchId; String get launchName; GoNoGoResult get result;
 /// Create a copy of RouteWaypointGoNoGoResult
@@ -22,6 +22,12 @@ mixin _$RouteWaypointGoNoGoResult {
 $RouteWaypointGoNoGoResultCopyWith<RouteWaypointGoNoGoResult> get copyWith => _$RouteWaypointGoNoGoResultCopyWithImpl<RouteWaypointGoNoGoResult>(this as RouteWaypointGoNoGoResult, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'RouteWaypointGoNoGoResult'))
+    ..add(DiagnosticsProperty('orderIndex', orderIndex))..add(DiagnosticsProperty('launchId', launchId))..add(DiagnosticsProperty('launchName', launchName))..add(DiagnosticsProperty('result', result));
+}
 
 @override
 bool operator ==(Object other) {
@@ -33,7 +39,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,orderIndex,launchId,launchName,result);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'RouteWaypointGoNoGoResult(orderIndex: $orderIndex, launchId: $launchId, launchName: $launchName, result: $result)';
 }
 
@@ -217,7 +223,7 @@ return $default(_that.orderIndex,_that.launchId,_that.launchName,_that.result);c
 /// @nodoc
 
 
-class _RouteWaypointGoNoGoResult implements RouteWaypointGoNoGoResult {
+class _RouteWaypointGoNoGoResult with DiagnosticableTreeMixin implements RouteWaypointGoNoGoResult {
   const _RouteWaypointGoNoGoResult({required this.orderIndex, required this.launchId, required this.launchName, required this.result});
   
 
@@ -233,6 +239,12 @@ class _RouteWaypointGoNoGoResult implements RouteWaypointGoNoGoResult {
 _$RouteWaypointGoNoGoResultCopyWith<_RouteWaypointGoNoGoResult> get copyWith => __$RouteWaypointGoNoGoResultCopyWithImpl<_RouteWaypointGoNoGoResult>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'RouteWaypointGoNoGoResult'))
+    ..add(DiagnosticsProperty('orderIndex', orderIndex))..add(DiagnosticsProperty('launchId', launchId))..add(DiagnosticsProperty('launchName', launchName))..add(DiagnosticsProperty('result', result));
+}
 
 @override
 bool operator ==(Object other) {
@@ -244,7 +256,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,orderIndex,launchId,launchName,result);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'RouteWaypointGoNoGoResult(orderIndex: $orderIndex, launchId: $launchId, launchName: $launchName, result: $result)';
 }
 
@@ -296,7 +308,285 @@ $GoNoGoResultCopyWith<$Res> get result {
 }
 
 /// @nodoc
-mixin _$RouteGoNoGoResult {
+mixin _$RouteWaypointGoNoGoFailure implements DiagnosticableTreeMixin {
+
+ int get orderIndex; String get launchId; String get launchName; AppFailure get failure;
+/// Create a copy of RouteWaypointGoNoGoFailure
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RouteWaypointGoNoGoFailureCopyWith<RouteWaypointGoNoGoFailure> get copyWith => _$RouteWaypointGoNoGoFailureCopyWithImpl<RouteWaypointGoNoGoFailure>(this as RouteWaypointGoNoGoFailure, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'RouteWaypointGoNoGoFailure'))
+    ..add(DiagnosticsProperty('orderIndex', orderIndex))..add(DiagnosticsProperty('launchId', launchId))..add(DiagnosticsProperty('launchName', launchName))..add(DiagnosticsProperty('failure', failure));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteWaypointGoNoGoFailure&&(identical(other.orderIndex, orderIndex) || other.orderIndex == orderIndex)&&(identical(other.launchId, launchId) || other.launchId == launchId)&&(identical(other.launchName, launchName) || other.launchName == launchName)&&(identical(other.failure, failure) || other.failure == failure));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,orderIndex,launchId,launchName,failure);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'RouteWaypointGoNoGoFailure(orderIndex: $orderIndex, launchId: $launchId, launchName: $launchName, failure: $failure)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RouteWaypointGoNoGoFailureCopyWith<$Res>  {
+  factory $RouteWaypointGoNoGoFailureCopyWith(RouteWaypointGoNoGoFailure value, $Res Function(RouteWaypointGoNoGoFailure) _then) = _$RouteWaypointGoNoGoFailureCopyWithImpl;
+@useResult
+$Res call({
+ int orderIndex, String launchId, String launchName, AppFailure failure
+});
+
+
+
+
+}
+/// @nodoc
+class _$RouteWaypointGoNoGoFailureCopyWithImpl<$Res>
+    implements $RouteWaypointGoNoGoFailureCopyWith<$Res> {
+  _$RouteWaypointGoNoGoFailureCopyWithImpl(this._self, this._then);
+
+  final RouteWaypointGoNoGoFailure _self;
+  final $Res Function(RouteWaypointGoNoGoFailure) _then;
+
+/// Create a copy of RouteWaypointGoNoGoFailure
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? orderIndex = null,Object? launchId = null,Object? launchName = null,Object? failure = null,}) {
+  return _then(_self.copyWith(
+orderIndex: null == orderIndex ? _self.orderIndex : orderIndex // ignore: cast_nullable_to_non_nullable
+as int,launchId: null == launchId ? _self.launchId : launchId // ignore: cast_nullable_to_non_nullable
+as String,launchName: null == launchName ? _self.launchName : launchName // ignore: cast_nullable_to_non_nullable
+as String,failure: null == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
+as AppFailure,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RouteWaypointGoNoGoFailure].
+extension RouteWaypointGoNoGoFailurePatterns on RouteWaypointGoNoGoFailure {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RouteWaypointGoNoGoFailure value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RouteWaypointGoNoGoFailure() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RouteWaypointGoNoGoFailure value)  $default,){
+final _that = this;
+switch (_that) {
+case _RouteWaypointGoNoGoFailure():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RouteWaypointGoNoGoFailure value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RouteWaypointGoNoGoFailure() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int orderIndex,  String launchId,  String launchName,  AppFailure failure)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RouteWaypointGoNoGoFailure() when $default != null:
+return $default(_that.orderIndex,_that.launchId,_that.launchName,_that.failure);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int orderIndex,  String launchId,  String launchName,  AppFailure failure)  $default,) {final _that = this;
+switch (_that) {
+case _RouteWaypointGoNoGoFailure():
+return $default(_that.orderIndex,_that.launchId,_that.launchName,_that.failure);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int orderIndex,  String launchId,  String launchName,  AppFailure failure)?  $default,) {final _that = this;
+switch (_that) {
+case _RouteWaypointGoNoGoFailure() when $default != null:
+return $default(_that.orderIndex,_that.launchId,_that.launchName,_that.failure);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _RouteWaypointGoNoGoFailure with DiagnosticableTreeMixin implements RouteWaypointGoNoGoFailure {
+  const _RouteWaypointGoNoGoFailure({required this.orderIndex, required this.launchId, required this.launchName, required this.failure});
+  
+
+@override final  int orderIndex;
+@override final  String launchId;
+@override final  String launchName;
+@override final  AppFailure failure;
+
+/// Create a copy of RouteWaypointGoNoGoFailure
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RouteWaypointGoNoGoFailureCopyWith<_RouteWaypointGoNoGoFailure> get copyWith => __$RouteWaypointGoNoGoFailureCopyWithImpl<_RouteWaypointGoNoGoFailure>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'RouteWaypointGoNoGoFailure'))
+    ..add(DiagnosticsProperty('orderIndex', orderIndex))..add(DiagnosticsProperty('launchId', launchId))..add(DiagnosticsProperty('launchName', launchName))..add(DiagnosticsProperty('failure', failure));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteWaypointGoNoGoFailure&&(identical(other.orderIndex, orderIndex) || other.orderIndex == orderIndex)&&(identical(other.launchId, launchId) || other.launchId == launchId)&&(identical(other.launchName, launchName) || other.launchName == launchName)&&(identical(other.failure, failure) || other.failure == failure));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,orderIndex,launchId,launchName,failure);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'RouteWaypointGoNoGoFailure(orderIndex: $orderIndex, launchId: $launchId, launchName: $launchName, failure: $failure)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RouteWaypointGoNoGoFailureCopyWith<$Res> implements $RouteWaypointGoNoGoFailureCopyWith<$Res> {
+  factory _$RouteWaypointGoNoGoFailureCopyWith(_RouteWaypointGoNoGoFailure value, $Res Function(_RouteWaypointGoNoGoFailure) _then) = __$RouteWaypointGoNoGoFailureCopyWithImpl;
+@override @useResult
+$Res call({
+ int orderIndex, String launchId, String launchName, AppFailure failure
+});
+
+
+
+
+}
+/// @nodoc
+class __$RouteWaypointGoNoGoFailureCopyWithImpl<$Res>
+    implements _$RouteWaypointGoNoGoFailureCopyWith<$Res> {
+  __$RouteWaypointGoNoGoFailureCopyWithImpl(this._self, this._then);
+
+  final _RouteWaypointGoNoGoFailure _self;
+  final $Res Function(_RouteWaypointGoNoGoFailure) _then;
+
+/// Create a copy of RouteWaypointGoNoGoFailure
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? orderIndex = null,Object? launchId = null,Object? launchName = null,Object? failure = null,}) {
+  return _then(_RouteWaypointGoNoGoFailure(
+orderIndex: null == orderIndex ? _self.orderIndex : orderIndex // ignore: cast_nullable_to_non_nullable
+as int,launchId: null == launchId ? _self.launchId : launchId // ignore: cast_nullable_to_non_nullable
+as String,launchName: null == launchName ? _self.launchName : launchName // ignore: cast_nullable_to_non_nullable
+as String,failure: null == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
+as AppFailure,
+  ));
+}
+
+
+}
+
+/// @nodoc
+mixin _$RouteGoNoGoResult implements DiagnosticableTreeMixin {
 
  GoNoGoVerdict get verdict; DateTime get computedAt; List<RouteWaypointGoNoGoResult> get waypointResults; List<RouteWaypointGoNoGoFailure> get waypointFailures; List<GoNoGoReason> get triggeringReasons; RouteWaypointGoNoGoResult? get triggeringWaypoint;
 /// Create a copy of RouteGoNoGoResult
@@ -306,6 +596,12 @@ mixin _$RouteGoNoGoResult {
 $RouteGoNoGoResultCopyWith<RouteGoNoGoResult> get copyWith => _$RouteGoNoGoResultCopyWithImpl<RouteGoNoGoResult>(this as RouteGoNoGoResult, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'RouteGoNoGoResult'))
+    ..add(DiagnosticsProperty('verdict', verdict))..add(DiagnosticsProperty('computedAt', computedAt))..add(DiagnosticsProperty('waypointResults', waypointResults))..add(DiagnosticsProperty('waypointFailures', waypointFailures))..add(DiagnosticsProperty('triggeringReasons', triggeringReasons))..add(DiagnosticsProperty('triggeringWaypoint', triggeringWaypoint));
+}
 
 @override
 bool operator ==(Object other) {
@@ -317,7 +613,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,verdict,computedAt,const DeepCollectionEquality().hash(waypointResults),const DeepCollectionEquality().hash(waypointFailures),const DeepCollectionEquality().hash(triggeringReasons),triggeringWaypoint);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'RouteGoNoGoResult(verdict: $verdict, computedAt: $computedAt, waypointResults: $waypointResults, waypointFailures: $waypointFailures, triggeringReasons: $triggeringReasons, triggeringWaypoint: $triggeringWaypoint)';
 }
 
@@ -506,7 +802,7 @@ return $default(_that.verdict,_that.computedAt,_that.waypointResults,_that.waypo
 /// @nodoc
 
 
-class _RouteGoNoGoResult implements RouteGoNoGoResult {
+class _RouteGoNoGoResult with DiagnosticableTreeMixin implements RouteGoNoGoResult {
   const _RouteGoNoGoResult({required this.verdict, required this.computedAt, required final  List<RouteWaypointGoNoGoResult> waypointResults, required final  List<RouteWaypointGoNoGoFailure> waypointFailures, required final  List<GoNoGoReason> triggeringReasons, this.triggeringWaypoint}): _waypointResults = waypointResults,_waypointFailures = waypointFailures,_triggeringReasons = triggeringReasons;
   
 
@@ -542,6 +838,12 @@ class _RouteGoNoGoResult implements RouteGoNoGoResult {
 _$RouteGoNoGoResultCopyWith<_RouteGoNoGoResult> get copyWith => __$RouteGoNoGoResultCopyWithImpl<_RouteGoNoGoResult>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'RouteGoNoGoResult'))
+    ..add(DiagnosticsProperty('verdict', verdict))..add(DiagnosticsProperty('computedAt', computedAt))..add(DiagnosticsProperty('waypointResults', waypointResults))..add(DiagnosticsProperty('waypointFailures', waypointFailures))..add(DiagnosticsProperty('triggeringReasons', triggeringReasons))..add(DiagnosticsProperty('triggeringWaypoint', triggeringWaypoint));
+}
 
 @override
 bool operator ==(Object other) {
@@ -553,7 +855,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,verdict,computedAt,const DeepCollectionEquality().hash(_waypointResults),const DeepCollectionEquality().hash(_waypointFailures),const DeepCollectionEquality().hash(_triggeringReasons),triggeringWaypoint);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'RouteGoNoGoResult(verdict: $verdict, computedAt: $computedAt, waypointResults: $waypointResults, waypointFailures: $waypointFailures, triggeringReasons: $triggeringReasons, triggeringWaypoint: $triggeringWaypoint)';
 }
 

@@ -289,7 +289,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     final controlsBottomPadding = switch (sheetVisibility) {
       MapSheetVisibility.planningPreview =>
-        widget.routeGoNoGoSection == null ? 220.0 : 340.0,
+        widget.routeGoNoGoSection == null
+            ? kMapPlanningPreviewBottomPadding
+            : kMapPlanningPreviewWithGoNoGoBottomPadding,
       MapSheetVisibility.placePeek => 160.0,
       _ => MediaQuery.viewPaddingOf(context).bottom + 72,
     };

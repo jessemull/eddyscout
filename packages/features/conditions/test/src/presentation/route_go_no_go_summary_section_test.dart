@@ -13,9 +13,14 @@ class _MockConditionsRepository extends Mock implements ConditionsRepository {}
 class _MockGoNoGoProfileRepository extends Mock
     implements GoNoGoProfileRepository {}
 
+RouteGoNoGoWaypointsKey _waypointsKey(List<String> launchIds) {
+  return RouteGoNoGoWaypointsKey.fromOrdered(launchIds);
+}
+
 RouteGoNoGoResult _rollupResult({
   GoNoGoVerdict verdict = GoNoGoVerdict.marginal,
   String stopName = 'Kelley Point Park (Slough launch)',
+  List<RouteWaypointGoNoGoFailure> waypointFailures = const [],
 }) {
   return RouteGoNoGoResult(
     verdict: verdict,
@@ -49,7 +54,7 @@ RouteGoNoGoResult _rollupResult({
         ),
       ),
     ],
-    waypointFailures: const [],
+    waypointFailures: waypointFailures,
     triggeringReasons: const [
       GoNoGoReason(
         code: GoNoGoReasonCode.windHigh,
@@ -109,11 +114,12 @@ void main() {
     tester,
   ) async {
     final launchIds = ['cathedral_park', 'kelley_point'];
+    final waypointsKey = _waypointsKey(launchIds);
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          routeGoNoGoRollupProvider(launchIds).overrideWith(
+          routeGoNoGoRollupProvider(waypointsKey).overrideWith(
             (_) async => _rollupResult(verdict: GoNoGoVerdict.noGo),
           ),
         ],
@@ -133,11 +139,12 @@ void main() {
 
   testWidgets('shows retry on error', (tester) async {
     final launchIds = ['cathedral_park', 'kelley_point'];
+    final waypointsKey = _waypointsKey(launchIds);
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          routeGoNoGoRollupProvider(launchIds).overrideWith(
+          routeGoNoGoRollupProvider(waypointsKey).overrideWith(
             (_) async => throw const NetworkFailure(message: 'offline'),
           ),
         ],
@@ -153,4 +160,77 @@ void main() {
     expect(find.text('offline'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
   });
+
+  testWidgets('shows error card when all waypoint conditions fail', (
+    tester,
+  ) async {
+    final launchIds = ['cathedral_park', 'kelley_point'];
+    final waypointsKey = _waypointsKey(launchIds);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          routeGoNoGoRollupProvider(waypointsKey).overrideWith(
+            (_) async => throw const UnexpectedFailure(
+              message: 'No waypoint conditions available for route go/no-go.',
+            ),
+          ),
+        ],
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: RouteGoNoGoSummarySection(launchIdsInOrder: launchIds),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('No waypoint conditions available for route go/no-go.'),
+      findsOneWidget,
+    );
+    expect(find.text('Retry'), findsOneWidget);
+  });
+
+  testWidgets(
+    'shows partial failure banner when waypointFailures is non-empty',
+    (
+      tester,
+    ) async {
+      final launchIds = ['cathedral_park', 'kelley_point'];
+      final waypointsKey = _waypointsKey(launchIds);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            routeGoNoGoRollupProvider(waypointsKey).overrideWith(
+              (_) async => _rollupResult(
+                verdict: GoNoGoVerdict.go,
+                waypointFailures: const [
+                  RouteWaypointGoNoGoFailure(
+                    orderIndex: 1,
+                    launchId: 'kelley_point',
+                    launchName: 'Kelley Point Park (Slough launch)',
+                    failure: NetworkFailure(message: 'network down'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          child: testLocalizedApp(
+            child: Scaffold(
+              body: RouteGoNoGoSummarySection(launchIdsInOrder: launchIds),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Some stops could not load conditions:'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('network down'), findsOneWidget);
+    },
+  );
 }
