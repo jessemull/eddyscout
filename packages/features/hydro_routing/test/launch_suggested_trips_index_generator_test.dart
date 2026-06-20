@@ -80,6 +80,32 @@ void main() {
       }
     });
 
+    test(
+      'buildOneWayTrip throws StateError when trip time cannot be estimated',
+      () {
+        final source = _launch(id: 'launch_a', lat: 0, lon: 0);
+        final target = _launch(id: 'launch_b', lat: 0.01, lon: 0);
+        const route = RouteSuccess(
+          polylineLonLat: [
+            [0, 0],
+            [0, 0.01],
+          ],
+          lengthMeters: 0,
+        );
+
+        expect(
+          () => LaunchSuggestedTripsIndexGenerator.buildOneWayTrip(
+            source: source,
+            target: target,
+            route: route,
+            catalog: [source, target],
+            paddleSpeedKmh: kSuggestedTripsDefaultPaddleSpeedKmh,
+          ),
+          throwsA(isA<StateError>()),
+        );
+      },
+    );
+
     test('excludes destinations beyond 20 mi graph distance', () {
       const json = '''
 {

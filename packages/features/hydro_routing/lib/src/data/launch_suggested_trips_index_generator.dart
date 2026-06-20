@@ -5,6 +5,7 @@ import 'package:eddyscout_hydro_routing/src/domain/launch_reachability_index.dar
 import 'package:eddyscout_hydro_routing/src/domain/launch_suggested_trips_index.dart';
 import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
 import 'package:eddyscout_hydro_routing/src/domain/suggested_trip_waypoints.dart';
+import 'package:meta/meta.dart';
 
 /// Builds a pre-computed suggested trips index from hydro graphs and catalog.
 abstract final class LaunchSuggestedTripsIndexGenerator {
@@ -57,7 +58,7 @@ abstract final class LaunchSuggestedTripsIndexGenerator {
       final topOneWay = candidates.take(maxOneWaySuggestions).toList();
       final oneWayTrips = topOneWay
           .map(
-            (candidate) => _buildOneWayTrip(
+            (candidate) => buildOneWayTrip(
               source: source,
               target: candidate.target,
               route: candidate.route,
@@ -130,7 +131,12 @@ abstract final class LaunchSuggestedTripsIndexGenerator {
     return encodeLaunchSuggestedTripsIndex(index);
   }
 
-  static SuggestedTrip _buildOneWayTrip({
+  /// Builds one suggested one-way trip from a successful route.
+  ///
+  /// Throws [StateError] when [estimateSuggestedTripMinutes] cannot produce a
+  /// duration (for example zero graph distance).
+  @visibleForTesting
+  static SuggestedTrip buildOneWayTrip({
     required LaunchPoint source,
     required LaunchPoint target,
     required RouteSuccess route,
