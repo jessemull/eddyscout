@@ -9,6 +9,7 @@ INTEGRATION_DEVICE := $(shell uname -s | grep -q Darwin && echo macos || echo li
 
 .PHONY: help analyze bootstrap ci clean coverage coverage-check dev ensure-husky \
 	format format-fix gen gen-check gen-reachability gen-reachability-check \
+	gen-suggested-trips gen-suggested-trips-check \
 	integration-test kill-emulator preflight run setup test
 
 help: ## Help@show targets
@@ -62,6 +63,12 @@ gen-reachability: ## Quality@generate launch reachability index JSON
 
 gen-reachability-check: ## Quality@verify reachability index is fresh
 	cd scripts && dart pub get && dart run generate_launch_reachability_index.dart --check
+
+gen-suggested-trips: ## Quality@generate launch suggested trips index JSON
+	cd scripts && flutter pub get && dart run generate_launch_suggested_trips_index.dart
+
+gen-suggested-trips-check: ## Quality@verify suggested trips index is fresh
+	cd scripts && flutter pub get && dart run generate_launch_suggested_trips_index.dart --check
 
 preflight: ## Quality@format, analyze, test, gen-check, coverage
 	./scripts/preflight.sh

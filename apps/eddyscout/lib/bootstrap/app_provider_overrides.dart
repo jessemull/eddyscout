@@ -57,6 +57,11 @@ List<Override> buildAppProviderOverrides({
         'assets/data/launch_reachability_index.json',
       ),
     ),
+    launchSuggestedTripsIndexLoaderProvider.overrideWithValue(
+      () => rootBundle.loadString(
+        'assets/data/launch_suggested_trips_index.json',
+      ),
+    ),
     gpxFileGatewayProvider.overrideWithValue(
       gpxFileGatewayOverride ?? const GpxFileGatewayImpl(),
     ),
