@@ -122,6 +122,18 @@ class RoutePlanning extends _$RoutePlanning {
     );
   }
 
+  /// Pre-fills put-in and take-out for trips-from-here discovery.
+  void startPlanFromHereTo({
+    required LaunchPoint putIn,
+    required LaunchPoint takeOut,
+  }) {
+    state = RoutePlanningState(
+      phase: MapPlanningPhase.planning,
+      waypoints: [putIn, takeOut],
+      loadedSavedRouteId: state.loadedSavedRouteId,
+    );
+  }
+
   void clearSelection() {
     if (state.phase == MapPlanningPhase.browse ||
         state.phase == MapPlanningPhase.placeSelected) {

@@ -649,5 +649,41 @@
     }
   },
   "commonRetry": "Retry",
-  "commonCancel": "Cancel"
+  "commonCancel": "Cancel",
+  "tripsFromHereSectionTitle": "Trips from here",
+  "tripsFromHereBand5Mi": "Within 5 mi",
+  "tripsFromHereBand10Mi": "Within 10 mi",
+  "tripsFromHereBand20Mi": "Within 20 mi",
+  "tripsFromHereBandEmpty5Mi": "No launches within 5 mi along the river",
+  "tripsFromHereBandEmpty10Mi": "No launches within 10 mi along the river",
+  "tripsFromHereBandEmpty20Mi": "No launches within 20 mi along the river",
+  "tripsFromHereNoNearbyLaunches": "No nearby launches found along the river from here.",
+  "tripsFromHereLoadError": "Couldn't load nearby launches.",
+  "tripsFromHerePlanToLaunchSemantics": "Plan route to {launchName}, {riverName}",
+  "@tripsFromHerePlanToLaunchSemantics": {
+    "placeholders": {
+      "launchName": {"type": "String"},
+      "riverName": {"type": "String"}
+    }
+  },
+  "tripsFromHereBandSemantics": "{bandLabel}, {count, plural, =0{no launches} =1{1 launch} other{{count} launches}}",
+  "@tripsFromHereBandSemantics": {
+    "placeholders": {
+      "bandLabel": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
+  "tripsFromHereSuggestedTitle": "Suggested trips",
+  "tripsFromHereFilterShort": "Short",
+  "tripsFromHereFilterMedium": "Medium",
+  "tripsFromHereFilterLong": "Long",
+  "tripsFromHereSuggestedTripSemantics": "Suggested trip to {launchName}, {distanceMi} miles, about {minutes} minutes",
+  "@tripsFromHereSuggestedTripSemantics": {
+    "placeholders": {
+      "launchName": {"type": "String"},
+      "distanceMi": {"type": "String"},
+      "minutes": {"type": "int"}
+    }
+  },
+  "tripsFromHereSuggestedEmpty": "No suggested trips match this filter."
 }

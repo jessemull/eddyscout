@@ -274,10 +274,41 @@ class _LaunchDetailRouteBody extends ConsumerWidget {
       },
       data: (launch) => _ScreenViewLogger(
         screenName: AnalyticsScreenNames.launchDetail,
-        child: LaunchDetailScreen(launch: launch),
+        child: LaunchDetailScreen(
+          launch: launch,
+          tripsFromHereSection: _LaunchDetailTripsFromHereSection(
+            originLaunch: launch,
+          ),
+        ),
       ),
     );
   }
+}
+
+/// Trips-from-here on launch detail; pops to map with planning prefilled.
+class _LaunchDetailTripsFromHereSection extends ConsumerWidget {
+  const _LaunchDetailTripsFromHereSection({required this.originLaunch});
+
+  final LaunchPoint originLaunch;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => TripsFromHereSection(
+    originLaunch: originLaunch,
+    onPlanToLaunch: (destination) {
+      ref
+          .read(routePlanningProvider.notifier)
+          .startPlanFromHereTo(
+            putIn: originLaunch,
+            takeOut: destination,
+          );
+      ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(originLaunch);
+      ref.read(tripsFromHereRoutePendingProvider.notifier).markPending();
+      ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+      if (context.mounted) {
+        context.pop();
+      }
+    },
+  );
 }
 
 /// Fallback when launch lookup fails for reasons other than an unknown id.

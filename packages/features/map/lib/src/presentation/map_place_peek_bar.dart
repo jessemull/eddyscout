@@ -1,6 +1,7 @@
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
+import 'package:eddyscout_map/src/presentation/trips_from_here/trips_from_here_section.dart';
 import 'package:flutter/material.dart';
 
 import 'map_sheet_header_icon_button.dart';
@@ -21,6 +22,7 @@ class MapPlacePeekBar extends StatelessWidget {
     required this.onPlanPaddle,
     required this.onViewConditions,
     required this.onDismiss,
+    required this.onPlanToLaunch,
     super.key,
   });
 
@@ -28,6 +30,7 @@ class MapPlacePeekBar extends StatelessWidget {
   final VoidCallback onPlanPaddle;
   final VoidCallback onViewConditions;
   final VoidCallback onDismiss;
+  final void Function(LaunchPoint destination) onPlanToLaunch;
 
   @override
   Widget build(BuildContext context) {
@@ -119,6 +122,17 @@ class MapPlacePeekBar extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: Spacing.md),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 240),
+                child: SingleChildScrollView(
+                  child: TripsFromHereSection(
+                    originLaunch: launch,
+                    onPlanToLaunch: onPlanToLaunch,
+                    compact: true,
+                  ),
+                ),
               ),
             ],
           ),

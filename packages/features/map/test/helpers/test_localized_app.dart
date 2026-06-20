@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 /// Wraps [child] with generated localizations for widget tests.
-Widget testLocalizedApp({required Widget child}) {
+Widget testLocalizedApp({required Widget child, ThemeData? theme}) {
   return MaterialApp(
+    theme: theme,
     localizationsDelegates: const [
       AppLocalizations.delegate,
       GlobalMaterialLocalizations.delegate,

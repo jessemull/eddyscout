@@ -1764,6 +1764,115 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get commonCancel;
+
+  /// No description provided for @tripsFromHereSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips from here'**
+  String get tripsFromHereSectionTitle;
+
+  /// No description provided for @tripsFromHereBand5Mi.
+  ///
+  /// In en, this message translates to:
+  /// **'Within 5 mi'**
+  String get tripsFromHereBand5Mi;
+
+  /// No description provided for @tripsFromHereBand10Mi.
+  ///
+  /// In en, this message translates to:
+  /// **'Within 10 mi'**
+  String get tripsFromHereBand10Mi;
+
+  /// No description provided for @tripsFromHereBand20Mi.
+  ///
+  /// In en, this message translates to:
+  /// **'Within 20 mi'**
+  String get tripsFromHereBand20Mi;
+
+  /// No description provided for @tripsFromHereBandEmpty5Mi.
+  ///
+  /// In en, this message translates to:
+  /// **'No launches within 5 mi along the river'**
+  String get tripsFromHereBandEmpty5Mi;
+
+  /// No description provided for @tripsFromHereBandEmpty10Mi.
+  ///
+  /// In en, this message translates to:
+  /// **'No launches within 10 mi along the river'**
+  String get tripsFromHereBandEmpty10Mi;
+
+  /// No description provided for @tripsFromHereBandEmpty20Mi.
+  ///
+  /// In en, this message translates to:
+  /// **'No launches within 20 mi along the river'**
+  String get tripsFromHereBandEmpty20Mi;
+
+  /// No description provided for @tripsFromHereNoNearbyLaunches.
+  ///
+  /// In en, this message translates to:
+  /// **'No nearby launches found along the river from here.'**
+  String get tripsFromHereNoNearbyLaunches;
+
+  /// No description provided for @tripsFromHereLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load nearby launches.'**
+  String get tripsFromHereLoadError;
+
+  /// No description provided for @tripsFromHerePlanToLaunchSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan route to {launchName}, {riverName}'**
+  String tripsFromHerePlanToLaunchSemantics(
+    String launchName,
+    String riverName,
+  );
+
+  /// No description provided for @tripsFromHereBandSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{bandLabel}, {count, plural, =0{no launches} =1{1 launch} other{{count} launches}}'**
+  String tripsFromHereBandSemantics(String bandLabel, int count);
+
+  /// No description provided for @tripsFromHereSuggestedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested trips'**
+  String get tripsFromHereSuggestedTitle;
+
+  /// No description provided for @tripsFromHereFilterShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get tripsFromHereFilterShort;
+
+  /// No description provided for @tripsFromHereFilterMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get tripsFromHereFilterMedium;
+
+  /// No description provided for @tripsFromHereFilterLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get tripsFromHereFilterLong;
+
+  /// No description provided for @tripsFromHereSuggestedTripSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested trip to {launchName}, {distanceMi} miles, about {minutes} minutes'**
+  String tripsFromHereSuggestedTripSemantics(
+    String launchName,
+    String distanceMi,
+    int minutes,
+  );
+
+  /// No description provided for @tripsFromHereSuggestedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No suggested trips match this filter.'**
+  String get tripsFromHereSuggestedEmpty;
 }
 
 class _AppLocalizationsDelegate

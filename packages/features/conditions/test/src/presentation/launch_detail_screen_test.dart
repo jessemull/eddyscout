@@ -483,4 +483,26 @@ void main() {
     expect(find.text('Condition report'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
   });
+
+  testWidgets('renders optional trips-from-here section when provided', (
+    tester,
+  ) async {
+    final container = await scopedContainer(
+      loadConditions: () => Future.value(calmSnapshot()),
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: testLocalizedApp(
+          child: LaunchDetailScreen(
+            launch: launch,
+            tripsFromHereSection: const Text('Trips from here slot'),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Trips from here slot'), findsOneWidget);
+  });
 }

@@ -1,0 +1,121 @@
+import 'dart:async';
+
+import 'package:eddyscout_core/eddyscout_core.dart';
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_map/src/presentation/trips_from_here/trips_from_here_loading_skeleton.dart';
+import 'package:eddyscout_map/src/presentation/trips_from_here/trips_from_here_section.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/reachability_index_fixture.dart';
+import '../../helpers/test_localized_app.dart';
+
+const _origin = LaunchPoint(
+  id: 'cathedral_park',
+  name: 'Cathedral Park Boat Ramp',
+  latitude: 45.5621,
+  longitude: -122.7328,
+  shortNote: 'Test origin',
+  riverSystem: RiverSystem.willamette,
+  windExposure: WindExposure.moderate,
+  tideRelevance: TideRelevance.none,
+);
+
+List<Override> _reachabilityOverrides() => [
+  launchReachabilityIndexLoaderProvider.overrideWithValue(
+    readTestReachabilityIndex,
+  ),
+];
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  group('TripsFromHereSection', () {
+    testWidgets('shows loading skeleton while index loads', (tester) async {
+      final completer = Completer<String>();
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            launchReachabilityIndexLoaderProvider.overrideWithValue(
+              () => completer.future,
+            ),
+          ],
+          child: testLocalizedApp(
+            child: Scaffold(
+              body: TripsFromHereSection(
+                originLaunch: _origin,
+                onPlanToLaunch: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Trips from here'), findsOneWidget);
+      expect(find.byType(TripsFromHereLoadingSkeleton), findsOneWidget);
+    });
+
+    testWidgets('renders nearby launches grouped by band', (tester) async {
+      LaunchPoint? tapped;
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: _reachabilityOverrides(),
+          child: testLocalizedApp(
+            child: Scaffold(
+              body: TripsFromHereSection(
+                originLaunch: _origin,
+                onPlanToLaunch: (launch) => tapped = launch,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Within 5 mi'), findsOneWidget);
+      expect(find.text('Swan Island Boat Ramp'), findsOneWidget);
+      expect(find.text('Sellwood Riverfront Park'), findsOneWidget);
+
+      await tester.tap(find.text('Sellwood Riverfront Park'));
+      expect(tapped?.id, 'sellwood_riverfront');
+    });
+
+    testWidgets('shows empty message when all bands are empty', (tester) async {
+      const emptyOrigin = LaunchPoint(
+        id: 'empty_launch',
+        name: 'Empty Launch',
+        latitude: 45.5,
+        longitude: -122.6,
+        shortNote: 'Empty',
+        riverSystem: RiverSystem.willamette,
+        windExposure: WindExposure.moderate,
+        tideRelevance: TideRelevance.none,
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: _reachabilityOverrides(),
+          child: testLocalizedApp(
+            child: Scaffold(
+              body: TripsFromHereSection(
+                originLaunch: emptyOrigin,
+                onPlanToLaunch: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('No nearby launches found along the river from here.'),
+        findsOneWidget,
+      );
+    });
+  });
+}

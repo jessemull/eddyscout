@@ -24,6 +24,7 @@ import 'map_sheet_provider.dart';
 import 'map_ui_callbacks.dart';
 import 'mapbox/mapbox_map_controller.dart';
 import 'paddle_speed_provider.dart';
+import 'trips_from_here/nearby_launches_provider.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({
@@ -168,6 +169,41 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     _scheduleFocusLaunch(launch);
   }
 
+  void _handlePlanToDestination({
+    required LaunchPoint putIn,
+    required LaunchPoint takeOut,
+  }) {
+    ref
+        .read(routePlanningProvider.notifier)
+        .startPlanFromHereTo(
+          putIn: putIn,
+          takeOut: takeOut,
+        );
+    ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(putIn);
+    _beginPlanningEditSession();
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+    unawaited(
+      ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute(),
+    );
+    _scheduleFocusLaunch(takeOut);
+  }
+
+  void _resumePendingTripsFromHereRoute() {
+    final planning = ref.read(routePlanningProvider);
+    if (planning.waypoints.length < 2) {
+      return;
+    }
+    _beginPlanningEditSession();
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+    unawaited(
+      ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute(),
+    );
+    final takeOut = planning.takeOut;
+    if (takeOut != null) {
+      _scheduleFocusLaunch(takeOut);
+    }
+  }
+
   void _resetBrowseSearchAndHideSheet() {
     ref.read(mapSearchContextStateProvider.notifier).setBrowse();
     ref.read(mapSearchExpandedProvider.notifier).collapse();
@@ -255,7 +291,20 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(mapRoutePlannerProvider);
+    ref
+      ..watch(mapRoutePlannerProvider)
+      ..listen(tripsFromHereRoutePendingProvider, (previous, next) {
+        if (!next) {
+          return;
+        }
+        ref.read(tripsFromHereRoutePendingProvider.notifier).clear();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) {
+            return;
+          }
+          _resumePendingTripsFromHereRoute();
+        });
+      });
 
     final planning = ref.watch(routePlanningProvider);
     final mapInteractive = ref.watch(mapInteractiveProvider);
@@ -285,7 +334,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     final controlsBottomPadding = switch (sheetVisibility) {
       MapSheetVisibility.planningPreview => 220.0,
-      MapSheetVisibility.placePeek => 160.0,
+      MapSheetVisibility.placePeek => kPlacePeekChromeBottomPadding,
       _ => MediaQuery.viewPaddingOf(context).bottom + 72,
     };
 
@@ -348,6 +397,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   onViewConditions: () =>
                       widget.onOpenLaunchDetail?.call(selectedLaunch),
                   onDismiss: () => unawaited(_closePlacePeek()),
+                  onPlanToLaunch: (destination) => _handlePlanToDestination(
+                    putIn: selectedLaunch,
+                    takeOut: destination,
+                  ),
                 ),
               ),
             if (sheetVisibility == MapSheetVisibility.planningPreview &&
