@@ -211,21 +211,21 @@
   "launchDetailGoNoGoTitle": "Go / No-go (informational)",
   "launchDetailGoNoGoNoWarnings": "No warnings",
   "launchDetailGoNoGoStubDisclaimer": "Not a substitute for your judgment, skill, or scouting on site.",
-  "launchDetailGoNoGoVerdictGo": "Go",
+  "launchDetailGoNoGoVerdictGo": "Favorable conditions",
   "@launchDetailGoNoGoVerdictGo": {
-    "description": "Headline when go/no-go verdict is go"
+    "description": "Headline when conditions verdict is favorable"
   },
-  "launchDetailGoNoGoVerdictMarginal": "Marginal",
+  "launchDetailGoNoGoVerdictMarginal": "Moderate conditions",
   "@launchDetailGoNoGoVerdictMarginal": {
-    "description": "Headline when go/no-go verdict is marginal"
+    "description": "Headline when conditions verdict is moderate"
   },
-  "launchDetailGoNoGoVerdictNoGo": "No-go",
+  "launchDetailGoNoGoVerdictNoGo": "Poor conditions",
   "@launchDetailGoNoGoVerdictNoGo": {
-    "description": "Headline when go/no-go verdict is no-go"
+    "description": "Headline when conditions verdict is poor"
   },
-  "launchDetailGoNoGoVerdictInsufficientData": "Insufficient data",
+  "launchDetailGoNoGoVerdictInsufficientData": "Unknown conditions",
   "@launchDetailGoNoGoVerdictInsufficientData": {
-    "description": "Headline when go/no-go verdict lacks weather data"
+    "description": "Headline when conditions verdict lacks enough forecast data"
   },
   "launchDetailGoNoGoReasonColdWaterSeason": "Cold-water season in the PNW—dress for immersion, know hypothermia risk, and carry safety gear.",
   "@launchDetailGoNoGoReasonColdWaterSeason": {

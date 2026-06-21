@@ -18,7 +18,7 @@ const _routeGoNoGoHeaderIconTopInset = 0.0;
 const _routeGoNoGoRowIconTopInset = 1.0;
 const _routeGoNoGoHeaderIconColumnWidth = 18.0;
 const _routeGoNoGoExpansionCaretSize = 24.0;
-const _routeGoNoGoHeaderIconTextGap = 16.0;
+const _routeGoNoGoHeaderIconTextGap = 18.0;
 const double _routeGoNoGoSubheaderDetailGap = Spacing.xs + Spacing.xxs;
 
 enum _RouteGoNoGoBlockSize { header, stopRow }
@@ -44,30 +44,8 @@ class RouteGoNoGoSummarySection extends ConsumerWidget {
     final rollupAsync = ref.watch(routeGoNoGoRollupProvider(waypointsKey));
 
     return rollupAsync.when(
-      loading: () => Semantics(
+      loading: () => _RouteGoNoGoLoadingStrip(
         label: context.l10n.routeGoNoGoLoading,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
-          child: Row(
-            children: [
-              SizedBox(
-                height: 16,
-                width: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: Spacing.sm),
-              Text(
-                context.l10n.routeGoNoGoLoading,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
       error: (error, _) => _RouteGoNoGoErrorStrip(
         message: error is AppFailure
@@ -76,6 +54,84 @@ class RouteGoNoGoSummarySection extends ConsumerWidget {
         onRetry: () => ref.invalidate(routeGoNoGoRollupProvider(waypointsKey)),
       ),
       data: (result) => _RouteGoNoGoSummaryStrip(result: result),
+    );
+  }
+}
+
+/// Placeholder matching loaded verdict header height to avoid layout jump.
+class _RouteGoNoGoLoadingStrip extends StatelessWidget {
+  const _RouteGoNoGoLoadingStrip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final placeholderColor = scheme.surfaceContainerHighest;
+
+    return Semantics(
+      label: label,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: _routeGoNoGoHeaderVerdictIconSize,
+            height: _routeGoNoGoHeaderVerdictIconSize,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: scheme.outline,
+            ),
+          ),
+          const SizedBox(width: _routeGoNoGoHeaderIconTextGap),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                    height: 1.15,
+                  ),
+                ),
+                const SizedBox(height: _routeGoNoGoSubheaderDetailGap),
+                _RouteGoNoGoLoadingPlaceholderLine(color: placeholderColor),
+                const SizedBox(height: Spacing.xxs),
+                _RouteGoNoGoLoadingPlaceholderLine(
+                  color: placeholderColor,
+                  widthFactor: 0.72,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RouteGoNoGoLoadingPlaceholderLine extends StatelessWidget {
+  const _RouteGoNoGoLoadingPlaceholderLine({
+    required this.color,
+    this.widthFactor = 1,
+  });
+
+  final Color color;
+  final double widthFactor;
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      widthFactor: widthFactor,
+      alignment: Alignment.centerLeft,
+      child: Container(
+        height: 12,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
     );
   }
 }

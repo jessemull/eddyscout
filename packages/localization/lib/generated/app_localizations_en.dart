@@ -412,16 +412,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Not a substitute for your judgment, skill, or scouting on site.';
 
   @override
-  String get launchDetailGoNoGoVerdictGo => 'Go';
+  String get launchDetailGoNoGoVerdictGo => 'Favorable conditions';
 
   @override
-  String get launchDetailGoNoGoVerdictMarginal => 'Marginal';
+  String get launchDetailGoNoGoVerdictMarginal => 'Moderate conditions';
 
   @override
-  String get launchDetailGoNoGoVerdictNoGo => 'No-go';
+  String get launchDetailGoNoGoVerdictNoGo => 'Poor conditions';
 
   @override
-  String get launchDetailGoNoGoVerdictInsufficientData => 'Insufficient data';
+  String get launchDetailGoNoGoVerdictInsufficientData => 'Unknown conditions';
 
   @override
   String get launchDetailGoNoGoReasonColdWaterSeason =>

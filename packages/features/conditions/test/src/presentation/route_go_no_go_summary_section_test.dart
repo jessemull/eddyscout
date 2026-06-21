@@ -119,7 +119,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('No-go'), findsWidgets);
+    expect(find.textContaining('Poor conditions'), findsWidgets);
     expect(find.textContaining('Kelley Point'), findsOneWidget);
     expect(find.textContaining('25 mph'), findsOneWidget);
   });

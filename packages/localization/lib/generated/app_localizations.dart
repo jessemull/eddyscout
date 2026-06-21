@@ -757,28 +757,28 @@ abstract class AppLocalizations {
   /// **'Not a substitute for your judgment, skill, or scouting on site.'**
   String get launchDetailGoNoGoStubDisclaimer;
 
-  /// Headline when go/no-go verdict is go
+  /// Headline when conditions verdict is favorable
   ///
   /// In en, this message translates to:
-  /// **'Go'**
+  /// **'Favorable conditions'**
   String get launchDetailGoNoGoVerdictGo;
 
-  /// Headline when go/no-go verdict is marginal
+  /// Headline when conditions verdict is moderate
   ///
   /// In en, this message translates to:
-  /// **'Marginal'**
+  /// **'Moderate conditions'**
   String get launchDetailGoNoGoVerdictMarginal;
 
-  /// Headline when go/no-go verdict is no-go
+  /// Headline when conditions verdict is poor
   ///
   /// In en, this message translates to:
-  /// **'No-go'**
+  /// **'Poor conditions'**
   String get launchDetailGoNoGoVerdictNoGo;
 
-  /// Headline when go/no-go verdict lacks weather data
+  /// Headline when conditions verdict lacks enough forecast data
   ///
   /// In en, this message translates to:
-  /// **'Insufficient data'**
+  /// **'Unknown conditions'**
   String get launchDetailGoNoGoVerdictInsufficientData;
 
   /// Info reason during cold-water months

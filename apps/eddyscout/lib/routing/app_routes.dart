@@ -167,6 +167,16 @@ class _MapRouteHost extends ConsumerWidget {
     }
 
     final planning = ref.watch(routePlanningProvider);
+    if (planning.planningMode && planning.waypoints.length >= 2) {
+      ref.watch(
+        routeGoNoGoRollupProvider(
+          RouteGoNoGoWaypointsKey.fromOrdered(
+            planning.waypoints.map((w) => w.id).toList(),
+          ),
+        ),
+      );
+    }
+
     final routeGoNoGoSection = planning.waypoints.length >= 2
         ? MapRouteGoNoGoSection(
             launchIdsInOrder: planning.waypoints.map((w) => w.id).toList(),

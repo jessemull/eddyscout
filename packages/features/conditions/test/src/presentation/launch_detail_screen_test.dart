@@ -188,7 +188,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Go / No-go (informational)'), findsOneWidget);
-    expect(find.text('Go'), findsOneWidget);
+    expect(find.text('Favorable conditions'), findsOneWidget);
     expect(find.text('Weather'), findsOneWidget);
     expect(find.text('Conditions'), findsOneWidget);
     expect(find.text(launch.shortNote), findsOneWidget);
@@ -379,7 +379,8 @@ void main() {
       find.byWidgetPredicate(
         (widget) =>
             widget is Text &&
-            (widget.data == 'No-go' || widget.data == 'Marginal'),
+            (widget.data == 'Poor conditions' ||
+                widget.data == 'Moderate conditions'),
       ),
       findsOneWidget,
     );
