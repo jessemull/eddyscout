@@ -6,6 +6,7 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Shared with stop timeline rows so verdict icons align with route markers.
@@ -286,7 +287,7 @@ class _RouteGoNoGoSummaryStrip extends StatelessWidget {
 }
 
 /// Read-only stop row for route go/no-go (matches map planning timeline visuals).
-class _RouteGoNoGoStopTimeline extends StatelessWidget {
+class _RouteGoNoGoStopTimeline extends StatefulWidget {
   const _RouteGoNoGoStopTimeline({
     required this.stops,
     required this.l10n,
@@ -295,43 +296,172 @@ class _RouteGoNoGoStopTimeline extends StatelessWidget {
   final List<_TimelineStop> stops;
   final AppLocalizations l10n;
 
-  static const double _timelineWidth = _routeGoNoGoTimelineWidth;
-  static const double _rowGap = 10;
-  static const int _connectorDotCount = 3;
+  @override
+  State<_RouteGoNoGoStopTimeline> createState() =>
+      _RouteGoNoGoStopTimelineState();
+}
+
+class _RouteGoNoGoStopTimelineState extends State<_RouteGoNoGoStopTimeline> {
+  static const double _estimatedHeightWithSummary = 48;
+  static const double _estimatedHeightCompact = 24;
+  static const double _connectorMinHeight = 28;
+  static const double _stopGap = 12;
+  static const double _connectorInset = Spacing.sm;
+
+  late List<double> _contentHeights;
+
+  @override
+  void initState() {
+    super.initState();
+    _contentHeights = _initialHeights();
+  }
+
+  @override
+  void didUpdateWidget(covariant _RouteGoNoGoStopTimeline oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.stops.length != widget.stops.length) {
+      _contentHeights = _initialHeights();
+    }
+  }
+
+  List<double> _initialHeights() => List.generate(
+    widget.stops.length,
+    (index) =>
+        _estimatedHeightFor(widget.stops[index]) +
+        (index < widget.stops.length - 1 ? _stopGap : 0),
+  );
+
+  static double _estimatedHeightFor(_TimelineStop stop) =>
+      stop.summaryLine != null
+      ? _estimatedHeightWithSummary
+      : _estimatedHeightCompact;
+
+  static double _indicatorHeight(int index) => index == 0 ? 14 : 16;
+
+  void _onContentSized(int index, Size size) {
+    if (index >= _contentHeights.length || size.height <= 0) {
+      return;
+    }
+    final stop = widget.stops[index];
+    final resolved = stop.summaryLine != null
+        ? size.height.clamp(_estimatedHeightWithSummary, double.infinity)
+        : size.height;
+    if ((_contentHeights[index] - resolved).abs() <= 0.5) {
+      return;
+    }
+    setState(() {
+      _contentHeights[index] = resolved;
+    });
+  }
+
+  double _connectorHeight(int index) {
+    final gap = _contentHeights[index] - _indicatorHeight(index);
+    return gap.clamp(_connectorMinHeight, double.infinity);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (var i = 0; i < stops.length; i++)
-          _RouteGoNoGoStopRow(
-            index: i,
-            totalStops: stops.length,
-            stop: stops[i],
-            l10n: l10n,
-            showConnectorBelow: i < stops.length - 1,
+        SizedBox(
+          width: _routeGoNoGoTimelineWidth,
+          child: Column(
+            children: [
+              for (var i = 0; i < widget.stops.length; i++) ...[
+                _RouteGoNoGoStopIndicator(
+                  index: i,
+                  totalStops: widget.stops.length,
+                ),
+                if (i < widget.stops.length - 1)
+                  SizedBox(
+                    height: _connectorHeight(i),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: _RouteGoNoGoStopTimelineState._connectorInset,
+                      ),
+                      child: _RouteGoNoGoVerticalDotConnector(),
+                    ),
+                  ),
+              ],
+            ],
           ),
+        ),
+        const SizedBox(width: Spacing.xs),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < widget.stops.length; i++)
+                _MeasureSize(
+                  onChange: (size) => _onContentSized(i, size),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: i < widget.stops.length - 1 ? _stopGap : 0,
+                    ),
+                    child: _RouteGoNoGoStopContent(
+                      stop: widget.stops[i],
+                      l10n: widget.l10n,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ],
     );
   }
 }
 
-class _RouteGoNoGoStopRow extends StatelessWidget {
-  const _RouteGoNoGoStopRow({
-    required this.index,
-    required this.totalStops,
-    required this.stop,
-    required this.l10n,
-    required this.showConnectorBelow,
+/// Reports [child] size after layout so timeline connectors track height.
+class _MeasureSize extends SingleChildRenderObjectWidget {
+  const _MeasureSize({
+    required this.onChange,
+    required super.child,
   });
 
-  final int index;
-  final int totalStops;
+  final ValueChanged<Size> onChange;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderMeasureSize(onChange);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderMeasureSize renderObject,
+  ) {
+    renderObject.onChange = onChange;
+  }
+}
+
+class _RenderMeasureSize extends RenderProxyBox {
+  _RenderMeasureSize(this.onChange);
+
+  ValueChanged<Size> onChange;
+  Size? _oldSize;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (_oldSize == size) {
+      return;
+    }
+    _oldSize = size;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      onChange(size);
+    });
+  }
+}
+
+class _RouteGoNoGoStopContent extends StatelessWidget {
+  const _RouteGoNoGoStopContent({
+    required this.stop,
+    required this.l10n,
+  });
+
   final _TimelineStop stop;
   final AppLocalizations l10n;
-  final bool showConnectorBelow;
 
   @override
   Widget build(BuildContext context) {
@@ -352,80 +482,45 @@ class _RouteGoNoGoStopRow extends StatelessWidget {
         : localizeGoNoGoVerdict(l10n, stop.verdict!);
 
     return Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: _RouteGoNoGoStopTimeline._timelineWidth,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: _RouteGoNoGoStopIndicator(
-                  index: index,
-                  totalStops: totalStops,
-                ),
-              ),
-            ),
-            const SizedBox(width: Spacing.xs),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Transform.translate(
-                    offset: const Offset(0, -2),
-                    child: Text(
-                      stop.launchName,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (stop.summaryLine != null) ...[
-                    const SizedBox(height: Spacing.xxs),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (icon != null) ...[
-                          Semantics(
-                            label: verdictLabel ?? stop.summaryLine,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 1),
-                              child: Icon(icon, color: accent, size: 14),
-                            ),
-                          ),
-                          const SizedBox(width: Spacing.xxs),
-                        ],
-                        Expanded(
-                          child: Text(
-                            stop.summaryLine!,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
+        Transform.translate(
+          offset: const Offset(0, -2),
+          child: Text(
+            stop.launchName,
+            style: Theme.of(context).textTheme.bodyMedium,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-        if (showConnectorBelow)
-          const Row(
+        if (stop.summaryLine != null) ...[
+          const SizedBox(height: Spacing.xxs),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: _RouteGoNoGoStopTimeline._rowGap,
-                width: _RouteGoNoGoStopTimeline._timelineWidth,
-                child: _RouteGoNoGoVerticalDotConnector(),
+              if (icon != null) ...[
+                Semantics(
+                  label: verdictLabel ?? stop.summaryLine,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 1),
+                    child: Icon(icon, color: accent, size: 14),
+                  ),
+                ),
+                const SizedBox(width: Spacing.xxs),
+              ],
+              Expanded(
+                child: Text(
+                  stop.summaryLine!,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
+        ],
       ],
     );
   }
@@ -499,6 +594,8 @@ class _RouteGoNoGoStopIndicator extends StatelessWidget {
   }
 }
 
+const _routeGoNoGoConnectorDotCount = 3;
+
 class _RouteGoNoGoVerticalDotConnector extends StatelessWidget {
   const _RouteGoNoGoVerticalDotConnector();
 
@@ -508,7 +605,7 @@ class _RouteGoNoGoVerticalDotConnector extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: List.generate(
-        _RouteGoNoGoStopTimeline._connectorDotCount,
+        _routeGoNoGoConnectorDotCount,
         (_) => Container(
           width: 2,
           height: 2,
