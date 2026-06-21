@@ -58,6 +58,9 @@ class RouteGoNoGoSummarySection extends ConsumerWidget {
   }
 }
 
+const double _routeGoNoGoLoadingPlaceholderHeight = 14;
+const double _routeGoNoGoLoadingVerticalInset = Spacing.xs;
+
 /// Placeholder matching loaded verdict header height to avoid layout jump.
 class _RouteGoNoGoLoadingStrip extends StatelessWidget {
   const _RouteGoNoGoLoadingStrip({required this.label});
@@ -66,71 +69,41 @@ class _RouteGoNoGoLoadingStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final placeholderColor = scheme.surfaceContainerHighest;
+    final placeholderColor = Theme.of(
+      context,
+    ).colorScheme.surfaceContainerHighest;
 
     return Semantics(
       label: label,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: _routeGoNoGoHeaderVerdictIconSize,
-            height: _routeGoNoGoHeaderVerdictIconSize,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.5,
-              color: scheme.outline,
-            ),
-          ),
-          const SizedBox(width: _routeGoNoGoHeaderIconTextGap),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                    height: 1.15,
-                  ),
-                ),
-                const SizedBox(height: _routeGoNoGoSubheaderDetailGap),
-                _RouteGoNoGoLoadingPlaceholderLine(color: placeholderColor),
-                const SizedBox(height: Spacing.xxs),
-                _RouteGoNoGoLoadingPlaceholderLine(
-                  color: placeholderColor,
-                  widthFactor: 0.72,
-                ),
-              ],
-            ),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: _routeGoNoGoLoadingVerticalInset,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _RouteGoNoGoLoadingPlaceholderLine(color: placeholderColor),
+            const SizedBox(height: _routeGoNoGoSubheaderDetailGap),
+            _RouteGoNoGoLoadingPlaceholderLine(color: placeholderColor),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _RouteGoNoGoLoadingPlaceholderLine extends StatelessWidget {
-  const _RouteGoNoGoLoadingPlaceholderLine({
-    required this.color,
-    this.widthFactor = 1,
-  });
+  const _RouteGoNoGoLoadingPlaceholderLine({required this.color});
 
   final Color color;
-  final double widthFactor;
 
   @override
   Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      widthFactor: widthFactor,
-      alignment: Alignment.centerLeft,
-      child: Container(
-        height: 12,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(4),
-        ),
+    return Container(
+      height: _routeGoNoGoLoadingPlaceholderHeight,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }
