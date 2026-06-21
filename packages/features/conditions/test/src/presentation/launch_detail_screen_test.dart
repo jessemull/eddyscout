@@ -187,7 +187,7 @@ void main() {
     await pumpLaunchDetail(tester, container: container);
     await tester.pump();
 
-    expect(find.text('Go / No-go (informational)'), findsOneWidget);
+    expect(find.text('Conditions check (informational)'), findsOneWidget);
     expect(find.text('Favorable conditions'), findsOneWidget);
     expect(find.text('Weather'), findsOneWidget);
     expect(find.text('Conditions'), findsOneWidget);

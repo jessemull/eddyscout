@@ -402,7 +402,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'What are you seeing on the water?';
 
   @override
-  String get launchDetailGoNoGoTitle => 'Go / No-go (informational)';
+  String get launchDetailGoNoGoTitle => 'Conditions check (informational)';
 
   @override
   String get launchDetailGoNoGoNoWarnings => 'No warnings';
@@ -1017,9 +1017,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Weather data failed to load. Cannot assess wind from forecast.';
 
   @override
-  String get routeGoNoGoTitle => 'Route go / no-go (informational)';
-
-  @override
   String get routeGoNoGoLoading => 'Loading route conditions…';
 
   @override
@@ -1056,11 +1053,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String routeGoNoGoSemanticsVerdictOnly(String verdict) {
-    return 'Route go no-go: $verdict';
+    return 'Route conditions: $verdict';
   }
 
   @override
   String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName) {
-    return 'Route go no-go: $verdict. $stopName.';
+    return 'Route conditions: $verdict. $stopName.';
   }
 }

@@ -208,7 +208,7 @@
   "launchDetailReportAnonymous": "Anonymous paddler",
   "launchDetailConditionReportTitle": "Condition report",
   "launchDetailConditionReportHint": "What are you seeing on the water?",
-  "launchDetailGoNoGoTitle": "Go / No-go (informational)",
+  "launchDetailGoNoGoTitle": "Conditions check (informational)",
   "launchDetailGoNoGoNoWarnings": "No warnings",
   "launchDetailGoNoGoStubDisclaimer": "Not a substitute for your judgment, skill, or scouting on site.",
   "launchDetailGoNoGoVerdictGo": "Favorable conditions",
@@ -651,10 +651,6 @@
   "@routeGoNoGoReasonWeatherMissingSummary": {
     "description": "Route go/no-go summary when weather fetch failed for a stop"
   },
-  "routeGoNoGoTitle": "Route go / no-go (informational)",
-  "@routeGoNoGoTitle": {
-    "description": "Title for rolled route go/no-go card on map preview and saved route detail"
-  },
   "routeGoNoGoLoading": "Loading route conditions…",
   "@routeGoNoGoLoading": {
     "description": "Accessibility label while route go/no-go rollup loads"
@@ -689,13 +685,13 @@
     }
   },
   "routeGoNoGoRouteDisclaimer": "Not a substitute for your judgment, skill, or scouting on site.",
-  "routeGoNoGoSemanticsVerdictOnly": "Route go no-go: {verdict}",
+  "routeGoNoGoSemanticsVerdictOnly": "Route conditions: {verdict}",
   "@routeGoNoGoSemanticsVerdictOnly": {
     "placeholders": {
       "verdict": {"type": "String"}
     }
   },
-  "routeGoNoGoSemanticsVerdictWithStop": "Route go no-go: {verdict}. {stopName}.",
+  "routeGoNoGoSemanticsVerdictWithStop": "Route conditions: {verdict}. {stopName}.",
   "@routeGoNoGoSemanticsVerdictWithStop": {
     "placeholders": {
       "verdict": {"type": "String"},

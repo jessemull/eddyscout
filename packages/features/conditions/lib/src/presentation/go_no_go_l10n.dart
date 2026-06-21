@@ -118,6 +118,12 @@ String localizeRouteGoNoGoFailureMessage(
   _ => failure.message,
 };
 
+/// User-facing copy when the route rollup provider fails entirely.
+String localizeRouteGoNoGoRollupErrorMessage(
+  AppLocalizations l10n,
+  Object _,
+) => l10n.routeGoNoGoErrorGeneric;
+
 /// One-line summary for a waypoint go/no-go row (primary reason or none).
 String? waypointGoNoGoSummaryLine(
   AppLocalizations l10n,

@@ -145,7 +145,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('offline'), findsOneWidget);
+    expect(
+      find.text('Route conditions could not be loaded.'),
+      findsOneWidget,
+    );
     expect(find.text('Retry'), findsOneWidget);
   });
 
@@ -174,7 +177,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.text('No waypoint conditions available for route go/no-go.'),
+      find.text('Route conditions could not be loaded.'),
       findsOneWidget,
     );
     expect(find.text('Retry'), findsOneWidget);

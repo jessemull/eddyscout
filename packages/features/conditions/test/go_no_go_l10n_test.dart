@@ -1,6 +1,7 @@
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_conditions/src/data/firebase/go_no_go_reason_fallback_message.dart';
 import 'package:eddyscout_conditions/src/presentation/go_no_go_l10n.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -196,6 +197,34 @@ void main() {
     final message = goNoGoReasonFallbackMessage(reason);
     expect(message, contains('28'));
     expect(message, contains('exposed'));
+  });
+
+  testWidgets('localizeRouteGoNoGoRollupErrorMessage returns generic copy', (
+    tester,
+  ) async {
+    late AppLocalizations l10n;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SizedBox.shrink(),
+      ),
+    );
+    l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+    expect(
+      localizeRouteGoNoGoRollupErrorMessage(
+        l10n,
+        const NetworkFailure(message: 'offline'),
+      ),
+      l10n.routeGoNoGoErrorGeneric,
+    );
   });
 
   testWidgets('goNoGoReasonFallbackMessage matches ARB for windHigh', (

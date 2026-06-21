@@ -742,7 +742,7 @@ abstract class AppLocalizations {
   /// No description provided for @launchDetailGoNoGoTitle.
   ///
   /// In en, this message translates to:
-  /// **'Go / No-go (informational)'**
+  /// **'Conditions check (informational)'**
   String get launchDetailGoNoGoTitle;
 
   /// No description provided for @launchDetailGoNoGoNoWarnings.
@@ -1777,12 +1777,6 @@ abstract class AppLocalizations {
   /// **'Weather data failed to load. Cannot assess wind from forecast.'**
   String get routeGoNoGoReasonWeatherMissingSummary;
 
-  /// Title for rolled route go/no-go card on map preview and saved route detail
-  ///
-  /// In en, this message translates to:
-  /// **'Route go / no-go (informational)'**
-  String get routeGoNoGoTitle;
-
   /// Accessibility label while route go/no-go rollup loads
   ///
   /// In en, this message translates to:
@@ -1840,13 +1834,13 @@ abstract class AppLocalizations {
   /// No description provided for @routeGoNoGoSemanticsVerdictOnly.
   ///
   /// In en, this message translates to:
-  /// **'Route go no-go: {verdict}'**
+  /// **'Route conditions: {verdict}'**
   String routeGoNoGoSemanticsVerdictOnly(String verdict);
 
   /// No description provided for @routeGoNoGoSemanticsVerdictWithStop.
   ///
   /// In en, this message translates to:
-  /// **'Route go no-go: {verdict}. {stopName}.'**
+  /// **'Route conditions: {verdict}. {stopName}.'**
   String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName);
 }
 
