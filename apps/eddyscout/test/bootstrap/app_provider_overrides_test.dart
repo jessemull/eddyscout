@@ -173,4 +173,20 @@ void main() {
       returnsNormally,
     );
   });
+
+  test(
+    'launchSuggestedTripsIndexLoaderProvider loads bundled asset',
+    () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final raw = await container.read(
+        launchSuggestedTripsIndexLoaderProvider,
+      )();
+      expect(raw, contains('"schemaVersion"'));
+      expect(raw, contains('"oneWay"'));
+    },
+  );
 }

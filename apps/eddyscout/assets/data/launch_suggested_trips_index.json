@@ -1,0 +1,1313 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-20T00:00:00.000Z",
+  "distanceModel": "graph_plus_snap",
+  "snapMaxMeters": 900.0,
+  "maxDistanceMi": 20,
+  "paddleSpeedKmh": 4.0,
+  "maxOneWaySuggestions": 8,
+  "maxRoundTripSuggestions": 5,
+  "crossSystemReachability": false,
+  "entries": {
+    "cathedral_park": {
+      "oneWay": [
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 3.5,
+          "estimatedMinutes": 52,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 8.8,
+          "estimatedMinutes": 132,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 8.9,
+          "estimatedMinutes": 134,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 9.0,
+          "estimatedMinutes": 135,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 13.6,
+          "estimatedMinutes": 204,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 17.6,
+          "estimatedMinutes": 263,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 21.8,
+          "estimatedMinutes": 327,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 7.0,
+          "estimatedMinutes": 104,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "cathedral_park"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 17.6,
+          "estimatedMinutes": 264,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "cathedral_park"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 17.9,
+          "estimatedMinutes": 268,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "river_place_marina",
+            "cathedral_park"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 18.0,
+          "estimatedMinutes": 270,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "cathedral_park"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 27.2,
+          "estimatedMinutes": 408,
+          "waypoints": [
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront",
+            "cathedral_park"
+          ]
+        }
+      ]
+    },
+    "clackamette_park": {
+      "oneWay": [],
+      "roundTrips": []
+    },
+    "frenchmans_bar": {
+      "oneWay": [],
+      "roundTrips": []
+    },
+    "george_rogers_park": {
+      "oneWay": [
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 5.4,
+          "estimatedMinutes": 81,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 9.0,
+          "estimatedMinutes": 135,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 13.6,
+          "estimatedMinutes": 203,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 13.7,
+          "estimatedMinutes": 205,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 13.9,
+          "estimatedMinutes": 209,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 18.8,
+          "estimatedMinutes": 281,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 21.8,
+          "estimatedMinutes": 327,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp",
+            "cathedral_park"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 10.8,
+          "estimatedMinutes": 162,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 18.1,
+          "estimatedMinutes": 270,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 27.1,
+          "estimatedMinutes": 406,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "river_place_marina",
+            "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 27.3,
+          "estimatedMinutes": 410,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 27.8,
+          "estimatedMinutes": 418,
+          "waypoints": [
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "george_rogers_park"
+          ]
+        }
+      ]
+    },
+    "glenn_otto_troutdale": {
+      "oneWay": [
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 4.8,
+          "estimatedMinutes": 72,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 15.1,
+          "estimatedMinutes": 226,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "washougal_waterfront",
+            "port_of_camas"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 9.6,
+          "estimatedMinutes": 144,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "washougal_waterfront",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 30.1,
+          "estimatedMinutes": 452,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "washougal_waterfront",
+            "port_of_camas",
+            "glenn_otto_troutdale"
+          ]
+        }
+      ]
+    },
+    "jefferson_st_milwaukie": {
+      "oneWay": [
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 4.8,
+          "estimatedMinutes": 72,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 5.4,
+          "estimatedMinutes": 81,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 9.3,
+          "estimatedMinutes": 140,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 9.4,
+          "estimatedMinutes": 142,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 9.7,
+          "estimatedMinutes": 145,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 14.5,
+          "estimatedMinutes": 218,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 17.6,
+          "estimatedMinutes": 263,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp",
+            "cathedral_park"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 9.6,
+          "estimatedMinutes": 144,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 10.8,
+          "estimatedMinutes": 162,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 18.7,
+          "estimatedMinutes": 280,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "river_place_marina",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 18.9,
+          "estimatedMinutes": 284,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 19.4,
+          "estimatedMinutes": 290,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "jefferson_st_milwaukie"
+          ]
+        }
+      ]
+    },
+    "kelley_point": {
+      "oneWay": [],
+      "roundTrips": []
+    },
+    "port_of_camas": {
+      "oneWay": [
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 10.3,
+          "estimatedMinutes": 154,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 15.1,
+          "estimatedMinutes": 226,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
+            "glenn_otto_troutdale"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 20.5,
+          "estimatedMinutes": 308,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 30.1,
+          "estimatedMinutes": 452,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
+            "glenn_otto_troutdale",
+            "port_of_camas"
+          ]
+        }
+      ]
+    },
+    "portland_boathouse": {
+      "oneWay": [
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 1.0,
+          "estimatedMinutes": 15,
+          "waypoints": [
+            "portland_boathouse",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 1.1,
+          "estimatedMinutes": 16,
+          "waypoints": [
+            "portland_boathouse",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 5.8,
+          "estimatedMinutes": 86,
+          "waypoints": [
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 6.0,
+          "estimatedMinutes": 90,
+          "waypoints": [
+            "portland_boathouse",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 9.0,
+          "estimatedMinutes": 135,
+          "waypoints": [
+            "portland_boathouse",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "swan_island_boat_ramp",
+            "cathedral_park"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 9.7,
+          "estimatedMinutes": 145,
+          "waypoints": [
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 13.9,
+          "estimatedMinutes": 209,
+          "waypoints": [
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 1.9,
+          "estimatedMinutes": 30,
+          "waypoints": [
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 2.1,
+          "estimatedMinutes": 32,
+          "waypoints": [
+            "portland_boathouse",
+            "river_place_marina",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 11.5,
+          "estimatedMinutes": 172,
+          "waypoints": [
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 11.9,
+          "estimatedMinutes": 180,
+          "waypoints": [
+            "portland_boathouse",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "swan_island_boat_ramp",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 18.0,
+          "estimatedMinutes": 270,
+          "waypoints": [
+            "portland_boathouse",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "swan_island_boat_ramp",
+            "cathedral_park",
+            "portland_boathouse"
+          ]
+        }
+      ]
+    },
+    "river_place_marina": {
+      "oneWay": [
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 0.8,
+          "estimatedMinutes": 12,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 1.1,
+          "estimatedMinutes": 16,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 5.4,
+          "estimatedMinutes": 81,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 5.9,
+          "estimatedMinutes": 89,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 8.9,
+          "estimatedMinutes": 134,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "swan_island_boat_ramp",
+            "cathedral_park"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 9.3,
+          "estimatedMinutes": 140,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 13.6,
+          "estimatedMinutes": 203,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 1.6,
+          "estimatedMinutes": 24,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 2.1,
+          "estimatedMinutes": 32,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 10.8,
+          "estimatedMinutes": 162,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "sellwood_riverfront",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 11.8,
+          "estimatedMinutes": 178,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "swan_island_boat_ramp",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 17.9,
+          "estimatedMinutes": 268,
+          "waypoints": [
+            "river_place_marina",
+            "portland_boathouse",
+            "swan_island_boat_ramp",
+            "cathedral_park",
+            "river_place_marina"
+          ]
+        }
+      ]
+    },
+    "scappoose_bay_marina": {
+      "oneWay": [],
+      "roundTrips": []
+    },
+    "sellwood_riverfront": {
+      "oneWay": [
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 4.8,
+          "estimatedMinutes": 72,
+          "waypoints": [
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 5.4,
+          "estimatedMinutes": 81,
+          "waypoints": [
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 5.5,
+          "estimatedMinutes": 83,
+          "waypoints": [
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 5.8,
+          "estimatedMinutes": 86,
+          "waypoints": [
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 9.0,
+          "estimatedMinutes": 135,
+          "waypoints": [
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 10.6,
+          "estimatedMinutes": 159,
+          "waypoints": [
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 13.6,
+          "estimatedMinutes": 204,
+          "waypoints": [
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp",
+            "cathedral_park"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 9.6,
+          "estimatedMinutes": 144,
+          "waypoints": [
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 10.8,
+          "estimatedMinutes": 162,
+          "waypoints": [
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "river_place_marina",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 11.0,
+          "estimatedMinutes": 166,
+          "waypoints": [
+            "sellwood_riverfront",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 11.5,
+          "estimatedMinutes": 172,
+          "waypoints": [
+            "sellwood_riverfront",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 18.1,
+          "estimatedMinutes": 270,
+          "waypoints": [
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "sellwood_riverfront"
+          ]
+        }
+      ]
+    },
+    "sportcraft_enrg_oc": {
+      "oneWay": [],
+      "roundTrips": []
+    },
+    "st_helens_public_marina": {
+      "oneWay": [],
+      "roundTrips": []
+    },
+    "swan_island_boat_ramp": {
+      "oneWay": [
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 3.5,
+          "estimatedMinutes": 52,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "cathedral_park"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 5.8,
+          "estimatedMinutes": 87,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 5.9,
+          "estimatedMinutes": 89,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 6.0,
+          "estimatedMinutes": 90,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 10.6,
+          "estimatedMinutes": 159,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 14.5,
+          "estimatedMinutes": 218,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 18.8,
+          "estimatedMinutes": 281,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 7.0,
+          "estimatedMinutes": 104,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "cathedral_park",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 11.6,
+          "estimatedMinutes": 174,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 11.8,
+          "estimatedMinutes": 178,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "river_place_marina",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 11.9,
+          "estimatedMinutes": 180,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "river_place_marina",
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 21.2,
+          "estimatedMinutes": 318,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "portland_boathouse",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "sellwood_riverfront",
+            "swan_island_boat_ramp"
+          ]
+        }
+      ]
+    },
+    "tom_mccall_waterfront": {
+      "oneWay": [
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 0.8,
+          "estimatedMinutes": 12,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 1.0,
+          "estimatedMinutes": 15,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 5.5,
+          "estimatedMinutes": 83,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 5.8,
+          "estimatedMinutes": 87,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 8.8,
+          "estimatedMinutes": 132,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp",
+            "cathedral_park"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 9.4,
+          "estimatedMinutes": 142,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 13.7,
+          "estimatedMinutes": 205,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 1.6,
+          "estimatedMinutes": 24,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "river_place_marina",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "portland_boathouse",
+          "distanceKm": 1.9,
+          "estimatedMinutes": 30,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 11.0,
+          "estimatedMinutes": 166,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "sellwood_riverfront",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 11.6,
+          "estimatedMinutes": 174,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp",
+            "tom_mccall_waterfront"
+          ]
+        },
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 17.6,
+          "estimatedMinutes": 264,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "portland_boathouse",
+            "swan_island_boat_ramp",
+            "cathedral_park",
+            "tom_mccall_waterfront"
+          ]
+        }
+      ]
+    },
+    "vancouver_wintler": {
+      "oneWay": [],
+      "roundTrips": []
+    },
+    "washougal_waterfront": {
+      "oneWay": [
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 4.8,
+          "estimatedMinutes": 72,
+          "waypoints": [
+            "washougal_waterfront",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 10.3,
+          "estimatedMinutes": 154,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 9.6,
+          "estimatedMinutes": 144,
+          "waypoints": [
+            "washougal_waterfront",
+            "glenn_otto_troutdale",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 20.5,
+          "estimatedMinutes": 308,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "washougal_waterfront"
+          ]
+        }
+      ]
+    },
+    "willamette_park_sw": {
+      "oneWay": [],
+      "roundTrips": []
+    }
+  }
+}
