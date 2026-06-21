@@ -90,6 +90,15 @@ List<String> localizeGoNoGoReasonSentences(
       l10n.launchDetailGoNoGoReasonWindElevatedRoughWater,
     ];
   }
+  if (reason.code == GoNoGoReasonCode.windHigh) {
+    return [
+      l10n.launchDetailGoNoGoReasonWindElevatedSpeed(reason.windMph ?? 0),
+      l10n.launchDetailGoNoGoReasonWindElevatedExposure(
+        _formatExposureSiteLabel(reason.exposure ?? ''),
+      ),
+      l10n.launchDetailGoNoGoReasonWindHighTooStrong,
+    ];
+  }
   return [localizeGoNoGoReason(l10n, reason)];
 }
 

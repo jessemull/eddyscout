@@ -465,6 +465,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Conditions may feel rougher on the open water.';
 
   @override
+  String get launchDetailGoNoGoReasonWindHighTooStrong =>
+      'Too strong for paddling.';
+
+  @override
   String launchDetailGoNoGoReasonMarineSevere(String pattern) {
     return 'Marine forecast text mentions “$pattern”—treat as hazardous until you verify locally.';
   }

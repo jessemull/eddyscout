@@ -835,6 +835,12 @@ abstract class AppLocalizations {
   /// **'Conditions may feel rougher on the open water.'**
   String get launchDetailGoNoGoReasonWindElevatedRoughWater;
 
+  /// Route go/no-go sentence: no-go wind is too strong
+  ///
+  /// In en, this message translates to:
+  /// **'Too strong for paddling.'**
+  String get launchDetailGoNoGoReasonWindHighTooStrong;
+
   /// No-go reason when marine text matches a severe pattern
   ///
   /// In en, this message translates to:

@@ -12,14 +12,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Shared with stop timeline rows so verdict icons align with route markers.
 const _routeGoNoGoTimelineWidth = 18.0;
 
-const _routeGoNoGoHeaderVerdictIconSize = 26.0;
+const _routeGoNoGoHeaderVerdictIconSize = 30.0;
 const _routeGoNoGoRowVerdictIconSize = 14.0;
 const _routeGoNoGoHeaderIconTopInset = 0.0;
 const _routeGoNoGoRowIconTopInset = 1.0;
 const _routeGoNoGoHeaderIconColumnWidth = 18.0;
 const _routeGoNoGoExpansionCaretSize = 24.0;
-const _routeGoNoGoHeaderIconTextGap = 14.0;
-const double _routeGoNoGoSubheaderDetailGap = Spacing.xs;
+const _routeGoNoGoHeaderIconTextGap = 16.0;
+const double _routeGoNoGoSubheaderDetailGap = Spacing.xs + Spacing.xxs;
 
 enum _RouteGoNoGoBlockSize { header, stopRow }
 

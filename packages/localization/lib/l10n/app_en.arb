@@ -280,6 +280,10 @@
   "@launchDetailGoNoGoReasonWindElevatedRoughWater": {
     "description": "Route go/no-go bullet: open-water caution for elevated wind"
   },
+  "launchDetailGoNoGoReasonWindHighTooStrong": "Too strong for paddling.",
+  "@launchDetailGoNoGoReasonWindHighTooStrong": {
+    "description": "Route go/no-go sentence: no-go wind is too strong"
+  },
   "launchDetailGoNoGoReasonMarineSevere": "Marine forecast text mentions “{pattern}”—treat as hazardous until you verify locally.",
   "@launchDetailGoNoGoReasonMarineSevere": {
     "description": "No-go reason when marine text matches a severe pattern",
