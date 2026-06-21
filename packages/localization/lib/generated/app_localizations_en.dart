@@ -438,7 +438,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchDetailGoNoGoReasonWindUnknown =>
-      'Wind speed or gust was not available from the forecast—use caution, especially in open or exposed areas.';
+      'Wind speed or gust was not available from the forecast. Use caution, especially in open or exposed areas.';
 
   @override
   String launchDetailGoNoGoReasonWindHigh(int mph, String exposure) {
@@ -470,7 +470,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String launchDetailGoNoGoReasonMarineSevere(String pattern) {
-    return 'Marine forecast text mentions “$pattern”—treat as hazardous until you verify locally.';
+    return 'Marine forecast includes $pattern.';
   }
 
   @override
@@ -483,28 +483,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'This forecast period starts during typical low-light hours locally—verify visibility, hazards, and your comfort paddling after dark.';
 
   @override
-  String launchDetailGoNoGoReasonFlowVeryHighLaunch(String cfs, String siteId) {
-    return 'Discharge about $cfs cfs at site $siteId—above this launch’s curated upper band; verify hazards and skill match.';
+  String launchDetailGoNoGoReasonFlowVeryHigh(String cfs, String siteId) {
+    return 'Discharge is approximately $cfs at site $siteId.';
   }
 
   @override
-  String launchDetailGoNoGoReasonFlowVeryHighRiver(String cfs, String siteId) {
-    return 'Discharge about $cfs cfs at site $siteId—stub upper band for this river class suggests very high water; verify hazards and skill match.';
-  }
-
-  @override
-  String launchDetailGoNoGoReasonFlowHighLaunch(String cfs, String siteId) {
-    return 'Discharge about $cfs cfs at site $siteId—at or above this launch’s “elevated flow” band; double-check strainers and current.';
-  }
-
-  @override
-  String launchDetailGoNoGoReasonFlowHighRiver(String cfs, String siteId) {
-    return 'Discharge about $cfs cfs at site $siteId—above our placeholder “elevated” band for this river class; double-check strainers and current.';
-  }
-
-  @override
-  String launchDetailGoNoGoReasonFlowLow(String cfs, String siteId) {
-    return 'Discharge about $cfs cfs at site $siteId—below this launch’s low-flow cue; watch for shallow spots and wood.';
+  String launchDetailGoNoGoReasonFlowApproximate(String cfs) {
+    return 'Discharge is approximately $cfs.';
   }
 
   @override
@@ -1026,6 +1011,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonCancel => 'Cancel';
+
+  @override
+  String get routeGoNoGoReasonWeatherMissingSummary =>
+      'Weather data failed to load. Cannot assess wind from forecast.';
 
   @override
   String get routeGoNoGoTitle => 'Route go / no-go (informational)';

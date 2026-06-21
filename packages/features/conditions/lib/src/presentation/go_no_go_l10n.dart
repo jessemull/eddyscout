@@ -43,29 +43,15 @@ String localizeGoNoGoReason(
     ),
   GoNoGoReasonCode.forecastLowLightHours =>
     l10n.launchDetailGoNoGoReasonForecastLowLight,
-  GoNoGoReasonCode.flowVeryHigh =>
-    reason.usesLaunchFlowBands ?? false
-        ? l10n.launchDetailGoNoGoReasonFlowVeryHighLaunch(
-            reason.cfs ?? '',
-            reason.siteId ?? '',
-          )
-        : l10n.launchDetailGoNoGoReasonFlowVeryHighRiver(
-            reason.cfs ?? '',
-            reason.siteId ?? '',
-          ),
-  GoNoGoReasonCode.flowHigh =>
-    reason.usesLaunchFlowBands ?? false
-        ? l10n.launchDetailGoNoGoReasonFlowHighLaunch(
-            reason.cfs ?? '',
-            reason.siteId ?? '',
-          )
-        : l10n.launchDetailGoNoGoReasonFlowHighRiver(
-            reason.cfs ?? '',
-            reason.siteId ?? '',
-          ),
-  GoNoGoReasonCode.flowLow => l10n.launchDetailGoNoGoReasonFlowLow(
+  GoNoGoReasonCode.flowVeryHigh => l10n.launchDetailGoNoGoReasonFlowVeryHigh(
     reason.cfs ?? '',
     reason.siteId ?? '',
+  ),
+  GoNoGoReasonCode.flowHigh => l10n.launchDetailGoNoGoReasonFlowApproximate(
+    reason.cfs ?? '',
+  ),
+  GoNoGoReasonCode.flowLow => l10n.launchDetailGoNoGoReasonFlowApproximate(
+    reason.cfs ?? '',
   ),
 };
 
@@ -98,6 +84,9 @@ List<String> localizeGoNoGoReasonSentences(
       ),
       l10n.launchDetailGoNoGoReasonWindHighTooStrong,
     ];
+  }
+  if (reason.code == GoNoGoReasonCode.weatherMissing) {
+    return [l10n.routeGoNoGoReasonWeatherMissingSummary];
   }
   return [localizeGoNoGoReason(l10n, reason)];
 }

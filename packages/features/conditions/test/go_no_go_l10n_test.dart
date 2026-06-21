@@ -86,7 +86,7 @@ void main() {
         cfs: '40k',
         siteId: '14211720',
         usesLaunchFlowBands: true,
-      ): l10n.launchDetailGoNoGoReasonFlowVeryHighLaunch(
+      ): l10n.launchDetailGoNoGoReasonFlowVeryHigh(
         '40k',
         '14211720',
       ),
@@ -96,7 +96,7 @@ void main() {
         cfs: '40k',
         siteId: '14211720',
         usesLaunchFlowBands: false,
-      ): l10n.launchDetailGoNoGoReasonFlowVeryHighRiver(
+      ): l10n.launchDetailGoNoGoReasonFlowVeryHigh(
         '40k',
         '14211720',
       ),
@@ -106,9 +106,8 @@ void main() {
         cfs: '6000',
         siteId: 'x',
         usesLaunchFlowBands: true,
-      ): l10n.launchDetailGoNoGoReasonFlowHighLaunch(
+      ): l10n.launchDetailGoNoGoReasonFlowApproximate(
         '6000',
-        'x',
       ),
       const GoNoGoReason(
         code: GoNoGoReasonCode.flowHigh,
@@ -116,9 +115,8 @@ void main() {
         cfs: '6000',
         siteId: 'x',
         usesLaunchFlowBands: false,
-      ): l10n.launchDetailGoNoGoReasonFlowHighRiver(
+      ): l10n.launchDetailGoNoGoReasonFlowApproximate(
         '6000',
-        'x',
       ),
       const GoNoGoReason(
         code: GoNoGoReasonCode.flowLow,
@@ -126,9 +124,8 @@ void main() {
         cfs: '200',
         siteId: 'x',
         usesLaunchFlowBands: true,
-      ): l10n.launchDetailGoNoGoReasonFlowLow(
+      ): l10n.launchDetailGoNoGoReasonFlowApproximate(
         '200',
-        'x',
       ),
     };
 
