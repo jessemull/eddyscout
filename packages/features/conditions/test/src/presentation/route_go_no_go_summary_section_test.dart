@@ -21,6 +21,14 @@ RouteGoNoGoResult _rollupResult({
   GoNoGoVerdict verdict = GoNoGoVerdict.marginal,
   String stopName = 'Kelley Point Park (Slough launch)',
   List<RouteWaypointGoNoGoFailure> waypointFailures = const [],
+  List<GoNoGoReason> reasons = const [
+    GoNoGoReason(
+      code: GoNoGoReasonCode.windHigh,
+      severity: GoNoGoReasonSeverity.noGo,
+      windMph: 25,
+      exposure: 'exposed',
+    ),
+  ],
 }) {
   return RouteGoNoGoResult(
     verdict: verdict,
@@ -42,41 +50,20 @@ RouteGoNoGoResult _rollupResult({
         launchName: testKelleyPointLaunch.name,
         result: GoNoGoResult(
           verdict: verdict,
-          reasons: const [
-            GoNoGoReason(
-              code: GoNoGoReasonCode.windHigh,
-              severity: GoNoGoReasonSeverity.noGo,
-              windMph: 25,
-              exposure: 'exposed',
-            ),
-          ],
+          reasons: reasons,
           computedAt: DateTime.parse('2026-06-15T12:00:00-07:00'),
         ),
       ),
     ],
     waypointFailures: waypointFailures,
-    triggeringReasons: const [
-      GoNoGoReason(
-        code: GoNoGoReasonCode.windHigh,
-        severity: GoNoGoReasonSeverity.noGo,
-        windMph: 25,
-        exposure: 'exposed',
-      ),
-    ],
+    triggeringReasons: reasons,
     triggeringWaypoint: RouteWaypointGoNoGoResult(
       orderIndex: 1,
       launchId: testKelleyPointLaunch.id,
       launchName: stopName,
       result: GoNoGoResult(
         verdict: verdict,
-        reasons: const [
-          GoNoGoReason(
-            code: GoNoGoReasonCode.windHigh,
-            severity: GoNoGoReasonSeverity.noGo,
-            windMph: 25,
-            exposure: 'exposed',
-          ),
-        ],
+        reasons: reasons,
         computedAt: DateTime.parse('2026-06-15T12:00:00-07:00'),
       ),
     ),
@@ -244,7 +231,17 @@ void main() {
       ProviderScope(
         overrides: [
           routeGoNoGoRollupProvider(waypointsKey).overrideWith(
-            (_) async => _rollupResult(verdict: GoNoGoVerdict.noGo),
+            (_) async => _rollupResult(
+              verdict: GoNoGoVerdict.marginal,
+              reasons: const [
+                GoNoGoReason(
+                  code: GoNoGoReasonCode.windElevated,
+                  severity: GoNoGoReasonSeverity.marginal,
+                  windMph: 18,
+                  exposure: 'moderate',
+                ),
+              ],
+            ),
           ),
         ],
         child: testLocalizedApp(
@@ -256,13 +253,21 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.textContaining('Worst at'), findsNothing);
+    expect(find.textContaining('Moderate exposure site.'), findsWidgets);
+    expect(find.textContaining('Effective wind speed 18 mph.'), findsWidgets);
+    expect(
+      find.textContaining('Conditions may feel rougher on the open water.'),
+      findsWidgets,
+    );
+    expect(find.textContaining('exposure exposure'), findsNothing);
+
     await tester.tap(find.byType(ExpansionTile));
     await tester.pumpAndSettle();
 
     expect(find.text('No warnings'), findsOneWidget);
-    expect(find.textContaining('25 mph'), findsWidgets);
     expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
-    expect(find.byIcon(Icons.block_flipped), findsWidgets);
+    expect(find.byIcon(Icons.warning_amber_outlined), findsWidgets);
   });
 
   testWidgets('localizes unknown launch failure in partial failure banner', (

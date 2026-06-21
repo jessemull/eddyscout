@@ -256,11 +256,29 @@
   },
   "launchDetailGoNoGoReasonWindElevated": "Effective wind about {mph} mph ({exposure} site)—conditions may feel rougher on open water.",
   "@launchDetailGoNoGoReasonWindElevated": {
-    "description": "Marginal reason when effective wind is elevated",
+    "description": "Marginal reason when effective wind is elevated (launch detail single line)",
     "placeholders": {
       "mph": {"type": "int"},
       "exposure": {"type": "String"}
     }
+  },
+  "launchDetailGoNoGoReasonWindElevatedExposure": "{exposure} site.",
+  "@launchDetailGoNoGoReasonWindElevatedExposure": {
+    "description": "Route go/no-go bullet: wind exposure tier",
+    "placeholders": {
+      "exposure": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonWindElevatedSpeed": "Effective wind speed {mph} mph.",
+  "@launchDetailGoNoGoReasonWindElevatedSpeed": {
+    "description": "Route go/no-go bullet: effective wind speed",
+    "placeholders": {
+      "mph": {"type": "int"}
+    }
+  },
+  "launchDetailGoNoGoReasonWindElevatedRoughWater": "Conditions may feel rougher on the open water.",
+  "@launchDetailGoNoGoReasonWindElevatedRoughWater": {
+    "description": "Route go/no-go bullet: open-water caution for elevated wind"
   },
   "launchDetailGoNoGoReasonMarineSevere": "Marine forecast text mentions “{pattern}”—treat as hazardous until you verify locally.",
   "@launchDetailGoNoGoReasonMarineSevere": {
@@ -694,7 +712,7 @@
       "verdict": {"type": "String"}
     }
   },
-  "routeGoNoGoSemanticsVerdictWithStop": "Route go no-go: {verdict}. Worst at {stopName}.",
+  "routeGoNoGoSemanticsVerdictWithStop": "Route go no-go: {verdict}. {stopName}.",
   "@routeGoNoGoSemanticsVerdictWithStop": {
     "placeholders": {
       "verdict": {"type": "String"},

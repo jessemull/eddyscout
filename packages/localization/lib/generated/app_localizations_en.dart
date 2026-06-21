@@ -451,6 +451,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String launchDetailGoNoGoReasonWindElevatedExposure(String exposure) {
+    return '$exposure site.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonWindElevatedSpeed(int mph) {
+    return 'Effective wind speed $mph mph.';
+  }
+
+  @override
+  String get launchDetailGoNoGoReasonWindElevatedRoughWater =>
+      'Conditions may feel rougher on the open water.';
+
+  @override
   String launchDetailGoNoGoReasonMarineSevere(String pattern) {
     return 'Marine forecast text mentions “$pattern”—treat as hazardous until you verify locally.';
   }
@@ -1054,6 +1068,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName) {
-    return 'Route go no-go: $verdict. Worst at $stopName.';
+    return 'Route go no-go: $verdict. $stopName.';
   }
 }

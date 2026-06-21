@@ -69,6 +69,48 @@ String localizeGoNoGoReason(
   ),
 };
 
+String _titleCaseExposure(String exposure) {
+  if (exposure.isEmpty) {
+    return exposure;
+  }
+  return exposure[0].toUpperCase() + exposure.substring(1);
+}
+
+/// Route UI sentence lines for one reason (wind-elevated expands to three).
+List<String> localizeGoNoGoReasonSentences(
+  AppLocalizations l10n,
+  GoNoGoReason reason,
+) {
+  if (reason.code == GoNoGoReasonCode.windElevated) {
+    return [
+      l10n.launchDetailGoNoGoReasonWindElevatedExposure(
+        _formatExposureSiteLabel(reason.exposure ?? ''),
+      ),
+      l10n.launchDetailGoNoGoReasonWindElevatedSpeed(reason.windMph ?? 0),
+      l10n.launchDetailGoNoGoReasonWindElevatedRoughWater,
+    ];
+  }
+  return [localizeGoNoGoReason(l10n, reason)];
+}
+
+/// Joined route summary copy for headers and stop rows.
+String localizeGoNoGoReasonRouteSummary(
+  AppLocalizations l10n,
+  GoNoGoReason reason,
+) => localizeGoNoGoReasonSentences(l10n, reason).join(' ');
+
+String _formatExposureSiteLabel(String exposure) {
+  if (exposure.isEmpty) {
+    return exposure;
+  }
+  final normalized = exposure.toLowerCase();
+  if (normalized.endsWith(' exposure')) {
+    final tier = exposure.substring(0, exposure.length - ' exposure'.length);
+    return '${_titleCaseExposure(tier)} exposure';
+  }
+  return '${_titleCaseExposure(exposure)} exposure';
+}
+
 /// Localizes per-stop failure copy for route go/no-go partial-failure lines.
 String localizeRouteGoNoGoFailureMessage(
   AppLocalizations l10n,
@@ -83,6 +125,18 @@ String? waypointGoNoGoSummaryLine(
   AppLocalizations l10n,
   GoNoGoResult result,
 ) {
+  final bullets = waypointGoNoGoSummarySentences(l10n, result);
+  if (bullets.isEmpty) {
+    return null;
+  }
+  return bullets.join(' ');
+}
+
+/// Sentence lines for route go/no-go stop rows and headers.
+List<String> waypointGoNoGoSummarySentences(
+  AppLocalizations l10n,
+  GoNoGoResult result,
+) {
   final reasons = result.reasons
       .where(
         (reason) =>
@@ -92,8 +146,8 @@ String? waypointGoNoGoSummaryLine(
       .toList();
   if (reasons.isEmpty) {
     return result.verdict == GoNoGoVerdict.go
-        ? l10n.launchDetailGoNoGoNoWarnings
-        : null;
+        ? [l10n.launchDetailGoNoGoNoWarnings]
+        : const [];
   }
-  return localizeGoNoGoReason(l10n, reasons.first);
+  return localizeGoNoGoReasonSentences(l10n, reasons.first);
 }

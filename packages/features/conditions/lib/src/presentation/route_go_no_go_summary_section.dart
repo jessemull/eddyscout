@@ -12,13 +12,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Shared with stop timeline rows so verdict icons align with route markers.
 const _routeGoNoGoTimelineWidth = 18.0;
 
-/// Fits the timeline column; paired with [Spacing.sm] before header text.
 const _routeGoNoGoHeaderVerdictIconSize = 26.0;
-
+const _routeGoNoGoRowVerdictIconSize = 14.0;
+const _routeGoNoGoHeaderIconTopInset = 0.0;
+const _routeGoNoGoRowIconTopInset = 1.0;
+const _routeGoNoGoHeaderIconColumnWidth = 18.0;
 const _routeGoNoGoExpansionCaretSize = 24.0;
-
-/// Gap between accordion verdict icon and title block.
 const _routeGoNoGoHeaderIconTextGap = 14.0;
+const double _routeGoNoGoSubheaderDetailGap = Spacing.xs;
+
+enum _RouteGoNoGoBlockSize { header, stopRow }
 
 /// Route-level go/no-go rollup for map preview and saved route detail.
 class RouteGoNoGoSummarySection extends ConsumerWidget {
@@ -90,31 +93,20 @@ class _RouteGoNoGoErrorStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
-    return _VerdictHeaderRow(
+    return _RouteGoNoGoVerdictPanel(
+      size: _RouteGoNoGoBlockSize.header,
       accent: scheme.error,
       icon: Icons.error_outline,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(
-              message,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: scheme.onSurface),
-            ),
-          ),
-          TextButton(
-            onPressed: onRetry,
-            style: TextButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              padding: EdgeInsets.zero,
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(l10n.retryButton),
-          ),
-        ],
+      primaryLabel: message,
+      trailing: TextButton(
+        onPressed: onRetry,
+        style: TextButton.styleFrom(
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(l10n.retryButton),
       ),
     );
   }
@@ -143,13 +135,13 @@ class _RouteGoNoGoSummaryStrip extends StatelessWidget {
           orderIndex: stop.orderIndex,
           launchName: stop.launchName,
           verdict: stop.result.verdict,
-          summaryLine: waypointGoNoGoSummaryLine(l10n, stop.result),
+          detailText: waypointGoNoGoSummaryLine(l10n, stop.result),
         ),
       for (final failure in result.waypointFailures)
         _TimelineStop(
           orderIndex: failure.orderIndex,
           launchName: failure.launchName,
-          summaryLine: localizeRouteGoNoGoFailureMessage(
+          detailText: localizeRouteGoNoGoFailureMessage(
             l10n,
             failure.failure,
           ),
@@ -157,6 +149,19 @@ class _RouteGoNoGoSummaryStrip extends StatelessWidget {
         ),
     ]..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
     return stops;
+  }
+
+  String? _headerDetailText(AppLocalizations l10n) {
+    if (result.triggeringReasons.isNotEmpty) {
+      return localizeGoNoGoReasonRouteSummary(
+        l10n,
+        result.triggeringReasons.first,
+      );
+    }
+    if (result.verdict == GoNoGoVerdict.go) {
+      return l10n.launchDetailGoNoGoNoWarnings;
+    }
+    return null;
   }
 
   @override
@@ -168,62 +173,20 @@ class _RouteGoNoGoSummaryStrip extends StatelessWidget {
     final icon = _verdictIcon(result.verdict);
     final verdictLabel = localizeGoNoGoVerdict(l10n, result.verdict);
     final stopName = result.triggeringWaypoint?.launchName;
-    final primaryReason = result.triggeringReasons.isEmpty
-        ? null
-        : localizeGoNoGoReason(l10n, result.triggeringReasons.first);
+    final detailText = _headerDetailText(l10n);
     final timelineStops = _timelineStops(l10n);
 
     final semanticsLabel = stopName == null
         ? l10n.routeGoNoGoSemanticsVerdictOnly(verdictLabel)
         : l10n.routeGoNoGoSemanticsVerdictWithStop(verdictLabel, stopName);
 
-    final header = _VerdictHeaderRow(
+    final header = _RouteGoNoGoVerdictPanel(
+      size: _RouteGoNoGoBlockSize.header,
       accent: accent,
       icon: icon,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            verdictLabel,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: scheme.onSurface,
-              fontWeight: FontWeight.w600,
-              height: 1.15,
-            ),
-          ),
-          if (stopName != null) ...[
-            const SizedBox(height: Spacing.xxs),
-            Text(
-              l10n.routeGoNoGoTriggeringStop(stopName),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-                height: 1.2,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-          if (primaryReason != null) ...[
-            Text(
-              primaryReason,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-                height: 1.2,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ] else if (result.verdict == GoNoGoVerdict.go)
-            Text(
-              l10n.launchDetailGoNoGoNoWarnings,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-                height: 1.2,
-              ),
-            ),
-        ],
-      ),
+      primaryLabel: verdictLabel,
+      secondaryLabel: stopName,
+      detailText: detailText,
     );
 
     if (!_hasDetails(l10n)) {
@@ -240,11 +203,17 @@ class _RouteGoNoGoSummaryStrip extends StatelessWidget {
           visualDensity: VisualDensity.compact,
           collapsedShape: const RoundedRectangleBorder(),
           shape: const RoundedRectangleBorder(),
-          title: header,
-          trailing: Icon(
-            Icons.expand_more,
-            color: scheme.onSurfaceVariant,
-            size: _routeGoNoGoExpansionCaretSize,
+          showTrailingIcon: false,
+          title: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: header),
+              Icon(
+                Icons.expand_more,
+                color: scheme.onSurfaceVariant,
+                size: _routeGoNoGoExpansionCaretSize,
+              ),
+            ],
           ),
           children: [
             if (result.triggeringReasons.length > 1)
@@ -258,10 +227,11 @@ class _RouteGoNoGoSummaryStrip extends StatelessWidget {
                         (reason) => Padding(
                           padding: const EdgeInsets.only(bottom: Spacing.xxs),
                           child: Text(
-                            localizeGoNoGoReason(l10n, reason),
+                            localizeGoNoGoReasonRouteSummary(l10n, reason),
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: scheme.onSurfaceVariant,
+                                  height: 1.2,
                                 ),
                           ),
                         ),
@@ -282,6 +252,212 @@ class _RouteGoNoGoSummaryStrip extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Shared header and stop-row layout for every route go/no-go verdict.
+class _RouteGoNoGoVerdictPanel extends StatelessWidget {
+  const _RouteGoNoGoVerdictPanel({
+    required this.size,
+    required this.accent,
+    required this.icon,
+    required this.primaryLabel,
+    this.secondaryLabel,
+    this.detailText,
+    this.trailing,
+  });
+
+  final _RouteGoNoGoBlockSize size;
+  final Color accent;
+  final IconData icon;
+  final String primaryLabel;
+  final String? secondaryLabel;
+  final String? detailText;
+  final Widget? trailing;
+
+  TextStyle _primaryStyle(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return switch (size) {
+      _RouteGoNoGoBlockSize.header =>
+        Theme.of(
+          context,
+        ).textTheme.titleSmall!.copyWith(
+          color: scheme.onSurface,
+          fontWeight: FontWeight.w600,
+          height: 1.15,
+        ),
+      _RouteGoNoGoBlockSize.stopRow => Theme.of(context).textTheme.bodyMedium!,
+    };
+  }
+
+  TextStyle _detailStyle(BuildContext context) =>
+      Theme.of(context).textTheme.bodySmall!.copyWith(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        height: 1.2,
+      );
+
+  double get _iconSize => switch (size) {
+    _RouteGoNoGoBlockSize.header => _routeGoNoGoHeaderVerdictIconSize,
+    _RouteGoNoGoBlockSize.stopRow => _routeGoNoGoRowVerdictIconSize,
+  };
+
+  double get _iconTopInset => switch (size) {
+    _RouteGoNoGoBlockSize.header => _routeGoNoGoHeaderIconTopInset,
+    _RouteGoNoGoBlockSize.stopRow => _routeGoNoGoRowIconTopInset,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final detailStyle = _detailStyle(context);
+    final primary = size == _RouteGoNoGoBlockSize.stopRow
+        ? Transform.translate(
+            offset: const Offset(0, -2),
+            child: Text(
+              primaryLabel,
+              style: _primaryStyle(context),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          )
+        : Text(
+            primaryLabel,
+            style: _primaryStyle(context),
+          );
+
+    if (size == _RouteGoNoGoBlockSize.header) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _RouteGoNoGoVerdictLeadingIcon(
+            accent: accent,
+            icon: icon,
+            size: _iconSize,
+            topInset: _iconTopInset,
+          ),
+          const SizedBox(width: _routeGoNoGoHeaderIconTextGap),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      primary,
+                      if (secondaryLabel != null)
+                        Text(
+                          secondaryLabel!,
+                          style: detailStyle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      if (secondaryLabel != null && detailText != null)
+                        const SizedBox(height: _routeGoNoGoSubheaderDetailGap),
+                      if (detailText case final detail?)
+                        Text(
+                          detail,
+                          style: detailStyle,
+                        ),
+                    ],
+                  ),
+                ),
+                ?trailing,
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        primary,
+        if (detailText != null) ...[
+          const SizedBox(height: Spacing.xxs),
+          _RouteGoNoGoVerdictDetailRow(
+            accent: accent,
+            icon: icon,
+            iconSize: _iconSize,
+            iconTopInset: _iconTopInset,
+            detailText: detailText!,
+            style: detailStyle,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _RouteGoNoGoVerdictLeadingIcon extends StatelessWidget {
+  const _RouteGoNoGoVerdictLeadingIcon({
+    required this.accent,
+    required this.icon,
+    required this.size,
+    required this.topInset,
+  });
+
+  final Color accent;
+  final IconData icon;
+  final double size;
+  final double topInset;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: _routeGoNoGoHeaderIconColumnWidth,
+      child: Padding(
+        padding: EdgeInsets.only(top: topInset),
+        child: Icon(
+          icon,
+          color: accent,
+          size: size,
+        ),
+      ),
+    );
+  }
+}
+
+class _RouteGoNoGoVerdictDetailRow extends StatelessWidget {
+  const _RouteGoNoGoVerdictDetailRow({
+    required this.accent,
+    required this.icon,
+    required this.iconSize,
+    required this.iconTopInset,
+    required this.detailText,
+    required this.style,
+  });
+
+  final Color accent;
+  final IconData icon;
+  final double iconSize;
+  final double iconTopInset;
+  final String detailText;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: iconTopInset),
+          child: Icon(
+            icon,
+            color: accent,
+            size: iconSize,
+          ),
+        ),
+        const SizedBox(width: Spacing.xxs),
+        Expanded(
+          child: Text(
+            detailText,
+            style: style,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -332,7 +508,7 @@ class _RouteGoNoGoStopTimelineState extends State<_RouteGoNoGoStopTimeline> {
   );
 
   static double _estimatedHeightFor(_TimelineStop stop) =>
-      stop.summaryLine != null
+      stop.detailText != null
       ? _estimatedHeightWithSummary
       : _estimatedHeightCompact;
 
@@ -343,7 +519,7 @@ class _RouteGoNoGoStopTimelineState extends State<_RouteGoNoGoStopTimeline> {
       return;
     }
     final stop = widget.stops[index];
-    final resolved = stop.summaryLine != null
+    final resolved = stop.detailText != null
         ? size.height.clamp(_estimatedHeightWithSummary, double.infinity)
         : size.height;
     if ((_contentHeights[index] - resolved).abs() <= 0.5) {
@@ -387,7 +563,7 @@ class _RouteGoNoGoStopTimelineState extends State<_RouteGoNoGoStopTimeline> {
             ],
           ),
         ),
-        const SizedBox(width: Spacing.xs),
+        const SizedBox(width: Spacing.xxs),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,53 +651,15 @@ class _RouteGoNoGoStopContent extends StatelessWidget {
     final icon = stop.isFailure
         ? Icons.error_outline
         : stop.verdict == null
-        ? null
+        ? Icons.info_outline
         : _verdictIcon(stop.verdict!);
-    final verdictLabel = stop.verdict == null
-        ? null
-        : localizeGoNoGoVerdict(l10n, stop.verdict!);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Transform.translate(
-          offset: const Offset(0, -2),
-          child: Text(
-            stop.launchName,
-            style: Theme.of(context).textTheme.bodyMedium,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        if (stop.summaryLine != null) ...[
-          const SizedBox(height: Spacing.xxs),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (icon != null) ...[
-                Semantics(
-                  label: verdictLabel ?? stop.summaryLine,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 1),
-                    child: Icon(icon, color: accent, size: 14),
-                  ),
-                ),
-                const SizedBox(width: Spacing.xxs),
-              ],
-              Expanded(
-                child: Text(
-                  stop.summaryLine!,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ],
+    return _RouteGoNoGoVerdictPanel(
+      size: _RouteGoNoGoBlockSize.stopRow,
+      accent: accent,
+      icon: icon,
+      primaryLabel: stop.launchName,
+      detailText: stop.detailText,
     );
   }
 }
@@ -624,50 +762,15 @@ class _TimelineStop {
     required this.orderIndex,
     required this.launchName,
     this.verdict,
-    this.summaryLine,
+    this.detailText,
     this.isFailure = false,
   });
 
   final int orderIndex;
   final String launchName;
   final GoNoGoVerdict? verdict;
-  final String? summaryLine;
+  final String? detailText;
   final bool isFailure;
-}
-
-class _VerdictHeaderRow extends StatelessWidget {
-  const _VerdictHeaderRow({
-    required this.accent,
-    required this.icon,
-    required this.child,
-  });
-
-  final Color accent;
-  final IconData icon;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          SizedBox(
-            width: _routeGoNoGoTimelineWidth,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Icon(
-                icon,
-                color: accent,
-                size: _routeGoNoGoHeaderVerdictIconSize,
-              ),
-            ),
-          ),
-          const SizedBox(width: _routeGoNoGoHeaderIconTextGap),
-          Expanded(child: child),
-        ],
-      ),
-    );
-  }
 }
 
 Color _verdictAccent(SemanticColors semantic, GoNoGoVerdict verdict) =>

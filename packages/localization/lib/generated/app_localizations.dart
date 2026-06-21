@@ -811,11 +811,29 @@ abstract class AppLocalizations {
   /// **'Effective wind about {mph} mph ({exposure} site)—our stub rules treat this as strong for paddling.'**
   String launchDetailGoNoGoReasonWindHigh(int mph, String exposure);
 
-  /// Marginal reason when effective wind is elevated
+  /// Marginal reason when effective wind is elevated (launch detail single line)
   ///
   /// In en, this message translates to:
   /// **'Effective wind about {mph} mph ({exposure} site)—conditions may feel rougher on open water.'**
   String launchDetailGoNoGoReasonWindElevated(int mph, String exposure);
+
+  /// Route go/no-go bullet: wind exposure tier
+  ///
+  /// In en, this message translates to:
+  /// **'{exposure} site.'**
+  String launchDetailGoNoGoReasonWindElevatedExposure(String exposure);
+
+  /// Route go/no-go bullet: effective wind speed
+  ///
+  /// In en, this message translates to:
+  /// **'Effective wind speed {mph} mph.'**
+  String launchDetailGoNoGoReasonWindElevatedSpeed(int mph);
+
+  /// Route go/no-go bullet: open-water caution for elevated wind
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions may feel rougher on the open water.'**
+  String get launchDetailGoNoGoReasonWindElevatedRoughWater;
 
   /// No-go reason when marine text matches a severe pattern
   ///
@@ -1834,7 +1852,7 @@ abstract class AppLocalizations {
   /// No description provided for @routeGoNoGoSemanticsVerdictWithStop.
   ///
   /// In en, this message translates to:
-  /// **'Route go no-go: {verdict}. Worst at {stopName}.'**
+  /// **'Route go no-go: {verdict}. {stopName}.'**
   String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName);
 }
 
