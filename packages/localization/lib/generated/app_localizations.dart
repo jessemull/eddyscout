@@ -748,19 +748,19 @@ abstract class AppLocalizations {
   /// No description provided for @launchDetailGoNoGoNoWarnings.
   ///
   /// In en, this message translates to:
-  /// **'No stub warnings from wind, marine text, or flow thresholds for this launch.'**
+  /// **'No warnings'**
   String get launchDetailGoNoGoNoWarnings;
 
   /// No description provided for @launchDetailGoNoGoStubDisclaimer.
   ///
   /// In en, this message translates to:
-  /// **'Stub rules only—not a substitute for your judgment, skill, or scouting on site.'**
+  /// **'Not a substitute for your judgment, skill, or scouting on site.'**
   String get launchDetailGoNoGoStubDisclaimer;
 
   /// Headline when go/no-go verdict is go
   ///
   /// In en, this message translates to:
-  /// **'Go (planning hint)'**
+  /// **'Go'**
   String get launchDetailGoNoGoVerdictGo;
 
   /// Headline when go/no-go verdict is marginal
@@ -772,7 +772,7 @@ abstract class AppLocalizations {
   /// Headline when go/no-go verdict is no-go
   ///
   /// In en, this message translates to:
-  /// **'No-go (planning hint)'**
+  /// **'No-go'**
   String get launchDetailGoNoGoVerdictNoGo;
 
   /// Headline when go/no-go verdict lacks weather data
@@ -1822,7 +1822,7 @@ abstract class AppLocalizations {
   /// No description provided for @routeGoNoGoRouteDisclaimer.
   ///
   /// In en, this message translates to:
-  /// **'Stub rules across route stops—not a substitute for your judgment, skill, or scouting on site.'**
+  /// **'Not a substitute for your judgment, skill, or scouting on site.'**
   String get routeGoNoGoRouteDisclaimer;
 
   /// No description provided for @routeGoNoGoSemanticsVerdictOnly.

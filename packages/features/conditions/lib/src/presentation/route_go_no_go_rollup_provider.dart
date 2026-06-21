@@ -1,4 +1,4 @@
-import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
+import 'package:eddyscout_conditions/src/domain/launch_go_no_go_provider.dart';
 import 'package:eddyscout_conditions/src/domain/route_go_no_go.dart';
 import 'package:eddyscout_conditions/src/presentation/conditions_snapshot_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/go_no_go_profile_provider.dart';
@@ -24,52 +24,54 @@ Future<RouteGoNoGoResult> routeGoNoGoRollup(
   final evaluated = <RouteWaypointGoNoGoResult>[];
   final failures = <RouteWaypointGoNoGoFailure>[];
 
-  await Future.wait(
-    launchIdsInOrder.asMap().entries.map((entry) async {
-      final orderIndex = entry.key;
-      final launchId = entry.value;
-      final launch = findLaunchPointById(launchId);
-      if (launch == null) {
-        failures.add(
-          RouteWaypointGoNoGoFailure(
-            orderIndex: orderIndex,
-            launchId: launchId,
-            launchName: launchId,
-            failure: NotFoundFailure(message: launchId),
-          ),
-        );
-        return;
-      }
+  // Sequential fetch reuses [conditionsSnapshotProvider] cache (same as launch
+  // detail) and avoids parallel autoDispose cancel races on first load.
+  for (final entry in launchIdsInOrder.asMap().entries) {
+    final orderIndex = entry.key;
+    final launchId = entry.value;
+    final launch = findLaunchPointById(launchId);
+    if (launch == null) {
+      failures.add(
+        RouteWaypointGoNoGoFailure(
+          orderIndex: orderIndex,
+          launchId: launchId,
+          launchName: launchId,
+          failure: NotFoundFailure(message: launchId),
+        ),
+      );
+      continue;
+    }
 
-      try {
-        final snapshot = await ref.read(
-          conditionsSnapshotProvider(launch).future,
-        );
-        final result = GoNoGoEvaluator.evaluate(
-          launch,
-          snapshot,
+    try {
+      final snapshot = await ref.watch(
+        conditionsSnapshotProvider(launch).future,
+      );
+      final result = ref.watch(
+        launchGoNoGoResultProvider((
+          launch: launch,
+          snapshot: snapshot,
           profile: profile,
-        );
-        evaluated.add(
-          RouteWaypointGoNoGoResult(
-            orderIndex: orderIndex,
-            launchId: launchId,
-            launchName: launch.name,
-            result: result,
-          ),
-        );
-      } on AppFailure catch (failure) {
-        failures.add(
-          RouteWaypointGoNoGoFailure(
-            orderIndex: orderIndex,
-            launchId: launchId,
-            launchName: launch.name,
-            failure: failure,
-          ),
-        );
-      }
-    }),
-  );
+        )),
+      );
+      evaluated.add(
+        RouteWaypointGoNoGoResult(
+          orderIndex: orderIndex,
+          launchId: launchId,
+          launchName: launch.name,
+          result: result,
+        ),
+      );
+    } on AppFailure catch (failure) {
+      failures.add(
+        RouteWaypointGoNoGoFailure(
+          orderIndex: orderIndex,
+          launchId: launchId,
+          launchName: launch.name,
+          failure: failure,
+        ),
+      );
+    }
+  }
 
   return RouteGoNoGoRollup.rollUp(
     evaluated: evaluated,

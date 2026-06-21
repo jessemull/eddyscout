@@ -405,21 +405,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get launchDetailGoNoGoTitle => 'Go / No-go (informational)';
 
   @override
-  String get launchDetailGoNoGoNoWarnings =>
-      'No stub warnings from wind, marine text, or flow thresholds for this launch.';
+  String get launchDetailGoNoGoNoWarnings => 'No warnings';
 
   @override
   String get launchDetailGoNoGoStubDisclaimer =>
-      'Stub rules only—not a substitute for your judgment, skill, or scouting on site.';
+      'Not a substitute for your judgment, skill, or scouting on site.';
 
   @override
-  String get launchDetailGoNoGoVerdictGo => 'Go (planning hint)';
+  String get launchDetailGoNoGoVerdictGo => 'Go';
 
   @override
   String get launchDetailGoNoGoVerdictMarginal => 'Marginal';
 
   @override
-  String get launchDetailGoNoGoVerdictNoGo => 'No-go (planning hint)';
+  String get launchDetailGoNoGoVerdictNoGo => 'No-go';
 
   @override
   String get launchDetailGoNoGoVerdictInsufficientData => 'Insufficient data';
@@ -1046,7 +1045,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routeGoNoGoRouteDisclaimer =>
-      'Stub rules across route stops—not a substitute for your judgment, skill, or scouting on site.';
+      'Not a substitute for your judgment, skill, or scouting on site.';
 
   @override
   String routeGoNoGoSemanticsVerdictOnly(String verdict) {

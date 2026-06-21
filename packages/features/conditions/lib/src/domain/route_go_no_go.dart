@@ -82,6 +82,20 @@ final class RouteGoNoGoWaypointsKey {
 class RouteGoNoGoRollup {
   RouteGoNoGoRollup._();
 
+  /// Filters info-only reasons except [GoNoGoReasonCode.weatherMissing] so
+  /// insufficient-data rollups still explain missing forecast in the UI.
+  static List<GoNoGoReason> _triggeringReasonsFor(
+    RouteWaypointGoNoGoResult stop,
+  ) {
+    return stop.result.reasons
+        .where(
+          (reason) =>
+              reason.severity != GoNoGoReasonSeverity.info ||
+              reason.code == GoNoGoReasonCode.weatherMissing,
+        )
+        .toList();
+  }
+
   /// Rolls up waypoint results using worst-verdict-wins ordering.
   ///
   /// Throws [UnexpectedFailure] when [evaluated] is empty.
@@ -120,9 +134,7 @@ class RouteGoNoGoRollup {
 
     final triggeringReasons = triggering == null
         ? const <GoNoGoReason>[]
-        : triggering.result.reasons
-              .where((r) => r.severity != GoNoGoReasonSeverity.info)
-              .toList();
+        : _triggeringReasonsFor(triggering);
 
     return RouteGoNoGoResult(
       verdict: rolledVerdict,

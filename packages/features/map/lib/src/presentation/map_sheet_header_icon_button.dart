@@ -13,7 +13,7 @@ class MapSheetHeaderIconButton extends StatelessWidget {
     super.key,
   });
 
-  static const double iconSize = 24;
+  static const double iconSize = 20;
   static const double closeSlotWidth = 48;
   static const double compactSlotWidth = iconSize + Spacing.sm + Spacing.xs;
 

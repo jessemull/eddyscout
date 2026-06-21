@@ -70,7 +70,7 @@ final class RouteGoNoGoRollupProvider
   }
 }
 
-String _$routeGoNoGoRollupHash() => r'45226d44e8bdf0d6e81463bf9c63c3eec21dc68d';
+String _$routeGoNoGoRollupHash() => r'161849261c79c3bef731d6bb21a6c80a3dd58b64';
 
 /// Evaluates and rolls up go/no-go across ordered route waypoint launch ids.
 

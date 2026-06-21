@@ -209,9 +209,9 @@
   "launchDetailConditionReportTitle": "Condition report",
   "launchDetailConditionReportHint": "What are you seeing on the water?",
   "launchDetailGoNoGoTitle": "Go / No-go (informational)",
-  "launchDetailGoNoGoNoWarnings": "No stub warnings from wind, marine text, or flow thresholds for this launch.",
-  "launchDetailGoNoGoStubDisclaimer": "Stub rules only—not a substitute for your judgment, skill, or scouting on site.",
-  "launchDetailGoNoGoVerdictGo": "Go (planning hint)",
+  "launchDetailGoNoGoNoWarnings": "No warnings",
+  "launchDetailGoNoGoStubDisclaimer": "Not a substitute for your judgment, skill, or scouting on site.",
+  "launchDetailGoNoGoVerdictGo": "Go",
   "@launchDetailGoNoGoVerdictGo": {
     "description": "Headline when go/no-go verdict is go"
   },
@@ -219,7 +219,7 @@
   "@launchDetailGoNoGoVerdictMarginal": {
     "description": "Headline when go/no-go verdict is marginal"
   },
-  "launchDetailGoNoGoVerdictNoGo": "No-go (planning hint)",
+  "launchDetailGoNoGoVerdictNoGo": "No-go",
   "@launchDetailGoNoGoVerdictNoGo": {
     "description": "Headline when go/no-go verdict is no-go"
   },
@@ -687,7 +687,7 @@
       "message": {"type": "String"}
     }
   },
-  "routeGoNoGoRouteDisclaimer": "Stub rules across route stops—not a substitute for your judgment, skill, or scouting on site.",
+  "routeGoNoGoRouteDisclaimer": "Not a substitute for your judgment, skill, or scouting on site.",
   "routeGoNoGoSemanticsVerdictOnly": "Route go no-go: {verdict}",
   "@routeGoNoGoSemanticsVerdictOnly": {
     "placeholders": {

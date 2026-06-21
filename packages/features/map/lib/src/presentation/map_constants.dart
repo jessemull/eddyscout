@@ -46,7 +46,7 @@ const double kLaunchFocusZoom = 10.5;
 const double kMapPlanningPreviewBottomPadding = 220;
 
 /// Extra bottom inset when the preview bar includes a route go/no-go section.
-const double kMapPlanningPreviewGoNoGoExtraPadding = 120;
+const double kMapPlanningPreviewGoNoGoExtraPadding = 56;
 
 /// Bottom inset when route preview includes the go/no-go rollup card.
 const double kMapPlanningPreviewWithGoNoGoBottomPadding =

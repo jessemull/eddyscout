@@ -77,3 +77,23 @@ String localizeRouteGoNoGoFailureMessage(
   NotFoundFailure() => l10n.routeGoNoGoLaunchNotFound,
   _ => failure.message,
 };
+
+/// One-line summary for a waypoint go/no-go row (primary reason or none).
+String? waypointGoNoGoSummaryLine(
+  AppLocalizations l10n,
+  GoNoGoResult result,
+) {
+  final reasons = result.reasons
+      .where(
+        (reason) =>
+            reason.severity != GoNoGoReasonSeverity.info ||
+            reason.code == GoNoGoReasonCode.weatherMissing,
+      )
+      .toList();
+  if (reasons.isEmpty) {
+    return result.verdict == GoNoGoVerdict.go
+        ? l10n.launchDetailGoNoGoNoWarnings
+        : null;
+  }
+  return localizeGoNoGoReason(l10n, reasons.first);
+}

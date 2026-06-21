@@ -12,8 +12,11 @@ class SemanticColors {
 
   final ColorScheme _scheme;
 
-  /// Positive / success state color.
-  Color get success => _scheme.primary;
+  /// Positive / success state color (distinct from brand [ColorScheme.primary]).
+  Color get success => ColorScheme.fromSeed(
+    seedColor: const Color(0xFF2E7D32),
+    brightness: _scheme.brightness,
+  ).primary;
 
   /// Warning / caution state color.
   Color get warning => _scheme.tertiary;

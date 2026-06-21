@@ -226,13 +226,44 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(
-        find.text('Some stops could not load conditions:'),
-        findsOneWidget,
-      );
+      await tester.tap(find.byType(ExpansionTile));
+      await tester.pumpAndSettle();
+
       expect(find.textContaining('network down'), findsOneWidget);
+      expect(find.text('Some stops could not load conditions:'), findsNothing);
     },
   );
+
+  testWidgets('shows per-stop verdict icon and summary when expanded', (
+    tester,
+  ) async {
+    final launchIds = ['cathedral_park', 'kelley_point'];
+    final waypointsKey = _waypointsKey(launchIds);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          routeGoNoGoRollupProvider(waypointsKey).overrideWith(
+            (_) async => _rollupResult(verdict: GoNoGoVerdict.noGo),
+          ),
+        ],
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: RouteGoNoGoSummarySection(launchIdsInOrder: launchIds),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(ExpansionTile));
+    await tester.pumpAndSettle();
+
+    expect(find.text('No warnings'), findsOneWidget);
+    expect(find.textContaining('25 mph'), findsWidgets);
+    expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
+    expect(find.byIcon(Icons.block_flipped), findsWidgets);
+  });
 
   testWidgets('localizes unknown launch failure in partial failure banner', (
     tester,
@@ -264,6 +295,9 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(ExpansionTile));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Launch not found in catalog.'), findsOneWidget);
