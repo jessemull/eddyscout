@@ -742,43 +742,43 @@ abstract class AppLocalizations {
   /// No description provided for @launchDetailGoNoGoTitle.
   ///
   /// In en, this message translates to:
-  /// **'Go / No-go (informational)'**
+  /// **'Conditions check (informational)'**
   String get launchDetailGoNoGoTitle;
 
   /// No description provided for @launchDetailGoNoGoNoWarnings.
   ///
   /// In en, this message translates to:
-  /// **'No stub warnings from wind, marine text, or flow thresholds for this launch.'**
+  /// **'No warnings'**
   String get launchDetailGoNoGoNoWarnings;
 
   /// No description provided for @launchDetailGoNoGoStubDisclaimer.
   ///
   /// In en, this message translates to:
-  /// **'Stub rules only—not a substitute for your judgment, skill, or scouting on site.'**
+  /// **'Not a substitute for your judgment, skill, or scouting on site.'**
   String get launchDetailGoNoGoStubDisclaimer;
 
-  /// Headline when go/no-go verdict is go
+  /// Headline when conditions verdict is favorable
   ///
   /// In en, this message translates to:
-  /// **'Go (planning hint)'**
+  /// **'Favorable conditions'**
   String get launchDetailGoNoGoVerdictGo;
 
-  /// Headline when go/no-go verdict is marginal
+  /// Headline when conditions verdict is moderate
   ///
   /// In en, this message translates to:
-  /// **'Marginal'**
+  /// **'Moderate conditions'**
   String get launchDetailGoNoGoVerdictMarginal;
 
-  /// Headline when go/no-go verdict is no-go
+  /// Headline when conditions verdict is poor
   ///
   /// In en, this message translates to:
-  /// **'No-go (planning hint)'**
+  /// **'Poor conditions'**
   String get launchDetailGoNoGoVerdictNoGo;
 
-  /// Headline when go/no-go verdict lacks weather data
+  /// Headline when conditions verdict lacks enough forecast data
   ///
   /// In en, this message translates to:
-  /// **'Insufficient data'**
+  /// **'Unknown conditions'**
   String get launchDetailGoNoGoVerdictInsufficientData;
 
   /// Info reason during cold-water months
@@ -802,7 +802,7 @@ abstract class AppLocalizations {
   /// Marginal reason when wind speed/gust is unavailable
   ///
   /// In en, this message translates to:
-  /// **'Wind speed or gust was not available from the forecast—use caution, especially in open or exposed areas.'**
+  /// **'Wind speed or gust was not available from the forecast. Use caution, especially in open or exposed areas.'**
   String get launchDetailGoNoGoReasonWindUnknown;
 
   /// No-go reason when effective wind exceeds threshold
@@ -811,16 +811,40 @@ abstract class AppLocalizations {
   /// **'Effective wind about {mph} mph ({exposure} site)—our stub rules treat this as strong for paddling.'**
   String launchDetailGoNoGoReasonWindHigh(int mph, String exposure);
 
-  /// Marginal reason when effective wind is elevated
+  /// Marginal reason when effective wind is elevated (launch detail single line)
   ///
   /// In en, this message translates to:
   /// **'Effective wind about {mph} mph ({exposure} site)—conditions may feel rougher on open water.'**
   String launchDetailGoNoGoReasonWindElevated(int mph, String exposure);
 
+  /// Route go/no-go bullet: wind exposure tier
+  ///
+  /// In en, this message translates to:
+  /// **'{exposure} site.'**
+  String launchDetailGoNoGoReasonWindElevatedExposure(String exposure);
+
+  /// Route go/no-go bullet: effective wind speed
+  ///
+  /// In en, this message translates to:
+  /// **'Effective wind speed {mph} mph.'**
+  String launchDetailGoNoGoReasonWindElevatedSpeed(int mph);
+
+  /// Route go/no-go bullet: open-water caution for elevated wind
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions may feel rougher on the open water.'**
+  String get launchDetailGoNoGoReasonWindElevatedRoughWater;
+
+  /// Route go/no-go sentence: no-go wind is too strong
+  ///
+  /// In en, this message translates to:
+  /// **'Too strong for paddling.'**
+  String get launchDetailGoNoGoReasonWindHighTooStrong;
+
   /// No-go reason when marine text matches a severe pattern
   ///
   /// In en, this message translates to:
-  /// **'Marine forecast text mentions “{pattern}”—treat as hazardous until you verify locally.'**
+  /// **'Marine forecast includes {pattern}.'**
   String launchDetailGoNoGoReasonMarineSevere(String pattern);
 
   /// Marginal reason when marine text matches an advisory pattern
@@ -835,35 +859,17 @@ abstract class AppLocalizations {
   /// **'This forecast period starts during typical low-light hours locally—verify visibility, hazards, and your comfort paddling after dark.'**
   String get launchDetailGoNoGoReasonForecastLowLight;
 
-  /// No-go reason when discharge exceeds launch-specific upper band
+  /// No-go reason when discharge exceeds upper flow band
   ///
   /// In en, this message translates to:
-  /// **'Discharge about {cfs} cfs at site {siteId}—above this launch’s curated upper band; verify hazards and skill match.'**
-  String launchDetailGoNoGoReasonFlowVeryHighLaunch(String cfs, String siteId);
+  /// **'Discharge is approximately {cfs} at site {siteId}.'**
+  String launchDetailGoNoGoReasonFlowVeryHigh(String cfs, String siteId);
 
-  /// No-go reason when discharge exceeds river-class upper band
+  /// Marginal reason for elevated or low discharge
   ///
   /// In en, this message translates to:
-  /// **'Discharge about {cfs} cfs at site {siteId}—stub upper band for this river class suggests very high water; verify hazards and skill match.'**
-  String launchDetailGoNoGoReasonFlowVeryHighRiver(String cfs, String siteId);
-
-  /// Marginal reason when discharge exceeds launch elevated band
-  ///
-  /// In en, this message translates to:
-  /// **'Discharge about {cfs} cfs at site {siteId}—at or above this launch’s “elevated flow” band; double-check strainers and current.'**
-  String launchDetailGoNoGoReasonFlowHighLaunch(String cfs, String siteId);
-
-  /// Marginal reason when discharge exceeds river-class elevated band
-  ///
-  /// In en, this message translates to:
-  /// **'Discharge about {cfs} cfs at site {siteId}—above our placeholder “elevated” band for this river class; double-check strainers and current.'**
-  String launchDetailGoNoGoReasonFlowHighRiver(String cfs, String siteId);
-
-  /// Marginal reason when discharge is below launch low-flow cue
-  ///
-  /// In en, this message translates to:
-  /// **'Discharge about {cfs} cfs at site {siteId}—below this launch’s low-flow cue; watch for shallow spots and wood.'**
-  String launchDetailGoNoGoReasonFlowLow(String cfs, String siteId);
+  /// **'Discharge is approximately {cfs}.'**
+  String launchDetailGoNoGoReasonFlowApproximate(String cfs);
 
   /// No description provided for @launchDetailWeatherTitle.
   ///
@@ -1764,6 +1770,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get commonCancel;
+
+  /// Route go/no-go summary when weather fetch failed for a stop
+  ///
+  /// In en, this message translates to:
+  /// **'Weather data failed to load. Cannot assess wind from forecast.'**
+  String get routeGoNoGoReasonWeatherMissingSummary;
+
+  /// Accessibility label while route go/no-go rollup loads
+  ///
+  /// In en, this message translates to:
+  /// **'Loading route conditions…'**
+  String get routeGoNoGoLoading;
+
+  /// No description provided for @routeGoNoGoErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Route conditions could not be loaded.'**
+  String get routeGoNoGoErrorGeneric;
+
+  /// No description provided for @routeGoNoGoTriggeringStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Worst at {stopName}'**
+  String routeGoNoGoTriggeringStop(String stopName);
+
+  /// No description provided for @routeGoNoGoAllStopsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All stops'**
+  String get routeGoNoGoAllStopsTitle;
+
+  /// No description provided for @routeGoNoGoStopLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{position}. {name} — {verdict}'**
+  String routeGoNoGoStopLine(int position, String name, String verdict);
+
+  /// No description provided for @routeGoNoGoPartialFailuresTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Some stops could not load conditions:'**
+  String get routeGoNoGoPartialFailuresTitle;
+
+  /// Partial-failure message when a route stop references an unknown launch id
+  ///
+  /// In en, this message translates to:
+  /// **'Launch not found in catalog.'**
+  String get routeGoNoGoLaunchNotFound;
+
+  /// Partial-failure message when conditions for a route stop could not be loaded
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions could not be loaded for this stop.'**
+  String get routeGoNoGoStopConditionsUnavailable;
+
+  /// No description provided for @routeGoNoGoStopFailureLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{position}. {name}: {message}'**
+  String routeGoNoGoStopFailureLine(int position, String name, String message);
+
+  /// No description provided for @routeGoNoGoRouteDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a substitute for your judgment, skill, or scouting on site.'**
+  String get routeGoNoGoRouteDisclaimer;
+
+  /// No description provided for @routeGoNoGoSemanticsVerdictOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Route conditions: {verdict}'**
+  String routeGoNoGoSemanticsVerdictOnly(String verdict);
+
+  /// No description provided for @routeGoNoGoSemanticsVerdictWithStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Route conditions: {verdict}. {stopName}.'**
+  String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName);
 }
 
 class _AppLocalizationsDelegate

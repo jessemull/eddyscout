@@ -90,4 +90,28 @@ void main() {
 
     expect(find.textContaining('2.6 mi'), findsOneWidget);
   });
+
+  testWidgets('shows go/no-go section when provided', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: MapRoutePreviewBar(
+              tripTimeLabel: 'Trip time: 63 min',
+              routeLengthKm: 4.2,
+              canSave: true,
+              goNoGoSection: const Text('Route go-no-go stub'),
+              onBack: () {},
+              onDismiss: () {},
+              onStart: () {},
+              onSave: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Route go-no-go stub'), findsOneWidget);
+  });
 }
