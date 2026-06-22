@@ -52,4 +52,7 @@ export 'src/presentation/map_ui_callbacks.dart';
 export 'src/presentation/mapbox/mapbox_map_controller.dart';
 export 'src/presentation/paddle_speed_provider.dart';
 export 'src/presentation/trips_from_here/nearby_launches_provider.dart';
+export 'src/presentation/trips_from_here/nearby_trips_search_overlay.dart';
+export 'src/presentation/trips_from_here/nearby_trips_search_provider.dart';
+export 'src/presentation/trips_from_here/suggested_trips_entry_tile.dart';
 export 'src/presentation/trips_from_here/trips_from_here_section.dart';

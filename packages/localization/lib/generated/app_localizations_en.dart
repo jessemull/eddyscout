@@ -1100,6 +1100,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'No suggested trips match this filter.';
 
   @override
+  String get tripsFromHereSuggestedSearchPlaceholder =>
+      'Search nearby launches';
+
+  @override
+  String get tripsFromHereMaxDistanceLabel => 'Max distance';
+
+  @override
+  String tripsFromHereSuggestedEntrySubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nearby launches',
+      one: '1 nearby launch',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get routeGoNoGoReasonWeatherMissingSummary =>
       'Weather data failed to load. Cannot assess wind from forecast.';
 

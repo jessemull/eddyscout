@@ -297,7 +297,7 @@ class _LaunchDetailRouteBody extends ConsumerWidget {
         screenName: AnalyticsScreenNames.launchDetail,
         child: LaunchDetailScreen(
           launch: launch,
-          tripsFromHereSection: _LaunchDetailTripsFromHereSection(
+          tripsFromHereSection: _LaunchDetailSuggestedTripsEntry(
             originLaunch: launch,
           ),
         ),
@@ -306,28 +306,51 @@ class _LaunchDetailRouteBody extends ConsumerWidget {
   }
 }
 
-/// Trips-from-here on launch detail; pops to map with planning prefilled.
-class _LaunchDetailTripsFromHereSection extends ConsumerWidget {
-  const _LaunchDetailTripsFromHereSection({required this.originLaunch});
+/// Suggested-trips entry on launch detail; opens full-screen nearby search.
+class _LaunchDetailSuggestedTripsEntry extends ConsumerWidget {
+  const _LaunchDetailSuggestedTripsEntry({required this.originLaunch});
 
   final LaunchPoint originLaunch;
 
+  void _planToLaunch(
+    WidgetRef ref,
+    BuildContext context,
+    LaunchPoint destination,
+  ) {
+    ref
+        .read(routePlanningProvider.notifier)
+        .startPlanFromHereTo(
+          putIn: originLaunch,
+          takeOut: destination,
+        );
+    ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(originLaunch);
+    ref.read(tripsFromHereRoutePendingProvider.notifier).markPending();
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+    ref.read(nearbyTripsSearchOriginProvider.notifier).close();
+    if (context.mounted) {
+      context.pop();
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) => TripsFromHereSection(
+  Widget build(BuildContext context, WidgetRef ref) => SuggestedTripsEntryTile(
     originLaunch: originLaunch,
-    onPlanToLaunch: (destination) {
-      ref
-          .read(routePlanningProvider.notifier)
-          .startPlanFromHereTo(
-            putIn: originLaunch,
-            takeOut: destination,
-          );
-      ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(originLaunch);
-      ref.read(tripsFromHereRoutePendingProvider.notifier).markPending();
-      ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
-      if (context.mounted) {
-        context.pop();
-      }
+    onOpen: () {
+      final detailContext = context;
+      ref.read(nearbyTripsSearchOriginProvider.notifier).open(originLaunch);
+      unawaited(
+        Navigator.of(detailContext).push<void>(
+          MaterialPageRoute<void>(
+            builder: (pageContext) => NearbyTripsSearchPage(
+              originLaunch: originLaunch,
+              onLaunchSelected: (destination) {
+                Navigator.of(pageContext).pop();
+                _planToLaunch(ref, detailContext, destination);
+              },
+            ),
+          ),
+        ),
+      );
     },
   );
 }

@@ -689,6 +689,14 @@
     }
   },
   "tripsFromHereSuggestedEmpty": "No suggested trips match this filter.",
+  "tripsFromHereSuggestedSearchPlaceholder": "Search nearby launches",
+  "tripsFromHereMaxDistanceLabel": "Max distance",
+  "tripsFromHereSuggestedEntrySubtitle": "{count, plural, =1{1 nearby launch} other{{count} nearby launches}}",
+  "@tripsFromHereSuggestedEntrySubtitle": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
   "routeGoNoGoReasonWeatherMissingSummary": "Weather data failed to load. Cannot assess wind from forecast.",
   "@routeGoNoGoReasonWeatherMissingSummary": {
     "description": "Route go/no-go summary when weather fetch failed for a stop"

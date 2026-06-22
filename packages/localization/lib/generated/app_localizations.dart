@@ -1886,6 +1886,24 @@ abstract class AppLocalizations {
   /// **'No suggested trips match this filter.'**
   String get tripsFromHereSuggestedEmpty;
 
+  /// No description provided for @tripsFromHereSuggestedSearchPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Search nearby launches'**
+  String get tripsFromHereSuggestedSearchPlaceholder;
+
+  /// No description provided for @tripsFromHereMaxDistanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max distance'**
+  String get tripsFromHereMaxDistanceLabel;
+
+  /// No description provided for @tripsFromHereSuggestedEntrySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 nearby launch} other{{count} nearby launches}}'**
+  String tripsFromHereSuggestedEntrySubtitle(int count);
+
   /// Route go/no-go summary when weather fetch failed for a stop
   ///
   /// In en, this message translates to:

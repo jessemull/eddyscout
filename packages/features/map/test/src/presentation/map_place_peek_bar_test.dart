@@ -22,7 +22,7 @@ const _launch = LaunchPoint(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('MapPlacePeekBar renders trips-from-here section', (
+  testWidgets('MapPlacePeekBar renders suggested trips entry', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -39,7 +39,7 @@ void main() {
               onPlanPaddle: () {},
               onViewConditions: () {},
               onDismiss: () {},
-              onPlanToLaunch: (_) {},
+              onOpenSuggestedTrips: () {},
             ),
           ),
         ),
@@ -47,8 +47,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Trips from here'), findsOneWidget);
+    expect(find.text('Suggested trips'), findsOneWidget);
     expect(find.text('Plan paddle'), findsOneWidget);
-    expect(find.text('Within 5 mi'), findsOneWidget);
+    expect(find.byKey(const Key('suggested_trips_entry_tile')), findsOneWidget);
+
+    final suggestedTop = tester.getTopLeft(find.text('Suggested trips')).dy;
+    final planPaddleTop = tester.getTopLeft(find.text('Plan paddle')).dy;
+    expect(suggestedTop, lessThan(planPaddleTop));
   });
 }
