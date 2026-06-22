@@ -67,3 +67,4 @@ flutter:
     - assets/hydro/sandy_waterway.geojson
     - assets/hydro/confluence_bridges.json
     - assets/data/launch_reachability_index.json
+    - assets/data/launch_suggested_trips_index.json

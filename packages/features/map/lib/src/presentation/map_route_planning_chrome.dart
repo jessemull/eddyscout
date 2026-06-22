@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'map_search_provider.dart';
+import 'map_sheet_header_icon_button.dart';
 import 'paddle_speed_provider.dart';
 
 /// Floating edit-stops card (Google Maps directions style).
@@ -35,7 +36,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
   static const double _rowHeight = 32;
   static const double _rowGap = 10;
   static const double _actionWidth = 36;
-  static const double _actionIconSize = 18;
+  static const double _actionIconSize = MapSheetHeaderIconButton.iconSize;
   static const int _connectorDotCount = 3;
   static const double _backIconSize = 20;
   static const double _backIconInset = (_backColumnWidth - _backIconSize) / 2;

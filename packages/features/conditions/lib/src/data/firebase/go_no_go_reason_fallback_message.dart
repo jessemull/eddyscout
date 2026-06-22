@@ -17,7 +17,7 @@ String goNoGoReasonFallbackMessage(GoNoGoReason reason) =>
             : 'Weather data was not available. '
                   'Cannot assess wind from forecast.',
       GoNoGoReasonCode.windUnknown =>
-        'Wind speed or gust was not available from the forecast—use '
+        'Wind speed or gust was not available from the forecast. Use '
             'caution, especially in open or exposed areas.',
       GoNoGoReasonCode.windHigh =>
         'Effective wind about ${reason.windMph} mph (${reason.exposure} '
@@ -26,8 +26,7 @@ String goNoGoReasonFallbackMessage(GoNoGoReason reason) =>
         'Effective wind about ${reason.windMph} mph (${reason.exposure} '
             'site)—conditions may feel rougher on open water.',
       GoNoGoReasonCode.marineSevere =>
-        'Marine forecast text mentions “${reason.pattern}”—treat as '
-            'hazardous until you verify locally.',
+        'Marine forecast includes ${reason.pattern}.',
       GoNoGoReasonCode.marineAdvisory =>
         'Marine forecast includes “${reason.pattern}”—expect rougher '
             'water, current, or advisories near the estuary/coast.',
@@ -36,23 +35,7 @@ String goNoGoReasonFallbackMessage(GoNoGoReason reason) =>
             'locally—verify visibility, hazards, and your comfort paddling '
             'after dark.',
       GoNoGoReasonCode.flowVeryHigh =>
-        reason.usesLaunchFlowBands ?? false
-            ? 'Discharge about ${reason.cfs} cfs at site '
-                  '${reason.siteId}—above this launch’s curated upper band; '
-                  'verify hazards and skill match.'
-            : 'Discharge about ${reason.cfs} cfs at site ${reason.siteId}'
-                  '—stub upper band for this river class suggests very high '
-                  'water; verify hazards and skill match.',
-      GoNoGoReasonCode.flowHigh =>
-        reason.usesLaunchFlowBands ?? false
-            ? 'Discharge about ${reason.cfs} cfs at site '
-                  '${reason.siteId}—at or above this launch’s “elevated '
-                  'flow” band; double-check strainers and current.'
-            : 'Discharge about ${reason.cfs} cfs at site ${reason.siteId}'
-                  '—above our placeholder “elevated” band for this river '
-                  'class; double-check strainers and current.',
-      GoNoGoReasonCode.flowLow =>
-        'Discharge about ${reason.cfs} cfs at site '
-            '${reason.siteId}—below this launch’s low-flow cue; watch for '
-            'shallow spots and wood.',
+        'Discharge is approximately ${reason.cfs} at site ${reason.siteId}.',
+      GoNoGoReasonCode.flowHigh => 'Discharge is approximately ${reason.cfs}.',
+      GoNoGoReasonCode.flowLow => 'Discharge is approximately ${reason.cfs}.',
     };

@@ -6,3 +6,4 @@ targets:
           - lib/src/domain/planned_route.dart
           - lib/src/domain/route_result.dart
           - lib/src/domain/launch_reachability_index.dart
+          - lib/src/domain/launch_suggested_trips_index.dart
