@@ -1895,8 +1895,26 @@ abstract class AppLocalizations {
   /// No description provided for @tripsFromHereMaxDistanceLabel.
   ///
   /// In en, this message translates to:
-  /// **'Max distance'**
+  /// **'Within'**
   String get tripsFromHereMaxDistanceLabel;
+
+  /// No description provided for @tripsFromHereMaxDistance5Miles.
+  ///
+  /// In en, this message translates to:
+  /// **'5 Miles'**
+  String get tripsFromHereMaxDistance5Miles;
+
+  /// No description provided for @tripsFromHereMaxDistance10Miles.
+  ///
+  /// In en, this message translates to:
+  /// **'10 Miles'**
+  String get tripsFromHereMaxDistance10Miles;
+
+  /// No description provided for @tripsFromHereMaxDistance20Miles.
+  ///
+  /// In en, this message translates to:
+  /// **'20 Miles'**
+  String get tripsFromHereMaxDistance20Miles;
 
   /// No description provided for @tripsFromHereSuggestedEntrySubtitle.
   ///

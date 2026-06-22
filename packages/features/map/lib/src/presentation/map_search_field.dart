@@ -4,6 +4,7 @@ import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'map_compact_search_result_row.dart';
 import 'map_search_provider.dart';
 
 /// Always-visible browse search field — focus does not change the layout.
@@ -314,12 +315,16 @@ class _SearchResultsList extends ConsumerWidget {
     return ListView(
       children: [
         if (launchHits.isNotEmpty) ...[
-          _SectionHeader(title: l10n.mapSearchLaunchesSection),
+          MapSearchSectionHeader(title: l10n.mapSearchLaunchesSection),
           for (final hit in launchHits)
-            ListTile(
-              leading: const Icon(Icons.place_outlined),
-              title: Text(hit.result.launch.name),
-              subtitle: Text(hit.result.launch.shortNote),
+            MapCompactSearchResultRow(
+              title: hit.result.launch.name,
+              subtitle: hit.result.launch.shortNote,
+              icon: Icons.place_outlined,
+              iconColor: mapSearchLaunchIconColor(
+                context,
+                hit.result.launch.riverSystem,
+              ),
               onTap: () => onLaunchSelected(hit.result.launch),
             ),
         ],
@@ -333,12 +338,13 @@ class _SearchResultsList extends ConsumerWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _SectionHeader(title: l10n.mapSearchPlacesSection),
+                MapSearchSectionHeader(title: l10n.mapSearchPlacesSection),
                 for (final hit in placeHits)
-                  ListTile(
-                    leading: const Icon(Icons.place_outlined),
-                    title: Text(hit.result.name),
-                    subtitle: Text(hit.result.subtitle),
+                  MapCompactSearchResultRow(
+                    title: hit.result.name,
+                    subtitle: hit.result.subtitle,
+                    icon: Icons.place_outlined,
+                    iconColor: mapSearchPlaceIconColor(context),
                   ),
               ],
             );
@@ -359,26 +365,4 @@ class _SearchResultsList extends ConsumerWidget {
       ],
     );
   }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(
-      Spacing.md,
-      Spacing.sm,
-      Spacing.md,
-      Spacing.xs,
-    ),
-    child: Text(
-      title,
-      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-        color: Theme.of(context).colorScheme.primary,
-      ),
-    ),
-  );
 }

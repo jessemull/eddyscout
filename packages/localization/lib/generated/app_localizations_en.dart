@@ -1104,7 +1104,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Search nearby launches';
 
   @override
-  String get tripsFromHereMaxDistanceLabel => 'Max distance';
+  String get tripsFromHereMaxDistanceLabel => 'Within';
+
+  @override
+  String get tripsFromHereMaxDistance5Miles => '5 Miles';
+
+  @override
+  String get tripsFromHereMaxDistance10Miles => '10 Miles';
+
+  @override
+  String get tripsFromHereMaxDistance20Miles => '20 Miles';
 
   @override
   String tripsFromHereSuggestedEntrySubtitle(int count) {

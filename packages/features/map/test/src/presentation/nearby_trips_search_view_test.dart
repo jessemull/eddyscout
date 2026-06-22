@@ -69,6 +69,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('Launches'), findsOneWidget);
     expect(find.text('Launch Alpha'), findsOneWidget);
     expect(find.text('Launch Beta'), findsOneWidget);
 
@@ -82,5 +83,50 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(selected?.id, 'beta');
+  });
+
+  testWidgets('NearbyTripsSearchView filters results by max distance', (
+    tester,
+  ) async {
+    final near = _testLaunch(id: 'near', name: 'Launch Near');
+    final far = _testLaunch(id: 'far', name: 'Launch Far');
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          launchReachabilityIndexLoaderProvider.overrideWithValue(
+            readTestReachabilityIndex,
+          ),
+          nearbyLaunchesGroupedProvider(_origin.id).overrideWith(
+            (ref) async => {
+              ReachabilityBand.within5Mi: [near],
+              ReachabilityBand.within10Mi: [far],
+              ReachabilityBand.within20Mi: const [],
+            },
+          ),
+        ],
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: NearbyTripsSearchView(
+              originLaunch: _origin,
+              onLaunchSelected: (_) {},
+              onClose: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Launch Near'), findsOneWidget);
+    expect(find.text('Launch Far'), findsOneWidget);
+
+    await tester.tap(find.byType(DropdownButtonFormField<int>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('5 Miles').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Launch Near'), findsOneWidget);
+    expect(find.text('Launch Far'), findsNothing);
   });
 }

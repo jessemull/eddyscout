@@ -4,6 +4,7 @@ import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../map_compact_search_result_row.dart';
 import 'nearby_trips_search_provider.dart';
 import 'trips_from_here_l10n.dart';
 
@@ -51,9 +52,9 @@ class _NearbyTripsSearchViewState extends ConsumerState<NearbyTripsSearchView> {
 
   String _maxDistanceLabel(AppLocalizations l10n, int miles) {
     return switch (miles) {
-      5 => l10n.tripsFromHereBand5Mi,
-      10 => l10n.tripsFromHereBand10Mi,
-      _ => l10n.tripsFromHereBand20Mi,
+      5 => l10n.tripsFromHereMaxDistance5Miles,
+      10 => l10n.tripsFromHereMaxDistance10Miles,
+      _ => l10n.tripsFromHereMaxDistance20Miles,
     };
   }
 
@@ -108,30 +109,30 @@ class _NearbyTripsSearchViewState extends ConsumerState<NearbyTripsSearchView> {
                 Spacing.md,
                 Spacing.sm,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    l10n.tripsFromHereMaxDistanceLabel,
-                    style: Theme.of(context).textTheme.labelLarge,
+              child: DropdownButtonFormField<int>(
+                initialValue: maxMi,
+                decoration: InputDecoration(
+                  labelText: l10n.tripsFromHereMaxDistanceLabel,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.sm,
+                    vertical: Spacing.xs,
                   ),
-                  const SizedBox(height: Spacing.xs),
-                  SegmentedButton<int>(
-                    segments: [
-                      for (final miles in kNearbyTripsMaxDistanceOptionsMi)
-                        ButtonSegment(
-                          value: miles,
-                          label: Text(_maxDistanceLabel(l10n, miles)),
-                        ),
-                    ],
-                    selected: {maxMi},
-                    onSelectionChanged: (next) {
-                      ref
-                          .read(nearbyTripsMaxDistanceMiProvider.notifier)
-                          .setMiles(next.single);
-                    },
-                  ),
+                ),
+                items: [
+                  for (final miles in kNearbyTripsMaxDistanceOptionsMi)
+                    DropdownMenuItem(
+                      value: miles,
+                      child: Text(_maxDistanceLabel(l10n, miles)),
+                    ),
                 ],
+                onChanged: (miles) {
+                  if (miles == null) {
+                    return;
+                  }
+                  ref
+                      .read(nearbyTripsMaxDistanceMiProvider.notifier)
+                      .setMiles(miles);
+                },
               ),
             ),
             const Divider(height: 1),
@@ -160,13 +161,29 @@ class _NearbyTripsSearchViewState extends ConsumerState<NearbyTripsSearchView> {
                   }
                   return ListView(
                     children: [
+                      MapSearchSectionHeader(
+                        title: l10n.mapSearchLaunchesSection,
+                      ),
                       for (final launch in launches)
-                        ListTile(
-                          leading: const Icon(Icons.place_outlined),
-                          title: Text(launch.name),
-                          subtitle: Text(
-                            mapLaunchRiverLabel(l10n, launch.riverSystem),
+                        MapCompactSearchResultRow(
+                          title: launch.name,
+                          subtitle: mapLaunchRiverLabel(
+                            l10n,
+                            launch.riverSystem,
                           ),
+                          icon: Icons.place_outlined,
+                          iconColor: mapSearchLaunchIconColor(
+                            context,
+                            launch.riverSystem,
+                          ),
+                          semanticsLabel: l10n
+                              .tripsFromHerePlanToLaunchSemantics(
+                                launch.name,
+                                mapLaunchRiverLabel(
+                                  l10n,
+                                  launch.riverSystem,
+                                ),
+                              ),
                           onTap: () => widget.onLaunchSelected(launch),
                         ),
                     ],
