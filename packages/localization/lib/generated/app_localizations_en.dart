@@ -1043,6 +1043,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeGoNoGoLaunchNotFound => 'Launch not found in catalog.';
 
   @override
+  String get routeGoNoGoStopConditionsUnavailable =>
+      'Conditions could not be loaded for this stop.';
+
+  @override
   String routeGoNoGoStopFailureLine(int position, String name, String message) {
     return '$position. $name: $message';
   }

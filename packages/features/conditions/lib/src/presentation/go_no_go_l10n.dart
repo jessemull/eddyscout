@@ -115,7 +115,7 @@ String localizeRouteGoNoGoFailureMessage(
   AppFailure failure,
 ) => switch (failure) {
   NotFoundFailure() => l10n.routeGoNoGoLaunchNotFound,
-  _ => failure.message,
+  _ => l10n.routeGoNoGoStopConditionsUnavailable,
 };
 
 /// User-facing copy when the route rollup provider fails entirely.

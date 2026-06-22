@@ -220,7 +220,13 @@ void main() {
       await tester.tap(find.byType(ExpansionTile));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('network down'), findsOneWidget);
+      expect(
+        find.textContaining(
+          'Conditions could not be loaded for this stop.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('network down'), findsNothing);
       expect(find.text('Some stops could not load conditions:'), findsNothing);
     },
   );

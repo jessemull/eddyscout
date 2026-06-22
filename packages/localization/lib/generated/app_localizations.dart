@@ -1819,6 +1819,12 @@ abstract class AppLocalizations {
   /// **'Launch not found in catalog.'**
   String get routeGoNoGoLaunchNotFound;
 
+  /// Partial-failure message when conditions for a route stop could not be loaded
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions could not be loaded for this stop.'**
+  String get routeGoNoGoStopConditionsUnavailable;
+
   /// No description provided for @routeGoNoGoStopFailureLine.
   ///
   /// In en, this message translates to:

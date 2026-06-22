@@ -227,6 +227,51 @@ void main() {
     );
   });
 
+  testWidgets(
+    'localizeRouteGoNoGoFailureMessage localizes partial-stop errors',
+    (
+      tester,
+    ) async {
+      late AppLocalizations l10n;
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: SizedBox.shrink(),
+        ),
+      );
+      l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+      expect(
+        localizeRouteGoNoGoFailureMessage(
+          l10n,
+          const NotFoundFailure(message: 'missing_launch'),
+        ),
+        l10n.routeGoNoGoLaunchNotFound,
+      );
+      expect(
+        localizeRouteGoNoGoFailureMessage(
+          l10n,
+          const NetworkFailure(message: 'network down'),
+        ),
+        l10n.routeGoNoGoStopConditionsUnavailable,
+      );
+      expect(
+        localizeRouteGoNoGoFailureMessage(
+          l10n,
+          const NetworkFailure(message: 'network down'),
+        ),
+        isNot(contains('network down')),
+      );
+    },
+  );
+
   testWidgets('goNoGoReasonFallbackMessage matches ARB for windHigh', (
     tester,
   ) async {

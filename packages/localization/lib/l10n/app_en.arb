@@ -676,6 +676,10 @@
   "@routeGoNoGoLaunchNotFound": {
     "description": "Partial-failure message when a route stop references an unknown launch id"
   },
+  "routeGoNoGoStopConditionsUnavailable": "Conditions could not be loaded for this stop.",
+  "@routeGoNoGoStopConditionsUnavailable": {
+    "description": "Partial-failure message when conditions for a route stop could not be loaded"
+  },
   "routeGoNoGoStopFailureLine": "{position}. {name}: {message}",
   "@routeGoNoGoStopFailureLine": {
     "placeholders": {
