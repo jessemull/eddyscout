@@ -135,7 +135,6 @@ class _NearbyTripsSearchViewState extends ConsumerState<NearbyTripsSearchView> {
                 },
               ),
             ),
-            const Divider(height: 1),
             Expanded(
               child: resultsAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
