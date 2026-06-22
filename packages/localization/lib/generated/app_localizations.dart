@@ -1889,7 +1889,7 @@ abstract class AppLocalizations {
   /// No description provided for @tripsFromHereSuggestedSearchPlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'Search nearby launches'**
+  /// **'Search nearby launches...'**
   String get tripsFromHereSuggestedSearchPlaceholder;
 
   /// No description provided for @tripsFromHereMaxDistanceLabel.

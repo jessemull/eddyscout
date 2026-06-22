@@ -1101,7 +1101,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripsFromHereSuggestedSearchPlaceholder =>
-      'Search nearby launches';
+      'Search nearby launches...';
 
   @override
   String get tripsFromHereMaxDistanceLabel => 'Within';

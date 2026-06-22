@@ -689,7 +689,7 @@
     }
   },
   "tripsFromHereSuggestedEmpty": "No suggested trips match this filter.",
-  "tripsFromHereSuggestedSearchPlaceholder": "Search nearby launches",
+  "tripsFromHereSuggestedSearchPlaceholder": "Search nearby launches...",
   "tripsFromHereMaxDistanceLabel": "Within",
   "tripsFromHereMaxDistance5Miles": "5 Miles",
   "tripsFromHereMaxDistance10Miles": "10 Miles",
