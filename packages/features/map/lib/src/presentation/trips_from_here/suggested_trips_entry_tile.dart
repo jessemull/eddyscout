@@ -3,13 +3,9 @@ import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../map_compact_search_result_row.dart';
 import '../map_sheet_bottom_bar.dart';
 import 'nearby_launches_provider.dart';
-
-/// Layout metrics aligned with route go/no-go header rows in the preview bar.
-const _kSuggestedTripsLeadingIconSize = 30.0;
-const _kSuggestedTripsLeadingColumnWidth = 18.0;
-const _kSuggestedTripsLeadingTextGap = 18.0;
 
 /// Entry row that opens nearby trips search for [originLaunch].
 class SuggestedTripsEntryTile extends ConsumerWidget {
@@ -91,14 +87,14 @@ class SuggestedTripsEntryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: _kSuggestedTripsLeadingColumnWidth,
+                  width: kMapCompactListLeadingColumnWidth,
                   child: Icon(
                     Icons.route_outlined,
-                    size: _kSuggestedTripsLeadingIconSize,
+                    size: kMapCompactListLeadingIconSize,
                     color: scheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(width: _kSuggestedTripsLeadingTextGap),
+                const SizedBox(width: kMapCompactListLeadingTextGap),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

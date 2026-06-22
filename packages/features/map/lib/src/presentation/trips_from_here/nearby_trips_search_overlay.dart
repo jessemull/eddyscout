@@ -46,14 +46,25 @@ class NearbyTripsSearchPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: NearbyTripsSearchView(
-        originLaunch: originLaunch,
-        onLaunchSelected: onLaunchSelected,
-        onClose: () {
-          ref.read(nearbyTripsSearchOriginProvider.notifier).close();
-          Navigator.of(context).pop();
-        },
+    void closeSearch() {
+      ref.read(nearbyTripsSearchOriginProvider.notifier).close();
+    }
+
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          closeSearch();
+        }
+      },
+      child: Scaffold(
+        body: NearbyTripsSearchView(
+          originLaunch: originLaunch,
+          onLaunchSelected: onLaunchSelected,
+          onClose: () {
+            closeSearch();
+            Navigator.of(context).pop();
+          },
+        ),
       ),
     );
   }

@@ -199,7 +199,14 @@ class _MapRouteHost extends ConsumerWidget {
   }
 }
 
-@TypedGoRoute<LaunchDetailRoute>(path: RoutePaths.launchDetail)
+@TypedGoRoute<LaunchDetailRoute>(
+  path: RoutePaths.launchDetail,
+  routes: <TypedRoute<RouteData>>[
+    TypedGoRoute<NearbyTripsSearchRoute>(
+      path: RoutePaths.nearbyTripsSearchSegment,
+    ),
+  ],
+)
 class LaunchDetailRoute extends GoRouteData with $LaunchDetailRoute {
   const LaunchDetailRoute({required this.launchId});
 
@@ -208,6 +215,16 @@ class LaunchDetailRoute extends GoRouteData with $LaunchDetailRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       _LaunchDetailRouteBody(launchId: launchId);
+}
+
+class NearbyTripsSearchRoute extends GoRouteData with $NearbyTripsSearchRoute {
+  const NearbyTripsSearchRoute({required this.launchId});
+
+  final String launchId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      _NearbyTripsSearchRouteBody(launchId: launchId);
 }
 
 @TypedGoRoute<SavedRoutesListRoute>(path: RoutePaths.savedRoutes)
@@ -266,6 +283,25 @@ void _loadSavedRouteOnMap(
   StatefulNavigationShell.maybeOf(context)?.goBranch(AppShellBranches.map);
 }
 
+/// Pre-fills route planning when picking a destination from nearby trips
+/// search.
+void planTripFromLaunchToDestination(
+  WidgetRef ref, {
+  required LaunchPoint origin,
+  required LaunchPoint destination,
+}) {
+  ref
+      .read(routePlanningProvider.notifier)
+      .startPlanFromHereTo(
+        putIn: origin,
+        takeOut: destination,
+      );
+  ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(origin);
+  ref.read(tripsFromHereRoutePendingProvider.notifier).markPending();
+  ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+  ref.read(nearbyTripsSearchOriginProvider.notifier).close();
+}
+
 class _LaunchDetailRouteBody extends ConsumerWidget {
   const _LaunchDetailRouteBody({required this.launchId});
 
@@ -312,47 +348,56 @@ class _LaunchDetailSuggestedTripsEntry extends ConsumerWidget {
 
   final LaunchPoint originLaunch;
 
-  void _planToLaunch(
-    WidgetRef ref,
-    BuildContext context,
-    LaunchPoint destination,
-  ) {
-    ref
-        .read(routePlanningProvider.notifier)
-        .startPlanFromHereTo(
-          putIn: originLaunch,
-          takeOut: destination,
-        );
-    ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(originLaunch);
-    ref.read(tripsFromHereRoutePendingProvider.notifier).markPending();
-    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
-    ref.read(nearbyTripsSearchOriginProvider.notifier).close();
-    if (context.mounted) {
-      context.pop();
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) => SuggestedTripsEntryTile(
     originLaunch: originLaunch,
     onOpen: () {
-      final detailContext = context;
-      ref.read(nearbyTripsSearchOriginProvider.notifier).open(originLaunch);
       unawaited(
-        Navigator.of(detailContext).push<void>(
-          MaterialPageRoute<void>(
-            builder: (pageContext) => NearbyTripsSearchPage(
-              originLaunch: originLaunch,
-              onLaunchSelected: (destination) {
-                Navigator.of(pageContext).pop();
-                _planToLaunch(ref, detailContext, destination);
-              },
-            ),
-          ),
-        ),
+        NearbyTripsSearchRoute(launchId: originLaunch.id).push<void>(context),
       );
     },
   );
+}
+
+class _NearbyTripsSearchRouteBody extends ConsumerWidget {
+  const _NearbyTripsSearchRouteBody({required this.launchId});
+
+  final String launchId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final launchAsync = ref.watch(launchPointByIdProvider(launchId));
+    return launchAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, _) => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      data: (originLaunch) => _ScreenViewLogger(
+        screenName: AnalyticsScreenNames.nearbyTripsSearch,
+        child: NearbyTripsSearchPage(
+          originLaunch: originLaunch,
+          onLaunchSelected: (destination) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!context.mounted) {
+                return;
+              }
+              planTripFromLaunchToDestination(
+                ref,
+                origin: originLaunch,
+                destination: destination,
+              );
+              const MapRoute().go(context);
+              ref
+                  .read(tripsFromHereRoutePendingProvider.notifier)
+                  .markPending();
+            });
+          },
+        ),
+      ),
+    );
+  }
 }
 
 /// Fallback when launch lookup fails for reasons other than an unknown id.

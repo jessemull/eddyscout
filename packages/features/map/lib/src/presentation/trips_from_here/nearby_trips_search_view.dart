@@ -60,6 +60,16 @@ class _NearbyTripsSearchViewState extends ConsumerState<NearbyTripsSearchView> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(nearbyTripsSearchQueryProvider, (previous, next) {
+      if (_controller.text == next) {
+        return;
+      }
+      _controller.value = TextEditingValue(
+        text: next,
+        selection: TextSelection.collapsed(offset: next.length),
+      );
+    });
+
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final maxMi = ref.watch(nearbyTripsMaxDistanceMiProvider);
