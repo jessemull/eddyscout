@@ -28,10 +28,17 @@ part 'widgets_reports.dart';
 /// Launch conditions, go/no-go, Firebase reports, and skill profile controls.
 class LaunchDetailScreen extends ConsumerWidget {
   /// Creates a detail view for [launch].
-  const LaunchDetailScreen({required this.launch, super.key});
+  const LaunchDetailScreen({
+    required this.launch,
+    this.tripsFromHereSection,
+    super.key,
+  });
 
   /// Launch shown on this screen.
   final LaunchPoint launch;
+
+  /// Optional trips-from-here section injected by the app shell.
+  final Widget? tripsFromHereSection;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -144,6 +151,10 @@ class LaunchDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   _GoNoGoCard(result: goNoGo),
+                  if (tripsFromHereSection != null) ...[
+                    const SizedBox(height: 16),
+                    tripsFromHereSection!,
+                  ],
                   if (firebaseCallablesAvailable) ...[
                     const SizedBox(height: 16),
                     _AiSummaryCard(

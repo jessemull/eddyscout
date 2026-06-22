@@ -315,5 +315,23 @@ void main() {
         ['b', 'c', 'a'],
       );
     });
+
+    test('startPlanFromHereTo pre-fills put-in and take-out', () {
+      final putIn = _launch(id: 'a', name: 'Put-in');
+      final takeOut = _launch(id: 'b', name: 'Take-out');
+
+      container
+          .read(routePlanningProvider.notifier)
+          .startPlanFromHereTo(
+            putIn: putIn,
+            takeOut: takeOut,
+          );
+
+      final state = container.read(routePlanningProvider);
+      expect(state.planningMode, isTrue);
+      expect(state.putIn, putIn);
+      expect(state.takeOut, takeOut);
+      expect(state.activeGeometry, isNull);
+    });
   });
 }

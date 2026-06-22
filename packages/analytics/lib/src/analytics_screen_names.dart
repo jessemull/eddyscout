@@ -6,6 +6,9 @@ abstract final class AnalyticsScreenNames {
   /// Launch detail screen.
   static const launchDetail = 'screen_launch_detail';
 
+  /// Nearby trips search (nested under launch detail).
+  static const nearbyTripsSearch = 'screen_nearby_trips_search';
+
   /// Unknown launch id on a launch detail deep link.
   static const launchNotFound = 'screen_launch_not_found';
 

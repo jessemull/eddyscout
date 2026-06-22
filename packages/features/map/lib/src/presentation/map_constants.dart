@@ -42,6 +42,9 @@ const double kMapChromeZoomStep = 1.25;
 /// Zoom when centering on a selected launch (browse / search pick).
 const double kLaunchFocusZoom = 10.5;
 
+/// Bottom padding for map chrome when place peek is open.
+const double kPlacePeekChromeBottomPadding = 160;
+
 /// Bottom inset for map chrome when the route preview bar is visible.
 const double kMapPlanningPreviewBottomPadding = 220;
 

@@ -1013,6 +1013,120 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonCancel => 'Cancel';
 
   @override
+  String get tripsFromHereSectionTitle => 'Trips from here';
+
+  @override
+  String get tripsFromHereBand5Mi => 'Within 5 mi';
+
+  @override
+  String get tripsFromHereBand10Mi => 'Within 10 mi';
+
+  @override
+  String get tripsFromHereBand20Mi => 'Within 20 mi';
+
+  @override
+  String get tripsFromHereBandEmpty5Mi =>
+      'No launches within 5 mi along the river';
+
+  @override
+  String get tripsFromHereBandEmpty10Mi =>
+      'No launches within 10 mi along the river';
+
+  @override
+  String get tripsFromHereBandEmpty20Mi =>
+      'No launches within 20 mi along the river';
+
+  @override
+  String get tripsFromHereNoNearbyLaunches =>
+      'No nearby launches found along the river from here.';
+
+  @override
+  String get tripsFromHereLoadError => 'Couldn\'t load nearby launches.';
+
+  @override
+  String tripsFromHereBandShowMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Show $count more launches',
+      one: 'Show 1 more launch',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsFromHerePlanToLaunchSemantics(
+    String launchName,
+    String riverName,
+  ) {
+    return 'Plan route to $launchName, $riverName';
+  }
+
+  @override
+  String tripsFromHereBandSemantics(String bandLabel, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count launches',
+      one: '1 launch',
+      zero: 'no launches',
+    );
+    return '$bandLabel, $_temp0';
+  }
+
+  @override
+  String get tripsFromHereSuggestedTitle => 'Suggested trips';
+
+  @override
+  String get tripsFromHereFilterShort => 'Short';
+
+  @override
+  String get tripsFromHereFilterMedium => 'Medium';
+
+  @override
+  String get tripsFromHereFilterLong => 'Long';
+
+  @override
+  String tripsFromHereSuggestedTripSemantics(
+    String launchName,
+    String distanceMi,
+    int minutes,
+  ) {
+    return 'Suggested trip to $launchName, $distanceMi miles, about $minutes minutes';
+  }
+
+  @override
+  String get tripsFromHereSuggestedEmpty =>
+      'No suggested trips match this filter.';
+
+  @override
+  String get tripsFromHereSuggestedSearchPlaceholder =>
+      'Search nearby launches...';
+
+  @override
+  String get tripsFromHereMaxDistanceLabel => 'Within';
+
+  @override
+  String get tripsFromHereMaxDistance5Miles => '5 Miles';
+
+  @override
+  String get tripsFromHereMaxDistance10Miles => '10 Miles';
+
+  @override
+  String get tripsFromHereMaxDistance20Miles => '20 Miles';
+
+  @override
+  String tripsFromHereSuggestedEntrySubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nearby launches',
+      one: '1 nearby launch',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get routeGoNoGoReasonWeatherMissingSummary =>
       'Weather data failed to load. Cannot assess wind from forecast.';
 

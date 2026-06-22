@@ -8,6 +8,10 @@ void main() {
       const LaunchDetailRoute(launchId: 'cathedral_park').location,
       '/launch/cathedral_park',
     );
+    expect(
+      const NearbyTripsSearchRoute(launchId: 'cathedral_park').location,
+      '/launch/cathedral_park/nearby-trips-search',
+    );
     expect(const MissingMapboxTokenRoute().location, '/missing-token');
     expect(const WebMapPlaceholderRoute().location, '/web');
   });

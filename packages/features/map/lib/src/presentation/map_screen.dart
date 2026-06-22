@@ -24,6 +24,9 @@ import 'map_sheet_provider.dart';
 import 'map_ui_callbacks.dart';
 import 'mapbox/mapbox_map_controller.dart';
 import 'paddle_speed_provider.dart';
+import 'trips_from_here/nearby_launches_provider.dart';
+import 'trips_from_here/nearby_trips_search_overlay.dart';
+import 'trips_from_here/nearby_trips_search_provider.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({
@@ -172,6 +175,58 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     _scheduleFocusLaunch(launch);
   }
 
+  void _handlePlanToDestination({
+    required LaunchPoint putIn,
+    required LaunchPoint takeOut,
+  }) {
+    ref
+        .read(routePlanningProvider.notifier)
+        .startPlanFromHereTo(
+          putIn: putIn,
+          takeOut: takeOut,
+        );
+    ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(putIn);
+    _beginPlanningEditSession();
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+    unawaited(
+      ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute(),
+    );
+    _scheduleFocusLaunch(takeOut);
+  }
+
+  void _openSuggestedTripsSearch(LaunchPoint origin) {
+    ref.read(nearbyTripsSearchOriginProvider.notifier).open(origin);
+  }
+
+  void _closeSuggestedTripsSearch() {
+    ref.read(nearbyTripsSearchOriginProvider.notifier).close();
+  }
+
+  void _handleNearbyTripsLaunchSelected(LaunchPoint destination) {
+    final origin = ref.read(nearbyTripsSearchOriginProvider);
+    if (origin == null) {
+      return;
+    }
+    _closeSuggestedTripsSearch();
+    _handlePlanToDestination(putIn: origin, takeOut: destination);
+  }
+
+  void _resumePendingTripsFromHereRoute() {
+    final planning = ref.read(routePlanningProvider);
+    if (planning.waypoints.length < 2) {
+      return;
+    }
+    _beginPlanningEditSession();
+    ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+    unawaited(
+      ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute(),
+    );
+    final takeOut = planning.takeOut;
+    if (takeOut != null) {
+      _scheduleFocusLaunch(takeOut);
+    }
+  }
+
   void _resetBrowseSearchAndHideSheet() {
     ref.read(mapSearchContextStateProvider.notifier).setBrowse();
     ref.read(mapSearchExpandedProvider.notifier).collapse();
@@ -259,7 +314,20 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(mapRoutePlannerProvider);
+    ref
+      ..watch(mapRoutePlannerProvider)
+      ..listen(tripsFromHereRoutePendingProvider, (previous, next) {
+        if (!next) {
+          return;
+        }
+        ref.read(tripsFromHereRoutePendingProvider.notifier).clear();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) {
+            return;
+          }
+          _resumePendingTripsFromHereRoute();
+        });
+      });
 
     final planning = ref.watch(routePlanningProvider);
     final mapInteractive = ref.watch(mapInteractiveProvider);
@@ -275,13 +343,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final l10n = context.l10n;
 
     final trimmedSearchQuery = searchQuery.trim();
+    final nearbyTripsOrigin = ref.watch(nearbyTripsSearchOriginProvider);
+    final showNearbyTripsSearch = nearbyTripsOrigin != null;
     final showBrowseFullScreenSearch =
         sheetVisibility == MapSheetVisibility.hidden &&
         ref.watch(mapBrowseSearchFullScreenProvider);
     final showPlanningFullScreenSearch =
         searchExpanded && trimmedSearchQuery.isNotEmpty;
     final showFullScreenSearch =
-        showBrowseFullScreenSearch || showPlanningFullScreenSearch;
+        showBrowseFullScreenSearch ||
+        showPlanningFullScreenSearch ||
+        showNearbyTripsSearch;
 
     final mapChild = _usesMapStub
         ? widget.mapSlot!
@@ -292,7 +364,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         widget.routeGoNoGoSection == null
             ? kMapPlanningPreviewBottomPadding
             : kMapPlanningPreviewWithGoNoGoBottomPadding,
-      MapSheetVisibility.placePeek => 160.0,
+      MapSheetVisibility.placePeek => kPlacePeekChromeBottomPadding,
       _ => MediaQuery.viewPaddingOf(context).bottom + 72,
     };
 
@@ -305,8 +377,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         !showFullScreenSearch;
 
     return PopScope(
-      canPop: !interceptPlanningBack,
+      canPop: !interceptPlanningBack && !showNearbyTripsSearch,
       onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && showNearbyTripsSearch) {
+          _closeSuggestedTripsSearch();
+          return;
+        }
         if (didPop || !interceptPlanningBack) {
           return;
         }
@@ -355,6 +431,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   onViewConditions: () =>
                       widget.onOpenLaunchDetail?.call(selectedLaunch),
                   onDismiss: () => unawaited(_closePlacePeek()),
+                  onOpenSuggestedTrips: () =>
+                      _openSuggestedTripsSearch(selectedLaunch),
                 ),
               ),
             if (sheetVisibility == MapSheetVisibility.planningPreview &&
@@ -376,7 +454,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   onSave: () => widget.onSaveRoute?.call(),
                 ),
               ),
-            if (showFullScreenSearch)
+            if (nearbyTripsOrigin case final origin?)
+              Positioned.fill(
+                child: NearbyTripsSearchOverlay(
+                  originLaunch: origin,
+                  onLaunchSelected: _handleNearbyTripsLaunchSelected,
+                  onClose: _closeSuggestedTripsSearch,
+                ),
+              )
+            else if (showBrowseFullScreenSearch || showPlanningFullScreenSearch)
               Positioned.fill(
                 child: MapFullScreenSearchOverlay(
                   onLaunchSelected: _handleSearchLaunchSelected,
