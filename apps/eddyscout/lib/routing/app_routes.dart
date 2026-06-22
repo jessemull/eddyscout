@@ -4,6 +4,7 @@ import 'package:eddyscout/routing/app_shell.dart';
 import 'package:eddyscout/routing/home_screen.dart';
 import 'package:eddyscout/routing/map_save_route_sheet.dart';
 import 'package:eddyscout/routing/menu_screen.dart';
+import 'package:eddyscout/routing/route_go_no_go_sections.dart';
 import 'package:eddyscout/routing/settings_screen.dart';
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
@@ -165,16 +166,35 @@ class _MapRouteHost extends ConsumerWidget {
       unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(context));
     }
 
+    final planning = ref.watch(routePlanningProvider);
+    if (planning.planningMode && planning.waypoints.length >= 2) {
+      ref.watch(
+        routeGoNoGoRollupProvider(
+          RouteGoNoGoWaypointsKey.fromOrdered(
+            planning.waypoints.map((w) => w.id).toList(),
+          ),
+        ),
+      );
+    }
+
+    final routeGoNoGoSection = planning.waypoints.length >= 2
+        ? MapRouteGoNoGoSection(
+            launchIdsInOrder: planning.waypoints.map((w) => w.id).toList(),
+          )
+        : null;
+
     if (_integrationMapStub) {
       return MapScreen(
         mapSlot: const SizedBox(key: Key('integration_map_stub')),
         onOpenLaunchDetail: onOpenLaunchDetail,
         onSaveRoute: () => unawaited(showMapSaveRouteSheet(context, ref)),
+        routeGoNoGoSection: routeGoNoGoSection,
       );
     }
     return MapScreen(
       onOpenLaunchDetail: onOpenLaunchDetail,
       onSaveRoute: () => unawaited(showMapSaveRouteSheet(context, ref)),
+      routeGoNoGoSection: routeGoNoGoSection,
     );
   }
 }
@@ -225,6 +245,7 @@ class _SavedRouteDetailRouteBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => SavedRouteDetailScreen(
     routeId: routeId,
     onLoadOnMap: (route) => _loadSavedRouteOnMap(context, ref, route),
+    goNoGoSection: SavedRouteGoNoGoSection(routeId: routeId),
   );
 }
 

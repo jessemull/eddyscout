@@ -402,27 +402,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'What are you seeing on the water?';
 
   @override
-  String get launchDetailGoNoGoTitle => 'Go / No-go (informational)';
+  String get launchDetailGoNoGoTitle => 'Conditions check (informational)';
 
   @override
-  String get launchDetailGoNoGoNoWarnings =>
-      'No stub warnings from wind, marine text, or flow thresholds for this launch.';
+  String get launchDetailGoNoGoNoWarnings => 'No warnings';
 
   @override
   String get launchDetailGoNoGoStubDisclaimer =>
-      'Stub rules only—not a substitute for your judgment, skill, or scouting on site.';
+      'Not a substitute for your judgment, skill, or scouting on site.';
 
   @override
-  String get launchDetailGoNoGoVerdictGo => 'Go (planning hint)';
+  String get launchDetailGoNoGoVerdictGo => 'Favorable conditions';
 
   @override
-  String get launchDetailGoNoGoVerdictMarginal => 'Marginal';
+  String get launchDetailGoNoGoVerdictMarginal => 'Moderate conditions';
 
   @override
-  String get launchDetailGoNoGoVerdictNoGo => 'No-go (planning hint)';
+  String get launchDetailGoNoGoVerdictNoGo => 'Poor conditions';
 
   @override
-  String get launchDetailGoNoGoVerdictInsufficientData => 'Insufficient data';
+  String get launchDetailGoNoGoVerdictInsufficientData => 'Unknown conditions';
 
   @override
   String get launchDetailGoNoGoReasonColdWaterSeason =>
@@ -439,7 +438,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchDetailGoNoGoReasonWindUnknown =>
-      'Wind speed or gust was not available from the forecast—use caution, especially in open or exposed areas.';
+      'Wind speed or gust was not available from the forecast. Use caution, especially in open or exposed areas.';
 
   @override
   String launchDetailGoNoGoReasonWindHigh(int mph, String exposure) {
@@ -452,8 +451,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String launchDetailGoNoGoReasonWindElevatedExposure(String exposure) {
+    return '$exposure site.';
+  }
+
+  @override
+  String launchDetailGoNoGoReasonWindElevatedSpeed(int mph) {
+    return 'Effective wind speed $mph mph.';
+  }
+
+  @override
+  String get launchDetailGoNoGoReasonWindElevatedRoughWater =>
+      'Conditions may feel rougher on the open water.';
+
+  @override
+  String get launchDetailGoNoGoReasonWindHighTooStrong =>
+      'Too strong for paddling.';
+
+  @override
   String launchDetailGoNoGoReasonMarineSevere(String pattern) {
-    return 'Marine forecast text mentions “$pattern”—treat as hazardous until you verify locally.';
+    return 'Marine forecast includes $pattern.';
   }
 
   @override
@@ -466,28 +483,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'This forecast period starts during typical low-light hours locally—verify visibility, hazards, and your comfort paddling after dark.';
 
   @override
-  String launchDetailGoNoGoReasonFlowVeryHighLaunch(String cfs, String siteId) {
-    return 'Discharge about $cfs cfs at site $siteId—above this launch’s curated upper band; verify hazards and skill match.';
+  String launchDetailGoNoGoReasonFlowVeryHigh(String cfs, String siteId) {
+    return 'Discharge is approximately $cfs at site $siteId.';
   }
 
   @override
-  String launchDetailGoNoGoReasonFlowVeryHighRiver(String cfs, String siteId) {
-    return 'Discharge about $cfs cfs at site $siteId—stub upper band for this river class suggests very high water; verify hazards and skill match.';
-  }
-
-  @override
-  String launchDetailGoNoGoReasonFlowHighLaunch(String cfs, String siteId) {
-    return 'Discharge about $cfs cfs at site $siteId—at or above this launch’s “elevated flow” band; double-check strainers and current.';
-  }
-
-  @override
-  String launchDetailGoNoGoReasonFlowHighRiver(String cfs, String siteId) {
-    return 'Discharge about $cfs cfs at site $siteId—above our placeholder “elevated” band for this river class; double-check strainers and current.';
-  }
-
-  @override
-  String launchDetailGoNoGoReasonFlowLow(String cfs, String siteId) {
-    return 'Discharge about $cfs cfs at site $siteId—below this launch’s low-flow cue; watch for shallow spots and wood.';
+  String launchDetailGoNoGoReasonFlowApproximate(String cfs) {
+    return 'Discharge is approximately $cfs.';
   }
 
   @override
@@ -1096,4 +1098,57 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tripsFromHereSuggestedEmpty =>
       'No suggested trips match this filter.';
+
+  @override
+  String get routeGoNoGoReasonWeatherMissingSummary =>
+      'Weather data failed to load. Cannot assess wind from forecast.';
+
+  @override
+  String get routeGoNoGoLoading => 'Loading route conditions…';
+
+  @override
+  String get routeGoNoGoErrorGeneric => 'Route conditions could not be loaded.';
+
+  @override
+  String routeGoNoGoTriggeringStop(String stopName) {
+    return 'Worst at $stopName';
+  }
+
+  @override
+  String get routeGoNoGoAllStopsTitle => 'All stops';
+
+  @override
+  String routeGoNoGoStopLine(int position, String name, String verdict) {
+    return '$position. $name — $verdict';
+  }
+
+  @override
+  String get routeGoNoGoPartialFailuresTitle =>
+      'Some stops could not load conditions:';
+
+  @override
+  String get routeGoNoGoLaunchNotFound => 'Launch not found in catalog.';
+
+  @override
+  String get routeGoNoGoStopConditionsUnavailable =>
+      'Conditions could not be loaded for this stop.';
+
+  @override
+  String routeGoNoGoStopFailureLine(int position, String name, String message) {
+    return '$position. $name: $message';
+  }
+
+  @override
+  String get routeGoNoGoRouteDisclaimer =>
+      'Not a substitute for your judgment, skill, or scouting on site.';
+
+  @override
+  String routeGoNoGoSemanticsVerdictOnly(String verdict) {
+    return 'Route conditions: $verdict';
+  }
+
+  @override
+  String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName) {
+    return 'Route conditions: $verdict. $stopName.';
+  }
 }

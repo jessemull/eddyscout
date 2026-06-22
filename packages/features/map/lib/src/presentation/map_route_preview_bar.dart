@@ -16,6 +16,7 @@ class MapRoutePreviewBar extends ConsumerWidget {
     required this.onDismiss,
     required this.onStart,
     required this.onSave,
+    this.goNoGoSection,
     super.key,
   });
 
@@ -26,6 +27,9 @@ class MapRoutePreviewBar extends ConsumerWidget {
   final VoidCallback onDismiss;
   final VoidCallback onStart;
   final VoidCallback onSave;
+
+  /// Optional route go/no-go rollup (injected from app shell).
+  final Widget? goNoGoSection;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -125,6 +129,10 @@ class MapRoutePreviewBar extends ConsumerWidget {
                   ),
                 ],
               ),
+              if (goNoGoSection != null) ...[
+                const SizedBox(height: Spacing.sm),
+                goNoGoSection!,
+              ],
               const SizedBox(height: Spacing.sm),
               Row(
                 children: [

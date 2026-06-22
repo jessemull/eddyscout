@@ -32,6 +32,7 @@ class MapScreen extends ConsumerStatefulWidget {
     this.mapSlot,
     this.onOpenLaunchDetail,
     this.onSaveRoute,
+    this.routeGoNoGoSection,
     @visibleForTesting this.forceZoomChromeForTest = false,
   });
 
@@ -48,6 +49,9 @@ class MapScreen extends ConsumerStatefulWidget {
 
   /// Opens the save-route flow when planning has a valid route.
   final VoidCallback? onSaveRoute;
+
+  /// Route go/no-go rollup injected from the app shell (conditions feature).
+  final Widget? routeGoNoGoSection;
 
   @override
   ConsumerState<MapScreen> createState() => _MapScreenState();
@@ -333,7 +337,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         : _liveMapWidget(mapController);
 
     final controlsBottomPadding = switch (sheetVisibility) {
-      MapSheetVisibility.planningPreview => 220.0,
+      MapSheetVisibility.planningPreview =>
+        widget.routeGoNoGoSection == null
+            ? kMapPlanningPreviewBottomPadding
+            : kMapPlanningPreviewWithGoNoGoBottomPadding,
       MapSheetVisibility.placePeek => kPlacePeekChromeBottomPadding,
       _ => MediaQuery.viewPaddingOf(context).bottom + 72,
     };
@@ -415,6 +422,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   canSave:
                       planning.hasRunnableRoute &&
                       planning.activeGeometry != null,
+                  goNoGoSection: widget.routeGoNoGoSection,
                   onBack: _returnToPlanningEditFromPreview,
                   onDismiss: () => unawaited(_resetFromRoutePreview()),
                   onStart: () => unawaited(_resetFromRoutePreview()),
