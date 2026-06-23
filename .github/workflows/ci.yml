@@ -15,7 +15,7 @@ jobs:
     name: Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version-file: .tool-versions
@@ -30,7 +30,7 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version-file: .tool-versions
@@ -45,7 +45,7 @@ jobs:
     name: Codegen Drift Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version-file: .tool-versions
@@ -60,7 +60,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version-file: .tool-versions
@@ -75,7 +75,7 @@ jobs:
     name: Golden Tests
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version-file: .tool-versions
@@ -90,7 +90,7 @@ jobs:
     name: Coverage Thresholds
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version-file: .tool-versions
@@ -106,7 +106,7 @@ jobs:
     name: Import Boundaries
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version-file: .tool-versions
@@ -125,7 +125,7 @@ jobs:
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version-file: .tool-versions
