@@ -1,6 +1,7 @@
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_conditions/src/data/firebase/go_no_go_reason_fallback_message.dart';
 import 'package:eddyscout_conditions/src/presentation/go_no_go_l10n.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -86,7 +87,7 @@ void main() {
         cfs: '40k',
         siteId: '14211720',
         usesLaunchFlowBands: true,
-      ): l10n.launchDetailGoNoGoReasonFlowVeryHighLaunch(
+      ): l10n.launchDetailGoNoGoReasonFlowVeryHigh(
         '40k',
         '14211720',
       ),
@@ -96,7 +97,7 @@ void main() {
         cfs: '40k',
         siteId: '14211720',
         usesLaunchFlowBands: false,
-      ): l10n.launchDetailGoNoGoReasonFlowVeryHighRiver(
+      ): l10n.launchDetailGoNoGoReasonFlowVeryHigh(
         '40k',
         '14211720',
       ),
@@ -106,9 +107,8 @@ void main() {
         cfs: '6000',
         siteId: 'x',
         usesLaunchFlowBands: true,
-      ): l10n.launchDetailGoNoGoReasonFlowHighLaunch(
+      ): l10n.launchDetailGoNoGoReasonFlowApproximate(
         '6000',
-        'x',
       ),
       const GoNoGoReason(
         code: GoNoGoReasonCode.flowHigh,
@@ -116,9 +116,8 @@ void main() {
         cfs: '6000',
         siteId: 'x',
         usesLaunchFlowBands: false,
-      ): l10n.launchDetailGoNoGoReasonFlowHighRiver(
+      ): l10n.launchDetailGoNoGoReasonFlowApproximate(
         '6000',
-        'x',
       ),
       const GoNoGoReason(
         code: GoNoGoReasonCode.flowLow,
@@ -126,9 +125,8 @@ void main() {
         cfs: '200',
         siteId: 'x',
         usesLaunchFlowBands: true,
-      ): l10n.launchDetailGoNoGoReasonFlowLow(
+      ): l10n.launchDetailGoNoGoReasonFlowApproximate(
         '200',
-        'x',
       ),
     };
 
@@ -200,6 +198,79 @@ void main() {
     expect(message, contains('28'));
     expect(message, contains('exposed'));
   });
+
+  testWidgets('localizeRouteGoNoGoRollupErrorMessage returns generic copy', (
+    tester,
+  ) async {
+    late AppLocalizations l10n;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SizedBox.shrink(),
+      ),
+    );
+    l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+    expect(
+      localizeRouteGoNoGoRollupErrorMessage(
+        l10n,
+        const NetworkFailure(message: 'offline'),
+      ),
+      l10n.routeGoNoGoErrorGeneric,
+    );
+  });
+
+  testWidgets(
+    'localizeRouteGoNoGoFailureMessage localizes partial-stop errors',
+    (
+      tester,
+    ) async {
+      late AppLocalizations l10n;
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: SizedBox.shrink(),
+        ),
+      );
+      l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+      expect(
+        localizeRouteGoNoGoFailureMessage(
+          l10n,
+          const NotFoundFailure(message: 'missing_launch'),
+        ),
+        l10n.routeGoNoGoLaunchNotFound,
+      );
+      expect(
+        localizeRouteGoNoGoFailureMessage(
+          l10n,
+          const NetworkFailure(message: 'network down'),
+        ),
+        l10n.routeGoNoGoStopConditionsUnavailable,
+      );
+      expect(
+        localizeRouteGoNoGoFailureMessage(
+          l10n,
+          const NetworkFailure(message: 'network down'),
+        ),
+        isNot(contains('network down')),
+      );
+    },
+  );
 
   testWidgets('goNoGoReasonFallbackMessage matches ARB for windHigh', (
     tester,

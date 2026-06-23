@@ -15,6 +15,8 @@ dependencies:
     path: ../../core
   eddyscout_design_system:
     path: ../../design_system
+  eddyscout_hydro_routing:
+    path: ../hydro_routing
   eddyscout_localization:
     path: ../../localization
   eddyscout_persistence:
@@ -31,16 +33,14 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.4.14
-  eddyscout_hydro_routing:
-    path: ../hydro_routing
   flutter_localizations:
     sdk: flutter
   flutter_test:
     sdk: flutter
   freezed: ^3.0.0
-  json_serializable: ^6.13.0
+  json_serializable: ^6.14.0
   mocktail: ^1.0.4
-  path_provider_platform_interface: ^2.1.2
+  path_provider_platform_interface: ^2.1.3
   plugin_platform_interface: ^2.1.8
   riverpod_generator: ^4.0.4
   very_good_analysis: ^10.2.0

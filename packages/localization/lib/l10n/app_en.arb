@@ -208,24 +208,24 @@
   "launchDetailReportAnonymous": "Anonymous paddler",
   "launchDetailConditionReportTitle": "Condition report",
   "launchDetailConditionReportHint": "What are you seeing on the water?",
-  "launchDetailGoNoGoTitle": "Go / No-go (informational)",
-  "launchDetailGoNoGoNoWarnings": "No stub warnings from wind, marine text, or flow thresholds for this launch.",
-  "launchDetailGoNoGoStubDisclaimer": "Stub rules only—not a substitute for your judgment, skill, or scouting on site.",
-  "launchDetailGoNoGoVerdictGo": "Go (planning hint)",
+  "launchDetailGoNoGoTitle": "Conditions check (informational)",
+  "launchDetailGoNoGoNoWarnings": "No warnings",
+  "launchDetailGoNoGoStubDisclaimer": "Not a substitute for your judgment, skill, or scouting on site.",
+  "launchDetailGoNoGoVerdictGo": "Favorable conditions",
   "@launchDetailGoNoGoVerdictGo": {
-    "description": "Headline when go/no-go verdict is go"
+    "description": "Headline when conditions verdict is favorable"
   },
-  "launchDetailGoNoGoVerdictMarginal": "Marginal",
+  "launchDetailGoNoGoVerdictMarginal": "Moderate conditions",
   "@launchDetailGoNoGoVerdictMarginal": {
-    "description": "Headline when go/no-go verdict is marginal"
+    "description": "Headline when conditions verdict is moderate"
   },
-  "launchDetailGoNoGoVerdictNoGo": "No-go (planning hint)",
+  "launchDetailGoNoGoVerdictNoGo": "Poor conditions",
   "@launchDetailGoNoGoVerdictNoGo": {
-    "description": "Headline when go/no-go verdict is no-go"
+    "description": "Headline when conditions verdict is poor"
   },
-  "launchDetailGoNoGoVerdictInsufficientData": "Insufficient data",
+  "launchDetailGoNoGoVerdictInsufficientData": "Unknown conditions",
   "@launchDetailGoNoGoVerdictInsufficientData": {
-    "description": "Headline when go/no-go verdict lacks weather data"
+    "description": "Headline when conditions verdict lacks enough forecast data"
   },
   "launchDetailGoNoGoReasonColdWaterSeason": "Cold-water season in the PNW—dress for immersion, know hypothermia risk, and carry safety gear.",
   "@launchDetailGoNoGoReasonColdWaterSeason": {
@@ -242,7 +242,7 @@
       "error": {"type": "String"}
     }
   },
-  "launchDetailGoNoGoReasonWindUnknown": "Wind speed or gust was not available from the forecast—use caution, especially in open or exposed areas.",
+  "launchDetailGoNoGoReasonWindUnknown": "Wind speed or gust was not available from the forecast. Use caution, especially in open or exposed areas.",
   "@launchDetailGoNoGoReasonWindUnknown": {
     "description": "Marginal reason when wind speed/gust is unavailable"
   },
@@ -256,13 +256,35 @@
   },
   "launchDetailGoNoGoReasonWindElevated": "Effective wind about {mph} mph ({exposure} site)—conditions may feel rougher on open water.",
   "@launchDetailGoNoGoReasonWindElevated": {
-    "description": "Marginal reason when effective wind is elevated",
+    "description": "Marginal reason when effective wind is elevated (launch detail single line)",
     "placeholders": {
       "mph": {"type": "int"},
       "exposure": {"type": "String"}
     }
   },
-  "launchDetailGoNoGoReasonMarineSevere": "Marine forecast text mentions “{pattern}”—treat as hazardous until you verify locally.",
+  "launchDetailGoNoGoReasonWindElevatedExposure": "{exposure} site.",
+  "@launchDetailGoNoGoReasonWindElevatedExposure": {
+    "description": "Route go/no-go bullet: wind exposure tier",
+    "placeholders": {
+      "exposure": {"type": "String"}
+    }
+  },
+  "launchDetailGoNoGoReasonWindElevatedSpeed": "Effective wind speed {mph} mph.",
+  "@launchDetailGoNoGoReasonWindElevatedSpeed": {
+    "description": "Route go/no-go bullet: effective wind speed",
+    "placeholders": {
+      "mph": {"type": "int"}
+    }
+  },
+  "launchDetailGoNoGoReasonWindElevatedRoughWater": "Conditions may feel rougher on the open water.",
+  "@launchDetailGoNoGoReasonWindElevatedRoughWater": {
+    "description": "Route go/no-go bullet: open-water caution for elevated wind"
+  },
+  "launchDetailGoNoGoReasonWindHighTooStrong": "Too strong for paddling.",
+  "@launchDetailGoNoGoReasonWindHighTooStrong": {
+    "description": "Route go/no-go sentence: no-go wind is too strong"
+  },
+  "launchDetailGoNoGoReasonMarineSevere": "Marine forecast includes {pattern}.",
   "@launchDetailGoNoGoReasonMarineSevere": {
     "description": "No-go reason when marine text matches a severe pattern",
     "placeholders": {
@@ -280,44 +302,19 @@
   "@launchDetailGoNoGoReasonForecastLowLight": {
     "description": "Info reason when forecast period starts at night"
   },
-  "launchDetailGoNoGoReasonFlowVeryHighLaunch": "Discharge about {cfs} cfs at site {siteId}—above this launch’s curated upper band; verify hazards and skill match.",
-  "@launchDetailGoNoGoReasonFlowVeryHighLaunch": {
-    "description": "No-go reason when discharge exceeds launch-specific upper band",
+  "launchDetailGoNoGoReasonFlowVeryHigh": "Discharge is approximately {cfs} at site {siteId}.",
+  "@launchDetailGoNoGoReasonFlowVeryHigh": {
+    "description": "No-go reason when discharge exceeds upper flow band",
     "placeholders": {
       "cfs": {"type": "String"},
       "siteId": {"type": "String"}
     }
   },
-  "launchDetailGoNoGoReasonFlowVeryHighRiver": "Discharge about {cfs} cfs at site {siteId}—stub upper band for this river class suggests very high water; verify hazards and skill match.",
-  "@launchDetailGoNoGoReasonFlowVeryHighRiver": {
-    "description": "No-go reason when discharge exceeds river-class upper band",
+  "launchDetailGoNoGoReasonFlowApproximate": "Discharge is approximately {cfs}.",
+  "@launchDetailGoNoGoReasonFlowApproximate": {
+    "description": "Marginal reason for elevated or low discharge",
     "placeholders": {
-      "cfs": {"type": "String"},
-      "siteId": {"type": "String"}
-    }
-  },
-  "launchDetailGoNoGoReasonFlowHighLaunch": "Discharge about {cfs} cfs at site {siteId}—at or above this launch’s “elevated flow” band; double-check strainers and current.",
-  "@launchDetailGoNoGoReasonFlowHighLaunch": {
-    "description": "Marginal reason when discharge exceeds launch elevated band",
-    "placeholders": {
-      "cfs": {"type": "String"},
-      "siteId": {"type": "String"}
-    }
-  },
-  "launchDetailGoNoGoReasonFlowHighRiver": "Discharge about {cfs} cfs at site {siteId}—above our placeholder “elevated” band for this river class; double-check strainers and current.",
-  "@launchDetailGoNoGoReasonFlowHighRiver": {
-    "description": "Marginal reason when discharge exceeds river-class elevated band",
-    "placeholders": {
-      "cfs": {"type": "String"},
-      "siteId": {"type": "String"}
-    }
-  },
-  "launchDetailGoNoGoReasonFlowLow": "Discharge about {cfs} cfs at site {siteId}—below this launch’s low-flow cue; watch for shallow spots and wood.",
-  "@launchDetailGoNoGoReasonFlowLow": {
-    "description": "Marginal reason when discharge is below launch low-flow cue",
-    "placeholders": {
-      "cfs": {"type": "String"},
-      "siteId": {"type": "String"}
+      "cfs": {"type": "String"}
     }
   },
   "launchDetailWeatherTitle": "Weather",
@@ -649,5 +646,113 @@
     }
   },
   "commonRetry": "Retry",
-  "commonCancel": "Cancel"
+  "commonCancel": "Cancel",
+  "tripsFromHereSectionTitle": "Trips from here",
+  "tripsFromHereBand5Mi": "Within 5 mi",
+  "tripsFromHereBand10Mi": "Within 10 mi",
+  "tripsFromHereBand20Mi": "Within 20 mi",
+  "tripsFromHereBandEmpty5Mi": "No launches within 5 mi along the river",
+  "tripsFromHereBandEmpty10Mi": "No launches within 10 mi along the river",
+  "tripsFromHereBandEmpty20Mi": "No launches within 20 mi along the river",
+  "tripsFromHereNoNearbyLaunches": "No nearby launches found along the river from here.",
+  "tripsFromHereLoadError": "Couldn't load nearby launches.",
+  "tripsFromHereBandShowMore": "{count, plural, =1{Show 1 more launch} other{Show {count} more launches}}",
+  "@tripsFromHereBandShowMore": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "tripsFromHerePlanToLaunchSemantics": "Plan route to {launchName}, {riverName}",
+  "@tripsFromHerePlanToLaunchSemantics": {
+    "placeholders": {
+      "launchName": {"type": "String"},
+      "riverName": {"type": "String"}
+    }
+  },
+  "tripsFromHereBandSemantics": "{bandLabel}, {count, plural, =0{no launches} =1{1 launch} other{{count} launches}}",
+  "@tripsFromHereBandSemantics": {
+    "placeholders": {
+      "bandLabel": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
+  "tripsFromHereSuggestedTitle": "Suggested trips",
+  "tripsFromHereFilterShort": "Short",
+  "tripsFromHereFilterMedium": "Medium",
+  "tripsFromHereFilterLong": "Long",
+  "tripsFromHereSuggestedTripSemantics": "Suggested trip to {launchName}, {distanceMi} miles, about {minutes} minutes",
+  "@tripsFromHereSuggestedTripSemantics": {
+    "placeholders": {
+      "launchName": {"type": "String"},
+      "distanceMi": {"type": "String"},
+      "minutes": {"type": "int"}
+    }
+  },
+  "tripsFromHereSuggestedEmpty": "No suggested trips match this filter.",
+  "tripsFromHereSuggestedSearchPlaceholder": "Search nearby launches...",
+  "tripsFromHereMaxDistanceLabel": "Within",
+  "tripsFromHereMaxDistance5Miles": "5 Miles",
+  "tripsFromHereMaxDistance10Miles": "10 Miles",
+  "tripsFromHereMaxDistance20Miles": "20 Miles",
+  "tripsFromHereSuggestedEntrySubtitle": "{count, plural, =1{1 nearby launch} other{{count} nearby launches}}",
+  "@tripsFromHereSuggestedEntrySubtitle": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "routeGoNoGoReasonWeatherMissingSummary": "Weather data failed to load. Cannot assess wind from forecast.",
+  "@routeGoNoGoReasonWeatherMissingSummary": {
+    "description": "Route go/no-go summary when weather fetch failed for a stop"
+  },
+  "routeGoNoGoLoading": "Loading route conditions…",
+  "@routeGoNoGoLoading": {
+    "description": "Accessibility label while route go/no-go rollup loads"
+  },
+  "routeGoNoGoErrorGeneric": "Route conditions could not be loaded.",
+  "routeGoNoGoTriggeringStop": "Worst at {stopName}",
+  "@routeGoNoGoTriggeringStop": {
+    "placeholders": {
+      "stopName": {"type": "String"}
+    }
+  },
+  "routeGoNoGoAllStopsTitle": "All stops",
+  "routeGoNoGoStopLine": "{position}. {name} — {verdict}",
+  "@routeGoNoGoStopLine": {
+    "placeholders": {
+      "position": {"type": "int"},
+      "name": {"type": "String"},
+      "verdict": {"type": "String"}
+    }
+  },
+  "routeGoNoGoPartialFailuresTitle": "Some stops could not load conditions:",
+  "routeGoNoGoLaunchNotFound": "Launch not found in catalog.",
+  "@routeGoNoGoLaunchNotFound": {
+    "description": "Partial-failure message when a route stop references an unknown launch id"
+  },
+  "routeGoNoGoStopConditionsUnavailable": "Conditions could not be loaded for this stop.",
+  "@routeGoNoGoStopConditionsUnavailable": {
+    "description": "Partial-failure message when conditions for a route stop could not be loaded"
+  },
+  "routeGoNoGoStopFailureLine": "{position}. {name}: {message}",
+  "@routeGoNoGoStopFailureLine": {
+    "placeholders": {
+      "position": {"type": "int"},
+      "name": {"type": "String"},
+      "message": {"type": "String"}
+    }
+  },
+  "routeGoNoGoRouteDisclaimer": "Not a substitute for your judgment, skill, or scouting on site.",
+  "routeGoNoGoSemanticsVerdictOnly": "Route conditions: {verdict}",
+  "@routeGoNoGoSemanticsVerdictOnly": {
+    "placeholders": {
+      "verdict": {"type": "String"}
+    }
+  },
+  "routeGoNoGoSemanticsVerdictWithStop": "Route conditions: {verdict}. {stopName}.",
+  "@routeGoNoGoSemanticsVerdictWithStop": {
+    "placeholders": {
+      "verdict": {"type": "String"},
+      "stopName": {"type": "String"}
+    }
+  }
 }

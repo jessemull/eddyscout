@@ -187,8 +187,8 @@ void main() {
     await pumpLaunchDetail(tester, container: container);
     await tester.pump();
 
-    expect(find.text('Go / No-go (informational)'), findsOneWidget);
-    expect(find.text('Go (planning hint)'), findsOneWidget);
+    expect(find.text('Conditions check (informational)'), findsOneWidget);
+    expect(find.text('Favorable conditions'), findsOneWidget);
     expect(find.text('Weather'), findsOneWidget);
     expect(find.text('Conditions'), findsOneWidget);
     expect(find.text(launch.shortNote), findsOneWidget);
@@ -379,8 +379,8 @@ void main() {
       find.byWidgetPredicate(
         (widget) =>
             widget is Text &&
-            (widget.data == 'No-go (planning hint)' ||
-                widget.data == 'Marginal'),
+            (widget.data == 'Poor conditions' ||
+                widget.data == 'Moderate conditions'),
       ),
       findsOneWidget,
     );
@@ -482,5 +482,27 @@ void main() {
 
     expect(find.text('Condition report'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
+  });
+
+  testWidgets('renders optional trips-from-here section when provided', (
+    tester,
+  ) async {
+    final container = await scopedContainer(
+      loadConditions: () => Future.value(calmSnapshot()),
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: testLocalizedApp(
+          child: LaunchDetailScreen(
+            launch: launch,
+            tripsFromHereSection: const Text('Trips from here slot'),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Trips from here slot'), findsOneWidget);
   });
 }

@@ -267,7 +267,11 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase E)** **Safety intelligence** (canonical facts + optional LLM phrasing)
 - [ ] **(Phase E)** **Ops** — quotas, logging, cost dashboards
 - [x] **(Phase E)** Go / No-go typed reasons → localized labels (enum/codes + ARB; no raw reason strings in UI)
-- [ ] **(Phase E)** **Route Go / No-Go (v1)** — evaluate go/no-go at each planned-route waypoint (put-in / stops / take-out) via existing `GoNoGoEvaluator`; roll up worst verdict (no-go > marginal > insufficient data > go); surface triggering waypoint + localized reasons on route preview / saved route detail; same informational disclaimers as launch detail; later sample exposure along polyline segments
+- [ ] **(Phase E)** **Route Go / No-Go (v1, hybrid)** — rules-first rollup across planned-route waypoints; polyline segment exposure sampling remains a later item
+  - **Layer 1 (v1 core — ship gate):** Run existing `GoNoGoEvaluator` at each catalog waypoint (put-in / stops / take-out); roll up **worst** verdict (`noGo` > `marginal` > `insufficientData` > `go`); show rolled badge, **triggering stop name**, and localized reason chips on **map route preview** and **saved route detail**; reuse skill profile + launch-detail-style informational disclaimers (not a safety guarantee).
+  - **Layer 2 (v1 optional stretch / default v1.1):** User-initiated **“Summarize route conditions”** button; LLM narrative card **grounded in Layer 1 JSON** + per-stop structured snapshots (same grounding rules as launch-detail `summarizeConditions`); narrative is **not** the verdict source—the Layer 1 badge always remains visible.
+  - **Boundary:** **Route validation (LLM)** stays a separate Phase E item—plausibility coaching (leg length, segment fit), **not** cfs/wind verdict rollup.
+  - **Later:** Sample exposure along polyline segments (roadmap “later”; out of v1 scope).
 - [ ] **(Phase E)** Conditions intelligence (v2) — user thresholds (wind/current/temp), alerts, time windows
 - [ ] **(Phase E)** Dynamic risk scoring (v1) — beginner safe / caution / expert only (wind/gust/current/tide/darkness/temp/exposure)
 - [ ] **(Phase E)** Float plans (v1) — route + emergency contacts + return time + overdue reminder flow

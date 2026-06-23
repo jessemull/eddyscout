@@ -4,6 +4,7 @@ import 'package:eddyscout/routing/app_shell.dart';
 import 'package:eddyscout/routing/home_screen.dart';
 import 'package:eddyscout/routing/map_save_route_sheet.dart';
 import 'package:eddyscout/routing/menu_screen.dart';
+import 'package:eddyscout/routing/route_go_no_go_sections.dart';
 import 'package:eddyscout/routing/settings_screen.dart';
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
@@ -165,21 +166,47 @@ class _MapRouteHost extends ConsumerWidget {
       unawaited(LaunchDetailRoute(launchId: launch.id).push<void>(context));
     }
 
+    final planning = ref.watch(routePlanningProvider);
+    if (planning.planningMode && planning.waypoints.length >= 2) {
+      ref.watch(
+        routeGoNoGoRollupProvider(
+          RouteGoNoGoWaypointsKey.fromOrdered(
+            planning.waypoints.map((w) => w.id).toList(),
+          ),
+        ),
+      );
+    }
+
+    final routeGoNoGoSection = planning.waypoints.length >= 2
+        ? MapRouteGoNoGoSection(
+            launchIdsInOrder: planning.waypoints.map((w) => w.id).toList(),
+          )
+        : null;
+
     if (_integrationMapStub) {
       return MapScreen(
         mapSlot: const SizedBox(key: Key('integration_map_stub')),
         onOpenLaunchDetail: onOpenLaunchDetail,
         onSaveRoute: () => unawaited(showMapSaveRouteSheet(context, ref)),
+        routeGoNoGoSection: routeGoNoGoSection,
       );
     }
     return MapScreen(
       onOpenLaunchDetail: onOpenLaunchDetail,
       onSaveRoute: () => unawaited(showMapSaveRouteSheet(context, ref)),
+      routeGoNoGoSection: routeGoNoGoSection,
     );
   }
 }
 
-@TypedGoRoute<LaunchDetailRoute>(path: RoutePaths.launchDetail)
+@TypedGoRoute<LaunchDetailRoute>(
+  path: RoutePaths.launchDetail,
+  routes: <TypedRoute<RouteData>>[
+    TypedGoRoute<NearbyTripsSearchRoute>(
+      path: RoutePaths.nearbyTripsSearchSegment,
+    ),
+  ],
+)
 class LaunchDetailRoute extends GoRouteData with $LaunchDetailRoute {
   const LaunchDetailRoute({required this.launchId});
 
@@ -188,6 +215,16 @@ class LaunchDetailRoute extends GoRouteData with $LaunchDetailRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       _LaunchDetailRouteBody(launchId: launchId);
+}
+
+class NearbyTripsSearchRoute extends GoRouteData with $NearbyTripsSearchRoute {
+  const NearbyTripsSearchRoute({required this.launchId});
+
+  final String launchId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      _NearbyTripsSearchRouteBody(launchId: launchId);
 }
 
 @TypedGoRoute<SavedRoutesListRoute>(path: RoutePaths.savedRoutes)
@@ -225,6 +262,7 @@ class _SavedRouteDetailRouteBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => SavedRouteDetailScreen(
     routeId: routeId,
     onLoadOnMap: (route) => _loadSavedRouteOnMap(context, ref, route),
+    goNoGoSection: SavedRouteGoNoGoSection(routeId: routeId),
   );
 }
 
@@ -243,6 +281,25 @@ void _loadSavedRouteOnMap(
   );
   const MapRoute().go(context);
   StatefulNavigationShell.maybeOf(context)?.goBranch(AppShellBranches.map);
+}
+
+/// Pre-fills route planning when picking a destination from nearby trips
+/// search.
+void planTripFromLaunchToDestination(
+  WidgetRef ref, {
+  required LaunchPoint origin,
+  required LaunchPoint destination,
+}) {
+  ref
+      .read(routePlanningProvider.notifier)
+      .startPlanFromHereTo(
+        putIn: origin,
+        takeOut: destination,
+      );
+  ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(origin);
+  ref.read(tripsFromHereRoutePendingProvider.notifier).markPending();
+  ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
+  ref.read(nearbyTripsSearchOriginProvider.notifier).close();
 }
 
 class _LaunchDetailRouteBody extends ConsumerWidget {
@@ -274,7 +331,70 @@ class _LaunchDetailRouteBody extends ConsumerWidget {
       },
       data: (launch) => _ScreenViewLogger(
         screenName: AnalyticsScreenNames.launchDetail,
-        child: LaunchDetailScreen(launch: launch),
+        child: LaunchDetailScreen(
+          launch: launch,
+          tripsFromHereSection: _LaunchDetailSuggestedTripsEntry(
+            originLaunch: launch,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Suggested-trips entry on launch detail; opens full-screen nearby search.
+class _LaunchDetailSuggestedTripsEntry extends ConsumerWidget {
+  const _LaunchDetailSuggestedTripsEntry({required this.originLaunch});
+
+  final LaunchPoint originLaunch;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => SuggestedTripsEntryTile(
+    originLaunch: originLaunch,
+    onOpen: () {
+      unawaited(
+        NearbyTripsSearchRoute(launchId: originLaunch.id).push<void>(context),
+      );
+    },
+  );
+}
+
+class _NearbyTripsSearchRouteBody extends ConsumerWidget {
+  const _NearbyTripsSearchRouteBody({required this.launchId});
+
+  final String launchId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final launchAsync = ref.watch(launchPointByIdProvider(launchId));
+    return launchAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, _) => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      data: (originLaunch) => _ScreenViewLogger(
+        screenName: AnalyticsScreenNames.nearbyTripsSearch,
+        child: NearbyTripsSearchPage(
+          originLaunch: originLaunch,
+          onLaunchSelected: (destination) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!context.mounted) {
+                return;
+              }
+              planTripFromLaunchToDestination(
+                ref,
+                origin: originLaunch,
+                destination: destination,
+              );
+              const MapRoute().go(context);
+              ref
+                  .read(tripsFromHereRoutePendingProvider.notifier)
+                  .markPending();
+            });
+          },
+        ),
       ),
     );
   }

@@ -42,5 +42,18 @@ const double kMapChromeZoomStep = 1.25;
 /// Zoom when centering on a selected launch (browse / search pick).
 const double kLaunchFocusZoom = 10.5;
 
+/// Bottom padding for map chrome when place peek is open.
+const double kPlacePeekChromeBottomPadding = 160;
+
+/// Bottom inset for map chrome when the route preview bar is visible.
+const double kMapPlanningPreviewBottomPadding = 220;
+
+/// Extra bottom inset when the preview bar includes a route go/no-go section.
+const double kMapPlanningPreviewGoNoGoExtraPadding = 56;
+
+/// Bottom inset when route preview includes the go/no-go rollup card.
+const double kMapPlanningPreviewWithGoNoGoBottomPadding =
+    kMapPlanningPreviewBottomPadding + kMapPlanningPreviewGoNoGoExtraPadding;
+
 /// [MapboxMap.addInteraction] id for map-surface tap handling.
 const String kMapContentTapInteractionId = 'eddyscout_map_content_tap';
