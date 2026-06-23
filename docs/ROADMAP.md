@@ -549,7 +549,7 @@ Until both exist, default water entry to access for backward compatibility. Migr
 ```
 
 - [x] **UI: "Trips from here"** — nearby launches and suggested trips on place peek and launch detail (PR #66)
-- [ ] **UI: Trip length filters** — short (< 5 mi), medium (5–10 mi), long (> 10 mi) on suggested trips
+- [x] **UI: Trip length filters** — short (< 5 mi), medium (5–10 mi), long (> 10 mi) on suggested trips (PR #66)
 
 ### Phase R4: Multi-stop and advanced routing
 
