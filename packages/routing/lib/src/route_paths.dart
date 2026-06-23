@@ -9,6 +9,9 @@ abstract final class RoutePaths {
   /// Launch detail with `:launchId` path parameter.
   static const launchDetail = '/launch/:launchId';
 
+  /// Nearby trips search nested under launch detail.
+  static const nearbyTripsSearchSegment = 'nearby-trips-search';
+
   /// Shown when `MAPBOX_ACCESS_TOKEN` is missing on mobile/desktop.
   static const missingToken = '/missing-token';
 

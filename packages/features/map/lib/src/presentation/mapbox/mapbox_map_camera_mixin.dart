@@ -222,7 +222,7 @@ mixin MapboxMapCameraMixin on MapboxMapControllerBase, MapboxMapStyleMixin {
       MapSheetVisibility.placePeek => MbxEdgeInsets(
         top: 80,
         left: 48,
-        bottom: 200,
+        bottom: kPlacePeekChromeBottomPadding,
         right: 48,
       ),
       MapSheetVisibility.planningPreview => MbxEdgeInsets(

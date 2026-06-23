@@ -234,7 +234,38 @@ RouteBase get $mapRoute =>
 RouteBase get $launchDetailRoute => GoRouteData.$route(
   path: '/launch/:launchId',
   factory: $LaunchDetailRoute._fromState,
+  routes: [
+    GoRouteData.$route(
+      path: 'nearby-trips-search',
+      factory: $NearbyTripsSearchRoute._fromState,
+    ),
+  ],
 );
+
+mixin $NearbyTripsSearchRoute on GoRouteData {
+  static NearbyTripsSearchRoute _fromState(GoRouterState state) =>
+      NearbyTripsSearchRoute(launchId: state.pathParameters['launchId']!);
+
+  NearbyTripsSearchRoute get _self => this as NearbyTripsSearchRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/launch/${Uri.encodeComponent(_self.launchId)}/nearby-trips-search',
+  );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $savedRoutesListRoute => GoRouteData.$route(
   path: '/saved-routes',

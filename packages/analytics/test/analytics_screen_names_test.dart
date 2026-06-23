@@ -24,6 +24,13 @@ void main() {
       );
     });
 
+    test('defines nearby trips search screen name', () {
+      expect(
+        AnalyticsScreenNames.nearbyTripsSearch,
+        'screen_nearby_trips_search',
+      );
+    });
+
     test('maps missing token gate', () {
       expect(
         AnalyticsScreenNames.fromMatchedLocation('/missing-token'),
