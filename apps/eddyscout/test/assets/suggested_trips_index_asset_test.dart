@@ -22,7 +22,7 @@ void main() {
       expect(index.paddleSpeedKmh, kSuggestedTripsDefaultPaddleSpeedKmh);
       expect(index.maxOneWaySuggestions, kSuggestedTripsMaxOneWay);
       expect(index.maxRoundTripSuggestions, kSuggestedTripsMaxRoundTrip);
-      expect(index.crossSystemReachability, isFalse);
+      expect(index.crossSystemReachability, isTrue);
       expect(index.entries, isNotEmpty);
 
       for (final launch in kLaunchPoints) {
