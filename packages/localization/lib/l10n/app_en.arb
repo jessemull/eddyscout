@@ -16,7 +16,7 @@
   "mapRiverDataReadFailed": "River route data could not be read.",
   "mapRiverDataUnavailable": "River route data is unavailable.",
   "mapRouteFailureSameLaunch": "Choose two different launches.",
-  "mapRouteFailureDifferentSystem": "Pick two launches on the same river system for river routing.",
+  "mapRouteFailureDifferentSystem": "No connected river path between these river systems in bundled data.",
   "mapRouteFailureNoBundledLine": "No bundled river line for \"{river}\" yet — routing is only available where hydro GeoJSON exists.",
   "@mapRouteFailureNoBundledLine": {
     "placeholders": {

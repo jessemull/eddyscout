@@ -12,3 +12,14 @@ const bundledHydroGeoJsonAssetPaths = <String>[
 /// Optional confluence bridge metadata for unified multi-system routing.
 const bundledConfluenceBridgesAssetPath =
     'assets/hydro/confluence_bridges.json';
+
+/// Basenames under `assets/hydro/` (for offline index generators).
+const bundledHydroGeoJsonAssetFileNames = <String>[
+  'willamette_waterway.geojson',
+  'columbia_lower_waterway.geojson',
+  'columbia_gorge_waterway.geojson',
+  'clackamas_waterway.geojson',
+  'slough_waterway.geojson',
+  'tualatin_waterway.geojson',
+  'sandy_waterway.geojson',
+];

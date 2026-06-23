@@ -7,7 +7,7 @@
         "river_system": "columbia",
         "reach_id": "columbia_lower",
         "name": "Columbia mainstem \u2014 Willamette mouth to Camas (OSM merged)",
-        "source": "OpenStreetMap ODbL. Overpass merge of connected waterway=river|canal|fairway ways; shortest path from Willamette mouth to Camas split; Vancouver launch anchor."
+        "source": "OpenStreetMap ODbL. Overpass merge of connected waterway=river|canal|fairway ways; shortest path from Willamette mouth to Camas split."
       },
       "geometry": {
         "type": "LineString",
@@ -109,30 +109,6 @@
             45.6168068
           ],
           [
-            -122.6558,
-            45.6275
-          ],
-          [
-            -122.6551352,
-            45.624497
-          ],
-          [
-            -122.6544703,
-            45.621494
-          ],
-          [
-            -122.6538054,
-            45.6184911
-          ],
-          [
-            -122.6531406,
-            45.6154881
-          ],
-          [
-            -122.6524758,
-            45.6124851
-          ],
-          [
             -122.6518109,
             45.6094821
           ],
@@ -231,6 +207,28 @@
           [
             -122.4300244,
             45.5659948
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "river_system": "columbia",
+        "reach_id": "vancouver_wintler_spur",
+        "name": "Columbia \u2014 Wintler Community Park launch spur",
+        "source": "OpenStreetMap ODbL. Connector from Columbia mainstem to Wintler Community Park catalog launch anchor."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.6720669,
+            45.6168068
+          ],
+          [
+            -122.6558,
+            45.6275
           ]
         ]
       }

@@ -8,7 +8,7 @@
     10,
     20
   ],
-  "crossSystemReachability": false,
+  "crossSystemReachability": true,
   "entries": {
     "cathedral_park": {
       "5mi": [
@@ -23,6 +23,7 @@
       ],
       "20mi": [
         "jefferson_st_milwaukie",
+        "vancouver_wintler",
         "george_rogers_park",
         "sportcraft_enrg_oc"
       ]
@@ -34,7 +35,9 @@
     },
     "frenchmans_bar": {
       "5mi": [],
-      "10mi": [],
+      "10mi": [
+        "st_helens_public_marina"
+      ],
       "20mi": []
     },
     "george_rogers_park": {
@@ -61,7 +64,9 @@
       "10mi": [
         "port_of_camas"
       ],
-      "20mi": []
+      "20mi": [
+        "vancouver_wintler"
+      ]
     },
     "jefferson_st_milwaukie": {
       "5mi": [
@@ -92,7 +97,9 @@
       "10mi": [
         "glenn_otto_troutdale"
       ],
-      "20mi": []
+      "20mi": [
+        "vancouver_wintler"
+      ]
     },
     "portland_boathouse": {
       "5mi": [
@@ -125,13 +132,16 @@
         "george_rogers_park"
       ],
       "20mi": [
-        "sportcraft_enrg_oc"
+        "sportcraft_enrg_oc",
+        "vancouver_wintler"
       ]
     },
     "scappoose_bay_marina": {
       "5mi": [],
       "10mi": [],
-      "20mi": []
+      "20mi": [
+        "vancouver_wintler"
+      ]
     },
     "sellwood_riverfront": {
       "5mi": [
@@ -169,7 +179,9 @@
     },
     "st_helens_public_marina": {
       "5mi": [],
-      "10mi": [],
+      "10mi": [
+        "frenchmans_bar"
+      ],
       "20mi": []
     },
     "swan_island_boat_ramp": {
@@ -186,6 +198,7 @@
       "20mi": [
         "jefferson_st_milwaukie",
         "george_rogers_park",
+        "vancouver_wintler",
         "sportcraft_enrg_oc"
       ]
     },
@@ -203,13 +216,23 @@
         "george_rogers_park"
       ],
       "20mi": [
-        "sportcraft_enrg_oc"
+        "sportcraft_enrg_oc",
+        "vancouver_wintler"
       ]
     },
     "vancouver_wintler": {
       "5mi": [],
       "10mi": [],
-      "20mi": []
+      "20mi": [
+        "port_of_camas",
+        "cathedral_park",
+        "swan_island_boat_ramp",
+        "washougal_waterfront",
+        "glenn_otto_troutdale",
+        "scappoose_bay_marina",
+        "tom_mccall_waterfront",
+        "river_place_marina"
+      ]
     },
     "washougal_waterfront": {
       "5mi": [
@@ -217,7 +240,9 @@
         "glenn_otto_troutdale"
       ],
       "10mi": [],
-      "20mi": []
+      "20mi": [
+        "vancouver_wintler"
+      ]
     },
     "willamette_park_sw": {
       "5mi": [

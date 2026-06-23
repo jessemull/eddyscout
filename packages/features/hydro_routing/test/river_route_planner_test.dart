@@ -320,6 +320,48 @@ void main() {
     );
 
     test(
+      'cross-system Cathedral to Glenn Otto stays on mainstem past Vancouver',
+      () async {
+        final planner = await _plannerFromBundledAssets();
+        final putIn = _launch(
+          id: 'cathedral_park',
+          river: RiverSystem.willamette,
+          lat: 45.5621,
+          lon: -122.7328,
+        );
+        final takeOut = _launch(
+          id: 'glenn_otto_troutdale',
+          river: RiverSystem.columbia,
+          lat: 45.5365,
+          lon: -122.3858,
+        );
+        final result = planner.plan(putIn, takeOut);
+        expect(result, isA<RouteSuccess>());
+        final ok = result as RouteSuccess;
+
+        // Wintler launch anchor used to be inlined into the mainstem, forcing
+        // through-routes to detour onto land north of the Columbia channel.
+        const vancouverWintlerLat = 45.6275;
+        const vancouverWintlerLon = -122.6558;
+        const minClearanceMeters = 150.0;
+        for (final coord in ok.polylineLonLat) {
+          final distance = haversineMeters(
+            vancouverWintlerLat,
+            vancouverWintlerLon,
+            coord[1],
+            coord[0],
+          );
+          expect(
+            distance,
+            greaterThan(minClearanceMeters),
+            reason:
+                'Through-route must not visit the Wintler spur launch anchor',
+          );
+        }
+      },
+    );
+
+    test(
       'cross-system routes on bundled assets without confluence bridges',
       () async {
         final docs = await readBundledHydroGeoJsonDocuments();

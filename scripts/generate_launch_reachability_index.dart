@@ -10,13 +10,7 @@
 import 'dart:io';
 
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/src/data/launch_reachability_index_generator.dart';
-import 'package:eddyscout_hydro_routing/src/data/river_route_planner.dart';
-
-const _hydroAssetNames = [
-  'willamette_waterway.geojson',
-  'columbia_gorge_waterway.geojson',
-];
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 
 const _outputRelativePath =
     'apps/eddyscout/assets/data/launch_reachability_index.json';
@@ -31,7 +25,7 @@ Future<void> main(List<String> args) async {
   }
 
   final docs = <String>[];
-  for (final name in _hydroAssetNames) {
+  for (final name in bundledHydroGeoJsonAssetFileNames) {
     final file = File('${hydroDir.path}/$name');
     if (!file.existsSync()) {
       stderr.writeln('Missing hydro asset: ${file.path}');
@@ -40,12 +34,21 @@ Future<void> main(List<String> args) async {
     docs.add(await file.readAsString());
   }
 
-  final planner = RiverRoutePlanner.fromGeoJsonDocuments(docs);
+  final bridgesFile = File('${hydroDir.path}/confluence_bridges.json');
+  final bridgesJson = bridgesFile.existsSync()
+      ? await bridgesFile.readAsString()
+      : null;
+
+  final planner = RiverRoutePlanner.fromGeoJsonDocuments(
+    docs,
+    confluenceBridgesJson: bridgesJson,
+  );
   final generatedAt = DateTime.utc(2026, 6, 14);
   final jsonText = LaunchReachabilityIndexGenerator.generateJson(
     planner: planner,
     catalog: kLaunchPoints,
     generatedAt: generatedAt,
+    crossSystemReachability: true,
     onWarning: stderr.writeln,
   );
 

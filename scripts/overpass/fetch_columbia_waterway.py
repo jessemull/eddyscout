@@ -279,6 +279,20 @@ def _multnomah_channel_way(ways: list[WayRecord]) -> WayRecord:
     return parsed[0]
 
 
+def _build_vancouver_wintler_spur(mainstem: list[list[float]]) -> list[list[float]]:
+    """Side branch for Wintler launch — must not be inlined into the mainstem."""
+    join_index = _nearest_index(mainstem, VANCOUVER_WINTLER)
+    join = mainstem[join_index]
+    return _finalize_coords(
+        densify_coords(
+            [
+                [join[0], join[1]],
+                [VANCOUVER_WINTLER[0], VANCOUVER_WINTLER[1]],
+            ],
+        ),
+    )
+
+
 def _build_multnomah_scappoose_spur(ways: list[WayRecord]) -> list[list[float]]:
     channel = _multnomah_channel_way(ways)
     coords = [[lon, lat] for lon, lat in channel.coordinates]
@@ -464,12 +478,12 @@ def _build_lower_features(
     lower: list[list[float]],
     ways: list[WayRecord],
 ) -> list[dict[str, Any]]:
-    mainstem = _finalize_coords(
-        extend_toward_anchor(lower, VANCOUVER_WINTLER, max_connector_m=2000.0),
-    )
+    mainstem = _finalize_coords(lower)
+    vancouver_spur = _build_vancouver_wintler_spur(mainstem)
     multnomah = _build_multnomah_scappoose_spur(ways)
     north_pool = _build_north_pool_spur()
     validate_coords("columbia_lower", mainstem)
+    validate_coords("vancouver_wintler_spur", vancouver_spur)
     validate_coords("multnomah_channel_scappoose", multnomah)
     validate_coords("columbia_lower_pool_north", north_pool)
     return [
@@ -479,9 +493,18 @@ def _build_lower_features(
             source=(
                 "OpenStreetMap ODbL. Overpass merge of connected "
                 "waterway=river|canal|fairway ways; shortest path from "
-                "Willamette mouth to Camas split; Vancouver launch anchor."
+                "Willamette mouth to Camas split."
             ),
             coordinates=mainstem,
+        ),
+        _feature(
+            reach_id="vancouver_wintler_spur",
+            name="Columbia — Wintler Community Park launch spur",
+            source=(
+                "OpenStreetMap ODbL. Connector from Columbia mainstem to "
+                "Wintler Community Park catalog launch anchor."
+            ),
+            coordinates=vancouver_spur,
         ),
         _feature(
             reach_id="multnomah_channel_scappoose",
