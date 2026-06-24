@@ -21,10 +21,7 @@ fi
 echo "=== NHD pipeline: download ===" >&2
 ./download.sh
 
-if [[ ! -f .venv/bin/activate ]]; then
-  echo "ERROR: missing .venv — run: python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt" >&2
-  exit 1
-fi
+./ensure_venv.sh
 
 # shellcheck disable=SC1091
 source .venv/bin/activate

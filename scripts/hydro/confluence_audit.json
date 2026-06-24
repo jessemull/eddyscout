@@ -1,0 +1,48 @@
+{
+  "pairs": [
+    {
+      "id": "willamette_columbia_mouth",
+      "required": true,
+      "informational": false,
+      "upstream_file": "willamette_waterway.geojson",
+      "downstream_file": "columbia_lower_waterway.geojson",
+      "upstream_point": "end",
+      "downstream_point": "start",
+      "upstream_anchor": [-122.7909498, 45.6178872],
+      "downstream_anchor": [-122.7909498, 45.6178872]
+    },
+    {
+      "id": "columbia_lower_gorge",
+      "required": true,
+      "informational": false,
+      "upstream_file": "columbia_lower_waterway.geojson",
+      "downstream_file": "columbia_gorge_waterway.geojson",
+      "upstream_point": "end",
+      "downstream_point": "start",
+      "upstream_anchor": [-122.4300244, 45.5659948],
+      "downstream_anchor": [-122.4300244, 45.5659948]
+    },
+    {
+      "id": "clackamas_willamette",
+      "required": false,
+      "informational": true,
+      "upstream_file": "clackamas_waterway.geojson",
+      "downstream_file": "willamette_waterway.geojson",
+      "upstream_point": "end",
+      "downstream_point": "start",
+      "upstream_anchor": [-122.612, 45.3548],
+      "downstream_anchor": [-122.61, 45.3525]
+    },
+    {
+      "id": "sandy_columbia_gorge",
+      "required": false,
+      "informational": true,
+      "upstream_file": "sandy_waterway.geojson",
+      "downstream_file": "columbia_gorge_waterway.geojson",
+      "upstream_point": "end",
+      "downstream_point": "end",
+      "upstream_anchor": [-122.3817713, 45.5405345],
+      "downstream_anchor": [-122.3817713, 45.5405345]
+    }
+  ]
+}

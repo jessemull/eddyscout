@@ -54,12 +54,14 @@ make hydro-check
 ```
 
 Runs bundled geometry validation plus `scripts/hydro/` unit tests. Fails when any
-bundled edge exceeds **2000 m**, confluence gaps exceed **12 m**, or a polyline
+bundled edge exceeds **2000 m**, required confluence gaps exceed **12 m**, or a polyline
 revisits a prior vertex within **12 m** (the same merge threshold as
-`RiverLineGraph`).
+`RiverLineGraph`). Also runs NHD script unit tests when present.
 
 Unit tests only:
 
 ```bash
 python3 -m unittest discover -s scripts/hydro -p 'test_*.py'
 ```
+
+For US NHD centerlines as an alternative/supplement to Overpass, see [`scripts/nhd/README.md`](../nhd/README.md).
