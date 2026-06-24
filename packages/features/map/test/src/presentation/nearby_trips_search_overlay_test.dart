@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:async' show unawaited;
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
@@ -55,56 +55,59 @@ List<Override> _searchOverrides() => [
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('NearbyTripsSearchOverlay closes search session on back', (
+  testWidgets('NearbyTripsSearchOverlay close clears origin and callback', (
     tester,
   ) async {
-    var closed = false;
-    final container = ProviderContainer(overrides: _searchOverrides());
-    addTearDown(container.dispose);
-    container.read(nearbyTripsSearchOriginProvider.notifier).open(_origin);
+    var closeCalled = false;
 
     await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
+      ProviderScope(
+        overrides: _searchOverrides(),
         child: testLocalizedApp(
-          child: Scaffold(
-            body: NearbyTripsSearchOverlay(
-              originLaunch: _origin,
-              onLaunchSelected: (_) {},
-              onClose: () => closed = true,
-            ),
+          child: Builder(
+            builder: (context) {
+              return Scaffold(
+                body: NearbyTripsSearchOverlay(
+                  originLaunch: _origin,
+                  onLaunchSelected: (_) {},
+                  onClose: () => closeCalled = true,
+                ),
+              );
+            },
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
+    final container = ProviderScope.containerOf(
+      tester.element(find.byKey(const Key('nearby_trips_search_view'))),
+    );
+    container.read(nearbyTripsSearchOriginProvider.notifier).open(_origin);
+    expect(container.read(nearbyTripsSearchOriginProvider), _origin);
+
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
 
-    expect(closed, isTrue);
+    expect(closeCalled, isTrue);
     expect(container.read(nearbyTripsSearchOriginProvider), isNull);
   });
 
-  testWidgets('NearbyTripsSearchPage pops route and clears search origin', (
+  testWidgets('NearbyTripsSearchPage pops route and clears origin on close', (
     tester,
   ) async {
-    final container = ProviderContainer(overrides: _searchOverrides());
-    addTearDown(container.dispose);
-    container.read(nearbyTripsSearchOriginProvider.notifier).open(_origin);
-
     await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
+      ProviderScope(
+        overrides: _searchOverrides(),
         child: testLocalizedApp(
-          child: Scaffold(
-            body: Builder(
-              builder: (context) {
-                return Center(
-                  child: ElevatedButton(
+          child: Builder(
+            builder: (context) {
+              return Scaffold(
+                body: Center(
+                  child: FilledButton(
                     onPressed: () {
                       unawaited(
-                        Navigator.of(context).push<void>(
+                        Navigator.of(context).push(
                           MaterialPageRoute<void>(
                             builder: (context) => NearbyTripsSearchPage(
                               originLaunch: _origin,
@@ -116,23 +119,78 @@ void main() {
                     },
                     child: const Text('Open search'),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Open search'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(NearbyTripsSearchPage), findsOneWidget);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byKey(const Key('nearby_trips_search_view'))),
+    );
+    container.read(nearbyTripsSearchOriginProvider.notifier).open(_origin);
 
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
 
-    expect(find.byType(NearbyTripsSearchPage), findsNothing);
+    expect(find.text('Open search'), findsOneWidget);
+    expect(container.read(nearbyTripsSearchOriginProvider), isNull);
+  });
+
+  testWidgets('NearbyTripsSearchPage clears origin on system back', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: _searchOverrides(),
+        child: testLocalizedApp(
+          child: Builder(
+            builder: (context) {
+              return Scaffold(
+                body: Center(
+                  child: FilledButton(
+                    onPressed: () {
+                      unawaited(
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) => NearbyTripsSearchPage(
+                              originLaunch: _origin,
+                              onLaunchSelected: (_) {},
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('Open search'),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Open search'));
+    await tester.pumpAndSettle();
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byKey(const Key('nearby_trips_search_view'))),
+    );
+    container.read(nearbyTripsSearchOriginProvider.notifier).open(_origin);
+
+    final didPop = await tester.binding.handlePopRoute();
+    expect(didPop, isTrue);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Open search'), findsOneWidget);
     expect(container.read(nearbyTripsSearchOriginProvider), isNull);
   });
 }

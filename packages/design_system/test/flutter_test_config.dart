@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
@@ -5,13 +7,22 @@ import 'package:golden_toolkit/golden_toolkit.dart';
 /// Tolerates sub-pixel raster diffs when macOS font rendering shifts.
 const _goldenDiffTolerance = 0.01;
 
-Future<void> testExecutable(Future<void> Function() testMain) async {
-  goldenFileComparator = _TolerantLocalFileComparator(
-    Uri.parse('test/goldens/app_theme_golden_test.dart'),
-  );
-  await loadAppFonts();
-  await testMain();
-}
+/// Preloads Roboto and package fonts before any design_system test runs.
+///
+/// Golden PNGs are compared on pinned macOS CI runners; loading fonts here
+/// avoids per-test races where the first frame renders before [loadAppFonts]
+/// completes.
+Future<void> testExecutable(FutureOr<void> Function() testMain) async =>
+    GoldenToolkit.runWithConfiguration(
+      () async {
+        goldenFileComparator = _TolerantLocalFileComparator(
+          Uri.parse('test/goldens/app_theme_golden_test.dart'),
+        );
+        await loadAppFonts();
+        await testMain();
+      },
+      config: GoldenToolkitConfiguration(),
+    );
 
 final class _TolerantLocalFileComparator extends LocalFileComparator {
   _TolerantLocalFileComparator(super.testFile);
