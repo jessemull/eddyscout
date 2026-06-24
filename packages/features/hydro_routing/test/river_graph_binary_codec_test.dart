@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_graph_binary_codec.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,6 +32,41 @@ void main() {
         throwsFormatException,
       );
     });
+
+    test(
+      'committed bundled binary matches geojson plan for launches',
+      () async {
+        final putIn = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
+        final takeOut = kLaunchPoints.firstWhere(
+          (l) => l.id == 'sellwood_riverfront',
+        );
+
+        final docs = await readBundledHydroGeoJsonDocuments();
+        final bridges = await readBundledConfluenceBridgesJson();
+        final geoPlanner = RiverRoutePlanner.fromGeoJsonDocuments(
+          docs,
+          confluenceBridgesJson: bridges,
+        );
+
+        final bytes = await readBundledHydroGraphBinary();
+        final binPlanner = RiverRoutePlanner.fromBinary(bytes);
+
+        expect(
+          binPlanner.graphForTesting.vertexCount,
+          geoPlanner.graphForTesting.vertexCount,
+        );
+
+        final geoResult = geoPlanner.plan(putIn, takeOut);
+        final binResult = binPlanner.plan(putIn, takeOut);
+
+        expect(geoResult, isA<RouteSuccess>());
+        expect(binResult, isA<RouteSuccess>());
+        expect(
+          (binResult as RouteSuccess).lengthMeters,
+          closeTo((geoResult as RouteSuccess).lengthMeters, 0.01),
+        );
+      },
+    );
 
     test('bundled geojson graph matches binary decode routes', () async {
       final docs = await readBundledHydroGeoJsonDocuments();

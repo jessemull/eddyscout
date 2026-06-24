@@ -22,7 +22,8 @@ Future<Uint8List?> loadBundledHydroGraphBinaryFromAssets() async {
       data.offsetInBytes,
       data.lengthInBytes,
     );
-  } on Object {
+  } on Object catch (e) {
+    hydroDebugLog('bundled hydro graph binary load failed: $e');
     return null;
   }
 }

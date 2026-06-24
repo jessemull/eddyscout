@@ -223,11 +223,7 @@ class GraphSnapIndex {
       if (bucket == null) {
         continue;
       }
-      for (final pair in bucket) {
-        if (seen.add(pair)) {
-          // defer sort
-        }
-      }
+      bucket.forEach(seen.add);
     }
     final sorted = seen.toList()
       ..sort((a, b) {

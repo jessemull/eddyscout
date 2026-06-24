@@ -4,6 +4,7 @@ library;
 export 'src/bundled_hydro_asset_paths.dart';
 export 'src/data/geodesy.dart';
 export 'src/data/hydro_app_failure_exception.dart';
+export 'src/data/hydro_debug_log.dart';
 export 'src/data/hydro_geojson_merge.dart';
 export 'src/data/launch_reachability_index_codec.dart';
 export 'src/data/launch_reachability_index_generator.dart';
