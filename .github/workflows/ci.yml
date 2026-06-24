@@ -73,7 +73,9 @@ jobs:
 
   golden:
     name: Golden Tests
-    runs-on: macos-latest
+    # Pin macOS version: macos-latest mixes 14/26 runners; font rasterization
+    # differs enough to flake pixel goldens.
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
@@ -81,10 +83,11 @@ jobs:
           flutter-version-file: .tool-versions
           channel: stable
           cache: true
+      # dart pub get resolves the workspace without copying iOS Firebase plugins;
+      # melos bootstrap runs flutter pub get and can fail on macOS runners.
       - run: dart pub get
-      - run: dart pub global activate melos
-      - run: melos bootstrap
-      - run: melos exec --scope=eddyscout_design_system -- "flutter test test/goldens"
+      - working-directory: packages/design_system
+        run: flutter test test/goldens
 
   coverage:
     name: Coverage Thresholds

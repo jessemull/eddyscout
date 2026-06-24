@@ -1,5 +1,6 @@
 import 'dart:convert' show utf8;
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_map/src/domain/gpx_file_gateway.dart';
@@ -14,8 +15,15 @@ typedef PickGpxFile = Future<FilePickerResult?> Function();
 Future<FilePickerResult?> _defaultPickGpxFile() => FilePicker.pickFiles(
   type: FileType.custom,
   allowedExtensions: const ['gpx'],
-  withData: true,
 );
+
+Future<Uint8List?> _readPickedGpxBytes(PlatformFile file) async {
+  try {
+    return await file.readAsBytes();
+  } on Object {
+    return null;
+  }
+}
 
 /// Default [GpxFileGateway] using file_picker and share_plus.
 class GpxFileGatewayImpl implements GpxFileGateway {
@@ -35,18 +43,13 @@ class GpxFileGatewayImpl implements GpxFileGateway {
         );
       }
       final file = result.files.single;
-      final bytes = file.bytes;
-      if (bytes != null) {
-        return Result.success(utf8.decode(bytes));
-      }
-      final path = file.path;
-      if (path == null) {
+      final bytes = await _readPickedGpxBytes(file);
+      if (bytes == null) {
         return const Result.failure(
           StorageFailure(message: 'gpx_file_read_failed'),
         );
       }
-      final contents = await File(path).readAsString();
-      return Result.success(contents);
+      return Result.success(utf8.decode(bytes));
     } on Object catch (e, st) {
       return Result.failure(
         StorageFailure(message: 'gpx_read_failed', stackTrace: st),
