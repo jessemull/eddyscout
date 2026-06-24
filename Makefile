@@ -13,6 +13,8 @@ INTEGRATION_DEVICE := $(shell uname -s | grep -q Darwin && echo macos || echo li
 	hydro-check hydro-fetch hydro-fetch-willamette hydro-fetch-columbia \
 	hydro-fetch-clackamas hydro-fetch-slough hydro-fetch-tualatin \
 	hydro-fetch-sandy hydro-sync-fixtures \
+	hydro-nhd-venv hydro-nhd-download hydro-nhd-convert hydro-nhd-validate \
+	hydro-nhd-compare hydro-nhd-run \
 	integration-test kill-emulator preflight run setup test
 
 help: ## Help@show targets
@@ -99,6 +101,24 @@ hydro-fetch: ## Dev@run all Overpass fetchers (network required)
 
 hydro-sync-fixtures: ## Dev@copy assets/hydro to test/fixtures
 	./scripts/hydro/sync_fixtures.sh
+
+hydro-nhd-venv: ## Hydro@create NHD Python venv (scripts/nhd/.venv)
+	./scripts/nhd/ensure_venv.sh
+
+hydro-nhd-download: hydro-nhd-venv ## Hydro@download NHD HU4 shapefiles (1708/1709)
+	./scripts/nhd/download.sh
+
+hydro-nhd-convert: hydro-nhd-venv ## Hydro@convert raw NHD shapefiles to GeoJSON
+	. scripts/nhd/.venv/bin/activate && python3 scripts/nhd/convert.py
+
+hydro-nhd-validate: hydro-nhd-venv ## Hydro@validate NHD output connectivity
+	. scripts/nhd/.venv/bin/activate && python3 scripts/nhd/validate.py
+
+hydro-nhd-compare: hydro-nhd-venv ## Hydro@compare NHD output vs bundled OSM
+	./scripts/nhd/compare_bundled.sh
+
+hydro-nhd-run: ## Hydro@download, convert, and validate NHD pipeline
+	./scripts/nhd/run.sh
 
 preflight: ## Quality@format, analyze, test, gen-check, coverage
 	./scripts/preflight.sh

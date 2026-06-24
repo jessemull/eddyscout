@@ -98,11 +98,29 @@ requires `properties.river_system` to match `RiverSystem.name` for routing.
 ### Python packages
 
 ```bash
-cd scripts/nhd
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+make hydro-nhd-venv
+# or manually:
+cd scripts/nhd && ./ensure_venv.sh
 ```
+
+`ensure_venv.sh` creates `.venv`, installs `requirements.txt`, and verifies `fiona` imports (needs GDAL).
+
+## Make targets (repo root)
+
+| Target | Action |
+|--------|--------|
+| `make hydro-nhd-venv` | Create/update Python venv |
+| `make hydro-nhd-download` | Download HU4 shapefiles (1708/1709) |
+| `make hydro-nhd-convert` | Convert raw shapefiles → `output/` |
+| `make hydro-nhd-validate` | Connectivity validation on `output/` |
+| `make hydro-nhd-compare` | Compare `output/` vs bundled OSM (`compare_report.md`) |
+| `make hydro-nhd-run` | Download → convert → validate |
+
+## CI vs manual workflow
+
+- **CI / preflight** runs `scripts/check_hydro_geometry.sh`, which includes NHD **unit tests** (`scripts/nhd/test_*.py`) but **never downloads** NHD data.
+- When `scripts/nhd/output/willamette_waterway.geojson` exists locally, `check_hydro_geometry.sh` runs `compare_bundled.sh` as a **non-blocking** warning step.
+- Full pipeline requires network + GDAL: `make hydro-nhd-run` then `make hydro-nhd-compare`.
 
 ## Usage
 
@@ -166,18 +184,38 @@ Use `--strict` to exit non-zero when near-miss gaps exist.
 
 ### 4. Compare against OSM baseline
 
+From repo root (after convert):
+
 ```bash
-python3 compare.py \
-  --baseline ../../apps/eddyscout/assets/hydro/columbia_gorge_waterway.geojson \
-  --candidate output/columbia_waterway.geojson \
-  --system columbia \
-  --overlay-out output/columbia_compare_overlay.geojson
+make hydro-nhd-compare
 ```
 
-For Willamette, swap baseline to `willamette_waterway.geojson` and candidate to
-`output/willamette_waterway.geojson`.
+Writes `scripts/nhd/output/compare_report.md` with feature/vertex/edge counts, length deltas, graph connectivity stats, and confluence snap distances from [`scripts/hydro/confluence_audit.json`](../hydro/confluence_audit.json).
 
-Reports feature/vertex counts, total length (km), bounding boxes, and approximate Hausdorff distance. Optional overlay GeoJSON tags features with `dataset: baseline|candidate` for QGIS inspection.
+Manual single-system compare:
+
+```bash
+python3 compare.py \
+  --baseline ../../apps/eddyscout/assets/hydro/willamette_waterway.geojson \
+  --candidate output/willamette_waterway.geojson \
+  --label Willamette \
+  --report-out output/compare_report.md
+```
+
+Columbia baseline merges lower + gorge + Sandy OSM files:
+
+```bash
+python3 compare.py \
+  --baseline ../../apps/eddyscout/assets/hydro/columbia_lower_waterway.geojson \
+  --baseline ../../apps/eddyscout/assets/hydro/columbia_gorge_waterway.geojson \
+  --baseline ../../apps/eddyscout/assets/hydro/sandy_waterway.geojson \
+  --candidate output/columbia_waterway.geojson \
+  --system columbia \
+  --label "Columbia merged" \
+  --report-out output/compare_report.md
+```
+
+Bundled OSM geometry is documented in [`apps/eddyscout/scripts/README-hydro.md`](../../apps/eddyscout/scripts/README-hydro.md).
 
 ## Configuration
 
@@ -194,6 +232,7 @@ Edit [`config.json`](config.json):
 | `min_segment_length_meters` | Drop very short segments after simplify |
 | `merge_vertex_threshold_meters` | Validation merge threshold |
 | `connectivity_gap_warning_meters` | Report gaps between this and merge threshold |
+| `confluence_audit` | See [`scripts/hydro/confluence_audit.json`](../hydro/confluence_audit.json) (shared with geometry CI) |
 | `utm_epsg` | UTM zone for metric simplification (32610 = UTM 10N) |
 
 ### Adding a river system
@@ -216,7 +255,12 @@ scripts/nhd/
 ├── download.sh          # fetch + unzip NHD HU4 shapefiles
 ├── convert.py           # shapefile → per-system GeoJSON
 ├── validate.py          # connectivity checks
-├── compare.py           # diff vs OSM baseline
+├── compare.py           # diff vs OSM baseline (+ Markdown report)
+├── compare_bundled.sh   # compare all bundled systems vs output/
+├── ensure_venv.sh       # bootstrap .venv + pip install
+├── graph_audit.py       # shared graph connectivity helpers
+├── test_compare.py      # unit tests (CI)
+├── test_validate.py     # unit tests (CI)
 ├── _common.py           # shared helpers
 ├── raw/                 # downloaded shapefiles (gitignored)
 └── output/              # generated GeoJSON (gitignored)

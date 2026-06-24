@@ -29,7 +29,7 @@ columbia_lower_waterway.geojson
 columbia_gorge_waterway.geojson
 ```
 
-Clackamas and Sandy joins to Willamette/Columbia are validated for internal graph quality but are **not** chained in `check_geometry.py` until OSM connectivity is stable end-to-end.
+Clackamas and Sandy joins to Willamette/Columbia are validated for internal graph quality but are **informational only** in `check_geometry.py` until endpoint gaps are within 12 m (Clackamas ~300 m today).
 
 ### `confluence_bridges.json` policy
 
@@ -59,7 +59,7 @@ After changing geometry locally, run `make hydro-check` before committing.
 | Gate | Command / test | Threshold |
 |------|----------------|-----------|
 | Geometry (CI) | `make hydro-check` / `scripts/preflight.sh` | Max edge **2000 m**; declared confluence endpoint gaps **12 m** |
-| Graph load | `packages/features/hydro_routing/test/bundled_hydro_connectivity_test.dart` | Non-empty graph per expected `river_system` |
+| Graph load | `packages/features/hydro_routing/test/bundled_hydro_connectivity_test.dart` | Non-empty graph per system; required confluences connected; informational gaps documented |
 | Launch snap | `packages/features/hydro_routing/test/bundled_launch_snap_test.dart` | Each catalog launch on a system with geometry snaps within **900 m** (`kReachabilitySnapMaxMeters`) |
 | Bundle size | `apps/eddyscout/test/assets/hydro_asset_bounds_test.dart` | Per-file ceilings + total **< 500 KB** |
 
@@ -82,9 +82,33 @@ Cross-system route planning (`cathedral_park` → `glenn_otto_troutdale` without
 
 ## Out of scope
 
-- **NHD download / conversion** — see `scripts/nhd/` (separate R1 item)
+- **Replacing bundled GeoJSON with NHD output** — compare/report only; see `scripts/nhd/`
 - **Server-side / PostGIS routing** (R5)
 - Loading `confluence_bridges.json` in the app (owned by PR #62)
+
+## NHD alternative source
+
+For higher-resolution US centerlines (dev-time compare only):
+
+```bash
+make hydro-nhd-run      # download → convert → validate (network + GDAL)
+make hydro-nhd-compare  # OSM vs NHD report when output/ exists
+```
+
+See [`scripts/nhd/README.md`](../../../scripts/nhd/README.md).
+
+## Confluence connectivity audit
+
+| Pair | Gate | Typical gap | Bridge | Notes |
+|------|------|-------------|--------|-------|
+| Willamette → Columbia lower | **required** (CI) | 0 m | — | Shared mouth vertex |
+| Columbia lower → gorge | **required** (CI) | 0 m | — | Camas split anchor |
+| Clackamas → Willamette | informational | ~300 m | `clackamas_willamette_oc` placeholder | Extend geometry or bridge when cross-system Clackamas routing ships |
+| Sandy → Columbia gorge | informational | 0 m at Glenn Otto (end↔end) | — | Sandy subline shares gorge endpoint |
+
+Dart audit: `packages/features/hydro_routing/test/bundled_hydro_connectivity_test.dart`  
+Python audit: `scripts/hydro/check_geometry.py` (`audit_confluence_connectivity`)  
+Anchor coordinates: `scripts/hydro/confluence_audit.json` (shared with NHD compare)
 
 ## Disclaimer
 

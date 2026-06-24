@@ -21,24 +21,10 @@ fi
 
 mkdir -p "$RAW_DIR"
 
-readarray -t REGIONS < <(
-  python3 - <<'PY' "$CONFIG"
-import json
-import sys
-
-with open(sys.argv[1], encoding="utf-8") as handle:
-    config = json.load(handle)
-
-base = config["nhd_base_url"].rstrip("/")
-for region in config["huc_regions"]:
-    url = f"{base}/{region['url_suffix']}"
-    print(f"{region['huc4']}|{url}")
-PY
-)
-
 echo "=== NHD download (Portland metro HU4) ==="
 
-for entry in "${REGIONS[@]}"; do
+while IFS= read -r entry; do
+  [[ -z "$entry" ]] && continue
   huc4="${entry%%|*}"
   url="${entry#*|}"
   zip_path="$RAW_DIR/NHD_H_${huc4}_HU4_Shape.zip"
@@ -59,6 +45,19 @@ for entry in "${REGIONS[@]}"; do
   mkdir -p "$extract_dir"
   echo "extract: $zip_path -> $extract_dir"
   unzip -oq "$zip_path" -d "$extract_dir"
-done
+done < <(
+  python3 - <<'PY' "$CONFIG"
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    config = json.load(handle)
+
+base = config["nhd_base_url"].rstrip("/")
+for region in config["huc_regions"]:
+    url = f"{base}/{region['url_suffix']}"
+    print(f"{region['huc4']}|{url}")
+PY
+)
 
 echo "done: raw shapefiles under $RAW_DIR"
