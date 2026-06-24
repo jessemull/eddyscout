@@ -10,22 +10,10 @@
 import 'dart:io';
 
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_hydro_routing/src/data/launch_reachability_index_generator.dart';
-import 'package:eddyscout_hydro_routing/src/data/river_route_planner.dart';
-
-const _hydroAssetNames = [
-  'willamette_waterway.geojson',
-  'columbia_lower_waterway.geojson',
-  'columbia_gorge_waterway.geojson',
-];
-
-const _bridgesAssetName = 'confluence_bridges.json';
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 
 const _outputRelativePath =
     'apps/eddyscout/assets/data/launch_reachability_index.json';
-
-/// Bump when regenerating committed reachability JSON after hydro/catalog changes.
-final _indexGeneratedAt = DateTime.utc(2026, 6, 23);
 
 Future<void> main(List<String> args) async {
   final checkOnly = args.contains('--check');
@@ -37,7 +25,7 @@ Future<void> main(List<String> args) async {
   }
 
   final docs = <String>[];
-  for (final name in _hydroAssetNames) {
+  for (final name in bundledHydroGeoJsonAssetFileNames) {
     final file = File('${hydroDir.path}/$name');
     if (!file.existsSync()) {
       stderr.writeln('Missing hydro asset: ${file.path}');
@@ -46,21 +34,20 @@ Future<void> main(List<String> args) async {
     docs.add(await file.readAsString());
   }
 
-  final bridgesFile = File('${hydroDir.path}/$_bridgesAssetName');
-  if (!bridgesFile.existsSync()) {
-    stderr.writeln('Missing hydro asset: ${bridgesFile.path}');
-    exit(1);
-  }
-  final bridgesJson = await bridgesFile.readAsString();
+  final bridgesFile = File('${hydroDir.path}/confluence_bridges.json');
+  final bridgesJson = bridgesFile.existsSync()
+      ? await bridgesFile.readAsString()
+      : null;
 
   final planner = RiverRoutePlanner.fromGeoJsonDocuments(
     docs,
     confluenceBridgesJson: bridgesJson,
   );
+  final generatedAt = DateTime.utc(2026, 6, 23);
   final jsonText = LaunchReachabilityIndexGenerator.generateJson(
     planner: planner,
     catalog: kLaunchPoints,
-    generatedAt: _indexGeneratedAt,
+    generatedAt: generatedAt,
     crossSystemReachability: true,
     onWarning: stderr.writeln,
   );

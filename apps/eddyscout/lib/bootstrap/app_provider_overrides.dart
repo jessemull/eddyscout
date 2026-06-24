@@ -1,3 +1,4 @@
+import 'package:eddyscout/bootstrap/bundled_hydro_loader.dart';
 import 'package:eddyscout/bootstrap/map_gpx_service_adapter.dart';
 import 'package:eddyscout/bootstrap/map_route_planner_adapter.dart';
 import 'package:eddyscout/preferences/key_value_store_provider.dart';
@@ -45,18 +46,10 @@ List<Override> buildAppProviderOverrides({
       (ref) async => keyValueStore,
     ),
     hydroGeoJsonLoaderProvider.overrideWithValue(
-      () async => [
-        await rootBundle.loadString('assets/hydro/willamette_waterway.geojson'),
-        await rootBundle.loadString(
-          'assets/hydro/columbia_lower_waterway.geojson',
-        ),
-        await rootBundle.loadString(
-          'assets/hydro/columbia_gorge_waterway.geojson',
-        ),
-      ],
+      loadBundledHydroGeoJsonFromAssets,
     ),
     hydroConfluenceBridgesLoaderProvider.overrideWithValue(
-      () async => rootBundle.loadString('assets/hydro/confluence_bridges.json'),
+      () async => rootBundle.loadString(bundledConfluenceBridgesAssetPath),
     ),
     launchReachabilityIndexLoaderProvider.overrideWithValue(
       () => rootBundle.loadString(

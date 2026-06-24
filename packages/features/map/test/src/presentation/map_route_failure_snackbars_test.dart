@@ -111,7 +111,9 @@ void main() {
     expect(
       find.descendant(
         of: find.byType(SnackBar),
-        matching: find.textContaining('same river system'),
+        matching: find.textContaining(
+          'No connected river path between these river systems',
+        ),
       ),
       findsOneWidget,
     );

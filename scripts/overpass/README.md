@@ -1,5 +1,8 @@
 # OpenStreetMap Overpass import scripts for bundled hydro assets.
 
+App-facing documentation (asset table, validation gates, make targets) lives in
+[`apps/eddyscout/scripts/README-hydro.md`](../../apps/eddyscout/scripts/README-hydro.md).
+
 ## Columbia lower + gorge
 
 ```bash
@@ -10,14 +13,15 @@ Fetches connected `waterway=river|canal|fairway` ways for the Portland–Columbi
 corridor, then:
 
 1. **Lower reach** — shortest OSM path from the Willamette mouth (read from bundled
-   `willamette_waterway.geojson`) to the Camas split anchor; backtrack loops pruned.
+   `willamette_waterway.geojson`) to the Camas split anchor; backtrack loops pruned;
+   launch spurs for Vancouver Wintler, Multnomah/Scappoose, and lower pool.
 2. **Gorge reach** — through-channel OSM subline on Columbia way `163917830` from
    Camas to Sandy junction, plus Sandy River way `128946456` to Glenn Otto (no launch
    pin inlining on mainstem).
 
 Outputs are written to:
 
-- `apps/eddyscout/assets/hydro/columbia_lower_waterway.geojson` (mainstem feature only;
+- `apps/eddyscout/assets/hydro/columbia_lower_waterway.geojson` (mainstem + launch spurs;
   re-run preserves an existing `camas_slough_spur` feature when present)
 - `apps/eddyscout/assets/hydro/columbia_gorge_waterway.geojson`
 - matching copies under `packages/features/hydro_routing/test/fixtures/`
@@ -25,12 +29,20 @@ Outputs are written to:
 ## Camas Slough spur
 
 ```bash
-python3 scripts/overpass/fetch_slough_waterway.py
+python3 scripts/overpass/fetch_camas_slough_waterway.py
 ```
 
 Run **after** `fetch_columbia_waterway.py`. Fetches OSM way `130204446` (Camas Slough)
 and local connector ways, then appends a `camas_slough_spur` feature to
 `columbia_lower_waterway.geojson` (shared Camas split vertex with mainstem + gorge).
+
+## Portland slough network
+
+```bash
+python3 scripts/overpass/fetch_slough_waterway.py
+```
+
+Imports Multnomah Channel / Smith & Bybee slough geometry (separate from Camas Slough).
 
 ## Validation
 

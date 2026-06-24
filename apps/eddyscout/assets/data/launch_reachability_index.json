@@ -19,11 +19,13 @@
         "river_place_marina",
         "portland_boathouse",
         "sellwood_riverfront",
-        "kelley_point"
+        "willamette_park_sw"
       ],
       "20mi": [
         "jefferson_st_milwaukie",
-        "george_rogers_park"
+        "vancouver_wintler",
+        "george_rogers_park",
+        "sportcraft_enrg_oc"
       ]
     },
     "clackamette_park": {
@@ -33,20 +35,24 @@
     },
     "frenchmans_bar": {
       "5mi": [],
-      "10mi": [],
+      "10mi": [
+        "st_helens_public_marina"
+      ],
       "20mi": []
     },
     "george_rogers_park": {
       "5mi": [
-        "jefferson_st_milwaukie"
+        "jefferson_st_milwaukie",
+        "sportcraft_enrg_oc"
       ],
       "10mi": [
+        "willamette_park_sw",
         "sellwood_riverfront",
         "river_place_marina",
-        "tom_mccall_waterfront",
-        "portland_boathouse"
+        "tom_mccall_waterfront"
       ],
       "20mi": [
+        "portland_boathouse",
         "swan_island_boat_ramp",
         "cathedral_park"
       ]
@@ -56,36 +62,31 @@
       "10mi": [
         "port_of_camas"
       ],
-      "20mi": []
+      "20mi": [
+        "vancouver_wintler"
+      ]
     },
     "jefferson_st_milwaukie": {
       "5mi": [
-        "sellwood_riverfront",
-        "george_rogers_park"
+        "willamette_park_sw",
+        "george_rogers_park",
+        "sellwood_riverfront"
       ],
       "10mi": [
         "river_place_marina",
         "tom_mccall_waterfront",
         "portland_boathouse",
-        "swan_island_boat_ramp"
+        "sportcraft_enrg_oc"
       ],
       "20mi": [
+        "swan_island_boat_ramp",
         "cathedral_park"
       ]
     },
     "kelley_point": {
       "5mi": [],
-      "10mi": [
-        "cathedral_park"
-      ],
-      "20mi": [
-        "swan_island_boat_ramp",
-        "tom_mccall_waterfront",
-        "river_place_marina",
-        "portland_boathouse",
-        "sellwood_riverfront",
-        "port_of_camas"
-      ]
+      "10mi": [],
+      "20mi": []
     },
     "port_of_camas": {
       "5mi": [],
@@ -93,7 +94,7 @@
         "glenn_otto_troutdale"
       ],
       "20mi": [
-        "kelley_point"
+        "vancouver_wintler"
       ]
     },
     "portland_boathouse": {
@@ -101,15 +102,16 @@
         "tom_mccall_waterfront",
         "river_place_marina",
         "sellwood_riverfront",
-        "swan_island_boat_ramp"
+        "swan_island_boat_ramp",
+        "willamette_park_sw"
       ],
       "10mi": [
         "cathedral_park",
-        "jefferson_st_milwaukie",
-        "george_rogers_park"
+        "jefferson_st_milwaukie"
       ],
       "20mi": [
-        "kelley_point"
+        "george_rogers_park",
+        "sportcraft_enrg_oc"
       ]
     },
     "river_place_marina": {
@@ -117,7 +119,8 @@
         "tom_mccall_waterfront",
         "portland_boathouse",
         "sellwood_riverfront",
-        "swan_island_boat_ramp"
+        "swan_island_boat_ramp",
+        "willamette_park_sw"
       ],
       "10mi": [
         "cathedral_park",
@@ -125,38 +128,56 @@
         "george_rogers_park"
       ],
       "20mi": [
-        "kelley_point"
+        "sportcraft_enrg_oc",
+        "vancouver_wintler"
       ]
     },
     "scappoose_bay_marina": {
       "5mi": [],
       "10mi": [],
-      "20mi": []
+      "20mi": [
+        "vancouver_wintler"
+      ]
     },
     "sellwood_riverfront": {
       "5mi": [
-        "jefferson_st_milwaukie",
+        "willamette_park_sw",
         "river_place_marina",
         "tom_mccall_waterfront",
-        "portland_boathouse"
+        "portland_boathouse",
+        "jefferson_st_milwaukie"
       ],
       "10mi": [
-        "george_rogers_park",
         "swan_island_boat_ramp",
+        "george_rogers_park",
         "cathedral_park"
       ],
       "20mi": [
-        "kelley_point"
+        "sportcraft_enrg_oc"
       ]
     },
     "sportcraft_enrg_oc": {
-      "5mi": [],
-      "10mi": [],
-      "20mi": []
+      "5mi": [
+        "george_rogers_park"
+      ],
+      "10mi": [
+        "jefferson_st_milwaukie",
+        "willamette_park_sw"
+      ],
+      "20mi": [
+        "sellwood_riverfront",
+        "river_place_marina",
+        "tom_mccall_waterfront",
+        "portland_boathouse",
+        "swan_island_boat_ramp",
+        "cathedral_park"
+      ]
     },
     "st_helens_public_marina": {
       "5mi": [],
-      "10mi": [],
+      "10mi": [
+        "frenchmans_bar"
+      ],
       "20mi": []
     },
     "swan_island_boat_ramp": {
@@ -168,11 +189,13 @@
       ],
       "10mi": [
         "sellwood_riverfront",
-        "jefferson_st_milwaukie"
+        "willamette_park_sw"
       ],
       "20mi": [
-        "kelley_point",
-        "george_rogers_park"
+        "jefferson_st_milwaukie",
+        "george_rogers_park",
+        "vancouver_wintler",
+        "sportcraft_enrg_oc"
       ]
     },
     "tom_mccall_waterfront": {
@@ -180,7 +203,8 @@
         "river_place_marina",
         "portland_boathouse",
         "sellwood_riverfront",
-        "swan_island_boat_ramp"
+        "swan_island_boat_ramp",
+        "willamette_park_sw"
       ],
       "10mi": [
         "cathedral_park",
@@ -188,13 +212,22 @@
         "george_rogers_park"
       ],
       "20mi": [
-        "kelley_point"
+        "sportcraft_enrg_oc",
+        "vancouver_wintler"
       ]
     },
     "vancouver_wintler": {
       "5mi": [],
       "10mi": [],
-      "20mi": []
+      "20mi": [
+        "cathedral_park",
+        "port_of_camas",
+        "swan_island_boat_ramp",
+        "glenn_otto_troutdale",
+        "scappoose_bay_marina",
+        "tom_mccall_waterfront",
+        "river_place_marina"
+      ]
     },
     "washougal_waterfront": {
       "5mi": [],
@@ -202,8 +235,19 @@
       "20mi": []
     },
     "willamette_park_sw": {
-      "5mi": [],
-      "10mi": [],
+      "5mi": [
+        "sellwood_riverfront",
+        "jefferson_st_milwaukie",
+        "river_place_marina",
+        "tom_mccall_waterfront",
+        "portland_boathouse"
+      ],
+      "10mi": [
+        "george_rogers_park",
+        "swan_island_boat_ramp",
+        "sportcraft_enrg_oc",
+        "cathedral_park"
+      ],
       "20mi": []
     }
   }

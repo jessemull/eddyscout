@@ -91,8 +91,6 @@ class _Swatch extends StatelessWidget {
 
 void main() {
   testGoldens('AppTheme renders stable light/dark gallery', (tester) async {
-    await loadAppFonts();
-
     final builder = GoldenBuilder.grid(columns: 2, widthToHeightRatio: 1.3)
       ..addScenario(
         'light',

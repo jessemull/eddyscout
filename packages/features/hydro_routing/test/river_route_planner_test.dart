@@ -25,18 +25,20 @@ LaunchPoint _launch({
 }
 
 Future<RiverRoutePlanner> _plannerFromFixtures() async {
-  final willamette = await File(
-    'test/fixtures/willamette_waterway.geojson',
-  ).readAsString();
-  final columbiaLower = await File(
-    'test/fixtures/columbia_lower_waterway.geojson',
-  ).readAsString();
-  final columbia = await File(
-    'test/fixtures/columbia_gorge_waterway.geojson',
-  ).readAsString();
-  return RiverRoutePlanner.fromGeoJsonDocuments(
-    [willamette, columbiaLower, columbia],
-  );
+  const fixtureNames = [
+    'willamette_waterway.geojson',
+    'columbia_lower_waterway.geojson',
+    'columbia_gorge_waterway.geojson',
+    'clackamas_waterway.geojson',
+    'slough_waterway.geojson',
+    'tualatin_waterway.geojson',
+    'sandy_waterway.geojson',
+  ];
+  final docs = <String>[];
+  for (final name in fixtureNames) {
+    docs.add(await File('test/fixtures/$name').readAsString());
+  }
+  return RiverRoutePlanner.fromGeoJsonDocuments(docs);
 }
 
 Future<RiverRoutePlanner> _plannerFromBundledAssets() async {
