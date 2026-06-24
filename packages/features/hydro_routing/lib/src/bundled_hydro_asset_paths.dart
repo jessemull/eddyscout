@@ -13,6 +13,9 @@ const bundledHydroGeoJsonAssetPaths = <String>[
 const bundledConfluenceBridgesAssetPath =
     'assets/hydro/confluence_bridges.json';
 
+/// Precomputed unified hydro graph for fast cold start.
+const bundledHydroGraphBinaryAssetPath = 'assets/data/unified_hydro_graph.bin';
+
 /// Basenames under `assets/hydro/` (for offline index generators).
 const bundledHydroGeoJsonAssetFileNames = <String>[
   'willamette_waterway.geojson',

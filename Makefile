@@ -9,7 +9,7 @@ INTEGRATION_DEVICE := $(shell uname -s | grep -q Darwin && echo macos || echo li
 
 .PHONY: help analyze bootstrap ci clean coverage coverage-check dev ensure-husky \
 	format format-fix gen gen-check gen-reachability gen-reachability-check \
-	gen-suggested-trips gen-suggested-trips-check \
+	gen-suggested-trips gen-suggested-trips-check gen-hydro-graph gen-hydro-graph-check \
 	hydro-check hydro-fetch hydro-fetch-willamette hydro-fetch-columbia \
 	hydro-fetch-clackamas hydro-fetch-slough hydro-fetch-tualatin \
 	hydro-fetch-sandy hydro-sync-fixtures \
@@ -72,6 +72,12 @@ gen-suggested-trips: ## Quality@generate launch suggested trips index JSON
 
 gen-suggested-trips-check: ## Quality@verify suggested trips index is fresh
 	cd scripts && flutter pub get && dart run generate_launch_suggested_trips_index.dart --check
+
+gen-hydro-graph: ## Quality@generate unified hydro graph binary
+	cd scripts && flutter pub get && dart run generate_hydro_graph_binary.dart
+
+gen-hydro-graph-check: ## Quality@verify hydro graph binary is fresh
+	cd scripts && flutter pub get && dart run generate_hydro_graph_binary.dart --check
 
 hydro-check: ## Quality@validate bundled hydro geometry (edges + confluences)
 	./scripts/check_hydro_geometry.sh

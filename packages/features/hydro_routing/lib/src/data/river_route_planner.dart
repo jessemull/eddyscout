@@ -1,12 +1,15 @@
-import 'package:eddyscout_core/eddyscout_core.dart';
+import 'dart:typed_data';
 
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/src/data/confluence_bridges.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_debug_log.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_geojson_merge.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_graph.dart';
+import 'package:eddyscout_hydro_routing/src/data/river_graph_binary_codec.dart';
 import 'package:eddyscout_hydro_routing/src/domain/planned_route_hydro.dart';
 import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
+import 'package:meta/meta.dart';
 
 /// Loads bundled hydro GeoJSON and plans routes between launches.
 class RiverRoutePlanner {
@@ -56,9 +59,32 @@ class RiverRoutePlanner {
     return RiverRoutePlanner._(graph);
   }
 
+  /// Builds a planner from precomputed binary graph bytes.
+  ///
+  /// Confluence bridges must already be baked into the binary asset.
+  factory RiverRoutePlanner.fromBinary(Uint8List bytes) {
+    final graph = RiverLineGraph.fromBinary(bytes);
+    hydroDebugLog(
+      'RiverRoutePlanner.fromBinary: vertexCount=${graph.vertexCount}',
+    );
+    return RiverRoutePlanner._(graph);
+  }
+
   RiverRoutePlanner._(this._graph);
 
   final RiverLineGraph _graph;
+
+  /// Underlying graph for tests and offline encoders.
+  @visibleForTesting
+  RiverLineGraph get graphForTesting => _graph;
+
+  /// Vertex count in the unified routing graph.
+  int get unifiedGraphVertexCount => _graph.vertexCount;
+
+  /// Serializes the unified graph for bundled binary assets.
+  Uint8List encodeUnifiedGraphBinary({
+    RiverGraphBinaryMetadata metadata = const RiverGraphBinaryMetadata(),
+  }) => encodeRiverLineGraph(_graph, metadata: metadata);
 
   /// Plans a river-line path between [putIn] and [takeOut].
   RouteResult plan(LaunchPoint putIn, LaunchPoint takeOut) {

@@ -68,3 +68,4 @@ flutter:
     - assets/hydro/confluence_bridges.json
     - assets/data/launch_reachability_index.json
     - assets/data/launch_suggested_trips_index.json
+    - assets/data/unified_hydro_graph.bin

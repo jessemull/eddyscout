@@ -115,6 +115,59 @@ final class HydroConfluenceBridgesLoaderProvider
 String _$hydroConfluenceBridgesLoaderHash() =>
     r'459df32b618f00200a0aadff7bf926daa1f2f4e0';
 
+/// Optional precomputed graph binary for faster cold start.
+
+@ProviderFor(hydroGraphBinaryLoader)
+final hydroGraphBinaryLoaderProvider = HydroGraphBinaryLoaderProvider._();
+
+/// Optional precomputed graph binary for faster cold start.
+
+final class HydroGraphBinaryLoaderProvider
+    extends
+        $FunctionalProvider<
+          HydroGraphBinaryLoader,
+          HydroGraphBinaryLoader,
+          HydroGraphBinaryLoader
+        >
+    with $Provider<HydroGraphBinaryLoader> {
+  /// Optional precomputed graph binary for faster cold start.
+  HydroGraphBinaryLoaderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'hydroGraphBinaryLoaderProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$hydroGraphBinaryLoaderHash();
+
+  @$internal
+  @override
+  $ProviderElement<HydroGraphBinaryLoader> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  HydroGraphBinaryLoader create(Ref ref) {
+    return hydroGraphBinaryLoader(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(HydroGraphBinaryLoader value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<HydroGraphBinaryLoader>(value),
+    );
+  }
+}
+
+String _$hydroGraphBinaryLoaderHash() =>
+    r'35619e94643e2aea4eef1972c0a4e8335f50420f';
+
 /// Bundled hydro graphs for river routing between launches.
 
 @ProviderFor(riverRoutePlanner)
@@ -159,4 +212,4 @@ final class RiverRoutePlannerProvider
   }
 }
 
-String _$riverRoutePlannerHash() => r'dc7b53089ff4b06eb89c308f8737ccc2263197ec';
+String _$riverRoutePlannerHash() => r'7e87ce0236e055c06147a397e8ff0aefe88cd463';
