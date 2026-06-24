@@ -33,5 +33,7 @@ before write so bundled geometry passes `scripts/check_hydro_geometry.sh`.
 ./scripts/check_hydro_geometry.sh
 ```
 
-Fails when any bundled edge exceeds **2000 m** or confluence gaps exceed **12 m**
-(the same merge threshold as `RiverLineGraph`).
+Fails when any bundled edge exceeds **2000 m** or required confluence gaps exceed **12 m**
+(the same merge threshold as `RiverLineGraph`). Also runs NHD script unit tests.
+
+For US NHD centerlines as an alternative/supplement to Overpass, see [`scripts/nhd/README.md`](../nhd/README.md).

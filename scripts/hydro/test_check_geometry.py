@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_geometry import collect_geometry_errors
+from check_geometry import audit_confluence_connectivity, collect_geometry_errors
 
 
 def _write_feature_collection(path: Path, coordinates: list[list[float]]) -> None:
@@ -91,6 +91,37 @@ class CheckGeometryTest(unittest.TestCase):
                     for error in errors
                 )
             )
+
+
+    def test_informational_confluence_audit_does_not_fail_geometry_gate(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            hydro_dir = Path(tmp)
+            _write_feature_collection(
+                hydro_dir / "willamette_waterway.geojson",
+                [[-122.0, 45.0], [-122.001, 45.0]],
+            )
+            _write_feature_collection(
+                hydro_dir / "columbia_lower_waterway.geojson",
+                [[-122.001, 45.0], [-122.002, 45.0]],
+            )
+            _write_feature_collection(
+                hydro_dir / "columbia_gorge_waterway.geojson",
+                [[-122.002, 45.0], [-122.003, 45.0]],
+            )
+            _write_feature_collection(
+                hydro_dir / "clackamas_waterway.geojson",
+                [[-122.004, 45.0], [-122.005, 45.003]],
+            )
+
+            errors = collect_geometry_errors(hydro_dir, confluence_gap_m=12.0)
+            self.assertEqual(errors, [])
+
+            audit = audit_confluence_connectivity(hydro_dir, confluence_gap_m=12.0)
+            clackamas = next(
+                row for row in audit if row.pair_id == "clackamas_willamette"
+            )
+            self.assertTrue(clackamas.informational)
+            self.assertFalse(clackamas.connected)
 
 
 if __name__ == "__main__":

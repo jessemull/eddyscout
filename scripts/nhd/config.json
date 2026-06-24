@@ -34,5 +34,31 @@
   "min_segment_length_meters": 50,
   "merge_vertex_threshold_meters": 25,
   "connectivity_gap_warning_meters": 100,
-  "utm_epsg": 32610
+  "utm_epsg": 32610,
+  "confluence_audit": [
+    {
+      "id": "willamette_columbia_mouth",
+      "required": true,
+      "upstream_end": [-122.7909498, 45.6178872],
+      "downstream_start": [-122.7909498, 45.6178872]
+    },
+    {
+      "id": "columbia_lower_gorge",
+      "required": true,
+      "upstream_end": [-122.4300244, 45.5659948],
+      "downstream_start": [-122.4300244, 45.5659948]
+    },
+    {
+      "id": "clackamas_willamette",
+      "informational": true,
+      "upstream_end": [-122.612, 45.3548],
+      "downstream_start": [-122.61, 45.3525]
+    },
+    {
+      "id": "sandy_columbia_gorge",
+      "informational": true,
+      "upstream_end": [-122.3817713, 45.5405345],
+      "downstream_start": [-122.3817713, 45.5405345]
+    }
+  ]
 }
