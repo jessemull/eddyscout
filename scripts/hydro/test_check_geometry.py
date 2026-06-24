@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from check_geometry import audit_confluence_connectivity, collect_geometry_errors
+from _common import bundled_hydro_dir
 
 
 def _write_feature_collection(path: Path, coordinates: list[list[float]]) -> None:
@@ -122,6 +123,15 @@ class CheckGeometryTest(unittest.TestCase):
             )
             self.assertTrue(clackamas.informational)
             self.assertFalse(clackamas.connected)
+
+    def test_sandy_informational_audit_connected_on_bundled_assets(self) -> None:
+        audit = audit_confluence_connectivity(
+            bundled_hydro_dir(),
+            confluence_gap_m=12.0,
+        )
+        sandy = next(row for row in audit if row.pair_id == "sandy_columbia_gorge")
+        self.assertTrue(sandy.informational)
+        self.assertTrue(sandy.connected)
 
 
 if __name__ == "__main__":

@@ -6,13 +6,26 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/bundled_hydro_assets.dart';
 
-/// Confluence anchor near upstream line end (lat, lon).
+/// Matches [RiverLineGraph] default merge threshold and geometry CI gate.
+const _kConfluenceMergeSnapMeters = 12.0;
+
+/// Confluence anchor near line endpoint (lat, lon).
 typedef _ConfluenceAnchor = ({
   String id,
   double lat,
   double lon,
-  bool required,
 });
+
+_ConfluenceAnchor _anchorFromJson(
+  String id,
+  List<dynamic> lonLat,
+) {
+  return (
+    id: id,
+    lat: (lonLat[1] as num).toDouble(),
+    lon: (lonLat[0] as num).toDouble(),
+  );
+}
 
 Future<RiverLineGraph> _unifiedBundledGraph({bool withBridges = true}) async {
   final docs = await readBundledHydroGeoJsonDocuments();
@@ -30,7 +43,7 @@ bool _anchorsConnected(
   RiverLineGraph graph,
   _ConfluenceAnchor upstream,
   _ConfluenceAnchor downstream, {
-  double maxSnapMeters = 500,
+  double maxSnapMeters = _kConfluenceMergeSnapMeters,
 }) {
   final upstreamSnap = graph.snapToVertex(
     upstream.lat,
@@ -42,15 +55,12 @@ bool _anchorsConnected(
     downstream.lon,
     maxSnapMeters: maxSnapMeters,
   );
-  if (upstreamSnap?.vertexIndex == null ||
-      downstreamSnap?.vertexIndex == null) {
+  final upstreamIndex = upstreamSnap?.vertexIndex;
+  final downstreamIndex = downstreamSnap?.vertexIndex;
+  if (upstreamIndex == null || downstreamIndex == null) {
     return false;
   }
-  return graph.graphDistanceMeters(
-        upstreamSnap!.vertexIndex!,
-        downstreamSnap!.vertexIndex!,
-      ) !=
-      null;
+  return graph.graphDistanceMeters(upstreamIndex, downstreamIndex) != null;
 }
 
 LaunchPoint _launch({
@@ -99,103 +109,72 @@ void main() {
     });
 
     group('required confluences', () {
-      const anchors =
-          <
-            ({
-              String id,
-              _ConfluenceAnchor upstream,
-              _ConfluenceAnchor downstream,
-            })
-          >[
-            (
-              id: 'willamette_columbia_mouth',
-              upstream: (
-                id: 'willamette_mouth',
-                lat: 45.6178872,
-                lon: -122.7909498,
-                required: true,
-              ),
-              downstream: (
-                id: 'columbia_lower_mouth',
-                lat: 45.6178872,
-                lon: -122.7909498,
-                required: true,
-              ),
-            ),
-            (
-              id: 'columbia_lower_gorge',
-              upstream: (
-                id: 'columbia_lower_camas',
-                lat: 45.5659948,
-                lon: -122.4300244,
-                required: true,
-              ),
-              downstream: (
-                id: 'columbia_gorge_camas',
-                lat: 45.5659948,
-                lon: -122.4300244,
-                required: true,
-              ),
-            ),
-          ];
+      test('all required pairs connect in unified graph', () async {
+        final auditPairs = await readConfluenceAuditPairs();
+        final requiredPairs = auditPairs.where(
+          (pair) => pair['required'] == true,
+        );
 
-      for (final pair in anchors) {
-        test('${pair.id} connects in unified graph', () async {
-          final graph = await _unifiedBundledGraph(withBridges: false);
-          expect(
-            _anchorsConnected(graph, pair.upstream, pair.downstream),
-            isTrue,
-            reason: 'required confluence ${pair.id} must share graph component',
+        final graph = await _unifiedBundledGraph(withBridges: false);
+        for (final pair in requiredPairs) {
+          final id = pair['id'] as String;
+          final upstream = _anchorFromJson(
+            '${id}_upstream',
+            pair['upstream_anchor'] as List<dynamic>,
           );
-        });
-      }
+          final downstream = _anchorFromJson(
+            '${id}_downstream',
+            pair['downstream_anchor'] as List<dynamic>,
+          );
+          expect(
+            _anchorsConnected(graph, upstream, downstream),
+            isTrue,
+            reason: 'required confluence $id must share graph component',
+          );
+        }
+      });
     });
 
     group('informational confluences', () {
       test(
-        'clackamas_willamette documents known gap without failing CI',
+        'clackamas_willamette has known endpoint gap',
         () async {
-          const upstream = (
-            id: 'clackamas_mouth',
-            lat: 45.3548,
-            lon: -122.612,
-            required: false,
+          final auditPairs = await readConfluenceAuditPairs();
+          final pair = auditPairs.firstWhere(
+            (row) => row['id'] == 'clackamas_willamette',
           );
-          const downstream = (
-            id: 'willamette_upstream',
-            lat: 45.3525,
-            lon: -122.61,
-            required: false,
+          final upstream = _anchorFromJson(
+            'clackamas_mouth',
+            pair['upstream_anchor'] as List<dynamic>,
+          );
+          final downstream = _anchorFromJson(
+            'willamette_upstream',
+            pair['downstream_anchor'] as List<dynamic>,
           );
 
           final graph = await _unifiedBundledGraph(withBridges: false);
-          final connected = _anchorsConnected(graph, upstream, downstream);
-
-          if (!connected) {
-            // Informational only — log gap for reviewers; see README-hydro.md.
-            expect(
-              connected,
-              isFalse,
-              reason:
-                  'KNOWN GAP: clackamas_willamette ~300 m endpoint gap; '
-                  'bridge placeholder in confluence_bridges.json until geometry meets',
-            );
-          }
+          expect(
+            _anchorsConnected(graph, upstream, downstream),
+            isFalse,
+            reason:
+                'KNOWN GAP: clackamas_willamette ~300 m endpoint gap; '
+                'bridge placeholder in confluence_bridges.json until geometry meets',
+          );
         },
       );
 
       test('sandy_columbia_gorge shares Glenn Otto endpoint', () async {
-        const upstream = (
-          id: 'sandy_mouth',
-          lat: 45.5405345,
-          lon: -122.3817713,
-          required: false,
+        final auditPairs = await readConfluenceAuditPairs();
+        final pair = auditPairs.firstWhere(
+          (row) => row['id'] == 'sandy_columbia_gorge',
         );
-        const downstream = (
-          id: 'columbia_gorge_glenn_otto',
-          lat: 45.5405345,
-          lon: -122.3817713,
-          required: false,
+        final upstream = _anchorFromJson(
+          'sandy_mouth',
+          pair['upstream_anchor'] as List<dynamic>,
+        );
+        final downstream = _anchorFromJson(
+          'columbia_gorge_glenn_otto',
+          pair['downstream_anchor'] as List<dynamic>,
         );
 
         final graph = await _unifiedBundledGraph(withBridges: false);

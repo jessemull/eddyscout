@@ -190,7 +190,7 @@ From repo root (after convert):
 make hydro-nhd-compare
 ```
 
-Writes `scripts/nhd/output/compare_report.md` with feature/vertex/edge counts, length deltas, graph connectivity stats, and confluence snap distances from `config.json` → `confluence_audit`.
+Writes `scripts/nhd/output/compare_report.md` with feature/vertex/edge counts, length deltas, graph connectivity stats, and confluence snap distances from [`scripts/hydro/confluence_audit.json`](../hydro/confluence_audit.json).
 
 Manual single-system compare:
 
@@ -232,7 +232,7 @@ Edit [`config.json`](config.json):
 | `min_segment_length_meters` | Drop very short segments after simplify |
 | `merge_vertex_threshold_meters` | Validation merge threshold |
 | `connectivity_gap_warning_meters` | Report gaps between this and merge threshold |
-| `confluence_audit` | Anchor lon/lat pairs for compare report snap table |
+| `confluence_audit` | See [`scripts/hydro/confluence_audit.json`](../hydro/confluence_audit.json) (shared with geometry CI) |
 | `utm_epsg` | UTM zone for metric simplification (32610 = UTM 10N) |
 
 ### Adding a river system

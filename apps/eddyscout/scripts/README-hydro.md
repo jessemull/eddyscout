@@ -107,7 +107,8 @@ See [`scripts/nhd/README.md`](../../../scripts/nhd/README.md).
 | Sandy → Columbia gorge | informational | 0 m at Glenn Otto (end↔end) | — | Sandy subline shares gorge endpoint |
 
 Dart audit: `packages/features/hydro_routing/test/bundled_hydro_connectivity_test.dart`  
-Python audit: `scripts/hydro/check_geometry.py` (`audit_confluence_connectivity`)
+Python audit: `scripts/hydro/check_geometry.py` (`audit_confluence_connectivity`)  
+Anchor coordinates: `scripts/hydro/confluence_audit.json` (shared with NHD compare)
 
 ## Disclaimer
 

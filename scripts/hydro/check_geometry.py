@@ -21,19 +21,31 @@ from _common import (  # noqa: E402
     load_feature_collection,
     max_edge_meters,
 )
+from confluence_audit import load_confluence_audit_pairs  # noqa: E402
 
 DEFAULT_MAX_EDGE_M = 2000.0
 DEFAULT_CONFLUENCE_GAP_M = 12.0
 
-REQUIRED_CONFLUENCE_PAIRS = (
-    ("willamette_waterway.geojson", "columbia_lower_waterway.geojson"),
-    ("columbia_lower_waterway.geojson", "columbia_gorge_waterway.geojson"),
-)
 
-INFORMATIONAL_CONFLUENCE_PAIRS = (
-    ("clackamas_waterway.geojson", "willamette_waterway.geojson", "end", "start"),
-    ("sandy_waterway.geojson", "columbia_gorge_waterway.geojson", "end", "end"),
-)
+def _required_confluence_pairs() -> tuple[tuple[str, str], ...]:
+    return tuple(
+        (pair["upstream_file"], pair["downstream_file"])
+        for pair in load_confluence_audit_pairs()
+        if pair.get("required")
+    )
+
+
+def _informational_confluence_pairs() -> tuple[tuple[str, str, str, str], ...]:
+    return tuple(
+        (
+            pair["upstream_file"],
+            pair["downstream_file"],
+            pair["upstream_point"],
+            pair["downstream_point"],
+        )
+        for pair in load_confluence_audit_pairs()
+        if pair.get("informational")
+    )
 
 
 @dataclass(frozen=True)
@@ -93,13 +105,11 @@ def audit_confluence_connectivity(
     hydro_dir: Path,
     *,
     confluence_gap_m: float = DEFAULT_CONFLUENCE_GAP_M,
-    bridges_path: Path | None = None,
 ) -> list[ConfluenceAuditResult]:
     """Return structured confluence audit rows for bundled hydro assets."""
-    del bridges_path  # reserved for bridge snap audit in future PRs
     results: list[ConfluenceAuditResult] = []
 
-    for upstream_name, downstream_name in REQUIRED_CONFLUENCE_PAIRS:
+    for upstream_name, downstream_name in _required_confluence_pairs():
         gap = _endpoint_gap_for_pair(hydro_dir, upstream_name, downstream_name)
         if gap is None:
             results.append(
@@ -126,7 +136,7 @@ def audit_confluence_connectivity(
             )
         )
 
-    for entry in INFORMATIONAL_CONFLUENCE_PAIRS:
+    for entry in _informational_confluence_pairs():
         upstream_name, downstream_name, upstream_point, downstream_point = entry
         gap = _endpoint_gap_for_pair(
             hydro_dir,
@@ -172,7 +182,7 @@ def _check_required_confluence_gaps(
     max_gap_m: float,
 ) -> list[str]:
     errors: list[str] = []
-    for upstream_name, downstream_name in REQUIRED_CONFLUENCE_PAIRS:
+    for upstream_name, downstream_name in _required_confluence_pairs():
         gap = _endpoint_gap_for_pair(hydro_dir, upstream_name, downstream_name)
         if gap is None:
             errors.append(

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
@@ -50,3 +51,16 @@ Future<List<String>> readBundledHydroGeoJsonDocuments() async {
 /// Loads curated confluence bridge JSON from the app asset bundle.
 Future<String> readBundledConfluenceBridgesJson() =>
     readBundledHydroAsset(bundledConfluenceBridgesAssetPath);
+
+/// Shared confluence audit pairs (`scripts/hydro/confluence_audit.json`).
+Future<List<Map<String, dynamic>>> readConfluenceAuditPairs() async {
+  final file = File(
+    '${_repoRoot().path}/scripts/hydro/confluence_audit.json',
+  );
+  final data = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+  final pairs = data['pairs'];
+  if (pairs is! List) {
+    throw StateError('confluence_audit.json must contain a "pairs" list');
+  }
+  return pairs.cast<Map<String, dynamic>>();
+}

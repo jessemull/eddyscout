@@ -12,6 +12,8 @@ import click
 from shapely.geometry import LineString, shape
 from shapely.ops import unary_union
 
+import sys
+
 from _common import (
     iter_linestrings,
     load_config,
@@ -19,12 +21,17 @@ from _common import (
     script_dir,
     write_feature_collection,
 )
+
+_hydro_scripts = script_dir().parent / "hydro"
+if str(_hydro_scripts) not in sys.path:
+    sys.path.insert(0, str(_hydro_scripts))
+from confluence_audit import load_confluence_audit_compare_entries  # noqa: E402
+
 from graph_audit import (
     analyze_system,
-    endpoint_gap_m,
+    confluence_audit_rows,
     geometry_stats,
     merge_feature_collections,
-    nearest_vertex_distance_m,
 )
 
 
@@ -68,50 +75,6 @@ def _hausdorff_meters(
 def _load_baselines(baseline_paths: tuple[Path, ...]) -> dict[str, Any]:
     collections = [load_feature_collection(path) for path in baseline_paths]
     return merge_feature_collections(collections)
-
-
-def _confluence_rows(
-    baseline_features: list[dict[str, Any]],
-    candidate_features: list[dict[str, Any]],
-    audit_entries: list[dict[str, Any]],
-    merge_threshold_m: float,
-    gap_warning_m: float,
-) -> list[dict[str, Any]]:
-    baseline_graph = analyze_system(baseline_features, merge_threshold_m, gap_warning_m)
-    candidate_graph = analyze_system(candidate_features, merge_threshold_m, gap_warning_m)
-    rows: list[dict[str, Any]] = []
-
-    for entry in audit_entries:
-        upstream_end = tuple(entry["upstream_end"])
-        downstream_start = tuple(entry["downstream_start"])
-        gap_m = endpoint_gap_m(upstream_end, downstream_start)
-        baseline_snap = nearest_vertex_distance_m(
-            baseline_graph["lat"],
-            baseline_graph["lon"],
-            upstream_end[1],
-            upstream_end[0],
-        )
-        candidate_snap = nearest_vertex_distance_m(
-            candidate_graph["lat"],
-            candidate_graph["lon"],
-            downstream_start[1],
-            downstream_start[0],
-        )
-        rows.append(
-            {
-                "id": entry["id"],
-                "required": bool(entry.get("required", False)),
-                "informational": bool(entry.get("informational", False)),
-                "endpoint_gap_m": round(gap_m, 2),
-                "baseline_snap_m": round(baseline_snap, 2)
-                if baseline_snap is not None
-                else None,
-                "candidate_snap_m": round(candidate_snap, 2)
-                if candidate_snap is not None
-                else None,
-            }
-        )
-    return rows
 
 
 def _format_comparison_markdown(
@@ -212,7 +175,7 @@ def run_comparison(
 
     baseline_graph = analyze_system(baseline_features, merge_threshold_m, gap_warning_m)
     candidate_graph = analyze_system(candidate_features, merge_threshold_m, gap_warning_m)
-    confluence_rows = _confluence_rows(
+    confluence_rows = confluence_audit_rows(
         baseline_features,
         candidate_features,
         confluence_audit,
@@ -328,7 +291,7 @@ def main(
     config = load_config(config_path)
     merge_threshold_m = float(config["merge_vertex_threshold_meters"])
     gap_warning_m = float(config["connectivity_gap_warning_meters"])
-    confluence_audit = list(config.get("confluence_audit") or [])
+    confluence_audit = load_confluence_audit_compare_entries()
 
     markdown = run_comparison(
         baseline_paths=baseline_paths,

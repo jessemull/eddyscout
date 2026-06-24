@@ -143,6 +143,51 @@ def endpoint_gap_m(
     )
 
 
+def confluence_audit_rows(
+    baseline_features: list[dict[str, Any]],
+    candidate_features: list[dict[str, Any]],
+    audit_entries: list[dict[str, Any]],
+    merge_threshold_m: float,
+    gap_warning_m: float,
+) -> list[dict[str, Any]]:
+    """Build confluence snap/gap rows for NHD vs OSM compare reports."""
+    baseline_graph = analyze_system(baseline_features, merge_threshold_m, gap_warning_m)
+    candidate_graph = analyze_system(candidate_features, merge_threshold_m, gap_warning_m)
+    rows: list[dict[str, Any]] = []
+
+    for entry in audit_entries:
+        upstream_end = tuple(entry["upstream_end"])
+        downstream_start = tuple(entry["downstream_start"])
+        gap_m = endpoint_gap_m(upstream_end, downstream_start)
+        baseline_snap = nearest_vertex_distance_m(
+            baseline_graph["lat"],
+            baseline_graph["lon"],
+            upstream_end[1],
+            upstream_end[0],
+        )
+        candidate_snap = nearest_vertex_distance_m(
+            candidate_graph["lat"],
+            candidate_graph["lon"],
+            downstream_start[1],
+            downstream_start[0],
+        )
+        rows.append(
+            {
+                "id": entry["id"],
+                "required": bool(entry.get("required", False)),
+                "informational": bool(entry.get("informational", False)),
+                "endpoint_gap_m": round(gap_m, 2),
+                "baseline_snap_m": round(baseline_snap, 2)
+                if baseline_snap is not None
+                else None,
+                "candidate_snap_m": round(candidate_snap, 2)
+                if candidate_snap is not None
+                else None,
+            }
+        )
+    return rows
+
+
 def line_endpoints_from_features(
     features: list[dict[str, Any]],
 ) -> tuple[tuple[float, float], tuple[float, float]] | None:
