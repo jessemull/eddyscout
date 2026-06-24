@@ -7,7 +7,7 @@
         "river_system": "columbia",
         "reach_id": "columbia_gorge",
         "name": "Columbia mainstem \u2014 Camas to Glenn Otto (OSM merged)",
-        "source": "OpenStreetMap ODbL. Way 163917830 mainstem subline plus connected Sandy River / side-channel ways to Glenn Otto Park anchor."
+        "source": "OpenStreetMap ODbL. Way 163917830 through-channel subline Camas to Sandy junction plus Sandy River way 128946456 to Glenn Otto anchor."
       },
       "geometry": {
         "type": "LineString",
@@ -19,22 +19,6 @@
           [
             -122.4144032,
             45.5657544
-          ],
-          [
-            -122.4017553,
-            45.5691143
-          ],
-          [
-            -122.3951134,
-            45.5716847
-          ],
-          [
-            -122.3877743,
-            45.5736406
-          ],
-          [
-            -122.3951134,
-            45.5716847
           ],
           [
             -122.4017553,

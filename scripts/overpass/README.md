@@ -10,33 +10,41 @@ Fetches connected `waterway=river|canal|fairway` ways for the Portland–Columbi
 corridor, then:
 
 1. **Lower reach** — shortest OSM path from the Willamette mouth (read from bundled
-   `willamette_waterway.geojson`) to the Camas split anchor.
-2. **Gorge reach** — OSM subline on Columbia way `163917830` from Camas to the
-   Washougal mainstem, plus a shortest path on local Sandy River / side-channel
-   ways to the Glenn Otto Park anchor.
+   `willamette_waterway.geojson`) to the Camas split anchor; backtrack loops pruned.
+2. **Gorge reach** — through-channel OSM subline on Columbia way `163917830` from
+   Camas to Sandy junction, plus Sandy River way `128946456` to Glenn Otto (no launch
+   pin inlining on mainstem).
 
 Outputs are written to:
 
-- `apps/eddyscout/assets/hydro/columbia_lower_waterway.geojson`
+- `apps/eddyscout/assets/hydro/columbia_lower_waterway.geojson` (mainstem feature only;
+  re-run preserves an existing `camas_slough_spur` feature when present)
 - `apps/eddyscout/assets/hydro/columbia_gorge_waterway.geojson`
 - matching copies under `packages/features/hydro_routing/test/fixtures/`
 
-Sparse OSM segments longer than 2 km are densified along the existing segment
-before write so bundled geometry passes `scripts/check_hydro_geometry.sh`.
+## Camas Slough spur
+
+```bash
+python3 scripts/overpass/fetch_slough_waterway.py
+```
+
+Run **after** `fetch_columbia_waterway.py`. Fetches OSM way `130204446` (Camas Slough)
+and local connector ways, then appends a `camas_slough_spur` feature to
+`columbia_lower_waterway.geojson` (shared Camas split vertex with mainstem + gorge).
 
 ## Validation
 
-Bundled assets, confluence bridges, and known launch snap gaps (e.g. Port of Camas
-marina) are documented in
+Bundled assets, confluence bridges, and known launch snap gaps are documented in
 [`apps/eddyscout/scripts/README-hydro.md`](../../apps/eddyscout/scripts/README-hydro.md#launch-snap-gaps-known).
 
 ```bash
-./scripts/check_hydro_geometry.sh
+make hydro-check
 ```
 
 Runs bundled geometry validation plus `scripts/hydro/` unit tests. Fails when any
-bundled edge exceeds **2000 m** or confluence gaps exceed **12 m** (the same merge
-threshold as `RiverLineGraph`).
+bundled edge exceeds **2000 m**, confluence gaps exceed **12 m**, or a polyline
+revisits a prior vertex within **12 m** (the same merge threshold as
+`RiverLineGraph`).
 
 Unit tests only:
 

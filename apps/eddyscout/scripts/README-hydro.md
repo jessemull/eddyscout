@@ -7,37 +7,44 @@ Bundled GeoJSON under `assets/hydro/` supplies **approximate** river centerlines
 | File | `river_system` | Notes |
 |------|----------------|-------|
 | `willamette_waterway.geojson` | `willamette` | Main stem from OpenStreetMap (`waterway=river`, ways 163656027 + 164125011 merged). |
-| `columbia_lower_waterway.geojson` | `columbia` | Willamette mouth → Camas from OSM Overpass merge (`scripts/overpass/fetch_columbia_waterway.py`); mouth shares Willamette end vertex. |
-| `columbia_gorge_waterway.geojson` | `columbia` | Camas → Glenn Otto from OSM way 163917830 + Sandy River way 128946456. |
+| `columbia_lower_waterway.geojson` | `columbia` | **Multi-feature:** (0) Willamette mouth → Camas mainstem; (1) `camas_slough_spur` for Port of Camas marina. |
+| `columbia_gorge_waterway.geojson` | `columbia` | Camas → Glenn Otto through-channel mainstem (OSM way 163917830 + Sandy River way 128946456). |
 | `confluence_bridges.json` | — | Optional curated edges where geometry is missing but systems should connect (see below). |
 
 Coordinates must be **WGS84** `[longitude, latitude]` per GeoJSON. Feature property `river_system` must match Dart enum names: `willamette`, `columbia`, `clackamas`, `slough`.
 
-## Import pipeline (Columbia)
+## Import pipeline (Columbia + Camas Slough)
 
 Regenerate Columbia assets from OpenStreetMap:
 
 ```bash
 python3 scripts/overpass/fetch_columbia_waterway.py
-./scripts/check_hydro_geometry.sh
+python3 scripts/overpass/fetch_slough_waterway.py
+make hydro-check
 ```
 
-The import script:
+The Columbia import script:
 
 1. Reads the Willamette mouth from bundled `willamette_waterway.geojson`.
 2. Merges connected `waterway=river|canal|fairway` ways via Overpass.
-3. Routes mouth → Camas on the merged graph (no hand-drawn mouth connector).
-4. Builds the gorge reach from OSM way `163917830` + Sandy River way `128946456`.
-5. Writes assets and matching test fixtures.
+3. Routes mouth → Camas on the merged graph and **prunes backtrack loops** (Hayden Island / side-channel detours).
+4. Builds the gorge reach as a **through-channel** subline on OSM way `163917830` (Camas → Sandy junction) plus Sandy River way `128946456` — launch pins are not inlined into mainstem geometry.
+5. Writes assets and matching test fixtures (preserving an existing `camas_slough_spur` feature when re-running Columbia-only).
 
-CI / preflight runs `scripts/check_hydro_geometry.sh`, which fails when any edge exceeds **2000 m** or confluence gaps exceed **12 m** (same merge threshold as `RiverLineGraph`).
+The slough import script:
+
+1. Fetches OSM way `130204446` (Camas Slough) plus local connector ways.
+2. Builds a spur from **Camas split** on `columbia_lower` mainstem through the slough toward Port of Camas marina (~890 m snap).
+3. Appends the spur as feature `camas_slough_spur` in `columbia_lower_waterway.geojson`.
+
+CI / preflight runs `make hydro-check` (`scripts/check_hydro_geometry.sh`), which fails when any edge exceeds **2000 m**, confluence gaps exceed **12 m**, or a LineString **revisits** a prior vertex within **12 m** (same merge threshold as `RiverLineGraph`).
 
 ## Launch snap gaps (known)
 
 | Launch | Gap to bundled geometry | Notes |
 |--------|------------------------|-------|
-| Port of Camas marina | ~2.2 km to Columbia mainstem | Not routable until Camas Slough OSM spur (way `130204446` or equivalent) is bundled; nearest slough point is ~890 m but not connected to mainstem within the 12 m merge threshold. |
-| Washougal Waterfront Park | ~610 m to gorge mainstem | Within the 900 m route snap threshold; routes on gorge geometry. |
+| Port of Camas marina | ~890 m to `camas_slough_spur` | Routable via slough spur connected to Columbia mainstem at Camas split. |
+| Washougal Waterfront Park | ~965 m to nearest geometry | Beyond 900 m route snap; needs a future Washougal side-channel spur (not mainstem-inlined). |
 
 ## Confluence bridges (`confluence_bridges.json`)
 
@@ -74,7 +81,7 @@ Loaded in production via `hydroConfluenceBridgesLoaderProvider` in `app_provider
 ## Refreshing or extending data
 
 1. **OpenStreetMap (Overpass API)**  
-   Query `waterway=river` / `waterway=stream` inside a bounding box, export as GeoJSON. Use `scripts/overpass/fetch_columbia_waterway.py` for Columbia lower + gorge. Merge ways, simplify with [mapshaper](https://mapshaper.org/) or QGIS if needed.
+   Query `waterway=river` / `waterway=stream` inside a bounding box, export as GeoJSON. Use `scripts/overpass/fetch_columbia_waterway.py` and `fetch_slough_waterway.py` for Columbia lower + gorge + Camas Slough. Merge ways, simplify with [mapshaper](https://mapshaper.org/) or QGIS if needed.
 
 2. **US NHD (National Hydrography Dataset)**  
    Download flowlines for your HUC via `scripts/nhd/` (`download.sh`, `convert.py`, `validate.py`). Often better connectivity than OSM for US rivers.
@@ -94,7 +101,8 @@ Regenerate after hydro geometry or catalog changes:
 
 ```bash
 make gen-reachability
+make gen-suggested-trips
 make gen-reachability-check   # CI-friendly stale check
 ```
 
-Expected runtime: **< 2 s** for the full catalog on CI hardware. Cross-system pairs are excluded until unified multi-system routing lands (`crossSystemReachability: false` in the JSON).
+Expected runtime: **< 2 s** for the full catalog on CI hardware. Indexes use the same hydro bundle as production (Willamette + Columbia lower + gorge + confluence bridges) with **`crossSystemReachability: true`**.

@@ -26,6 +26,7 @@ from _common import (  # noqa: E402
     load_feature_collection,
     max_edge_meters,
     polyline_length_meters,
+    prune_backtrack_loops,
     round_coord,
     write_feature_collection,
 )
@@ -39,9 +40,9 @@ GORGE_END = (-122.3858, 45.5365)
 COLUMBIA_MAIN_WAY_ID = 163917830
 SANDY_TAIL_WAY_ID = 128946456
 SANDY_JUNCTION = (-122.4017553, 45.5691143)
-WASHOUGAL_LAUNCH = (-122.3870, 45.5791)
 MAX_EDGE_M = 2000.0
 DENSIFY_STEP_M = 400.0
+SLOUGH_SPUR_REACH_ID = "camas_slough_spur"
 
 
 @dataclass(frozen=True)
@@ -282,7 +283,7 @@ def _build_lower_coords(
             "No OSM path from Willamette mouth to Camas split — "
             "check Overpass bbox or waterway coverage."
         )
-    coords = graph.path_to_coords(path)
+    coords = prune_backtrack_loops(graph.path_to_coords(path))
     mouth_gap = haversine_meters(mouth[1], mouth[0], coords[0][1], coords[0][0])
     if mouth_gap > 12.0:
         raise RuntimeError(
@@ -308,18 +309,7 @@ def _build_gorge_coords(
             f"Overpass result missing Sandy River tail way {SANDY_TAIL_WAY_ID}."
         )
 
-    columbia_coords = main_way.coordinates
-    washougal_nearest = min(
-        columbia_coords,
-        key=lambda point: haversine_meters(
-            WASHOUGAL_LAUNCH[1],
-            WASHOUGAL_LAUNCH[0],
-            point[1],
-            point[0],
-        ),
-    )
-    mainstem_head = _way_subline(main_way, camas, washougal_nearest)
-    mainstem_mid = _way_subline(main_way, washougal_nearest, SANDY_JUNCTION)
+    mainstem = _way_subline(main_way, camas, SANDY_JUNCTION)
     sandy_coords = sandy_way.coordinates
     sandy_start = min(
         range(len(sandy_coords)),
@@ -345,20 +335,9 @@ def _build_gorge_coords(
         sandy_segment = list(reversed(sandy_coords[sandy_end : sandy_start + 1]))
     sandy_tail = [[lon, lat] for lon, lat in sandy_segment]
 
-    junction_gap = haversine_meters(
-        mainstem_head[-1][1],
-        mainstem_head[-1][0],
-        mainstem_mid[0][1],
-        mainstem_mid[0][0],
-    )
-    if junction_gap > 12.0:
-        raise RuntimeError(
-            f"Columbia mainstem junction gap {junction_gap:.1f} m exceeds 12 m."
-        )
-
     sandy_junction_gap = haversine_meters(
-        mainstem_mid[-1][1],
-        mainstem_mid[-1][0],
+        mainstem[-1][1],
+        mainstem[-1][0],
         sandy_tail[0][1],
         sandy_tail[0][0],
     )
@@ -368,10 +347,7 @@ def _build_gorge_coords(
             "expected shared OSM vertex at Sandy River mouth."
         )
 
-    merged = _concat_polylines(
-        _concat_polylines(mainstem_head, mainstem_mid),
-        sandy_tail,
-    )
+    merged = prune_backtrack_loops(_concat_polylines(mainstem, sandy_tail))
     return _round_coords(_densify_coords(merged))
 
 
@@ -406,6 +382,19 @@ def _validate_coords(label: str, coords: list[list[float]]) -> None:
         )
 
 
+def _existing_slough_spur_features(asset_dir: Path) -> list[dict[str, Any]]:
+    lower_path = asset_dir / "columbia_lower_waterway.geojson"
+    if not lower_path.exists():
+        return []
+    collection = load_feature_collection(lower_path)
+    features = collection.get("features") or []
+    return [
+        feature
+        for feature in features[1:]
+        if (feature.get("properties") or {}).get("reach_id") == SLOUGH_SPUR_REACH_ID
+    ]
+
+
 def _write_outputs(
     lower: list[list[float]],
     gorge: list[list[float]],
@@ -417,7 +406,7 @@ def _write_outputs(
         name="Columbia mainstem — Willamette mouth to Camas (OSM merged)",
         source=(
             "OpenStreetMap ODbL. Overpass merge of connected waterway=river|canal|fairway "
-            "ways; shortest path from Willamette mouth to Camas split."
+            "ways; shortest path from Willamette mouth to Camas split; backtrack loops pruned."
         ),
         coordinates=lower,
     )
@@ -425,14 +414,22 @@ def _write_outputs(
         reach_id="columbia_gorge",
         name="Columbia mainstem — Camas to Glenn Otto (OSM merged)",
         source=(
-            "OpenStreetMap ODbL. Way 163917830 mainstem subline plus connected "
-            "Sandy River / side-channel ways to Glenn Otto Park anchor."
+            "OpenStreetMap ODbL. Way 163917830 through-channel subline Camas to Sandy "
+            "junction plus Sandy River way 128946456 to Glenn Otto anchor."
         ),
         coordinates=gorge,
     )
+    slough_features = _existing_slough_spur_features(asset_dir)
+    lower_features = [lower_feature, *slough_features]
     for directory in (asset_dir, fixture_dir):
-        write_feature_collection(directory / "columbia_lower_waterway.geojson", [lower_feature])
-        write_feature_collection(directory / "columbia_gorge_waterway.geojson", [gorge_feature])
+        write_feature_collection(
+            directory / "columbia_lower_waterway.geojson",
+            lower_features,
+        )
+        write_feature_collection(
+            directory / "columbia_gorge_waterway.geojson",
+            [gorge_feature],
+        )
 
 
 def main() -> None:
