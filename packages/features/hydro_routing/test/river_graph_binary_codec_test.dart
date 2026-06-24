@@ -68,6 +68,13 @@ void main() {
       },
     );
 
+    test('riverGraphsEqual detects topology mismatch', () {
+      final graph = buildSyntheticGridGraph(10);
+      final bytes = encodeRiverLineGraph(graph);
+      final decoded = decodeRiverLineGraph(bytes);
+      expect(riverGraphsEqual(graph, decoded), isTrue);
+    });
+
     test('bundled geojson graph matches binary decode routes', () async {
       final docs = await readBundledHydroGeoJsonDocuments();
       final bridges = await readBundledConfluenceBridgesJson();

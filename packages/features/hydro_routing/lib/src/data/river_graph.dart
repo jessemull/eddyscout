@@ -280,16 +280,18 @@ class RiverLineGraph {
     final adj = _adj.map(List<GraphEdge>.from).toList();
     final vertexReachId = List<String?>.from(_vertexReachId);
 
-    final endpointIndex = GraphSnapIndex(
-      lat: lat,
-      lon: lon,
-      adj: adj,
-      vertexReachId: vertexReachId,
-      refLatitude: lat.isNotEmpty ? lat.first : 45,
-    );
-
-    int? nearestVertexIndex(double la, double lo) =>
-        endpointIndex.nearestVertexIndex(la, lo, maxEndpointSnapMeters);
+    int? nearestVertexIndex(double la, double lo) {
+      var bestI = -1;
+      var bestD = maxEndpointSnapMeters;
+      for (var i = 0; i < lat.length; i++) {
+        final d = haversineMeters(lat[i], lon[i], la, lo);
+        if (d < bestD) {
+          bestD = d;
+          bestI = i;
+        }
+      }
+      return bestI < 0 ? null : bestI;
+    }
 
     void addUndirectedBridge(int u, int v, double w) {
       if (u == v) {

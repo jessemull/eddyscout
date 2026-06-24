@@ -6,7 +6,6 @@
 //   dart run scripts/generate_hydro_graph_binary.dart --check
 
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_graph_binary_codec.dart'
@@ -47,10 +46,6 @@ Future<void> main(List<String> args) async {
     confluenceBridgesJson: bridgesJson,
   );
 
-  final bytes = planner.encodeUnifiedGraphBinary(
-    metadata: const RiverGraphBinaryMetadata(generatedAtIso: _generatedAtIso),
-  );
-
   final outputFile = File('${repoRoot.path}/$_outputRelativePath');
   if (checkOnly) {
     if (!outputFile.existsSync()) {
@@ -58,7 +53,8 @@ Future<void> main(List<String> args) async {
       exit(1);
     }
     final committed = await outputFile.readAsBytes();
-    if (!_bytesEqual(committed, bytes)) {
+    final decoded = RiverRoutePlanner.fromBinary(committed);
+    if (!planner.hasSameUnifiedGraphAs(decoded)) {
       stderr.writeln('Hydro graph binary is stale. Run: make gen-hydro-graph');
       exit(1);
     }
@@ -66,24 +62,16 @@ Future<void> main(List<String> args) async {
     return;
   }
 
+  final bytes = planner.encodeUnifiedGraphBinary(
+    metadata: const RiverGraphBinaryMetadata(generatedAtIso: _generatedAtIso),
+  );
+
   await outputFile.parent.create(recursive: true);
   await outputFile.writeAsBytes(bytes);
   stdout.writeln(
     'Wrote ${outputFile.path} (${bytes.length} bytes, '
     '${planner.unifiedGraphVertexCount} vertices)',
   );
-}
-
-bool _bytesEqual(Uint8List a, Uint8List b) {
-  if (a.length != b.length) {
-    return false;
-  }
-  for (var i = 0; i < a.length; i++) {
-    if (a[i] != b[i]) {
-      return false;
-    }
-  }
-  return true;
 }
 
 Directory _findRepoRoot() {

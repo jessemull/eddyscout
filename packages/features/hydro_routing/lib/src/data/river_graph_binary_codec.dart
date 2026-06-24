@@ -3,6 +3,29 @@ import 'dart:typed_data';
 
 import 'package:eddyscout_hydro_routing/src/data/river_graph.dart';
 
+int _compareGraphEdges(GraphEdge a, GraphEdge b) {
+  final toCmp = a.to.compareTo(b.to);
+  if (toCmp != 0) {
+    return toCmp;
+  }
+  final wCmp = a.w.compareTo(b.w);
+  if (wCmp != 0) {
+    return wCmp;
+  }
+  final riverCmp = (a.riverSystem ?? '').compareTo(b.riverSystem ?? '');
+  if (riverCmp != 0) {
+    return riverCmp;
+  }
+  return (a.oneWay ? 1 : 0).compareTo(b.oneWay ? 1 : 0);
+}
+
+List<List<GraphEdge>> _sortedAdjacency(List<List<GraphEdge>> adj) {
+  return [
+    for (final edges in adj)
+      (List<GraphEdge>.from(edges)..sort(_compareGraphEdges)),
+  ];
+}
+
 /// Current binary graph format version.
 const kRiverGraphBinaryFormatVersion = 1;
 
@@ -59,7 +82,8 @@ Uint8List encodeRiverLineGraph(
   final rowOffsets = <int>[0];
 
   for (final edges in payload.adj) {
-    for (final e in edges) {
+    final sorted = List<GraphEdge>.from(edges)..sort(_compareGraphEdges);
+    for (final e in sorted) {
       edgeTo.add(e.to);
       edgeWeight.add(e.w);
       edgeRiverIndices.add(indexOf(e.riverSystem));
@@ -266,6 +290,41 @@ RiverLineGraph decodeRiverLineGraph(Uint8List bytes) {
     componentId: componentId,
     vertexReachId: vertexReachId,
   );
+}
+
+/// Whether two graphs have identical topology and vertex data.
+bool riverGraphsEqual(RiverLineGraph a, RiverLineGraph b) {
+  final pa = a.binaryPayloadForCodec;
+  final pb = b.binaryPayloadForCodec;
+  if (pa.lat.length != pb.lat.length) {
+    return false;
+  }
+  for (var i = 0; i < pa.lat.length; i++) {
+    if (pa.lat[i] != pb.lat[i] ||
+        pa.lon[i] != pb.lon[i] ||
+        pa.componentId[i] != pb.componentId[i] ||
+        pa.vertexReachId[i] != pb.vertexReachId[i]) {
+      return false;
+    }
+  }
+  final adjA = _sortedAdjacency(pa.adj);
+  final adjB = _sortedAdjacency(pb.adj);
+  if (adjA.length != adjB.length) {
+    return false;
+  }
+  for (var u = 0; u < adjA.length; u++) {
+    final edgesA = adjA[u];
+    final edgesB = adjB[u];
+    if (edgesA.length != edgesB.length) {
+      return false;
+    }
+    for (var e = 0; e < edgesA.length; e++) {
+      if (_compareGraphEdges(edgesA[e], edgesB[e]) != 0) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 /// Payload snapshot for binary encoding.

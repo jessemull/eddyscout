@@ -86,6 +86,10 @@ class RiverRoutePlanner {
     RiverGraphBinaryMetadata metadata = const RiverGraphBinaryMetadata(),
   }) => encodeRiverLineGraph(_graph, metadata: metadata);
 
+  /// Whether [other] was built from the same unified graph topology.
+  bool hasSameUnifiedGraphAs(RiverRoutePlanner other) =>
+      riverGraphsEqual(_graph, other._graph);
+
   /// Plans a river-line path between [putIn] and [takeOut].
   RouteResult plan(LaunchPoint putIn, LaunchPoint takeOut) {
     if (putIn.id == takeOut.id) {
