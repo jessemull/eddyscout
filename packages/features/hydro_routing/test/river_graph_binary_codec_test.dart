@@ -33,6 +33,18 @@ void main() {
       );
     });
 
+    test('committed bundled binary matches geojson graph topology', () async {
+      final docs = await readBundledHydroGeoJsonDocuments();
+      final bridges = await readBundledConfluenceBridgesJson();
+      final geoPlanner = RiverRoutePlanner.fromGeoJsonDocuments(
+        docs,
+        confluenceBridgesJson: bridges,
+      );
+      final bytes = await readBundledHydroGraphBinary();
+      final binPlanner = RiverRoutePlanner.fromBinary(bytes);
+      expect(geoPlanner.hasSameUnifiedGraphAs(binPlanner), isTrue);
+    });
+
     test(
       'committed bundled binary matches geojson plan for launches',
       () async {

@@ -55,7 +55,12 @@ Future<void> main(List<String> args) async {
     final committed = await outputFile.readAsBytes();
     final decoded = RiverRoutePlanner.fromBinary(committed);
     if (!planner.hasSameUnifiedGraphAs(decoded)) {
-      stderr.writeln('Hydro graph binary is stale. Run: make gen-hydro-graph');
+      stderr.writeln(
+        'Hydro graph binary is stale '
+        '(fresh=${planner.unifiedGraphVertexCount} vertices, '
+        'committed=${decoded.unifiedGraphVertexCount} vertices). '
+        'Run: make gen-hydro-graph',
+      );
       exit(1);
     }
     stdout.writeln('Hydro graph binary is up to date.');

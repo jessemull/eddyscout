@@ -8,9 +8,9 @@ int _compareGraphEdges(GraphEdge a, GraphEdge b) {
   if (toCmp != 0) {
     return toCmp;
   }
-  final wCmp = a.w.compareTo(b.w);
-  if (wCmp != 0) {
-    return wCmp;
+  final wCmp = a.w - b.w;
+  if (wCmp.abs() > 0.01) {
+    return wCmp.compareTo(0);
   }
   final riverCmp = (a.riverSystem ?? '').compareTo(b.riverSystem ?? '');
   if (riverCmp != 0) {
@@ -300,8 +300,8 @@ bool riverGraphsEqual(RiverLineGraph a, RiverLineGraph b) {
     return false;
   }
   for (var i = 0; i < pa.lat.length; i++) {
-    if (pa.lat[i] != pb.lat[i] ||
-        pa.lon[i] != pb.lon[i] ||
+    if (!_coordsNearlyEqual(pa.lat[i], pb.lat[i]) ||
+        !_coordsNearlyEqual(pa.lon[i], pb.lon[i]) ||
         pa.componentId[i] != pb.componentId[i] ||
         pa.vertexReachId[i] != pb.vertexReachId[i]) {
       return false;
@@ -326,6 +326,8 @@ bool riverGraphsEqual(RiverLineGraph a, RiverLineGraph b) {
   }
   return true;
 }
+
+bool _coordsNearlyEqual(double a, double b) => (a - b).abs() < 1e-7;
 
 /// Payload snapshot for binary encoding.
 class RiverGraphBinaryPayload {

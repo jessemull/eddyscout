@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_debug_log.dart';
 
 /// One curated edge connecting two waterway systems at a confluence.
@@ -68,10 +69,10 @@ List<ConfluenceBridge> parseConfluenceBridgesJson(String? jsonText) {
     out.add(
       ConfluenceBridge(
         id: id,
-        aLat: aLat.toDouble(),
-        aLon: aLon.toDouble(),
-        bLat: bLat.toDouble(),
-        bLon: bLon.toDouble(),
+        aLat: quantizeWgs84Degree(aLat.toDouble()),
+        aLon: quantizeWgs84Degree(aLon.toDouble()),
+        bLat: quantizeWgs84Degree(bLat.toDouble()),
+        bLon: quantizeWgs84Degree(bLon.toDouble()),
       ),
     );
   }
