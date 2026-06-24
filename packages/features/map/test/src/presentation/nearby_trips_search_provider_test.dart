@@ -5,7 +5,51 @@ import 'package:eddyscout_map/src/presentation/trips_from_here/nearby_trips_sear
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+const _origin = LaunchPoint(
+  id: 'cathedral_park',
+  name: 'Cathedral Park Boat Ramp',
+  latitude: 45.5621,
+  longitude: -122.7328,
+  shortNote: 'Test origin',
+  riverSystem: RiverSystem.willamette,
+  windExposure: WindExposure.moderate,
+  tideRelevance: TideRelevance.none,
+);
+
 void main() {
+  group('NearbyTripsSearchOrigin', () {
+    test('open sets origin and resets query and max distance', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      container
+          .read(nearbyTripsSearchQueryProvider.notifier)
+          .changeQuery('stale');
+      container.read(nearbyTripsMaxDistanceMiProvider.notifier).setMiles(5);
+
+      container.read(nearbyTripsSearchOriginProvider.notifier).open(_origin);
+
+      expect(container.read(nearbyTripsSearchOriginProvider), _origin);
+      expect(container.read(nearbyTripsSearchQueryProvider), '');
+      expect(container.read(nearbyTripsMaxDistanceMiProvider), 20);
+    });
+
+    test('close clears origin and query', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      container.read(nearbyTripsSearchOriginProvider.notifier).open(_origin);
+      container
+          .read(nearbyTripsSearchQueryProvider.notifier)
+          .changeQuery('filter');
+
+      container.read(nearbyTripsSearchOriginProvider.notifier).close();
+
+      expect(container.read(nearbyTripsSearchOriginProvider), isNull);
+      expect(container.read(nearbyTripsSearchQueryProvider), '');
+    });
+  });
+
   group('reachabilityBandsUpToMaxMi', () {
     test('includes only 5 mi band at 5 mi max', () {
       expect(
