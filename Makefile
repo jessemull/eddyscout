@@ -10,6 +10,9 @@ INTEGRATION_DEVICE := $(shell uname -s | grep -q Darwin && echo macos || echo li
 .PHONY: help analyze bootstrap ci clean coverage coverage-check dev ensure-husky \
 	format format-fix gen gen-check gen-reachability gen-reachability-check \
 	gen-suggested-trips gen-suggested-trips-check \
+	hydro-check hydro-fetch hydro-fetch-willamette hydro-fetch-columbia \
+	hydro-fetch-clackamas hydro-fetch-slough hydro-fetch-tualatin \
+	hydro-fetch-sandy hydro-sync-fixtures \
 	integration-test kill-emulator preflight run setup test
 
 help: ## Help@show targets
@@ -69,6 +72,33 @@ gen-suggested-trips: ## Quality@generate launch suggested trips index JSON
 
 gen-suggested-trips-check: ## Quality@verify suggested trips index is fresh
 	cd scripts && flutter pub get && dart run generate_launch_suggested_trips_index.dart --check
+
+hydro-check: ## Quality@validate bundled hydro geometry (edges + confluences)
+	./scripts/check_hydro_geometry.sh
+
+hydro-fetch-columbia: ## Dev@Overpass import Columbia lower + gorge
+	python3 scripts/overpass/fetch_columbia_waterway.py
+
+hydro-fetch-willamette: ## Dev@Overpass import Willamette main stem
+	python3 scripts/overpass/fetch_willamette_waterway.py
+
+hydro-fetch-clackamas: ## Dev@Overpass import Clackamas
+	python3 scripts/overpass/fetch_clackamas_waterway.py
+
+hydro-fetch-slough: ## Dev@Overpass import slough network
+	python3 scripts/overpass/fetch_slough_waterway.py
+
+hydro-fetch-tualatin: ## Dev@Overpass import Tualatin
+	python3 scripts/overpass/fetch_tualatin_waterway.py
+
+hydro-fetch-sandy: ## Dev@Overpass import Sandy River
+	python3 scripts/overpass/fetch_sandy_waterway.py
+
+hydro-fetch: ## Dev@run all Overpass fetchers (network required)
+	./scripts/overpass/fetch_all_portland_hydro.sh
+
+hydro-sync-fixtures: ## Dev@copy assets/hydro to test/fixtures
+	./scripts/hydro/sync_fixtures.sh
 
 preflight: ## Quality@format, analyze, test, gen-check, coverage
 	./scripts/preflight.sh

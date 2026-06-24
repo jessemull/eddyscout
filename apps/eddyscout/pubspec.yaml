@@ -61,6 +61,10 @@ flutter:
     - assets/hydro/willamette_waterway.geojson
     - assets/hydro/columbia_lower_waterway.geojson
     - assets/hydro/columbia_gorge_waterway.geojson
+    - assets/hydro/clackamas_waterway.geojson
+    - assets/hydro/slough_waterway.geojson
+    - assets/hydro/tualatin_waterway.geojson
+    - assets/hydro/sandy_waterway.geojson
     - assets/hydro/confluence_bridges.json
     - assets/data/launch_reachability_index.json
     - assets/data/launch_suggested_trips_index.json

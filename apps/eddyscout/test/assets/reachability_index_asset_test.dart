@@ -19,7 +19,7 @@ void main() {
       expect(index.distanceModel, 'graph_plus_snap');
       expect(index.snapMaxMeters, kReachabilitySnapMaxMeters);
       expect(index.thresholdsMi, kReachabilityThresholdsMi);
-      expect(index.crossSystemReachability, isFalse);
+      expect(index.crossSystemReachability, isTrue);
       expect(index.entries, isNotEmpty);
 
       for (final launch in kLaunchPoints) {

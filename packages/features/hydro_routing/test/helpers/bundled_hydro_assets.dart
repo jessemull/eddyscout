@@ -1,5 +1,25 @@
 import 'dart:io';
 
+import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+
+Directory _repoRoot() {
+  var dir = Directory.current;
+  while (true) {
+    final hydroDir = Directory('${dir.path}/apps/eddyscout/assets/hydro');
+    if (hydroDir.existsSync()) {
+      return dir;
+    }
+    final parent = dir.parent;
+    if (parent.path == dir.path) {
+      break;
+    }
+    dir = parent;
+  }
+  throw StateError(
+    'Could not locate apps/eddyscout/assets/hydro from ${Directory.current.path}',
+  );
+}
+
 /// Reads bundled hydro GeoJSON from the app shell (single source of truth).
 ///
 /// [assetPath] must be under `assets/hydro/`, e.g.
@@ -14,22 +34,19 @@ Future<String> readBundledHydroAsset(String assetPath) async {
   }
   final fileName = assetPath.replaceFirst('assets/hydro/', '');
   final file = File(
-    '${Directory.current.path}/../../../apps/eddyscout/assets/hydro/$fileName',
+    '${_repoRoot().path}/apps/eddyscout/assets/hydro/$fileName',
   );
   return file.readAsString();
 }
 
-/// Loads all bundled hydro GeoJSON documents from the app asset bundle.
+/// All bundled waterway GeoJSON documents from the app asset bundle.
 Future<List<String>> readBundledHydroGeoJsonDocuments() async {
   return [
-    await readBundledHydroAsset('assets/hydro/willamette_waterway.geojson'),
-    await readBundledHydroAsset('assets/hydro/columbia_lower_waterway.geojson'),
-    await readBundledHydroAsset(
-      'assets/hydro/columbia_gorge_waterway.geojson',
-    ),
+    for (final path in bundledHydroGeoJsonAssetPaths)
+      await readBundledHydroAsset(path),
   ];
 }
 
 /// Loads curated confluence bridge JSON from the app asset bundle.
 Future<String> readBundledConfluenceBridgesJson() =>
-    readBundledHydroAsset('assets/hydro/confluence_bridges.json');
+    readBundledHydroAsset(bundledConfluenceBridgesAssetPath);

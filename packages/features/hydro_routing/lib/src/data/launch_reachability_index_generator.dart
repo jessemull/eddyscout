@@ -71,12 +71,14 @@ abstract final class LaunchReachabilityIndexGenerator {
       );
 
       if (!hasAny && onWarning != null) {
-        final sameSystemPeer = catalog.where(
-          (launch) =>
-              launch.id != source.id &&
-              launch.riverSystem == source.riverSystem,
-        );
-        if (sameSystemPeer.isEmpty) {
+        final sameSystemPeerCount = catalog
+            .where(
+              (launch) =>
+                  launch.id != source.id &&
+                  launch.riverSystem == source.riverSystem,
+            )
+            .length;
+        if (sameSystemPeerCount > 0) {
           onWarning(
             'Launch ${source.id} has no routable peers on '
             '${source.riverSystem.name}',

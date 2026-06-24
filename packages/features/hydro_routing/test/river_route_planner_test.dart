@@ -25,13 +25,20 @@ LaunchPoint _launch({
 }
 
 Future<RiverRoutePlanner> _plannerFromFixtures() async {
-  final willamette = await File(
-    'test/fixtures/willamette_waterway.geojson',
-  ).readAsString();
-  final columbia = await File(
-    'test/fixtures/columbia_gorge_waterway.geojson',
-  ).readAsString();
-  return RiverRoutePlanner.fromGeoJsonDocuments([willamette, columbia]);
+  const fixtureNames = [
+    'willamette_waterway.geojson',
+    'columbia_lower_waterway.geojson',
+    'columbia_gorge_waterway.geojson',
+    'clackamas_waterway.geojson',
+    'slough_waterway.geojson',
+    'tualatin_waterway.geojson',
+    'sandy_waterway.geojson',
+  ];
+  final docs = <String>[];
+  for (final name in fixtureNames) {
+    docs.add(await File('test/fixtures/$name').readAsString());
+  }
+  return RiverRoutePlanner.fromGeoJsonDocuments(docs);
 }
 
 Future<RiverRoutePlanner> _plannerFromBundledAssets() async {
@@ -309,6 +316,48 @@ void main() {
         final ok = result as RouteSuccess;
         expect(ok.lengthMeters, greaterThan(1000));
         expect(ok.polylineLonLat.length, greaterThan(2));
+      },
+    );
+
+    test(
+      'cross-system Cathedral to Glenn Otto stays on mainstem past Vancouver',
+      () async {
+        final planner = await _plannerFromBundledAssets();
+        final putIn = _launch(
+          id: 'cathedral_park',
+          river: RiverSystem.willamette,
+          lat: 45.5621,
+          lon: -122.7328,
+        );
+        final takeOut = _launch(
+          id: 'glenn_otto_troutdale',
+          river: RiverSystem.columbia,
+          lat: 45.5365,
+          lon: -122.3858,
+        );
+        final result = planner.plan(putIn, takeOut);
+        expect(result, isA<RouteSuccess>());
+        final ok = result as RouteSuccess;
+
+        // Wintler launch anchor used to be inlined into the mainstem, forcing
+        // through-routes to detour onto land north of the Columbia channel.
+        const vancouverWintlerLat = 45.6275;
+        const vancouverWintlerLon = -122.6558;
+        const minClearanceMeters = 150.0;
+        for (final coord in ok.polylineLonLat) {
+          final distance = haversineMeters(
+            vancouverWintlerLat,
+            vancouverWintlerLon,
+            coord[1],
+            coord[0],
+          );
+          expect(
+            distance,
+            greaterThan(minClearanceMeters),
+            reason:
+                'Through-route must not visit the Wintler spur launch anchor',
+          );
+        }
       },
     );
 

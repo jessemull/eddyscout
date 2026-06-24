@@ -10,8 +10,6 @@ void main() {
   testGoldens('SemanticColors swatches render in light and dark', (
     tester,
   ) async {
-    await loadAppFonts();
-
     Widget gallery(Brightness brightness) => MaterialApp(
       theme: brightness == Brightness.light
           ? AppTheme.light()

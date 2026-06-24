@@ -6,10 +6,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Future<List<String>> _loadFixtureHydroGeoJson() async {
+  const fixtureNames = [
+    'willamette_waterway.geojson',
+    'columbia_lower_waterway.geojson',
+    'columbia_gorge_waterway.geojson',
+    'clackamas_waterway.geojson',
+    'slough_waterway.geojson',
+    'tualatin_waterway.geojson',
+    'sandy_waterway.geojson',
+  ];
   return [
-    await File('test/fixtures/willamette_waterway.geojson').readAsString(),
-    await File('test/fixtures/columbia_lower_waterway.geojson').readAsString(),
-    await File('test/fixtures/columbia_gorge_waterway.geojson').readAsString(),
+    for (final name in fixtureNames)
+      await File('test/fixtures/$name').readAsString(),
   ];
 }
 

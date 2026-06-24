@@ -86,8 +86,13 @@ jobs:
       # dart pub get resolves the workspace without copying iOS Firebase plugins;
       # melos bootstrap runs flutter pub get and can fail on macOS runners.
       - run: dart pub get
+      - name: Disable macOS font smoothing for deterministic goldens
+        run: defaults -currentHost write -g AppleFontSmoothing -int 0
       - working-directory: packages/design_system
         run: flutter test test/goldens
+      - name: Restore macOS font smoothing
+        if: always()
+        run: defaults -currentHost write -g AppleFontSmoothing -int 2
 
   coverage:
     name: Coverage Thresholds

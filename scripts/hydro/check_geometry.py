@@ -133,9 +133,9 @@ def main() -> None:
             print(f"ERROR: {error}", file=sys.stderr)
         raise SystemExit(1)
 
-    file_count = len(list(hydro_dir.glob("*_waterway.geojson")))
+    geojson_files = sorted(hydro_dir.glob("*_waterway.geojson"))
     print(
-        f"Hydro geometry OK ({file_count} files, "
+        f"Hydro geometry OK ({len(geojson_files)} files, "
         f"max edge {max_edge_m:.0f} m, confluence gap {confluence_gap_m:.0f} m)"
     )
 

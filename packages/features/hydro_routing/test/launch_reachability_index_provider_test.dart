@@ -23,7 +23,7 @@ void main() {
       );
 
       expect(index.schemaVersion, 1);
-      expect(index.crossSystemReachability, isFalse);
+      expect(index.crossSystemReachability, isTrue);
       expect(index.entryFor('cathedral_park'), isNotNull);
       expect(
         index.nearbyLaunchIds(

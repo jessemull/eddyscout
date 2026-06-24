@@ -1,5 +1,8 @@
 # OpenStreetMap Overpass import scripts for bundled hydro assets.
 
+App-facing documentation (asset table, validation gates, make targets) lives in
+[`apps/eddyscout/scripts/README-hydro.md`](../../apps/eddyscout/scripts/README-hydro.md).
+
 ## Columbia lower + gorge
 
 ```bash
@@ -26,20 +29,9 @@ before write so bundled geometry passes `scripts/check_hydro_geometry.sh`.
 
 ## Validation
 
-Bundled assets, confluence bridges, and known launch snap gaps (e.g. Port of Camas
-marina) are documented in
-[`apps/eddyscout/scripts/README-hydro.md`](../../apps/eddyscout/scripts/README-hydro.md#launch-snap-gaps-known).
-
 ```bash
 ./scripts/check_hydro_geometry.sh
 ```
 
-Runs bundled geometry validation plus `scripts/hydro/` unit tests. Fails when any
-bundled edge exceeds **2000 m** or confluence gaps exceed **12 m** (the same merge
-threshold as `RiverLineGraph`).
-
-Unit tests only:
-
-```bash
-python3 -m unittest discover -s scripts/hydro -p 'test_*.py'
-```
+Fails when any bundled edge exceeds **2000 m** or confluence gaps exceed **12 m**
+(the same merge threshold as `RiverLineGraph`).

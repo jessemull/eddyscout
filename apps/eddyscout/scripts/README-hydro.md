@@ -2,89 +2,66 @@
 
 Bundled GeoJSON under `assets/hydro/` supplies **approximate** river centerlines for in-app routing. The app builds an undirected graph from `LineString` features and runs shortest-path between snapped launch points.
 
-## Current files
+Coordinates must be **WGS84** `[longitude, latitude]` per GeoJSON.
 
-| File | `river_system` | Notes |
-|------|----------------|-------|
-| `willamette_waterway.geojson` | `willamette` | Main stem from OpenStreetMap (`waterway=river`, ways 163656027 + 164125011 merged). |
-| `columbia_lower_waterway.geojson` | `columbia` | Willamette mouth → Camas from OSM Overpass merge (`scripts/overpass/fetch_columbia_waterway.py`); mouth shares Willamette end vertex. |
-| `columbia_gorge_waterway.geojson` | `columbia` | Camas → Glenn Otto from OSM way 163917830 + Sandy River way 128946456. |
-| `confluence_bridges.json` | — | Optional curated edges where geometry is missing but systems should connect (see below). |
+## Bundled assets
 
-Coordinates must be **WGS84** `[longitude, latitude]` per GeoJSON. Feature property `river_system` must match Dart enum names: `willamette`, `columbia`, `clackamas`, `slough`.
+| File | `river_system` | Reach / notes |
+|------|----------------|---------------|
+| `willamette_waterway.geojson` | `willamette` | Main stem Oregon City pool → Columbia mouth; launch anchor extensions (Willamette Park, Sportcraft / eNRG) |
+| `columbia_lower_waterway.geojson` | `columbia` | Mouth → Camas split; Multnomah Channel spur (Scappoose); lower-pool spurs (Vancouver, St Helens, Frenchman's Bar) |
+| `columbia_gorge_waterway.geojson` | `columbia` | Camas → Glenn Otto (Sandy tail on way `163917830` + `128946456`) |
+| `clackamas_waterway.geojson` | `clackamas` | Main stem to Clackamette Park anchor |
+| `slough_waterway.geojson` | `slough` | Multnomah / Smith & Bybee slough network; Kelley Point extension |
+| `tualatin_waterway.geojson` | `tualatin` | Metro reach (no `RiverSystem.tualatin` enum or catalog launches yet) |
+| `sandy_waterway.geojson` | `columbia` | Sandy River subline (`reach_id`: `sandy_main`) |
+| `confluence_bridges.json` | — | Placeholder for temporary bridge edges; **geometry-first** policy (see below) |
 
-## Import pipeline (Columbia)
+Provenance is recorded in each feature's `source` property. Regenerate with the Overpass scripts under `scripts/overpass/` (see `scripts/overpass/README.md` for script-level detail).
 
-Regenerate Columbia assets from OpenStreetMap:
+### Confluence chain (endpoint gaps ≤ 12 m)
 
-```bash
-python3 scripts/overpass/fetch_columbia_waterway.py
-./scripts/check_hydro_geometry.sh
+```
+willamette_waterway.geojson
+        ↓ Willamette mouth
+columbia_lower_waterway.geojson
+        ↓ Camas split
+columbia_gorge_waterway.geojson
 ```
 
-The import script:
+Clackamas and Sandy joins to Willamette/Columbia are validated for internal graph quality but are **not** chained in `check_geometry.py` until OSM connectivity is stable end-to-end.
 
-1. Reads the Willamette mouth from bundled `willamette_waterway.geojson`.
-2. Merges connected `waterway=river|canal|fairway` ways via Overpass.
-3. Routes mouth → Camas on the merged graph (no hand-drawn mouth connector).
-4. Builds the gorge reach from OSM way `163917830` + Sandy River way `128946456`.
-5. Writes assets and matching test fixtures.
+### `confluence_bridges.json` policy
 
-CI / preflight runs `scripts/check_hydro_geometry.sh`, which fails when any edge exceeds **2000 m** or confluence gaps exceed **12 m** (same merge threshold as `RiverLineGraph`).
+Prefer shared geometry vertices at confluences (≤ 12 m gap, same threshold as `RiverLineGraph`). Bridge entries in `confluence_bridges.json` are a **temporary** fallback only; cross-system routing logic lives on `feat/cross-system-routing` (PR #62). This branch bundles the placeholder file but does not load it in Dart.
 
-## Launch snap gaps (known)
+Launch anchor extensions (Willamette Park, Sportcraft, Vancouver Wintler, Scappoose, St Helens) snap catalog pins to the graph when OSM centerlines end short. Frenchman's Bar uses a densified connector (up to ~12 km) when the Columbia River centerline is farther than the launch anchor from OSM.
 
-| Launch | Gap to bundled geometry | Notes |
-|--------|------------------------|-------|
-| Port of Camas marina | ~2.2 km to Columbia mainstem | Not routable until Camas Slough OSM spur (way `130204446` or equivalent) is bundled; nearest slough point is ~890 m but not connected to mainstem within the 12 m merge threshold. |
-| Washougal Waterfront Park | ~610 m to gorge mainstem | Within the 900 m route snap threshold; routes on gorge geometry. |
+## Refreshing data (Overpass)
 
-## Confluence bridges (`confluence_bridges.json`)
+Requires network access. Fetchers overwrite assets and mirror copies to `packages/features/hydro_routing/test/fixtures/`.
 
-Use bridges only when two systems should route together but bundled GeoJSON does not yet share a vertex (within the 12 m merge threshold).
+| Make target | Script |
+|-------------|--------|
+| `make hydro-fetch-willamette` | `scripts/overpass/fetch_willamette_waterway.py` |
+| `make hydro-fetch-columbia` | `scripts/overpass/fetch_columbia_waterway.py` |
+| `make hydro-fetch-clackamas` | `scripts/overpass/fetch_clackamas_waterway.py` |
+| `make hydro-fetch-slough` | `scripts/overpass/fetch_slough_waterway.py` |
+| `make hydro-fetch-tualatin` | `scripts/overpass/fetch_tualatin_waterway.py` |
+| `make hydro-fetch-sandy` | `scripts/overpass/fetch_sandy_waterway.py` |
+| `make hydro-fetch` | `scripts/overpass/fetch_all_portland_hydro.sh` (all of the above, in order) |
+| `make hydro-sync-fixtures` | Copy `assets/hydro/` → test fixtures |
 
-### Format
+After changing geometry locally, run `make hydro-check` before committing.
 
-JSON array of objects:
+## Validation gates
 
-```json
-[
-  {
-    "id": "unique_stable_id",
-    "a": { "lat": 45.6178872, "lon": -122.7909498 },
-    "b": { "lat": 45.5856, "lon": -122.4244 }
-  }
-]
-```
-
-- **`id`** — logged at graph build; use snake_case; never reuse after removal.
-- **`a` / `b`** — WGS84 endpoints. Each must snap to an existing graph vertex within **200 m** or the bridge is skipped.
-
-Bridges add a single undirected edge weighted by haversine distance between the snapped vertices. Keep endpoints on the waterway centerline, not on launch pins.
-
-### When to add or update bridges
-
-1. **Prefer geometry first** — extend or add `*_waterway.geojson` so line endpoints meet at confluences. Remove redundant bridges when shared vertices connect the graph.
-2. **After importing new GeoJSON** — re-run routing tests (`packages/features/hydro_routing`) and check debug logs for `addConfluenceBridges: skipped` or unexpectedly long bridge edges (> ~5 km).
-3. **After moving a line endpoint** — update bridge `a`/`b` to the new mouth/confluence coordinates or delete the bridge if geometry now connects.
-4. **Placeholder bridges** — keep entries whose `a`/`b` both lie on bundled geometry for future systems (e.g. Clackamas) even if one side has no line yet; they are skipped until both endpoints snap.
-
-Loaded in production via `hydroConfluenceBridgesLoaderProvider` in `app_provider_overrides.dart`.
-
-## Refreshing or extending data
-
-1. **OpenStreetMap (Overpass API)**  
-   Query `waterway=river` / `waterway=stream` inside a bounding box, export as GeoJSON. Use `scripts/overpass/fetch_columbia_waterway.py` for Columbia lower + gorge. Merge ways, simplify with [mapshaper](https://mapshaper.org/) or QGIS if needed.
-
-2. **US NHD (National Hydrography Dataset)**  
-   Download flowlines for your HUC via `scripts/nhd/` (`download.sh`, `convert.py`, `validate.py`). Often better connectivity than OSM for US rivers.
-
-3. **Replace or add assets**  
-   Add new `.geojson` files, list them in `pubspec.yaml` under `flutter.assets`, and append paths in `hydroGeoJsonLoaderProvider` (`app_provider_overrides.dart`).
-
-## Disclaimer
-
-These lines are for **planning visualization only**, not navigation. Verify flow direction, hazards, and access on the water.
+| Gate | Command / test | Threshold |
+|------|----------------|-----------|
+| Geometry (CI) | `make hydro-check` / `scripts/preflight.sh` | Max edge **2000 m**; declared confluence endpoint gaps **12 m** |
+| Graph load | `packages/features/hydro_routing/test/bundled_hydro_connectivity_test.dart` | Non-empty graph per expected `river_system` |
+| Launch snap | `packages/features/hydro_routing/test/bundled_launch_snap_test.dart` | Each catalog launch on a system with geometry snaps within **900 m** (`kReachabilitySnapMaxMeters`) |
+| Bundle size | `apps/eddyscout/test/assets/hydro_asset_bounds_test.dart` | Per-file ceilings + total **< 500 KB** |
 
 ## Launch reachability index
 
@@ -98,3 +75,17 @@ make gen-reachability-check   # CI-friendly stale check
 ```
 
 Expected runtime: **< 2 s** for the full catalog on CI hardware. Cross-system pairs are excluded until unified multi-system routing lands (`crossSystemReachability: false` in the JSON).
+
+## PR #62 dependency
+
+Cross-system route planning (`cathedral_park` → `glenn_otto_troutdale` without bridges) requires **`feat/cross-system-routing` (PR #62)** merged on top of this geometry. This branch keeps the per-system `RiverRoutePlanner` on `main` and validates confluence geometry only.
+
+## Out of scope
+
+- **NHD download / conversion** — see `scripts/nhd/` (separate R1 item)
+- **Server-side / PostGIS routing** (R5)
+- Loading `confluence_bridges.json` in the app (owned by PR #62)
+
+## Disclaimer
+
+These lines are for **planning visualization only**, not navigation. Verify flow direction, hazards, and access on the water.

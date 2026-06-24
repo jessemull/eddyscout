@@ -4,7 +4,7 @@ High-level feature map for a PNW-focused kayak companion: **decision-first**, **
 
 > **Platform:** target architecture is **complete** (waves 1–3 merged; see § Platform architecture). **Product work** is Phase C+ below. New UI belongs in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
 >
-> **Last updated:** 2026-06-14
+> **Last updated:** 2026-06-22
 
 ## Vision
 
@@ -179,7 +179,7 @@ Budget: at most **one new** `integration_test/` file per product epic unless jus
 
 ### Recommended next implementation
 
-**Now (product — Phase C):** Prioritize **waterway geometry expansion** (import all Portland-area river systems), **A\* upgrade**, and **launch reachability / suggested trips**. GPX export/import and saved routes v1 are already built. **Moderation** for condition reports is an alternative early Phase C slice if community trust is the bottleneck.
+**Now (product — Phase C):** Prioritize **launch coordinate quality** — implement the **two-pin model** (access vs water entry), then realign bad catalog pins and fix water-only route polylines / mainstem geometry hygiene. Portland metro Overpass geometry, A\*, cross-system routing, reachability / suggested trips indexes, and **Trips from here** UI are shipped. **Moderation** for condition reports remains an alternative slice if community trust is the bottleneck.
 
 **Done (platform):** Waves 1–3 — monorepo, `@riverpod`, Result boundaries, router package, feature presentation layering, app-shell closeout (#19–#36).
 
@@ -227,17 +227,22 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [x] **(Phase C)** Route planner follow-ups — more rivers / segment snap (`feat/route-planner-hydro-expansion`; Willamette + Columbia gorge hydro, edge snap, `PlannedRoute` domain model)
 - [x] **(Phase C / R1a)** Route planner: Columbia OSM import — repeatable Overpass merge, Willamette mouth tied to real OSM vertices, geometry gate in CI (scoped PR before full R1)
 - [ ] **(Phase C / R1)** Route planner: Camas Slough / marina spur geometry — bundle OSM way `130204446` (or equivalent) so Port of Camas marina routes to Columbia mainstem (currently ~2.2 km from bundled line; see `apps/eddyscout/scripts/README-hydro.md`)
-- [ ] **(Phase C / R1)** Route planner: import Columbia, Clackamas, slough, Tualatin, Sandy waterway geometry from OSM Overpass; validate connectivity; bundle as `assets/hydro/`
+- [x] **(Phase C / R1)** Route planner: import Columbia, Clackamas, slough, Tualatin, Sandy waterway geometry from OSM Overpass; validate connectivity; bundle as `assets/hydro/` (`feat/overpass-waterway-import`; seven bundled assets + `make hydro-check`)
 - [ ] **(Phase C / R1)** Route planner: add NHD download + conversion script for higher-quality river centerlines
-- [ ] **(Phase C / R2)** Route planner: upgrade Dijkstra to A* with priority queue and haversine heuristic
+- [x] **(Phase C / R2)** Route planner: upgrade Dijkstra to A* with priority queue and haversine heuristic
 - [x] **(Phase C / R2)** Route planner: unified multi-system graph with cross-system routing (Willamette → Columbia confluence)
 - [ ] **(Phase C / R2)** Route planner: pre-computed binary graph serialization for faster cold start
 - [ ] **(Phase C / R2)** Route planner: retire unused `RouteFailureCode.noBundledLine` from planner paths — unified graph uses `noRiverGeometryLoaded`; keep map l10n until enum cleanup
-- [ ] **(Phase C / R3)** Route planner: pre-snap launches to graph vertices at build time; snap quality validation
-- [ ] **(Phase C / R3)** Route planner: reachability index per launch (nearby launches within 5/10/20 mi graph distance)
-- [ ] **(Phase C / R3)** Route planner: suggested trips from each launch (distance, time, waypoints)
-- [ ] **(Phase C / R3)** Route planner: regenerate reachability + suggested trips indexes with unified cross-system graph (`crossSystemReachability: true`) after cross-system routing merges
-- [ ] **(Phase C / R3)** Route planner: "Trips from here" UI on place peek and launch detail
+- [ ] **(Phase C / R3)** Route planner: **two-coordinate launch model** — separate **access** pin (map marker, parking / park entrance) from **water entry** pin (graph snap for routing); route polylines and distance use water entry only; access pin stays for discoverability (**build this before bulk pin migration**)
+- [ ] **(Phase C / R3)** Route planner: **manual catalog pin realignment** — move launches with snap distance > 200 m to the water edge (satellite + water-trail cross-check); validate with `packages/features/hydro_routing/tool/launch_snap_report.dart` (**after two-pin lands, migrate both coordinates**)
+- [ ] **(Phase C / R3)** Route planner: **water-only route polylines** — map LineLayer follows graph geometry only; no shore-to-river chords from inland access pins (interim UX fix; superseded per-launch once water entry is authoritative)
+- [ ] **(Phase C / R3)** Route planner: **mainstem geometry hygiene** — launch connectors as side spurs only (never inlined into through-channel); prune OSM backtrack loops (e.g. Hayden Island); extract marina anchors (Port of Camas) from gorge mainstem
+- [ ] **(Phase C / R3)** Route planner: pre-snap water-entry coordinates to graph vertices at build time; snap quality validation
+- [ ] **(Phase C / R3)** Route planner: **snap quality CI gate** — warn/fail when catalog water-entry snap > 200 m (`bundled_launch_snap_test.dart` threshold today is 900 m reachability only)
+- [x] **(Phase C / R3)** Route planner: reachability index per launch (nearby launches within 5/10/20 mi graph distance)
+- [x] **(Phase C / R3)** Route planner: suggested trips from each launch (distance, time, waypoints)
+- [x] **(Phase C / R3)** Route planner: regenerate reachability + suggested trips indexes with unified cross-system graph (`crossSystemReachability: true`)
+- [x] **(Phase C / R3)** Route planner: "Trips from here" UI on place peek and launch detail (`feat/trips-from-here-ui`, PR #66)
 - [x] **(Phase C)** Route planner: **personalized paddling speed** at sign-up / profile for trip-time estimates (default 4 km/h until set; optional learning from trip log)
 - [ ] **(Phase C)** **Metric / imperial units** — user preference for distance (km/mi) and speed (km/h/mph) across settings, route planner, and saved routes
 - [ ] **(Phase C / R4)** Route editing: arbitrary waypoints (drop pin on waterway, snap to graph)
@@ -387,7 +392,9 @@ The routing engine is the foundation for trip planning, discovery, and on-water 
 - Alternate routes (side channels, portage options)
 - Scalability (adding a launch means re-wiring all connections)
 
-Instead: **waterway geometry → graph → snap launches → route through graph**.
+Instead: **waterway geometry → graph → snap launches at water entry → route through graph**.
+
+Catalog launches should expose **two coordinates** when they differ: **access** (map marker) and **water entry** (routing snap). A single inland pin forces shore-to-river chords in the polyline.
 
 ### Architecture layers
 
@@ -415,23 +422,23 @@ Waterway GeoJSON (OSM / NHD / curated)
 | System | Status |
 |--------|--------|
 | Willamette (main stem Portland reach) | Done (bundled GeoJSON) |
-| Columbia (Portland–Sauvie–St. Helens) | **R1a done** — OSM Overpass import (`scripts/overpass/fetch_columbia_waterway.py`); mouth shares Willamette vertex; geometry gate in preflight. **Gap:** Port of Camas marina not on mainstem (R1 slough spur) |
-| Clackamas | Not started |
-| Multnomah Channel / slough | Not started — includes **Camas Slough** spur for Port of Camas marina (~890 m to slough, ~2.2 km to Columbia mainstem today) |
-| Tualatin | Not started |
-| Sandy | Not started |
+| Columbia (Portland–Sauvie–St. Helens) | **R1a + R1 done** — OSM Overpass import (`scripts/overpass/fetch_columbia_waterway.py`); mouth shares Willamette vertex; geometry gate in preflight. **Gaps:** Camas Slough spur for Port of Camas marina; mainstem backtrack loops (Hayden Island); launch anchors must stay off through-channel |
+| Clackamas | **Done** — `clackamas_waterway.geojson` |
+| Multnomah Channel / slough | **Done** — `slough_waterway.geojson`; **Camas Slough** spur for Port of Camas marina still open (~2.2 km to Columbia mainstem today) |
+| Tualatin | **Done** — `tualatin_waterway.geojson` (no catalog launches yet) |
+| Sandy | **Done** — `sandy_waterway.geojson` (`reach_id`: `sandy_main`) |
 
 **Output:** One GeoJSON `FeatureCollection` per river system with `river_system` property; each feature is a `LineString` of centerline coordinates.
 
 **Tasks:**
 
 - [x] Write Overpass import script for Columbia lower + gorge (`scripts/overpass/fetch_columbia_waterway.py`)
+- [x] Write Overpass query scripts for remaining Portland metro systems (`scripts/overpass/fetch_{clackamas,slough,tualatin,sandy}_waterway.py`, `fetch_all_portland_hydro.sh`)
 - [x] Connect Willamette mouth via shared OSM vertices (no hand-drawn mouth connector)
 - [x] Add bundled geometry gate — fail CI when any edge > 2000 m or confluence gaps > 12 m (`scripts/check_hydro_geometry.sh`)
-- [ ] Write Overpass query scripts for remaining target systems (`scripts/overpass/`)
-- [ ] Validate geometry connectivity (no gaps between line segments)
-- [ ] Merge disconnected segments within snap threshold
-- [ ] Bundle as `assets/hydro/<system>_waterway.geojson`
+- [x] Bundle as `assets/hydro/<system>_waterway.geojson` (seven systems + `confluence_bridges.json` placeholder)
+- [ ] Validate geometry connectivity end-to-end for all confluences (Clackamas / Sandy joins still informational only)
+- [ ] Merge disconnected segments within snap threshold (automated beyond vertex merge)
 - [ ] Add NHD download + conversion script for higher-quality alternatives
 - [x] Document geometry provenance per file in `scripts/README-hydro.md`
 
@@ -444,17 +451,27 @@ Waterway GeoJSON (OSM / NHD / curated)
 - [x] Import + merge real Columbia centerlines — Overpass merge of connected `waterway=river|canal|fairway` ways (`scripts/overpass/fetch_columbia_waterway.py`)
 - [x] Connect at Willamette mouth using shared OSM vertices — read mouth from `willamette_waterway.geojson`; no hand-drawn mouth connector
 - [x] Geometry gate — `scripts/check_hydro_geometry.sh` fails preflight when any edge > 2000 m or confluence gaps > 12 m
-- [x] Manual route check — Cathedral Park → Glenn Otto follows channel (not Vancouver land)
+- [x] Geometry gate — `scripts/check_hydro_geometry.sh` fails preflight when any edge > 2000 m or confluence gaps > 12 m
+- [ ] Manual route check — Cathedral Park → Glenn Otto follows channel without land vees (regression: no shore chords, no mainstem loops, no inlined launch anchors on through-route)
 - [x] Unit tests for geometry gate (`scripts/hydro/test_check_geometry.py`)
 
-**Known launch snap gaps (documented in `apps/eddyscout/scripts/README-hydro.md`):**
+**Known launch snap gaps (unified graph; run `dart run tool/launch_snap_report.dart`):**
 
-| Launch | Distance to bundled geometry | Tracked in |
-|--------|------------------------------|------------|
-| Port of Camas marina | ~2.2 km to Columbia mainstem | **R1** — Camas Slough OSM spur (`130204446`) |
-| Washougal Waterfront Park | ~610 m to gorge mainstem | Within 900 m snap; routable today |
+| Launch | Snap to bundled geometry | Action |
+|--------|--------------------------|--------|
+| Washougal Waterfront Park | ~610 m | Realign access + water entry after two-pin model |
+| Jefferson St (Milwaukie) | ~577 m | Realign pins to ramp |
+| Portland Boathouse | ~564 m | Realign pin to dock |
+| Glenn Otto Park | ~547 m | Realign pin to Sandy River beach |
+| Sellwood Riverfront | ~435 m | Realign pin to beach |
+| Cathedral Park | ~407 m | Realign pin to boat ramp |
+| Tom McCall / River Place | ~355 m | Realign pins to permitted water access |
+| George Rogers Park | ~325 m | Realign pin to beach |
+| Swan Island Boat Ramp | ~242 m | Realign pin to ramp |
+| Port of Camas marina | ~0 m* | *Geometry extended to pin; marina still ~2.2 km off mainstem channel — **R1** Camas Slough OSM spur (`130204446`) |
+| Vancouver Wintler / Frenchman's Bar / Scappoose / St Helens | ~0 m* | *Launch spur geometry meets pin; access pin may still be inland — two-pin model clarifies |
 
-**Out of scope for R1a (defer to full R1):** Clackamas, full slough/Multnomah bundles, Tualatin, Sandy main-stem bundles; NHD pipeline as primary source; Overpass scripts per remaining system.
+**Out of scope for R1a (defer to full R1):** NHD pipeline as primary source.
 
 
 ### Phase R2: Graph construction improvements
@@ -463,8 +480,8 @@ Waterway GeoJSON (OSM / NHD / curated)
 
 **Improvements:**
 
-- [ ] **Priority queue Dijkstra or A\*** — replace O(n²) linear scan; required before graph exceeds ~5k nodes
-- [ ] **A\* heuristic** — haversine straight-line distance to destination; admissible for undirected waterway graphs
+- [x] **Priority queue Dijkstra or A\*** — `AStarMinHeap` replaces O(n²) linear scan
+- [x] **A\* heuristic** — haversine straight-line distance to destination; admissible for undirected waterway graphs
 - [ ] **Vertex merge spatial index** — replace O(n²) `findOrAdd` linear scan at graph build; required before R1 geometry exceeds ~5k nodes
 - [ ] **Confluence bridge endpoint index** — replace O(n) linear scan in `addConfluenceBridges` when bridge count or vertex count grows (same grid/R-tree approach as snap index)
 - [ ] **Configurable vertex merge threshold** — 12 m is tight for NHD; test 20–30 m for denser datasets
@@ -483,14 +500,26 @@ Waterway GeoJSON (OSM / NHD / curated)
 
 ### Phase R3: Launch snap and discovery
 
-**Current state:** Dynamic snap at route time via `_nearestSnap`, which linearly scans all vertices and edges O(V+E) per endpoint (twice per route). Acceptable at ~150 nodes today; becomes costly at R1 metro scale (20k–50k nodes). `addConfluenceBridges` also linearly scans all vertices (200 m threshold) per bridge endpoint — fine for placeholder bridges today. No pre-computed reachability.
+**Current state:** Dynamic snap at route time via `_nearestSnap`, which linearly scans all vertices and edges O(V+E) per endpoint (twice per route). Acceptable at ~1k unified vertices today. Reachability and suggested-trip indexes ship with `crossSystemReachability: true`. **Trips from here** UI ships on launch detail / place peek. Catalog launches use a **single** lat/lon for both map marker and routing — inland pins produce visible land chords and “vee” polylines.
+
+**Two-coordinate launch model (next):**
+
+| Field | Purpose | Shown on map | Used for routing |
+|-------|---------|--------------|----------------|
+| `accessLatitude` / `accessLongitude` | Parking, park entrance, ramp approach | Yes (primary marker) | No |
+| `waterEntryLatitude` / `waterEntryLongitude` | Nearest shore / dock / beach put-in on water | Optional secondary or hidden | Yes (snap + polyline endpoints) |
+
+Until both exist, default water entry to access for backward compatibility. Migration order: **schema + planner first**, then realign bad pins (table in R1a), then tighten CI gate to 200 m on water entry only.
 
 **Improvements:**
 
-- [ ] **Pre-snap at build time** — store `launch.graphNodeId` in catalog; validate during codegen / asset pipeline (catalog launches skip route-time graph scan)
+- [ ] **Two-coordinate launch model** — `LaunchPoint` access vs water-entry fields; routing + polylines use water entry only (see master checklist)
+- [ ] **Manual pin realignment** — satellite placement for launches > 200 m snap (see R1a table)
+- [ ] **Water-only route polylines** — `_buildPolyline` omits inland access chords (interim until all launches have water entry)
+- [ ] **Pre-snap at build time** — store `waterEntryGraphVertex` or snapped coords in catalog; validate during codegen / asset pipeline
 - [ ] **Spatial index for route-time snap** — replace O(V+E) `_nearestSnap` with grid or R-tree lookup within `maxSnapMeters`; required before 20k+ node graphs and for R4 arbitrary waypoints / drop-pin routing
-- [ ] **Snap quality gate** — warn if snap distance > 200 m (indicates geometry gap near a launch); first candidate: Port of Camas marina until slough spur lands
-- [ ] **Reachability index** — BFS from each launch up to distance thresholds; store per launch:
+- [ ] **Snap quality gate** — fail CI when water-entry snap > 200 m; `launch_snap_report.dart` for local audit
+- [x] **Reachability index** — BFS from each launch up to distance thresholds; bundled at `assets/data/launch_reachability_index.json`
 
 ```json
 {
@@ -503,7 +532,7 @@ Waterway GeoJSON (OSM / NHD / curated)
 }
 ```
 
-- [ ] **Suggested trips** — pre-compute one-way and round-trip suggestions per launch using graph distance + common waypoints:
+- [x] **Suggested trips** — pre-computed one-way and round-trip suggestions per launch; bundled at `assets/data/launch_suggested_trips_index.json`
 
 ```json
 {
@@ -514,19 +543,13 @@ Waterway GeoJSON (OSM / NHD / curated)
       "distanceKm": 8.2,
       "estimatedMinutes": 123,
       "waypoints": ["cathedralPark", "sellwoodRiverfront"]
-    },
-    {
-      "destination": "sauvieIsland",
-      "distanceKm": 14.5,
-      "estimatedMinutes": 218,
-      "waypoints": ["cathedralPark", "stjohns", "sauvieIsland"]
     }
   ]
 }
 ```
 
-- [ ] **UI: "Trips from here"** — surface nearby launches and suggested trips on the place peek sheet and launch detail screen
-- [ ] **UI: Trip length filters** — short (< 5 mi), medium (5–10 mi), long (> 10 mi) on suggested trips
+- [x] **UI: "Trips from here"** — nearby launches and suggested trips on place peek and launch detail (PR #66)
+- [x] **UI: Trip length filters** — short (< 5 mi), medium (5–10 mi), long (> 10 mi) on suggested trips (PR #66)
 
 ### Phase R4: Multi-stop and advanced routing
 
@@ -583,14 +606,18 @@ Client → Route API (POST /routes/plan)
 
 ```
 1. Columbia OSM import + geometry gate (R1a)           ← DONE
-2. Import remaining Portland-area waterway geometry (R1) — incl. Camas Slough for Port of Camas
-3. Upgrade pathfinder to A* with priority queue
-4. Pre-snap launches; build reachability index; snap quality gate
-5. Surface "trips from here" in UI
-6. Cross-system routing (unified graph)              ← DONE (R2)
-7. Arbitrary waypoints + drag-to-edit
-8. Server-side routing when graph > 100k nodes
-9. Continental expansion
+2. Import remaining Portland-area waterway geometry (R1) ← DONE (Camas Slough spur still open)
+3. Upgrade pathfinder to A* with priority queue        ← DONE
+4. Cross-system routing (unified graph)                ← DONE (R2)
+5. Reachability + suggested trips indexes              ← DONE (cross-system)
+6. "Trips from here" UI                                ← DONE (PR #66)
+7. Two-coordinate launch model (access + water entry)  ← NEXT
+8. Manual pin realignment + water-only polylines
+9. Mainstem geometry hygiene + snap quality CI gate
+10. Pre-snap water entry at build time; spatial index for snap
+11. Arbitrary waypoints + drag-to-edit
+12. Server-side routing when graph > 100k nodes
+13. Continental expansion
 ```
 
 ---
