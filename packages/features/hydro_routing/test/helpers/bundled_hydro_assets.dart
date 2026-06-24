@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -58,4 +59,17 @@ Future<Uint8List> readBundledHydroGraphBinary() async {
     '${_repoRoot().path}/apps/eddyscout/assets/data/unified_hydro_graph.bin',
   );
   return file.readAsBytes();
+}
+
+/// Shared confluence audit pairs (`scripts/hydro/confluence_audit.json`).
+Future<List<Map<String, dynamic>>> readConfluenceAuditPairs() async {
+  final file = File(
+    '${_repoRoot().path}/scripts/hydro/confluence_audit.json',
+  );
+  final data = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+  final pairs = data['pairs'];
+  if (pairs is! List) {
+    throw StateError('confluence_audit.json must contain a "pairs" list');
+  }
+  return pairs.cast<Map<String, dynamic>>();
 }
