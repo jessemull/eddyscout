@@ -94,7 +94,16 @@ See `docs/ROADMAP.md` § Integration test backlog for planned journeys.
 
 > **Current repo:** golden tests exist (e.g. `packages/design_system/test/goldens/app_theme_golden_test.dart`).
 
-Golden PNGs are generated on macOS and validated in the **Golden Tests** CI job (`macos-latest`). Ubuntu test jobs run `flutter test --exclude-tags golden` because font rasterization differs across platforms.
+Golden PNGs are generated on macOS and validated in the **Golden Tests** CI job (`macos-15`). Ubuntu test jobs run `flutter test --exclude-tags golden` because font rasterization differs across platforms.
+
+Regenerate design-system goldens with font smoothing disabled so local output matches CI:
+
+```bash
+defaults -currentHost write -g AppleFontSmoothing -int 0
+melos exec --scope=eddyscout_design_system -- \
+  "flutter test test/goldens --update-goldens"
+defaults -currentHost write -g AppleFontSmoothing -int 2
+```
 
 Required for:
 - All design system widgets

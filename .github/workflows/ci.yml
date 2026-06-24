@@ -73,18 +73,23 @@ jobs:
 
   golden:
     name: Golden Tests
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version-file: .tool-versions
           channel: stable
-          cache: true
+          cache: false
       - run: dart pub get
       - run: dart pub global activate melos
       - run: melos bootstrap
+      - name: Disable macOS font smoothing for deterministic goldens
+        run: defaults -currentHost write -g AppleFontSmoothing -int 0
       - run: melos exec --scope=eddyscout_design_system -- "flutter test test/goldens"
+      - name: Restore macOS font smoothing
+        if: always()
+        run: defaults -currentHost write -g AppleFontSmoothing -int 2
 
   coverage:
     name: Coverage Thresholds
