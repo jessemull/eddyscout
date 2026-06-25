@@ -52,6 +52,30 @@ Future<RiverRoutePlanner> _plannerFromBundledAssets() async {
 
 void main() {
   group('RiverRoutePlanner.plan', () {
+    test('empty geometry returns noRiverGeometryLoaded not noBundledLine', () {
+      const json = '''
+{"type":"FeatureCollection","features":[]}
+''';
+      final planner = RiverRoutePlanner.fromGeoJson(json);
+      final putIn = _launch(
+        id: 'a',
+        river: RiverSystem.willamette,
+        lat: 45.5,
+        lon: -122.6,
+      );
+      final takeOut = _launch(
+        id: 'b',
+        river: RiverSystem.willamette,
+        lat: 45.51,
+        lon: -122.61,
+      );
+      final result = planner.plan(putIn, takeOut);
+      expect(result, isA<RouteFailure>());
+      final failure = result as RouteFailure;
+      expect(failure.code, RouteFailureCode.noRiverGeometryLoaded);
+      expect(failure.code, isNot(RouteFailureCode.noBundledLine));
+    });
+
     test('sameLaunch returns sameLaunch failure', () async {
       final planner = await _plannerFromFixtures();
       final launch = _launch(

@@ -26,3 +26,6 @@ make gen-reachability-check
 
 echo "--- Verifying launch suggested trips index is up to date ---"
 make gen-suggested-trips-check
+
+echo "--- Verifying unified hydro graph binary is up to date ---"
+make gen-hydro-graph-check

@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_hydro_routing/src/data/river_graph_binary_codec.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -166,6 +168,47 @@ void main() {
       final async = container.read(riverRoutePlannerProvider);
       expect(async.hasError, isTrue);
       expect(hydroAppFailureFrom(async.error), isA<ParseFailure>());
+    });
+
+    test('prefers binary loader when bytes are valid', () async {
+      final geoPlanner = RiverRoutePlanner.fromGeoJsonDocuments(
+        await _loadFixtureHydroGeoJson(),
+      );
+      final bytes = encodeRiverLineGraph(geoPlanner.graphForTesting);
+      final container = ProviderContainer(
+        overrides: [
+          hydroGraphBinaryLoaderProvider.overrideWithValue(
+            () async => bytes,
+          ),
+          hydroGeoJsonLoaderProvider.overrideWithValue(
+            () async => throw StateError('GeoJSON should not load'),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(riverRoutePlannerProvider.future);
+      expect(
+        planner.graphForTesting.vertexCount,
+        geoPlanner.graphForTesting.vertexCount,
+      );
+    });
+
+    test('falls back to GeoJSON when binary decode fails', () async {
+      final container = ProviderContainer(
+        overrides: [
+          hydroGraphBinaryLoaderProvider.overrideWithValue(
+            () async => Uint8List.fromList([1, 2, 3, 4]),
+          ),
+          hydroGeoJsonLoaderProvider.overrideWithValue(
+            _loadFixtureHydroGeoJson,
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(riverRoutePlannerProvider.future);
+      expect(planner.graphForTesting.vertexCount, greaterThan(0));
     });
   });
 }

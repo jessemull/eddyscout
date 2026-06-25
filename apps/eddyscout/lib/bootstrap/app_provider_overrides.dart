@@ -48,6 +48,9 @@ List<Override> buildAppProviderOverrides({
     hydroGeoJsonLoaderProvider.overrideWithValue(
       loadBundledHydroGeoJsonFromAssets,
     ),
+    hydroGraphBinaryLoaderProvider.overrideWithValue(
+      loadBundledHydroGraphBinaryFromAssets,
+    ),
     hydroConfluenceBridgesLoaderProvider.overrideWithValue(
       () async => rootBundle.loadString(bundledConfluenceBridgesAssetPath),
     ),
