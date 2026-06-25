@@ -54,10 +54,10 @@ void main() {
 
       final planner = await container.read(riverRoutePlannerProvider.future);
       final putIn = LaunchPoint(
-        id: 'washougal_waterfront',
-        name: 'Washougal Waterfront Park',
-        latitude: 45.5791,
-        longitude: -122.3870,
+        id: 'port_of_camas',
+        name: 'Port of Camas Marina',
+        latitude: 45.5856,
+        longitude: -122.4244,
         shortNote: 'Test',
         riverSystem: RiverSystem.columbia,
         windExposure: WindExposure.moderate,

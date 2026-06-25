@@ -7,7 +7,7 @@
         "river_system": "columbia",
         "reach_id": "columbia_lower",
         "name": "Columbia mainstem \u2014 Willamette mouth to Camas (OSM merged)",
-        "source": "OpenStreetMap ODbL. Overpass merge of connected waterway=river|canal|fairway ways; shortest path from Willamette mouth to Camas split."
+        "source": "OpenStreetMap ODbL. Overpass merge of connected waterway=river|canal|fairway ways; shortest path from Willamette mouth to Camas split; backtrack loops pruned."
       },
       "geometry": {
         "type": "LineString",
@@ -45,10 +45,6 @@
             45.659415
           ],
           [
-            -122.7633908,
-            45.659415
-          ],
-          [
             -122.7604439,
             45.6569551
           ],
@@ -73,10 +69,6 @@
             45.6446558
           ],
           [
-            -122.7457097,
-            45.6446558
-          ],
-          [
             -122.7310924,
             45.6417014
           ],
@@ -95,10 +87,6 @@
           [
             -122.694738,
             45.6269196
-          ],
-          [
-            -122.6909986,
-            45.6247295
           ],
           [
             -122.6909986,
@@ -857,6 +845,128 @@
           [
             -122.7974,
             45.8642
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "river_system": "columbia",
+        "reach_id": "camas_slough_spur",
+        "name": "Camas Slough \u2014 Port of Camas marina spur (OSM)",
+        "source": "OpenStreetMap ODbL. Way 130204446 (Camas Slough) plus local OSM connector to columbia_lower mainstem at Camas split."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.4300244,
+            45.5659948
+          ],
+          [
+            -122.4414682,
+            45.5679976
+          ],
+          [
+            -122.4430707,
+            45.5682781
+          ],
+          [
+            -122.4448707,
+            45.5726963
+          ],
+          [
+            -122.4486597,
+            45.5754258
+          ],
+          [
+            -122.4477997,
+            45.5755924
+          ],
+          [
+            -122.4453607,
+            45.5761227
+          ],
+          [
+            -122.4431004,
+            45.576048
+          ],
+          [
+            -122.441658,
+            45.5756498
+          ],
+          [
+            -122.4413129,
+            45.5756314
+          ],
+          [
+            -122.4364717,
+            45.5752539
+          ],
+          [
+            -122.4316964,
+            45.5753342
+          ],
+          [
+            -122.4274071,
+            45.5763951
+          ],
+          [
+            -122.4250195,
+            45.5771768
+          ],
+          [
+            -122.4208724,
+            45.5779879
+          ],
+          [
+            -122.4157736,
+            45.5789206
+          ],
+          [
+            -122.4117291,
+            45.5798003
+          ],
+          [
+            -122.4094729,
+            45.5800144
+          ],
+          [
+            -122.4049846,
+            45.579665
+          ],
+          [
+            -122.4038621,
+            45.5791891
+          ],
+          [
+            -122.4034758,
+            45.5784228
+          ],
+          [
+            -122.4033717,
+            45.5780669
+          ],
+          [
+            -122.403348,
+            45.5773609
+          ],
+          [
+            -122.4031783,
+            45.5767986
+          ],
+          [
+            -122.401892,
+            45.5759368
+          ],
+          [
+            -122.3972864,
+            45.574267
+          ],
+          [
+            -122.3951134,
+            45.5716847
           ]
         ]
       }

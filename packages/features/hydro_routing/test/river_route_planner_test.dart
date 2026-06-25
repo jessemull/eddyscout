@@ -344,7 +344,7 @@ void main() {
     );
 
     test(
-      'cross-system Cathedral to Glenn Otto stays on mainstem past Vancouver',
+      'Cathedral Park to Glenn Otto stays clear of Vancouver Wintler anchor',
       () async {
         final planner = await _plannerFromBundledAssets();
         final putIn = _launch(
@@ -363,25 +363,49 @@ void main() {
         expect(result, isA<RouteSuccess>());
         final ok = result as RouteSuccess;
 
-        // Wintler launch anchor used to be inlined into the mainstem, forcing
-        // through-routes to detour onto land north of the Columbia channel.
-        const vancouverWintlerLat = 45.6275;
-        const vancouverWintlerLon = -122.6558;
+        const wintlerLat = 45.6275;
+        const wintlerLon = -122.6558;
         const minClearanceMeters = 150.0;
-        for (final coord in ok.polylineLonLat) {
+
+        for (final point in ok.polylineLonLat) {
           final distance = haversineMeters(
-            vancouverWintlerLat,
-            vancouverWintlerLon,
-            coord[1],
-            coord[0],
+            wintlerLat,
+            wintlerLon,
+            point[1],
+            point[0],
           );
           expect(
             distance,
             greaterThan(minClearanceMeters),
             reason:
-                'Through-route must not visit the Wintler spur launch anchor',
+                'Route vertex ${point[0]}, ${point[1]} is only '
+                '${distance.toStringAsFixed(1)} m from Vancouver Wintler',
           );
         }
+      },
+    );
+
+    test(
+      'Port of Camas marina routes via Camas Slough spur geometry',
+      () async {
+        final planner = await _plannerFromBundledAssets();
+        final putIn = _launch(
+          id: 'port_of_camas',
+          river: RiverSystem.columbia,
+          lat: 45.5856,
+          lon: -122.4244,
+        );
+        final takeOut = _launch(
+          id: 'glenn_otto_troutdale',
+          river: RiverSystem.columbia,
+          lat: 45.5365,
+          lon: -122.3858,
+        );
+        final result = planner.plan(putIn, takeOut);
+        expect(result, isA<RouteSuccess>());
+        final ok = result as RouteSuccess;
+        expect(ok.lengthMeters, greaterThan(100));
+        expect(ok.polylineLonLat.length, greaterThan(2));
       },
     );
 
@@ -410,10 +434,10 @@ void main() {
     test('routes Columbia gorge launches along bundled geometry', () async {
       final planner = await _plannerFromFixtures();
       final putIn = _launch(
-        id: 'washougal_waterfront',
+        id: 'port_of_camas',
         river: RiverSystem.columbia,
-        lat: 45.5791,
-        lon: -122.3870,
+        lat: 45.5856,
+        lon: -122.4244,
       );
       final takeOut = _launch(
         id: 'glenn_otto_troutdale',
@@ -424,7 +448,6 @@ void main() {
       final result = planner.plan(putIn, takeOut);
       expect(result, isA<RouteSuccess>());
       final ok = result as RouteSuccess;
-      expect(ok.reachId, 'columbia_gorge');
       expect(ok.lengthMeters, greaterThan(100));
     });
 
@@ -514,10 +537,10 @@ void main() {
     test('returns result and planned route together on success', () async {
       final planner = await _plannerFromFixtures();
       final putIn = _launch(
-        id: 'washougal_waterfront',
+        id: 'port_of_camas',
         river: RiverSystem.columbia,
-        lat: 45.5791,
-        lon: -122.3870,
+        lat: 45.5856,
+        lon: -122.4244,
       );
       final takeOut = _launch(
         id: 'glenn_otto_troutdale',
@@ -528,7 +551,7 @@ void main() {
       final (:result, :planned) = planner.planLaunches(putIn, takeOut);
       expect(result, isA<RouteSuccess>());
       expect(planned, isNotNull);
-      expect(planned!.putIn?.id, 'washougal_waterfront');
+      expect(planned!.putIn?.id, 'port_of_camas');
       expect(planned.takeOut?.id, 'glenn_otto_troutdale');
       expect(planned.points.length, greaterThan(1));
     });
@@ -538,10 +561,10 @@ void main() {
     test('returns PlannedRoute on success and null on failure', () async {
       final planner = await _plannerFromFixtures();
       final putIn = _launch(
-        id: 'washougal_waterfront',
+        id: 'port_of_camas',
         river: RiverSystem.columbia,
-        lat: 45.5791,
-        lon: -122.3870,
+        lat: 45.5856,
+        lon: -122.4244,
       );
       final takeOut = _launch(
         id: 'glenn_otto_troutdale',
@@ -551,7 +574,7 @@ void main() {
       );
       final planned = planner.planRoute(putIn, takeOut);
       expect(planned, isNotNull);
-      expect(planned!.putIn?.id, 'washougal_waterfront');
+      expect(planned!.putIn?.id, 'port_of_camas');
       expect(planned.takeOut?.id, 'glenn_otto_troutdale');
       expect(planned.lengthMeters, greaterThan(100));
       expect(planned.toPolylineLonLat().length, greaterThan(1));

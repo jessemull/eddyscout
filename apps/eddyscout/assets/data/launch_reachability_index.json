@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-14T00:00:00.000Z",
+  "generatedAt": "2026-06-23T00:00:00.000Z",
   "distanceModel": "graph_plus_snap",
   "snapMaxMeters": 900.0,
   "thresholdsMi": [
@@ -58,9 +58,7 @@
       ]
     },
     "glenn_otto_troutdale": {
-      "5mi": [
-        "washougal_waterfront"
-      ],
+      "5mi": [],
       "10mi": [
         "port_of_camas"
       ],
@@ -91,9 +89,7 @@
       "20mi": []
     },
     "port_of_camas": {
-      "5mi": [
-        "washougal_waterfront"
-      ],
+      "5mi": [],
       "10mi": [
         "glenn_otto_troutdale"
       ],
@@ -224,25 +220,19 @@
       "5mi": [],
       "10mi": [],
       "20mi": [
-        "port_of_camas",
         "cathedral_park",
+        "port_of_camas",
         "swan_island_boat_ramp",
-        "washougal_waterfront",
-        "scappoose_bay_marina",
         "glenn_otto_troutdale",
+        "scappoose_bay_marina",
         "tom_mccall_waterfront",
         "river_place_marina"
       ]
     },
     "washougal_waterfront": {
-      "5mi": [
-        "port_of_camas",
-        "glenn_otto_troutdale"
-      ],
+      "5mi": [],
       "10mi": [],
-      "20mi": [
-        "vancouver_wintler"
-      ]
+      "20mi": []
     },
     "willamette_park_sw": {
       "5mi": [

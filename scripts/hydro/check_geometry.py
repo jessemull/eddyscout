@@ -15,6 +15,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from _common import (  # noqa: E402
     bundled_hydro_dir,
+    detect_backtrack_errors,
     haversine_meters,
     iter_linestrings,
     line_endpoints,
@@ -212,6 +213,7 @@ def collect_geometry_errors(
     errors: list[str] = []
     for path in geojson_files:
         errors.extend(_check_edges(path, max_edge_m))
+        errors.extend(detect_backtrack_errors(path, merge_meters=confluence_gap_m))
 
     errors.extend(_check_required_confluence_gaps(hydro_dir, confluence_gap_m))
     return errors

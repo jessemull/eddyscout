@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-20T00:00:00.000Z",
+  "generatedAt": "2026-06-23T00:00:00.000Z",
   "distanceModel": "graph_plus_snap",
   "snapMaxMeters": 900.0,
   "maxDistanceMi": 20,
@@ -362,18 +362,9 @@
     "glenn_otto_troutdale": {
       "oneWay": [
         {
-          "destination": "washougal_waterfront",
-          "distanceKm": 6.5,
-          "estimatedMinutes": 98,
-          "waypoints": [
-            "glenn_otto_troutdale",
-            "washougal_waterfront"
-          ]
-        },
-        {
           "destination": "port_of_camas",
-          "distanceKm": 8.1,
-          "estimatedMinutes": 122,
+          "distanceKm": 12.1,
+          "estimatedMinutes": 181,
           "waypoints": [
             "glenn_otto_troutdale",
             "port_of_camas"
@@ -381,30 +372,19 @@
         },
         {
           "destination": "vancouver_wintler",
-          "distanceKm": 31.9,
-          "estimatedMinutes": 479,
+          "distanceKm": 28.6,
+          "estimatedMinutes": 429,
           "waypoints": [
             "glenn_otto_troutdale",
-            "port_of_camas",
             "vancouver_wintler"
           ]
         }
       ],
       "roundTrips": [
         {
-          "destination": "washougal_waterfront",
-          "distanceKm": 13.1,
-          "estimatedMinutes": 196,
-          "waypoints": [
-            "glenn_otto_troutdale",
-            "washougal_waterfront",
-            "glenn_otto_troutdale"
-          ]
-        },
-        {
           "destination": "port_of_camas",
-          "distanceKm": 16.3,
-          "estimatedMinutes": 244,
+          "distanceKm": 24.1,
+          "estimatedMinutes": 362,
           "waypoints": [
             "glenn_otto_troutdale",
             "port_of_camas",
@@ -413,11 +393,10 @@
         },
         {
           "destination": "vancouver_wintler",
-          "distanceKm": 63.9,
-          "estimatedMinutes": 958,
+          "distanceKm": 57.2,
+          "estimatedMinutes": 858,
           "waypoints": [
             "glenn_otto_troutdale",
-            "port_of_camas",
             "vancouver_wintler",
             "glenn_otto_troutdale"
           ]
@@ -584,18 +563,9 @@
     "port_of_camas": {
       "oneWay": [
         {
-          "destination": "washougal_waterfront",
-          "distanceKm": 5.2,
-          "estimatedMinutes": 78,
-          "waypoints": [
-            "port_of_camas",
-            "washougal_waterfront"
-          ]
-        },
-        {
           "destination": "glenn_otto_troutdale",
-          "distanceKm": 8.1,
-          "estimatedMinutes": 122,
+          "distanceKm": 12.1,
+          "estimatedMinutes": 181,
           "waypoints": [
             "port_of_camas",
             "glenn_otto_troutdale"
@@ -603,8 +573,8 @@
         },
         {
           "destination": "vancouver_wintler",
-          "distanceKm": 23.8,
-          "estimatedMinutes": 357,
+          "distanceKm": 24.6,
+          "estimatedMinutes": 368,
           "waypoints": [
             "port_of_camas",
             "vancouver_wintler"
@@ -613,19 +583,9 @@
       ],
       "roundTrips": [
         {
-          "destination": "washougal_waterfront",
-          "distanceKm": 10.4,
-          "estimatedMinutes": 156,
-          "waypoints": [
-            "port_of_camas",
-            "washougal_waterfront",
-            "port_of_camas"
-          ]
-        },
-        {
           "destination": "glenn_otto_troutdale",
-          "distanceKm": 16.3,
-          "estimatedMinutes": 244,
+          "distanceKm": 24.1,
+          "estimatedMinutes": 362,
           "waypoints": [
             "port_of_camas",
             "glenn_otto_troutdale",
@@ -634,8 +594,8 @@
         },
         {
           "destination": "vancouver_wintler",
-          "distanceKm": 47.6,
-          "estimatedMinutes": 714,
+          "distanceKm": 49.1,
+          "estimatedMinutes": 736,
           "waypoints": [
             "port_of_camas",
             "vancouver_wintler",
@@ -1632,15 +1592,6 @@
     "vancouver_wintler": {
       "oneWay": [
         {
-          "destination": "port_of_camas",
-          "distanceKm": 23.8,
-          "estimatedMinutes": 357,
-          "waypoints": [
-            "vancouver_wintler",
-            "port_of_camas"
-          ]
-        },
-        {
           "destination": "cathedral_park",
           "distanceKm": 24.0,
           "estimatedMinutes": 360,
@@ -1648,6 +1599,15 @@
             "vancouver_wintler",
             "kelley_point",
             "cathedral_park"
+          ]
+        },
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 24.6,
+          "estimatedMinutes": 368,
+          "waypoints": [
+            "vancouver_wintler",
+            "port_of_camas"
           ]
         },
         {
@@ -1662,13 +1622,12 @@
           ]
         },
         {
-          "destination": "washougal_waterfront",
-          "distanceKm": 29.0,
-          "estimatedMinutes": 435,
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 28.6,
+          "estimatedMinutes": 429,
           "waypoints": [
             "vancouver_wintler",
-            "port_of_camas",
-            "washougal_waterfront"
+            "glenn_otto_troutdale"
           ]
         },
         {
@@ -1679,16 +1638,6 @@
             "vancouver_wintler",
             "kelley_point",
             "scappoose_bay_marina"
-          ]
-        },
-        {
-          "destination": "glenn_otto_troutdale",
-          "distanceKm": 31.9,
-          "estimatedMinutes": 479,
-          "waypoints": [
-            "vancouver_wintler",
-            "port_of_camas",
-            "glenn_otto_troutdale"
           ]
         },
         {
@@ -1720,16 +1669,6 @@
       ],
       "roundTrips": [
         {
-          "destination": "port_of_camas",
-          "distanceKm": 47.6,
-          "estimatedMinutes": 714,
-          "waypoints": [
-            "vancouver_wintler",
-            "port_of_camas",
-            "vancouver_wintler"
-          ]
-        },
-        {
           "destination": "cathedral_park",
           "distanceKm": 48.1,
           "estimatedMinutes": 720,
@@ -1737,6 +1676,16 @@
             "vancouver_wintler",
             "kelley_point",
             "cathedral_park",
+            "vancouver_wintler"
+          ]
+        },
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 49.1,
+          "estimatedMinutes": 736,
+          "waypoints": [
+            "vancouver_wintler",
+            "port_of_camas",
             "vancouver_wintler"
           ]
         },
@@ -1753,13 +1702,12 @@
           ]
         },
         {
-          "destination": "washougal_waterfront",
-          "distanceKm": 58.0,
-          "estimatedMinutes": 870,
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 57.2,
+          "estimatedMinutes": 858,
           "waypoints": [
             "vancouver_wintler",
-            "port_of_camas",
-            "washougal_waterfront",
+            "glenn_otto_troutdale",
             "vancouver_wintler"
           ]
         },
@@ -1777,69 +1725,8 @@
       ]
     },
     "washougal_waterfront": {
-      "oneWay": [
-        {
-          "destination": "port_of_camas",
-          "distanceKm": 5.2,
-          "estimatedMinutes": 78,
-          "waypoints": [
-            "washougal_waterfront",
-            "port_of_camas"
-          ]
-        },
-        {
-          "destination": "glenn_otto_troutdale",
-          "distanceKm": 6.5,
-          "estimatedMinutes": 98,
-          "waypoints": [
-            "washougal_waterfront",
-            "glenn_otto_troutdale"
-          ]
-        },
-        {
-          "destination": "vancouver_wintler",
-          "distanceKm": 29.0,
-          "estimatedMinutes": 435,
-          "waypoints": [
-            "washougal_waterfront",
-            "port_of_camas",
-            "vancouver_wintler"
-          ]
-        }
-      ],
-      "roundTrips": [
-        {
-          "destination": "port_of_camas",
-          "distanceKm": 10.4,
-          "estimatedMinutes": 156,
-          "waypoints": [
-            "washougal_waterfront",
-            "port_of_camas",
-            "washougal_waterfront"
-          ]
-        },
-        {
-          "destination": "glenn_otto_troutdale",
-          "distanceKm": 13.1,
-          "estimatedMinutes": 196,
-          "waypoints": [
-            "washougal_waterfront",
-            "glenn_otto_troutdale",
-            "washougal_waterfront"
-          ]
-        },
-        {
-          "destination": "vancouver_wintler",
-          "distanceKm": 58.0,
-          "estimatedMinutes": 870,
-          "waypoints": [
-            "washougal_waterfront",
-            "port_of_camas",
-            "vancouver_wintler",
-            "washougal_waterfront"
-          ]
-        }
-      ]
+      "oneWay": [],
+      "roundTrips": []
     },
     "willamette_park_sw": {
       "oneWay": [

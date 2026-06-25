@@ -11,8 +11,8 @@ INTEGRATION_DEVICE := $(shell uname -s | grep -q Darwin && echo macos || echo li
 	format format-fix gen gen-check gen-reachability gen-reachability-check \
 	gen-suggested-trips gen-suggested-trips-check gen-hydro-graph gen-hydro-graph-check \
 	hydro-check hydro-fetch hydro-fetch-willamette hydro-fetch-columbia \
-	hydro-fetch-clackamas hydro-fetch-slough hydro-fetch-tualatin \
-	hydro-fetch-sandy hydro-sync-fixtures \
+	hydro-fetch-camas-slough hydro-fetch-clackamas hydro-fetch-slough \
+	hydro-fetch-tualatin hydro-fetch-sandy hydro-sync-fixtures \
 	hydro-nhd-venv hydro-nhd-download hydro-nhd-convert hydro-nhd-validate \
 	hydro-nhd-compare hydro-nhd-run \
 	integration-test kill-emulator preflight run setup test
@@ -92,6 +92,9 @@ hydro-fetch-willamette: ## Dev@Overpass import Willamette main stem
 
 hydro-fetch-clackamas: ## Dev@Overpass import Clackamas
 	python3 scripts/overpass/fetch_clackamas_waterway.py
+
+hydro-fetch-camas-slough: ## Dev@Overpass import Camas Slough spur into columbia_lower
+	python3 scripts/overpass/fetch_camas_slough_waterway.py
 
 hydro-fetch-slough: ## Dev@Overpass import slough network
 	python3 scripts/overpass/fetch_slough_waterway.py

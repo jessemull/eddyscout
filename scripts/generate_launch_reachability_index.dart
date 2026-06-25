@@ -43,7 +43,7 @@ Future<void> main(List<String> args) async {
     docs,
     confluenceBridgesJson: bridgesJson,
   );
-  final generatedAt = DateTime.utc(2026, 6, 14);
+  final generatedAt = DateTime.utc(2026, 6, 23);
   final jsonText = LaunchReachabilityIndexGenerator.generateJson(
     planner: planner,
     catalog: kLaunchPoints,
