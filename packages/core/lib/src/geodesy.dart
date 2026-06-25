@@ -21,6 +21,12 @@ double haversineMeters(
   return earthRadiusM * c;
 }
 
+/// Rounds WGS84 degrees to 7 fractional digits (~1 cm) for stable graph builds.
+double quantizeWgs84Degree(double degrees) {
+  const scale = 10000000;
+  return (degrees * scale).roundToDouble() / scale;
+}
+
 /// Sum of haversine segment lengths along [points] (meters).
 ///
 /// Returns `0` when fewer than two points are present.

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:eddyscout_core/eddyscout_core.dart';
+
 /// One LineString from hydro GeoJSON with optional river metadata.
 class HydroLineFeature {
   /// Creates a parsed line with optional river filter key and vertices.
@@ -46,7 +48,10 @@ List<HydroLineFeature> parseHydroGeoJson(String jsonText) {
     for (final c in coords) {
       final pair = c as List<dynamic>;
       if (pair.length >= 2) {
-        ring.add([(pair[0] as num).toDouble(), (pair[1] as num).toDouble()]);
+        ring.add([
+          quantizeWgs84Degree((pair[0] as num).toDouble()),
+          quantizeWgs84Degree((pair[1] as num).toDouble()),
+        ]);
       }
     }
     if (ring.length < 2) {

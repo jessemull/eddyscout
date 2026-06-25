@@ -1,11 +1,13 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/src/data/confluence_bridges.dart';
+import 'package:eddyscout_hydro_routing/src/data/graph_snap_index.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_debug_log.dart';
 import 'package:eddyscout_hydro_routing/src/data/min_heap.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
-import 'package:eddyscout_hydro_routing/src/data/vertex_merge_index.dart';
+import 'package:eddyscout_hydro_routing/src/data/river_graph_binary_codec.dart';
 import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
 import 'package:meta/meta.dart';
 
@@ -55,6 +57,7 @@ class RiverLineGraph {
     this._adj,
     this._componentId,
     this._vertexReachId,
+    this._snapIndex,
   );
 
   /// Builds a graph from explicit vertex and edge data (tests/benchmarks).
@@ -65,7 +68,7 @@ class RiverLineGraph {
     required List<List<GraphEdge>> adj,
   }) {
     final adjCopy = adj.map(List<GraphEdge>.from).toList();
-    return RiverLineGraph._(
+    return _finalize(
       List<double>.from(lat),
       List<double>.from(lon),
       adjCopy,
@@ -74,11 +77,62 @@ class RiverLineGraph {
     );
   }
 
+  /// Decodes a precomputed graph from binary bytes.
+  static RiverLineGraph fromBinary(Uint8List bytes) =>
+      decodeRiverLineGraph(bytes);
+
+  /// Reconstructs a graph from decoded binary payload fields.
+  static RiverLineGraph fromBinaryPayload({
+    required List<double> lat,
+    required List<double> lon,
+    required List<List<GraphEdge>> adj,
+    required List<int> componentId,
+    required List<String?> vertexReachId,
+  }) {
+    return _finalize(lat, lon, adj, componentId, vertexReachId);
+  }
+
   final List<double> _lat;
   final List<double> _lon;
   final List<List<GraphEdge>> _adj;
   final List<int> _componentId;
   final List<String?> _vertexReachId;
+  final GraphSnapIndex? _snapIndex;
+
+  /// Snapshot for binary encoding.
+  RiverGraphBinaryPayload get binaryPayloadForCodec => RiverGraphBinaryPayload(
+    lat: List<double>.from(_lat),
+    lon: List<double>.from(_lon),
+    adj: _adj.map(List<GraphEdge>.from).toList(),
+    componentId: List<int>.from(_componentId),
+    vertexReachId: List<String?>.from(_vertexReachId),
+  );
+
+  static RiverLineGraph _finalize(
+    List<double> lat,
+    List<double> lon,
+    List<List<GraphEdge>> adj,
+    List<int> componentId,
+    List<String?> vertexReachId,
+  ) {
+    final snapIndex = lat.isEmpty
+        ? null
+        : GraphSnapIndex(
+            lat: lat,
+            lon: lon,
+            adj: adj,
+            vertexReachId: vertexReachId,
+            refLatitude: lat.first,
+          );
+    return RiverLineGraph._(
+      lat,
+      lon,
+      adj,
+      componentId,
+      vertexReachId,
+      snapIndex,
+    );
+  }
 
   /// Number of graph vertices after line merge.
   int get vertexCount => _lat.length;
@@ -132,14 +186,20 @@ class RiverLineGraph {
     final adj = <List<GraphEdge>>[];
     final vertexReachId = <String?>[];
 
-    final refLatitude = _referenceLatitude(features);
-    final mergeIndex = VertexMergeIndex(
-      mergeMeters: mergeVertexMeters,
-      refLatitude: refLatitude,
-    );
+    int? findExistingVertex(double la, double lo) {
+      int? best;
+      for (var i = 0; i < lat.length; i++) {
+        if (haversineMeters(lat[i], lon[i], la, lo) <= mergeVertexMeters) {
+          if (best == null || i < best) {
+            best = i;
+          }
+        }
+      }
+      return best;
+    }
 
     int findOrAdd(double la, double lo, String? reachId) {
-      final existing = mergeIndex.findExisting(lat, lon, la, lo);
+      final existing = findExistingVertex(la, lo);
       if (existing != null) {
         if (vertexReachId[existing] == null && reachId != null) {
           vertexReachId[existing] = reachId;
@@ -151,7 +211,6 @@ class RiverLineGraph {
       lon.add(lo);
       adj.add([]);
       vertexReachId.add(reachId);
-      mergeIndex.add(index, la, lo);
       return index;
     }
 
@@ -208,7 +267,7 @@ class RiverLineGraph {
     }
 
     final componentId = _labelComponents(adj);
-    return RiverLineGraph._(lat, lon, adj, componentId, vertexReachId);
+    return _finalize(lat, lon, adj, componentId, vertexReachId);
   }
 
   /// Adds curated confluence edges and recomputes connected components.
@@ -277,17 +336,7 @@ class RiverLineGraph {
     }
 
     final componentId = _labelComponents(adj);
-    return RiverLineGraph._(lat, lon, adj, componentId, vertexReachId);
-  }
-
-  static double _referenceLatitude(List<HydroLineFeature> features) {
-    for (final feature in features) {
-      final coords = feature.coordinatesLonLat;
-      if (coords.isNotEmpty) {
-        return coords.first[1];
-      }
-    }
-    return 45;
+    return _finalize(lat, lon, adj, componentId, vertexReachId);
   }
 
   static List<int> _labelComponents(List<List<GraphEdge>> adj) {
@@ -525,6 +574,58 @@ class RiverLineGraph {
   }
 
   _SnapTarget? _nearestSnap(double la, double lo, double maxM) {
+    final indexed = _snapIndex?.nearestSnap(la, lo, maxM);
+    if (indexed != null) {
+      return _snapTargetFromGraphSnapResult(indexed);
+    }
+    return _nearestSnapBruteForce(la, lo, maxM);
+  }
+
+  _SnapTarget _snapTargetFromGraphSnapResult(GraphSnapResult result) =>
+      _SnapTarget(
+        lat: result.lat,
+        lon: result.lon,
+        distanceMeters: result.distanceMeters,
+        vertexIndex: result.vertexIndex,
+        edgeU: result.edgeU,
+        edgeV: result.edgeV,
+        reachId: result.reachId,
+      );
+
+  /// Linear O(V+E) snap for parity tests against [GraphSnapIndex].
+  @visibleForTesting
+  GraphSnapResult? nearestSnapBruteForceForTesting(
+    double la,
+    double lo,
+    double maxM,
+  ) {
+    final snap = _nearestSnapBruteForce(la, lo, maxM);
+    if (snap == null) {
+      return null;
+    }
+    return GraphSnapResult(
+      lat: snap.lat,
+      lon: snap.lon,
+      distanceMeters: snap.distanceMeters,
+      vertexIndex: snap.vertexIndex,
+      edgeU: snap.edgeU,
+      edgeV: snap.edgeV,
+      reachId: snap.reachId,
+    );
+  }
+
+  /// Indexed snap exposed for tests.
+  @visibleForTesting
+  GraphSnapResult? nearestSnapIndexedForTesting(
+    double la,
+    double lo,
+    double maxM,
+  ) {
+    final indexed = _snapIndex?.nearestSnap(la, lo, maxM);
+    return indexed;
+  }
+
+  _SnapTarget? _nearestSnapBruteForce(double la, double lo, double maxM) {
     _SnapTarget? best;
 
     void consider(_SnapTarget candidate) {

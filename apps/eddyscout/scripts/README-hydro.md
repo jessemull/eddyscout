@@ -110,6 +110,19 @@ Dart audit: `packages/features/hydro_routing/test/bundled_hydro_connectivity_tes
 Python audit: `scripts/hydro/check_geometry.py` (`audit_confluence_connectivity`)  
 Anchor coordinates: `scripts/hydro/confluence_audit.json` (shared with NHD compare)
 
+## Unified hydro graph binary
+
+Precomputed graph at `assets/data/unified_hydro_graph.bin` speeds cold start (binary decode instead of GeoJSON parse at runtime). GeoJSON remains the source of truth for geometry edits.
+
+Regenerate after hydro geometry or confluence bridge changes:
+
+```bash
+make gen-hydro-graph
+make gen-hydro-graph-check   # CI-friendly stale check
+```
+
+The generator loads all files in `bundledHydroGeoJsonAssetFileNames` plus `confluence_bridges.json`, builds the unified graph, and writes a versioned binary (`EDHY` magic). The app prefers binary via `hydroGraphBinaryLoaderProvider` and falls back to GeoJSON when the asset is missing or corrupt.
+
 ## Disclaimer
 
 These lines are for **planning visualization only**, not navigation. Verify flow direction, hazards, and access on the water.

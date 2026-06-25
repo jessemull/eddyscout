@@ -14,6 +14,20 @@ Future<List<String>> loadBundledHydroGeoJsonFromAssets() async {
   return docs;
 }
 
+/// Loads precomputed unified hydro graph binary when bundled.
+Future<Uint8List?> loadBundledHydroGraphBinaryFromAssets() async {
+  try {
+    final data = await rootBundle.load(bundledHydroGraphBinaryAssetPath);
+    return data.buffer.asUint8List(
+      data.offsetInBytes,
+      data.lengthInBytes,
+    );
+  } on Object catch (e) {
+    hydroDebugLog('bundled hydro graph binary load failed: $e');
+    return null;
+  }
+}
+
 /// Fails fast in debug when the bundle is incomplete (needs lower Columbia).
 void assertBundledHydroGeoJsonLoaded(List<String> docs) {
   final expected = bundledHydroGeoJsonAssetPaths.length;

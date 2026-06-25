@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 
@@ -51,6 +52,14 @@ Future<List<String>> readBundledHydroGeoJsonDocuments() async {
 /// Loads curated confluence bridge JSON from the app asset bundle.
 Future<String> readBundledConfluenceBridgesJson() =>
     readBundledHydroAsset(bundledConfluenceBridgesAssetPath);
+
+/// Loads precomputed unified hydro graph binary from the app asset bundle.
+Future<Uint8List> readBundledHydroGraphBinary() async {
+  final file = File(
+    '${_repoRoot().path}/apps/eddyscout/assets/data/unified_hydro_graph.bin',
+  );
+  return file.readAsBytes();
+}
 
 /// Shared confluence audit pairs (`scripts/hydro/confluence_audit.json`).
 Future<List<Map<String, dynamic>>> readConfluenceAuditPairs() async {
