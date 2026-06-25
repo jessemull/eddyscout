@@ -9,6 +9,7 @@ echo "=== Fetch Portland metro hydro assets from Overpass ==="
 
 python3 "$SCRIPT_DIR/fetch_willamette_waterway.py"
 python3 "$SCRIPT_DIR/fetch_columbia_waterway.py"
+python3 "$SCRIPT_DIR/fetch_camas_slough_waterway.py"
 python3 "$SCRIPT_DIR/fetch_clackamas_waterway.py"
 python3 "$SCRIPT_DIR/fetch_slough_waterway.py"
 python3 "$SCRIPT_DIR/fetch_tualatin_waterway.py"
