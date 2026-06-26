@@ -9,6 +9,7 @@ export 'src/geodesy.dart';
 export 'src/gpx_failure.dart';
 export 'src/gpx_failure_mapper.dart';
 export 'src/launch_catalog.dart';
+export 'src/launch_coordinates.dart';
 export 'src/launch_models.dart';
 export 'src/planned_route.dart';
 export 'src/provider_retry.dart';

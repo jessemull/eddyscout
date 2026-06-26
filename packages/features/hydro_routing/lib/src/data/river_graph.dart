@@ -347,10 +347,6 @@ class RiverLineGraph {
       final reachId = startSnap.reachId ?? endSnap.reachId;
       return RouteSuccess(
         polylineLonLat: _buildPolyline(
-          startLat: startLat,
-          startLon: startLon,
-          endLat: endLat,
-          endLon: endLon,
           startSnap: startSnap,
           endSnap: endSnap,
           path: const [],
@@ -401,10 +397,6 @@ class RiverLineGraph {
 
     final reachId = _sharedReachId(startSnap, endSnap, bestPath);
     final polyline = _buildPolyline(
-      startLat: startLat,
-      startLon: startLon,
-      endLat: endLat,
-      endLon: endLon,
       startSnap: startSnap,
       endSnap: endSnap,
       path: bestPath,
@@ -493,10 +485,6 @@ class RiverLineGraph {
   }
 
   List<List<double>> _buildPolyline({
-    required double startLat,
-    required double startLon,
-    required double endLat,
-    required double endLon,
     required _SnapTarget startSnap,
     required _SnapTarget endSnap,
     required List<int> path,
@@ -514,13 +502,11 @@ class RiverLineGraph {
     }
 
     final polyline = <List<double>>[];
-    appendIfDistinct(polyline, startLon, startLat);
     appendIfDistinct(polyline, startSnap.lon, startSnap.lat);
     for (final i in path) {
       appendIfDistinct(polyline, _lon[i], _lat[i]);
     }
     appendIfDistinct(polyline, endSnap.lon, endSnap.lat);
-    appendIfDistinct(polyline, endLon, endLat);
     return polyline;
   }
 

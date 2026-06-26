@@ -489,4 +489,53 @@ void main() {
       );
     });
   });
+
+  group('two-coordinate launch model', () {
+    test(
+      'cathedral to glenn otto polyline starts on river graph near put-in',
+      () async {
+        final planner = await _plannerFromBundledAssets();
+        final putIn = findLaunchPointById('cathedral_park')!;
+        final takeOut = findLaunchPointById('glenn_otto_troutdale')!;
+        expect(putIn.hasDistinctWaterEntry, isFalse);
+        expect(takeOut.hasDistinctWaterEntry, isFalse);
+
+        final result = planner.plan(putIn, takeOut);
+        expect(result, isA<RouteSuccess>());
+        final ok = result as RouteSuccess;
+        expect(ok.polylineLonLat.length, greaterThan(2));
+
+        final first = ok.polylineLonLat.first;
+        final last = ok.polylineLonLat.last;
+
+        expect(
+          haversineMeters(
+            putIn.routingLatitude,
+            putIn.routingLongitude,
+            first[1],
+            first[0],
+          ),
+          lessThan(kReachabilitySnapMaxMeters),
+        );
+
+        expect(
+          haversineMeters(
+            takeOut.routingLatitude,
+            takeOut.routingLongitude,
+            last[1],
+            last[0],
+          ),
+          lessThan(kReachabilitySnapMaxMeters),
+        );
+      },
+    );
+
+    test('columbia pool launches route on bundled assets', () async {
+      final planner = await _plannerFromBundledAssets();
+      final putIn = findLaunchPointById('port_of_camas')!;
+      final takeOut = findLaunchPointById('vancouver_wintler')!;
+      final result = planner.plan(putIn, takeOut);
+      expect(result, isA<RouteSuccess>());
+    });
+  });
 }

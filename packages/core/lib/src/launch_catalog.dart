@@ -3,14 +3,15 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 /// All curated launches (PDX metro, Oregon City, Scappoose, lower Columbia,
 /// WA side).
 ///
-/// Coords placed at water access / ramp where possible (satellite +
-/// water-trail cross-check).
+/// [LaunchPoint.latitude]/[LaunchPoint.longitude] are **access** coords (map
+/// pin). Optional [LaunchPoint.waterEntryLatitude] /
+/// [LaunchPoint.waterEntryLongitude] snap hydro routing to the river channel.
 const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'cathedral_park',
     name: 'Cathedral Park Boat Ramp',
-    latitude: 45.5621,
-    longitude: -122.7328,
+    latitude: 45.588002,
+    longitude: -122.758764,
     shortNote:
         'Willamette put-in below St. Johns Bridge; '
         'motorboat traffic and current.',
@@ -24,8 +25,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'sellwood_riverfront',
     name: 'Sellwood Riverfront Park',
-    latitude: 45.4709,
-    longitude: -122.6617,
+    latitude: 45.466767,
+    longitude: -122.663518,
     shortNote:
         'Popular flatwater beach and ramp just north of Sellwood Bridge.',
     riverSystem: RiverSystem.willamette,
@@ -38,8 +39,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'willamette_park_sw',
     name: 'Willamette Park (SW)',
-    latitude: 45.4492,
-    longitude: -122.6703,
+    latitude: 45.477566,
+    longitude: -122.670711,
     shortNote: 'Fee ramp seasonally; SW Macadam corridor on the Willamette.',
     riverSystem: RiverSystem.willamette,
     windExposure: WindExposure.moderate,
@@ -51,8 +52,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'tom_mccall_waterfront',
     name: 'Tom McCall Waterfront (Esplanade)',
-    latitude: 45.5124,
-    longitude: -122.6754,
+    latitude: 45.522904,
+    longitude: -122.670008,
     shortNote:
         'Urban riverfront access; verify permitted put-ins and river traffic.',
     riverSystem: RiverSystem.willamette,
@@ -65,8 +66,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'kelley_point',
     name: 'Kelley Point Park (Slough launch)',
-    latitude: 45.6463,
-    longitude: -122.7580,
+    latitude: 45.646369,
+    longitude: -122.762165,
     shortNote:
         'Slough-side put-in near park entrance; confluence currents and '
         'Columbia tide influence—check park rules.',
@@ -79,8 +80,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'swan_island_boat_ramp',
     name: 'Swan Island Boat Ramp',
-    latitude: 45.5486,
-    longitude: -122.7009,
+    latitude: 45.562584,
+    longitude: -122.705344,
     shortNote: 'Port ramp into Willamette / lagoon; industrial traffic nearby.',
     riverSystem: RiverSystem.willamette,
     windExposure: WindExposure.moderate,
@@ -92,8 +93,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'river_place_marina',
     name: 'River Place Marina carry-down',
-    latitude: 45.5111,
-    longitude: -122.6753,
+    latitude: 45.509666,
+    longitude: -122.672684,
     shortNote: 'Marina docks; confirm access and fees with marina staff.',
     riverSystem: RiverSystem.willamette,
     windExposure: WindExposure.sheltered,
@@ -103,24 +104,11 @@ const List<LaunchPoint> kLaunchPoints = [
     flowBands: kFlowBandsUsgs14211720WillamettePortland,
   ),
   LaunchPoint(
-    id: 'portland_boathouse',
-    name: 'Portland Boathouse Dock',
-    latitude: 45.5127,
-    longitude: -122.6636,
-    shortNote: 'Dock off SE Water Ave; Alder Creek / community paddling hub.',
-    riverSystem: RiverSystem.willamette,
-    windExposure: WindExposure.sheltered,
-    tideRelevance: TideRelevance.minor,
-    noaaTideStationId: '9439221',
-    usgsSiteId: '14211720',
-    flowBands: kFlowBandsUsgs14211720WillamettePortland,
-  ),
-  LaunchPoint(
     id: 'jefferson_st_milwaukie',
-    name: 'Jefferson Street Boat Ramp',
-    latitude: 45.4459,
-    longitude: -122.6394,
-    shortNote: 'Milwaukie ramp on the Willamette; watch for motorboat wakes.',
+    name: 'Milwaukie Bay Park',
+    latitude: 45.443089,
+    longitude: -122.642994,
+    shortNote: 'Milwaukie Bay Park ramp on the Willamette; motorboat wakes.',
     riverSystem: RiverSystem.willamette,
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
@@ -131,8 +119,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'george_rogers_park',
     name: 'George Rogers Park',
-    latitude: 45.4078,
-    longitude: -122.6507,
+    latitude: 45.411185,
+    longitude: -122.660623,
     shortNote: 'Lake Oswego outlet beach / carry-down on the Willamette.',
     riverSystem: RiverSystem.willamette,
     windExposure: WindExposure.moderate,
@@ -143,8 +131,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'clackamette_park',
     name: 'Clackamette Park',
-    latitude: 45.3548,
-    longitude: -122.6120,
+    latitude: 45.372335,
+    longitude: -122.602988,
     shortNote: 'Clackamas near Willamette confluence; ramp and eddy access.',
     riverSystem: RiverSystem.clackamas,
     windExposure: WindExposure.moderate,
@@ -155,11 +143,12 @@ const List<LaunchPoint> kLaunchPoints = [
   ),
   LaunchPoint(
     id: 'sportcraft_enrg_oc',
-    name: 'Sportcraft Landing / eNRG Kayaking',
-    latitude: 45.3525,
-    longitude: -122.6100,
+    name: 'eNRG Kayaking',
+    latitude: 45.364219,
+    longitude: -122.602949,
     shortNote:
-        'Oregon City ramp and dock; last easy access above Willamette Falls.',
+        'Oregon City kayak launch and outfitter; last easy access above '
+        'Willamette Falls.',
     riverSystem: RiverSystem.willamette,
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.minor,
@@ -170,10 +159,10 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'glenn_otto_troutdale',
     name: 'Glenn Otto Park (Sandy River)',
-    latitude: 45.5365,
-    longitude: -122.3858,
+    latitude: 45.538228,
+    longitude: -122.378454,
     shortNote:
-        'Sandy River at Troutdale; separate from mainstem Columbia flow.',
+        'Sandy River put-in at Troutdale; separate from mainstem Columbia.',
     riverSystem: RiverSystem.columbia,
     windExposure: WindExposure.moderate,
     tideRelevance: TideRelevance.none,
@@ -183,8 +172,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'scappoose_bay_marina',
     name: 'Scappoose Bay Marina',
-    latitude: 45.7580,
-    longitude: -122.8495,
+    latitude: 45.828824,
+    longitude: -122.839828,
     shortNote: 'Multnomah Channel / Columbia side basin; wind and tide aware.',
     riverSystem: RiverSystem.columbia,
     windExposure: WindExposure.exposed,
@@ -195,8 +184,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'st_helens_public_marina',
     name: 'St. Helens Public Dock / Marina',
-    latitude: 45.8642,
-    longitude: -122.7974,
+    latitude: 45.867213,
+    longitude: -122.798392,
     shortNote: 'Lower Columbia pool; ship wake and current possible.',
     riverSystem: RiverSystem.columbia,
     windExposure: WindExposure.exposed,
@@ -209,8 +198,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'vancouver_wintler',
     name: 'Wintler Community Park',
-    latitude: 45.6275,
-    longitude: -122.6558,
+    latitude: 45.611667,
+    longitude: -122.605776,
     shortNote: 'Columbia beach access in Vancouver; tide and barge traffic.',
     riverSystem: RiverSystem.columbia,
     windExposure: WindExposure.exposed,
@@ -223,8 +212,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'frenchmans_bar',
     name: "Frenchman's Bar (Ridgefield)",
-    latitude: 45.8317,
-    longitude: -122.6332,
+    latitude: 45.684178,
+    longitude: -122.762164,
     shortNote: 'Sandy beach on lower Columbia; current and wind exposure.',
     riverSystem: RiverSystem.columbia,
     windExposure: WindExposure.exposed,
@@ -237,8 +226,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'port_of_camas',
     name: 'Port of Camas Marina',
-    latitude: 45.5856,
-    longitude: -122.4244,
+    latitude: 45.578770,
+    longitude: -122.380485,
     shortNote: 'Columbia River marina in Camas; confirm dock access and fees.',
     riverSystem: RiverSystem.columbia,
     windExposure: WindExposure.moderate,
@@ -251,8 +240,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'washougal_waterfront',
     name: 'Washougal Waterfront Park',
-    latitude: 45.5791,
-    longitude: -122.3870,
+    latitude: 45.578087,
+    longitude: -122.377814,
     shortNote:
         'Washougal River near Columbia confluence; verify hazards and wood.',
     riverSystem: RiverSystem.columbia,

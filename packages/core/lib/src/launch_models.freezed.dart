@@ -292,13 +292,15 @@ mixin _$LaunchPoint {
 
 /// Stable id for routing, reports, and deep links.
  String get id;/// Display name on map pins and detail screens.
- String get name;/// WGS84 latitude for map camera and distance checks.
- double get latitude;/// WGS84 longitude for map camera and distance checks.
+ String get name;/// WGS84 access latitude (map marker, camera, conditions).
+ double get latitude;/// WGS84 access longitude (map marker, camera, conditions).
  double get longitude;/// One-line editorial note shown on launch detail.
  String get shortNote;/// Drives which hydrology products and copy templates apply.
  RiverSystem get riverSystem;/// Static exposure used when live wind is unavailable or ambiguous.
  WindExposure get windExposure;/// Whether and how strongly to surface tide predictions.
- TideRelevance get tideRelevance;/// NOAA CO-OPS station id when [tideRelevance] is not [TideRelevance.none].
+ TideRelevance get tideRelevance;/// WGS84 water-entry latitude for hydro routing snap; null → [latitude].
+ double? get waterEntryLatitude;/// WGS84 water-entry longitude for hydro routing snap; null → [longitude].
+ double? get waterEntryLongitude;/// NOAA CO-OPS station id when [tideRelevance] is not [TideRelevance.none].
  String? get noaaTideStationId;/// NWS marine forecast zone (e.g. PZZ210); null when not applicable.
  String? get marineZoneId;/// USGS NWIS site number for discharge/stage when curated.
  String? get usgsSiteId;/// When set, flow rules use these bands instead of [RiverSystem] defaults.
@@ -315,16 +317,16 @@ $LaunchPointCopyWith<LaunchPoint> get copyWith => _$LaunchPointCopyWithImpl<Laun
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LaunchPoint&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.shortNote, shortNote) || other.shortNote == shortNote)&&(identical(other.riverSystem, riverSystem) || other.riverSystem == riverSystem)&&(identical(other.windExposure, windExposure) || other.windExposure == windExposure)&&(identical(other.tideRelevance, tideRelevance) || other.tideRelevance == tideRelevance)&&(identical(other.noaaTideStationId, noaaTideStationId) || other.noaaTideStationId == noaaTideStationId)&&(identical(other.marineZoneId, marineZoneId) || other.marineZoneId == marineZoneId)&&(identical(other.usgsSiteId, usgsSiteId) || other.usgsSiteId == usgsSiteId)&&(identical(other.flowBands, flowBands) || other.flowBands == flowBands));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LaunchPoint&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.shortNote, shortNote) || other.shortNote == shortNote)&&(identical(other.riverSystem, riverSystem) || other.riverSystem == riverSystem)&&(identical(other.windExposure, windExposure) || other.windExposure == windExposure)&&(identical(other.tideRelevance, tideRelevance) || other.tideRelevance == tideRelevance)&&(identical(other.waterEntryLatitude, waterEntryLatitude) || other.waterEntryLatitude == waterEntryLatitude)&&(identical(other.waterEntryLongitude, waterEntryLongitude) || other.waterEntryLongitude == waterEntryLongitude)&&(identical(other.noaaTideStationId, noaaTideStationId) || other.noaaTideStationId == noaaTideStationId)&&(identical(other.marineZoneId, marineZoneId) || other.marineZoneId == marineZoneId)&&(identical(other.usgsSiteId, usgsSiteId) || other.usgsSiteId == usgsSiteId)&&(identical(other.flowBands, flowBands) || other.flowBands == flowBands));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,latitude,longitude,shortNote,riverSystem,windExposure,tideRelevance,noaaTideStationId,marineZoneId,usgsSiteId,flowBands);
+int get hashCode => Object.hash(runtimeType,id,name,latitude,longitude,shortNote,riverSystem,windExposure,tideRelevance,waterEntryLatitude,waterEntryLongitude,noaaTideStationId,marineZoneId,usgsSiteId,flowBands);
 
 @override
 String toString() {
-  return 'LaunchPoint(id: $id, name: $name, latitude: $latitude, longitude: $longitude, shortNote: $shortNote, riverSystem: $riverSystem, windExposure: $windExposure, tideRelevance: $tideRelevance, noaaTideStationId: $noaaTideStationId, marineZoneId: $marineZoneId, usgsSiteId: $usgsSiteId, flowBands: $flowBands)';
+  return 'LaunchPoint(id: $id, name: $name, latitude: $latitude, longitude: $longitude, shortNote: $shortNote, riverSystem: $riverSystem, windExposure: $windExposure, tideRelevance: $tideRelevance, waterEntryLatitude: $waterEntryLatitude, waterEntryLongitude: $waterEntryLongitude, noaaTideStationId: $noaaTideStationId, marineZoneId: $marineZoneId, usgsSiteId: $usgsSiteId, flowBands: $flowBands)';
 }
 
 
@@ -335,7 +337,7 @@ abstract mixin class $LaunchPointCopyWith<$Res>  {
   factory $LaunchPointCopyWith(LaunchPoint value, $Res Function(LaunchPoint) _then) = _$LaunchPointCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, double latitude, double longitude, String shortNote, RiverSystem riverSystem, WindExposure windExposure, TideRelevance tideRelevance, String? noaaTideStationId, String? marineZoneId, String? usgsSiteId, LaunchFlowBands? flowBands
+ String id, String name, double latitude, double longitude, String shortNote, RiverSystem riverSystem, WindExposure windExposure, TideRelevance tideRelevance, double? waterEntryLatitude, double? waterEntryLongitude, String? noaaTideStationId, String? marineZoneId, String? usgsSiteId, LaunchFlowBands? flowBands
 });
 
 
@@ -352,7 +354,7 @@ class _$LaunchPointCopyWithImpl<$Res>
 
 /// Create a copy of LaunchPoint
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? latitude = null,Object? longitude = null,Object? shortNote = null,Object? riverSystem = null,Object? windExposure = null,Object? tideRelevance = null,Object? noaaTideStationId = freezed,Object? marineZoneId = freezed,Object? usgsSiteId = freezed,Object? flowBands = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? latitude = null,Object? longitude = null,Object? shortNote = null,Object? riverSystem = null,Object? windExposure = null,Object? tideRelevance = null,Object? waterEntryLatitude = freezed,Object? waterEntryLongitude = freezed,Object? noaaTideStationId = freezed,Object? marineZoneId = freezed,Object? usgsSiteId = freezed,Object? flowBands = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -362,7 +364,9 @@ as double,shortNote: null == shortNote ? _self.shortNote : shortNote // ignore: 
 as String,riverSystem: null == riverSystem ? _self.riverSystem : riverSystem // ignore: cast_nullable_to_non_nullable
 as RiverSystem,windExposure: null == windExposure ? _self.windExposure : windExposure // ignore: cast_nullable_to_non_nullable
 as WindExposure,tideRelevance: null == tideRelevance ? _self.tideRelevance : tideRelevance // ignore: cast_nullable_to_non_nullable
-as TideRelevance,noaaTideStationId: freezed == noaaTideStationId ? _self.noaaTideStationId : noaaTideStationId // ignore: cast_nullable_to_non_nullable
+as TideRelevance,waterEntryLatitude: freezed == waterEntryLatitude ? _self.waterEntryLatitude : waterEntryLatitude // ignore: cast_nullable_to_non_nullable
+as double?,waterEntryLongitude: freezed == waterEntryLongitude ? _self.waterEntryLongitude : waterEntryLongitude // ignore: cast_nullable_to_non_nullable
+as double?,noaaTideStationId: freezed == noaaTideStationId ? _self.noaaTideStationId : noaaTideStationId // ignore: cast_nullable_to_non_nullable
 as String?,marineZoneId: freezed == marineZoneId ? _self.marineZoneId : marineZoneId // ignore: cast_nullable_to_non_nullable
 as String?,usgsSiteId: freezed == usgsSiteId ? _self.usgsSiteId : usgsSiteId // ignore: cast_nullable_to_non_nullable
 as String?,flowBands: freezed == flowBands ? _self.flowBands : flowBands // ignore: cast_nullable_to_non_nullable
@@ -463,10 +467,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  double? waterEntryLatitude,  double? waterEntryLongitude,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LaunchPoint() when $default != null:
-return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands);case _:
+return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.waterEntryLatitude,_that.waterEntryLongitude,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands);case _:
   return orElse();
 
 }
@@ -484,10 +488,10 @@ return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNo
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  double? waterEntryLatitude,  double? waterEntryLongitude,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands)  $default,) {final _that = this;
 switch (_that) {
 case _LaunchPoint():
-return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands);case _:
+return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.waterEntryLatitude,_that.waterEntryLongitude,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -504,10 +508,10 @@ return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNo
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  double latitude,  double longitude,  String shortNote,  RiverSystem riverSystem,  WindExposure windExposure,  TideRelevance tideRelevance,  double? waterEntryLatitude,  double? waterEntryLongitude,  String? noaaTideStationId,  String? marineZoneId,  String? usgsSiteId,  LaunchFlowBands? flowBands)?  $default,) {final _that = this;
 switch (_that) {
 case _LaunchPoint() when $default != null:
-return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands);case _:
+return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNote,_that.riverSystem,_that.windExposure,_that.tideRelevance,_that.waterEntryLatitude,_that.waterEntryLongitude,_that.noaaTideStationId,_that.marineZoneId,_that.usgsSiteId,_that.flowBands);case _:
   return null;
 
 }
@@ -519,16 +523,16 @@ return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.shortNo
 @JsonSerializable()
 
 class _LaunchPoint implements LaunchPoint {
-  const _LaunchPoint({required this.id, required this.name, required this.latitude, required this.longitude, required this.shortNote, required this.riverSystem, required this.windExposure, required this.tideRelevance, this.noaaTideStationId, this.marineZoneId, this.usgsSiteId, this.flowBands});
+  const _LaunchPoint({required this.id, required this.name, required this.latitude, required this.longitude, required this.shortNote, required this.riverSystem, required this.windExposure, required this.tideRelevance, this.waterEntryLatitude, this.waterEntryLongitude, this.noaaTideStationId, this.marineZoneId, this.usgsSiteId, this.flowBands});
   factory _LaunchPoint.fromJson(Map<String, dynamic> json) => _$LaunchPointFromJson(json);
 
 /// Stable id for routing, reports, and deep links.
 @override final  String id;
 /// Display name on map pins and detail screens.
 @override final  String name;
-/// WGS84 latitude for map camera and distance checks.
+/// WGS84 access latitude (map marker, camera, conditions).
 @override final  double latitude;
-/// WGS84 longitude for map camera and distance checks.
+/// WGS84 access longitude (map marker, camera, conditions).
 @override final  double longitude;
 /// One-line editorial note shown on launch detail.
 @override final  String shortNote;
@@ -538,6 +542,10 @@ class _LaunchPoint implements LaunchPoint {
 @override final  WindExposure windExposure;
 /// Whether and how strongly to surface tide predictions.
 @override final  TideRelevance tideRelevance;
+/// WGS84 water-entry latitude for hydro routing snap; null → [latitude].
+@override final  double? waterEntryLatitude;
+/// WGS84 water-entry longitude for hydro routing snap; null → [longitude].
+@override final  double? waterEntryLongitude;
 /// NOAA CO-OPS station id when [tideRelevance] is not [TideRelevance.none].
 @override final  String? noaaTideStationId;
 /// NWS marine forecast zone (e.g. PZZ210); null when not applicable.
@@ -560,16 +568,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LaunchPoint&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.shortNote, shortNote) || other.shortNote == shortNote)&&(identical(other.riverSystem, riverSystem) || other.riverSystem == riverSystem)&&(identical(other.windExposure, windExposure) || other.windExposure == windExposure)&&(identical(other.tideRelevance, tideRelevance) || other.tideRelevance == tideRelevance)&&(identical(other.noaaTideStationId, noaaTideStationId) || other.noaaTideStationId == noaaTideStationId)&&(identical(other.marineZoneId, marineZoneId) || other.marineZoneId == marineZoneId)&&(identical(other.usgsSiteId, usgsSiteId) || other.usgsSiteId == usgsSiteId)&&(identical(other.flowBands, flowBands) || other.flowBands == flowBands));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LaunchPoint&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.shortNote, shortNote) || other.shortNote == shortNote)&&(identical(other.riverSystem, riverSystem) || other.riverSystem == riverSystem)&&(identical(other.windExposure, windExposure) || other.windExposure == windExposure)&&(identical(other.tideRelevance, tideRelevance) || other.tideRelevance == tideRelevance)&&(identical(other.waterEntryLatitude, waterEntryLatitude) || other.waterEntryLatitude == waterEntryLatitude)&&(identical(other.waterEntryLongitude, waterEntryLongitude) || other.waterEntryLongitude == waterEntryLongitude)&&(identical(other.noaaTideStationId, noaaTideStationId) || other.noaaTideStationId == noaaTideStationId)&&(identical(other.marineZoneId, marineZoneId) || other.marineZoneId == marineZoneId)&&(identical(other.usgsSiteId, usgsSiteId) || other.usgsSiteId == usgsSiteId)&&(identical(other.flowBands, flowBands) || other.flowBands == flowBands));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,latitude,longitude,shortNote,riverSystem,windExposure,tideRelevance,noaaTideStationId,marineZoneId,usgsSiteId,flowBands);
+int get hashCode => Object.hash(runtimeType,id,name,latitude,longitude,shortNote,riverSystem,windExposure,tideRelevance,waterEntryLatitude,waterEntryLongitude,noaaTideStationId,marineZoneId,usgsSiteId,flowBands);
 
 @override
 String toString() {
-  return 'LaunchPoint(id: $id, name: $name, latitude: $latitude, longitude: $longitude, shortNote: $shortNote, riverSystem: $riverSystem, windExposure: $windExposure, tideRelevance: $tideRelevance, noaaTideStationId: $noaaTideStationId, marineZoneId: $marineZoneId, usgsSiteId: $usgsSiteId, flowBands: $flowBands)';
+  return 'LaunchPoint(id: $id, name: $name, latitude: $latitude, longitude: $longitude, shortNote: $shortNote, riverSystem: $riverSystem, windExposure: $windExposure, tideRelevance: $tideRelevance, waterEntryLatitude: $waterEntryLatitude, waterEntryLongitude: $waterEntryLongitude, noaaTideStationId: $noaaTideStationId, marineZoneId: $marineZoneId, usgsSiteId: $usgsSiteId, flowBands: $flowBands)';
 }
 
 
@@ -580,7 +588,7 @@ abstract mixin class _$LaunchPointCopyWith<$Res> implements $LaunchPointCopyWith
   factory _$LaunchPointCopyWith(_LaunchPoint value, $Res Function(_LaunchPoint) _then) = __$LaunchPointCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, double latitude, double longitude, String shortNote, RiverSystem riverSystem, WindExposure windExposure, TideRelevance tideRelevance, String? noaaTideStationId, String? marineZoneId, String? usgsSiteId, LaunchFlowBands? flowBands
+ String id, String name, double latitude, double longitude, String shortNote, RiverSystem riverSystem, WindExposure windExposure, TideRelevance tideRelevance, double? waterEntryLatitude, double? waterEntryLongitude, String? noaaTideStationId, String? marineZoneId, String? usgsSiteId, LaunchFlowBands? flowBands
 });
 
 
@@ -597,7 +605,7 @@ class __$LaunchPointCopyWithImpl<$Res>
 
 /// Create a copy of LaunchPoint
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? latitude = null,Object? longitude = null,Object? shortNote = null,Object? riverSystem = null,Object? windExposure = null,Object? tideRelevance = null,Object? noaaTideStationId = freezed,Object? marineZoneId = freezed,Object? usgsSiteId = freezed,Object? flowBands = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? latitude = null,Object? longitude = null,Object? shortNote = null,Object? riverSystem = null,Object? windExposure = null,Object? tideRelevance = null,Object? waterEntryLatitude = freezed,Object? waterEntryLongitude = freezed,Object? noaaTideStationId = freezed,Object? marineZoneId = freezed,Object? usgsSiteId = freezed,Object? flowBands = freezed,}) {
   return _then(_LaunchPoint(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -607,7 +615,9 @@ as double,shortNote: null == shortNote ? _self.shortNote : shortNote // ignore: 
 as String,riverSystem: null == riverSystem ? _self.riverSystem : riverSystem // ignore: cast_nullable_to_non_nullable
 as RiverSystem,windExposure: null == windExposure ? _self.windExposure : windExposure // ignore: cast_nullable_to_non_nullable
 as WindExposure,tideRelevance: null == tideRelevance ? _self.tideRelevance : tideRelevance // ignore: cast_nullable_to_non_nullable
-as TideRelevance,noaaTideStationId: freezed == noaaTideStationId ? _self.noaaTideStationId : noaaTideStationId // ignore: cast_nullable_to_non_nullable
+as TideRelevance,waterEntryLatitude: freezed == waterEntryLatitude ? _self.waterEntryLatitude : waterEntryLatitude // ignore: cast_nullable_to_non_nullable
+as double?,waterEntryLongitude: freezed == waterEntryLongitude ? _self.waterEntryLongitude : waterEntryLongitude // ignore: cast_nullable_to_non_nullable
+as double?,noaaTideStationId: freezed == noaaTideStationId ? _self.noaaTideStationId : noaaTideStationId // ignore: cast_nullable_to_non_nullable
 as String?,marineZoneId: freezed == marineZoneId ? _self.marineZoneId : marineZoneId // ignore: cast_nullable_to_non_nullable
 as String?,usgsSiteId: freezed == usgsSiteId ? _self.usgsSiteId : usgsSiteId // ignore: cast_nullable_to_non_nullable
 as String?,flowBands: freezed == flowBands ? _self.flowBands : flowBands // ignore: cast_nullable_to_non_nullable

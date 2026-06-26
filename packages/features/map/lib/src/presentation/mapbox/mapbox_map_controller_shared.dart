@@ -27,10 +27,14 @@ mixin MapboxMapControllerBase {
 
   MapboxMap? _mapboxMap;
   Cancelable? _tapCancelable;
+  Cancelable? _waterEntryTapCancelable;
   Cancelable? _selectionTapCancelable;
   CircleAnnotationManager? _launchCircleManager;
+  CircleAnnotationManager? _waterEntryCircleManager;
+  PolylineAnnotationManager? _waterEntryConnectorManager;
   CircleAnnotationManager? _selectionManager;
   CircleAnnotation? _selectionAnnotation;
+  CircleAnnotation? _selectionWaterEntryAnnotation;
   bool _markersInstalled = false;
   bool _mapDiagnosticsLogged = false;
 
@@ -51,6 +55,29 @@ mixin MapboxMapControllerBase {
 
   @protected
   set tapCancelable(Cancelable? value) => _tapCancelable = value;
+
+  @protected
+  Cancelable? get waterEntryTapCancelable => _waterEntryTapCancelable;
+
+  @protected
+  set waterEntryTapCancelable(Cancelable? value) =>
+      _waterEntryTapCancelable = value;
+
+  @protected
+  CircleAnnotationManager? get waterEntryCircleManager =>
+      _waterEntryCircleManager;
+
+  @protected
+  set waterEntryCircleManager(CircleAnnotationManager? value) =>
+      _waterEntryCircleManager = value;
+
+  @protected
+  PolylineAnnotationManager? get waterEntryConnectorManager =>
+      _waterEntryConnectorManager;
+
+  @protected
+  set waterEntryConnectorManager(PolylineAnnotationManager? value) =>
+      _waterEntryConnectorManager = value;
 
   @protected
   Cancelable? get selectionTapCancelable => _selectionTapCancelable;
@@ -79,6 +106,14 @@ mixin MapboxMapControllerBase {
   @protected
   set selectionAnnotation(CircleAnnotation? value) =>
       _selectionAnnotation = value;
+
+  @protected
+  CircleAnnotation? get selectionWaterEntryAnnotation =>
+      _selectionWaterEntryAnnotation;
+
+  @protected
+  set selectionWaterEntryAnnotation(CircleAnnotation? value) =>
+      _selectionWaterEntryAnnotation = value;
 
   @protected
   bool get markersInstalled => _markersInstalled;

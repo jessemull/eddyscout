@@ -90,6 +90,55 @@ void main() {
       expect(offLine, isA<RouteSuccess>());
     });
 
+    test('polyline omits raw off-graph endpoint coordinates', () {
+      const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette"},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[-122.67, 45.51], [-122.66, 45.51]]
+      }
+    }
+  ]
+}
+''';
+      const inlandLat = 45.511;
+      const inlandLon = -122.671;
+      const onRiverLat = 45.51;
+      const onRiverLon = -122.67;
+
+      final feats = parseHydroGeoJson(json);
+      final g = RiverLineGraph.fromFeatures(
+        feats,
+        riverSystemName: 'willamette',
+      );
+      final result = g.route(
+        inlandLat,
+        inlandLon,
+        onRiverLat,
+        onRiverLon,
+        maxSnapMeters: 900,
+      );
+      expect(result, isA<RouteSuccess>());
+      final ok = result as RouteSuccess;
+      final first = ok.polylineLonLat.first;
+      final inlandToFirst = haversineMeters(
+        inlandLat,
+        inlandLon,
+        first[1],
+        first[0],
+      );
+      expect(inlandToFirst, greaterThan(20));
+      expect(
+        haversineMeters(onRiverLat, onRiverLon, first[1], first[0]),
+        lessThan(100),
+      );
+    });
+
     test('disconnectedReach when endpoints are on separate segments', () {
       const json = '''
 {

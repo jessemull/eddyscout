@@ -74,11 +74,16 @@ final class MapboxMapController extends _$MapboxMapController
   Future<void> _prepareNewMapSurface(MapboxMap mapboxMap) async {
     tapCancelable?.cancel();
     tapCancelable = null;
+    waterEntryTapCancelable?.cancel();
+    waterEntryTapCancelable = null;
     selectionTapCancelable?.cancel();
     selectionTapCancelable = null;
     markersInstalled = false;
     launchCircleManager = null;
+    waterEntryCircleManager = null;
+    waterEntryConnectorManager = null;
     selectionAnnotation = null;
+    selectionWaterEntryAnnotation = null;
     selectionManager = null;
     ref.read(mapInteractiveProvider.notifier).resetInteractive();
     this.mapboxMap = mapboxMap;

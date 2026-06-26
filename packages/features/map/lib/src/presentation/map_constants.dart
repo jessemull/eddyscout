@@ -24,6 +24,11 @@ final ViewportState kInitialMapViewport = CameraViewportState(
 
 const int kMapMarkerColor = 0xFF0077B6;
 const int kMapMarkerStroke = 0xFFFFFFFF;
+const int kMapWaterEntryMarkerColor = 0xFF90E0EF;
+const int kMapWaterEntryMarkerStroke = 0xFF0077B6;
+const int kMapWaterEntryConnectorColor = 0xFF90E0EF;
+const double kMapWaterEntryCircleRadius = 8;
+const double kMapWaterEntryConnectorWidth = 2.5;
 const int kMapSelectedMarkerFill = 0x330077B6;
 const int kMapSelectedMarkerStroke = 0xFF0077B6;
 const int kMapRouteLineColor = 0xFFE63946;

@@ -1,4 +1,4 @@
-import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -18,6 +18,13 @@ void main() {
 
     test('findLaunchPointById returns null when missing', () {
       expect(findLaunchPointById('not-a-launch'), isNull);
+    });
+
+    test('catalog launches have WGS84 coordinates in regional bounds', () {
+      for (final launch in kLaunchPoints) {
+        expect(launch.latitude, inInclusiveRange(45.3, 46.0));
+        expect(launch.longitude, inInclusiveRange(-123.0, -122.3));
+      }
     });
   });
 }

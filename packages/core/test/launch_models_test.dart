@@ -77,5 +77,55 @@ void main() {
       );
       expect(launch.flowBands?.cfsNoGoAbove, 3000);
     });
+
+    test('LaunchPoint JSON round-trip includes optional water entry', () {
+      const launch = LaunchPoint(
+        id: 'id',
+        name: 'Name',
+        latitude: 45.5,
+        longitude: -122.6,
+        waterEntryLatitude: 45.501,
+        waterEntryLongitude: -122.601,
+        shortNote: 'note',
+        riverSystem: RiverSystem.willamette,
+        windExposure: WindExposure.sheltered,
+        tideRelevance: TideRelevance.none,
+      );
+      final decoded = LaunchPoint.fromJson(launch.toJson());
+      expect(decoded.waterEntryLatitude, 45.501);
+      expect(decoded.waterEntryLongitude, -122.601);
+    });
+
+    test('routingLatitude falls back to access when water entry absent', () {
+      const launch = LaunchPoint(
+        id: 'id',
+        name: 'Name',
+        latitude: 45.5,
+        longitude: -122.6,
+        shortNote: 'note',
+        riverSystem: RiverSystem.willamette,
+        windExposure: WindExposure.sheltered,
+        tideRelevance: TideRelevance.none,
+      );
+      expect(launch.routingLatitude, launch.accessLatitude);
+      expect(launch.routingLongitude, launch.accessLongitude);
+      expect(launch.hasDistinctWaterEntry, isFalse);
+    });
+
+    test('hasDistinctWaterEntry when water entry is far from access', () {
+      const launch = LaunchPoint(
+        id: 'id',
+        name: 'Name',
+        latitude: 45.5,
+        longitude: -122.6,
+        waterEntryLatitude: 45.51,
+        waterEntryLongitude: -122.61,
+        shortNote: 'note',
+        riverSystem: RiverSystem.willamette,
+        windExposure: WindExposure.sheltered,
+        tideRelevance: TideRelevance.none,
+      );
+      expect(launch.hasDistinctWaterEntry, isTrue);
+    });
   });
 }

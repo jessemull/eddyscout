@@ -70,10 +70,10 @@ class RiverRoutePlanner {
     }
 
     final result = _graph.route(
-      putIn.latitude,
-      putIn.longitude,
-      takeOut.latitude,
-      takeOut.longitude,
+      putIn.routingLatitude,
+      putIn.routingLongitude,
+      takeOut.routingLatitude,
+      takeOut.routingLongitude,
     );
 
     if (result is! RouteFailure) {

@@ -24,4 +24,16 @@ void main() {
     expect(center.coordinates.lat, closeTo(lat / n, 1e-9));
     expect(center.coordinates.lng, closeTo(lon / n, 1e-9));
   });
+
+  test('kMapWaterEntryMarkerColor is opaque light cyan', () {
+    expect((kMapWaterEntryMarkerColor >> 24) & 0xFF, 0xFF);
+    expect(kMapWaterEntryMarkerColor, 0xFF90E0EF);
+  });
+
+  test('every catalog launch has a stable id and display name', () {
+    for (final launch in kLaunchPoints) {
+      expect(launch.id, isNotEmpty);
+      expect(launch.name, isNotEmpty);
+    }
+  });
 }
