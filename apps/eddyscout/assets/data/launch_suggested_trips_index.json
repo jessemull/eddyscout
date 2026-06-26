@@ -9,6 +9,10 @@
   "maxRoundTripSuggestions": 5,
   "crossSystemReachability": false,
   "entries": {
+    "bernert_landing": {
+      "oneWay": [],
+      "roundTrips": []
+    },
     "cathedral_park": {
       "oneWay": [
         {
@@ -159,7 +163,19 @@
         }
       ]
     },
+    "cedaroak_boat_ramp": {
+      "oneWay": [],
+      "roundTrips": []
+    },
+    "chinook_landing_marine_park": {
+      "oneWay": [],
+      "roundTrips": []
+    },
     "clackamette_park": {
+      "oneWay": [],
+      "roundTrips": []
+    },
+    "columbia_slough_paddle_launch": {
       "oneWay": [],
       "roundTrips": []
     },
@@ -316,6 +332,10 @@
           ]
         }
       ]
+    },
+    "gleason_memorial_boat_ramp": {
+      "oneWay": [],
+      "roundTrips": []
     },
     "glenn_otto_troutdale": {
       "oneWay": [
@@ -643,6 +663,10 @@
         }
       ]
     },
+    "sauvie_island_boat_ramp": {
+      "oneWay": [],
+      "roundTrips": []
+    },
     "scappoose_bay_marina": {
       "oneWay": [],
       "roundTrips": []
@@ -780,6 +804,10 @@
           ]
         }
       ]
+    },
+    "smith_lake_canoe_ramp": {
+      "oneWay": [],
+      "roundTrips": []
     },
     "sportcraft_enrg_oc": {
       "oneWay": [],

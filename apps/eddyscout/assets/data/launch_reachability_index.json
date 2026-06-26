@@ -10,6 +10,11 @@
   ],
   "crossSystemReachability": false,
   "entries": {
+    "bernert_landing": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
     "cathedral_park": {
       "5mi": [
         "swan_island_boat_ramp"
@@ -25,7 +30,22 @@
         "george_rogers_park"
       ]
     },
+    "cedaroak_boat_ramp": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
+    "chinook_landing_marine_park": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
     "clackamette_park": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
+    "columbia_slough_paddle_launch": {
       "5mi": [],
       "10mi": [],
       "20mi": []
@@ -49,6 +69,11 @@
         "swan_island_boat_ramp",
         "cathedral_park"
       ]
+    },
+    "gleason_memorial_boat_ramp": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
     },
     "glenn_otto_troutdale": {
       "5mi": [
@@ -98,6 +123,11 @@
       ],
       "20mi": []
     },
+    "sauvie_island_boat_ramp": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
+    },
     "scappoose_bay_marina": {
       "5mi": [],
       "10mi": [],
@@ -117,6 +147,11 @@
       "20mi": [
         "cathedral_park"
       ]
+    },
+    "smith_lake_canoe_ramp": {
+      "5mi": [],
+      "10mi": [],
+      "20mi": []
     },
     "sportcraft_enrg_oc": {
       "5mi": [],
