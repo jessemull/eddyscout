@@ -63,11 +63,12 @@ void main() {
       addTearDown(container.dispose);
 
       final docs = await container.read(hydroGeoJsonLoaderProvider)();
-      expect(docs, hasLength(4));
+      expect(docs, hasLength(5));
       expect(docs[0], contains('willamette'));
       expect(docs[1], contains('columbia_lower'));
       expect(docs[2], contains('columbia_gorge'));
-      expect(docs[3], contains('slough'));
+      expect(docs[3], contains('columbia_multnomah'));
+      expect(docs[4], contains('slough'));
     },
   );
 
