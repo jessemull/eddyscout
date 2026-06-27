@@ -30,6 +30,13 @@ void main() {
           'cathedral_park',
           ReachabilityBand.within10Mi,
         ),
+        contains('tom_mccall_waterfront'),
+      );
+      expect(
+        index.nearbyLaunchIds(
+          'cathedral_park',
+          ReachabilityBand.within20Mi,
+        ),
         contains('sellwood_riverfront'),
       );
     });
