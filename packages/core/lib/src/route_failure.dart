@@ -9,6 +9,9 @@ enum RouteFailureCode {
   differentSystem,
 
   /// No bundled hydro line exists for the requested river system.
+  ///
+  /// Deprecated: unified multi-system graph uses [noRiverGeometryLoaded]
+  /// instead. Retained for localization of legacy failures.
   noBundledLine,
 
   /// The graph has no vertices (e.g., asset missing/empty).

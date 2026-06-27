@@ -96,6 +96,154 @@ def max_edge_meters(coords: Sequence[Sequence[float]]) -> float:
     )
 
 
+DEFAULT_MERGE_M = 12.0
+
+
+def _coords_within_meters(
+    left: Sequence[float],
+    right: Sequence[float],
+    merge_meters: float,
+) -> bool:
+    return (
+        haversine_meters(left[1], left[0], right[1], right[0]) <= merge_meters
+    )
+
+
+def prune_backtrack_loops(
+    coords: Sequence[Sequence[float]],
+    merge_meters: float = DEFAULT_MERGE_M,
+) -> list[list[float]]:
+    """Remove duplicate vertices and simple backtrack detours along a polyline."""
+    if len(coords) < 2:
+        return [list(point[:2]) for point in coords]
+
+    out: list[list[float]] = [list(coords[0][:2])]
+    for point_raw in coords[1:]:
+        point = list(point_raw[:2])
+        if _coords_within_meters(out[-1], point, merge_meters):
+            continue
+
+        loop_start: int | None = None
+        for index in range(len(out) - 1):
+            if _coords_within_meters(out[index], point, merge_meters):
+                loop_start = index
+                break
+
+        if loop_start is not None:
+            out = out[: loop_start + 1]
+            if not _coords_within_meters(out[-1], point, merge_meters):
+                out.append(point)
+            continue
+
+        out.append(point)
+    return out
+
+
+def nearest_point_on_polyline(
+    lon: float,
+    lat: float,
+    coords: Sequence[Sequence[float]],
+) -> tuple[int, float, float, float, float]:
+    """Return segment index, along-segment fraction, lon, lat, and distance in meters."""
+    if len(coords) < 2:
+        raise ValueError("Polyline must have at least two coordinates.")
+
+    best_index = 0
+    best_fraction = 0.0
+    best_lon = float(coords[0][0])
+    best_lat = float(coords[0][1])
+    best_distance = haversine_meters(lat, lon, best_lat, best_lon)
+
+    for index in range(len(coords) - 1):
+        lon1, lat1 = float(coords[index][0]), float(coords[index][1])
+        lon2, lat2 = float(coords[index + 1][0]), float(coords[index + 1][1])
+        segment_m = haversine_meters(lat1, lon1, lat2, lon2)
+        if segment_m <= 0.0:
+            continue
+
+        # Project query point onto segment in local equirectangular space.
+        mean_lat = math.radians((lat1 + lat2) / 2.0)
+        x1 = math.radians(lon1) * math.cos(mean_lat)
+        y1 = math.radians(lat1)
+        x2 = math.radians(lon2) * math.cos(mean_lat)
+        y2 = math.radians(lat2)
+        xq = math.radians(lon) * math.cos(mean_lat)
+        yq = math.radians(lat)
+
+        dx = x2 - x1
+        dy = y2 - y1
+        denom = dx * dx + dy * dy
+        fraction = 0.0 if denom <= 0.0 else (xq - x1) * dx / denom + (yq - y1) * dy / denom
+        fraction = min(1.0, max(0.0, fraction))
+
+        proj_lon = math.degrees(
+            (x1 + fraction * dx) / math.cos(mean_lat),
+        )
+        proj_lat = math.degrees(y1 + fraction * dy)
+        distance = haversine_meters(lat, lon, proj_lat, proj_lon)
+        if distance < best_distance:
+            best_index = index
+            best_fraction = fraction
+            best_lon = proj_lon
+            best_lat = proj_lat
+            best_distance = distance
+
+    return best_index, best_fraction, best_lon, best_lat, best_distance
+
+
+def spur_feature(
+    *,
+    reach_id: str,
+    name: str,
+    source: str,
+    coordinates: list[list[float]],
+    river_system: str = "columbia",
+) -> dict[str, Any]:
+    """Build a GeoJSON LineString feature for a launch-side spur."""
+    return {
+        "type": "Feature",
+        "properties": {
+            "river_system": river_system,
+            "reach_id": reach_id,
+            "name": name,
+            "source": source,
+        },
+        "geometry": {
+            "type": "LineString",
+            "coordinates": coordinates,
+        },
+    }
+
+
+def detect_backtrack_errors(
+    path: Path,
+    *,
+    merge_meters: float = DEFAULT_MERGE_M,
+) -> list[str]:
+    """Return errors when a LineString revisits a prior vertex within [merge_meters]."""
+    collection = load_feature_collection(path)
+    errors: list[str] = []
+    for feature_index, feature in enumerate(collection.get("features") or []):
+        geometry = feature.get("geometry") or {}
+        reach_id = (feature.get("properties") or {}).get("reach_id", feature_index)
+        for ring_index, ring in enumerate(iter_linestrings(geometry)):
+            seen: list[list[float]] = []
+            for point in ring:
+                current = [float(point[0]), float(point[1])]
+                for prior_index, prior in enumerate(seen[:-1]):
+                    if _coords_within_meters(prior, current, merge_meters):
+                        errors.append(
+                            f"{path.name} feature {reach_id} ring {ring_index}: "
+                            f"backtrack revisit near index {prior_index} "
+                            f"(within {merge_meters:.0f} m)"
+                        )
+                        break
+                if seen and _coords_within_meters(seen[-1], current, merge_meters):
+                    continue
+                seen.append(current)
+    return errors
+
+
 def line_endpoints(
     collection: Mapping[str, Any],
 ) -> tuple[tuple[float, float], tuple[float, float]] | None:

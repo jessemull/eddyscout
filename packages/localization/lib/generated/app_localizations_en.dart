@@ -49,7 +49,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapRouteFailureDifferentSystem =>
-      'Pick two launches on the same river system for river routing.';
+      'No connected river path between these river systems in bundled data.';
 
   @override
   String mapRouteFailureNoBundledLine(String river) {

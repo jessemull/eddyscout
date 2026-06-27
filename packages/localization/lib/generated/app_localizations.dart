@@ -175,7 +175,7 @@ abstract class AppLocalizations {
   /// No description provided for @mapRouteFailureDifferentSystem.
   ///
   /// In en, this message translates to:
-  /// **'Pick two launches on the same river system for river routing.'**
+  /// **'No connected river path between these river systems in bundled data.'**
   String get mapRouteFailureDifferentSystem;
 
   /// No description provided for @mapRouteFailureNoBundledLine.

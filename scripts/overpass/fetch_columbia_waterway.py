@@ -8,10 +8,7 @@ import heapq
 import json
 import math
 import sys
-import urllib.error
-import urllib.request
 from collections import defaultdict
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -24,75 +21,40 @@ from _common import (  # noqa: E402
     haversine_meters,
     hydro_fixture_dir,
     load_feature_collection,
-    max_edge_meters,
     polyline_length_meters,
-    round_coord,
+    prune_backtrack_loops,
     write_feature_collection,
 )
 from merge_index import VertexMergeIndex  # noqa: E402
 
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-USER_AGENT = "EddyScout-hydro-import/1.0 (scripts/overpass/fetch_columbia_waterway.py)"
+sys.path.insert(0, str(SCRIPT_DIR))
+from _overpass_common import (  # noqa: E402
+    WayRecord,
+    densify_coords,
+    extend_toward_anchor,
+    fetch_overpass,
+    parse_ways,
+    round_coords,
+    validate_coords,
+)
+
+SCRIPT_NAME = "fetch_columbia_waterway.py"
 
 CAMAS_SPLIT = (-122.4300244, 45.5659948)
 GORGE_END = (-122.3858, 45.5365)
 COLUMBIA_MAIN_WAY_ID = 163917830
 SANDY_TAIL_WAY_ID = 128946456
 SANDY_JUNCTION = (-122.4017553, 45.5691143)
-WASHOUGAL_LAUNCH = (-122.377814, 45.578087)
-ST_HELEN_LAUNCH = (-122.798392, 45.867213)
-FRENCHMANS_LAUNCH = (-122.762164, 45.684178)
-SAUVIE_LAUNCH = (-122.838703, 45.653674)
-SCAPPOOSE_LAUNCH = (-122.839828, 45.828824)
-MULTNOMAH_WAYPOINTS = (
-    SAUVIE_LAUNCH,
-    FRENCHMANS_LAUNCH,
-    SCAPPOOSE_LAUNCH,
-)
+MAINSTEM_JOIN = (-122.7633908, 45.659415)
+VANCOUVER_WINTLER = (-122.6558, 45.6275)
+SCAPPOOSE_BAY = (-122.8495, 45.7580)
+ST_HELENS_MARINA = (-122.7974, 45.8642)
+FRENCHMANS_BAR = (-122.6332, 45.8317)
+MULTNOMAH_CHANNEL_WAY_ID = 420655001
+SLOUGH_SPUR_REACH_ID = "camas_slough_spur"
 MAX_EDGE_M = 2000.0
 DENSIFY_STEP_M = 400.0
-
-
-@dataclass(frozen=True)
-class WayRecord:
-    way_id: int
-    name: str
-    waterway: str
-    coordinates: list[tuple[float, float]]
-
-
-def _fetch_overpass(query: str) -> dict[str, Any]:
-    request = urllib.request.Request(
-        OVERPASS_URL,
-        data=query.encode("utf-8"),
-        headers={"User-Agent": USER_AGENT},
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=120) as response:
-            return json.loads(response.read())
-    except urllib.error.URLError as error:
-        raise RuntimeError(f"Overpass request failed: {error}") from error
-
-
-def _parse_ways(payload: dict[str, Any]) -> list[WayRecord]:
-    ways: list[WayRecord] = []
-    for element in payload.get("elements", []):
-        if element.get("type") != "way":
-            continue
-        geometry = element.get("geometry") or []
-        if len(geometry) < 2:
-            continue
-        tags = element.get("tags") or {}
-        coords = [(float(point["lon"]), float(point["lat"])) for point in geometry]
-        ways.append(
-            WayRecord(
-                way_id=int(element["id"]),
-                name=str(tags.get("name", "")),
-                waterway=str(tags.get("waterway", "")),
-                coordinates=coords,
-            )
-        )
-    return ways
+MERGE_VERTEX_M = 12.0
 
 
 def _willamette_mouth(willamette_path: Path) -> tuple[float, float]:
@@ -105,34 +67,8 @@ def _willamette_mouth(willamette_path: Path) -> tuple[float, float]:
     return float(end[0]), float(end[1])
 
 
-def _densify_coords(
-    coords: list[list[float]],
-    max_segment_m: float = DENSIFY_STEP_M,
-) -> list[list[float]]:
-    if len(coords) < 2:
-        return coords
-    out: list[list[float]] = [coords[0][:]]
-    for index in range(len(coords) - 1):
-        lon1, lat1 = coords[index][:2]
-        lon2, lat2 = coords[index + 1][:2]
-        span = haversine_meters(lat1, lon1, lat2, lon2)
-        if span <= MAX_EDGE_M:
-            out.append([lon2, lat2])
-            continue
-        steps = max(int(math.ceil(span / max_segment_m)), 2)
-        for step in range(1, steps + 1):
-            fraction = step / steps
-            out.append(
-                [
-                    lon1 + (lon2 - lon1) * fraction,
-                    lat1 + (lat2 - lat1) * fraction,
-                ]
-            )
-    return out
-
-
-def _round_coords(coords: list[list[float]]) -> list[list[float]]:
-    return [[round_coord(lon), round_coord(lat)] for lon, lat in coords]
+def _finalize_coords(coords: list[list[float]]) -> list[list[float]]:
+    return round_coords(densify_coords(round_coords(densify_coords(coords))))
 
 
 def _concat_polylines(
@@ -278,6 +214,135 @@ def _way_subline(
     return [[lon, lat] for lon, lat in segment]
 
 
+def _nearest_index(
+    coords: list[list[float]],
+    anchor: tuple[float, float],
+) -> int:
+    return min(
+        range(len(coords)),
+        key=lambda index: haversine_meters(
+            anchor[1],
+            anchor[0],
+            coords[index][1],
+            coords[index][0],
+        ),
+    )
+
+
+def _slice_polyline(
+    coords: list[list[float]],
+    start_index: int,
+    end_index: int,
+) -> list[list[float]]:
+    if start_index <= end_index:
+        return [point[:] for point in coords[start_index : end_index + 1]]
+    return [point[:] for point in reversed(coords[end_index : start_index + 1])]
+
+
+def _connect_spur_to_mainstem(
+    spur: list[list[float]],
+    *,
+    join: tuple[float, float] = MAINSTEM_JOIN,
+) -> list[list[float]]:
+    connector = _finalize_coords(
+        densify_coords([[join[0], join[1]], spur[0]]),
+    )
+    if (
+        haversine_meters(
+            connector[-1][1],
+            connector[-1][0],
+            spur[0][1],
+            spur[0][0],
+        )
+        <= MERGE_VERTEX_M
+    ):
+        merged = connector[:-1] + spur
+    else:
+        merged = connector + spur[1:]
+    return _finalize_coords(merged)
+
+
+def _multnomah_channel_way(ways: list[WayRecord]) -> WayRecord:
+    match = next((way for way in ways if way.way_id == MULTNOMAH_CHANNEL_WAY_ID), None)
+    if match is not None:
+        return match
+    payload = fetch_overpass(
+        f"[out:json][timeout:90];way(id:{MULTNOMAH_CHANNEL_WAY_ID});out geom;",
+        script_name=SCRIPT_NAME,
+    )
+    parsed = parse_ways(payload)
+    if not parsed:
+        raise RuntimeError(
+            f"Overpass returned no geometry for Multnomah Channel way "
+            f"{MULTNOMAH_CHANNEL_WAY_ID}."
+        )
+    return parsed[0]
+
+
+def _build_vancouver_wintler_spur(mainstem: list[list[float]]) -> list[list[float]]:
+    """Side branch for Wintler launch — must not be inlined into the mainstem."""
+    join_index = _nearest_index(mainstem, VANCOUVER_WINTLER)
+    join = mainstem[join_index]
+    return _finalize_coords(
+        densify_coords(
+            [
+                [join[0], join[1]],
+                [VANCOUVER_WINTLER[0], VANCOUVER_WINTLER[1]],
+            ],
+        ),
+    )
+
+
+def _build_multnomah_scappoose_spur(ways: list[WayRecord]) -> list[list[float]]:
+    channel = _multnomah_channel_way(ways)
+    coords = [[lon, lat] for lon, lat in channel.coordinates]
+    main_index = _nearest_index(coords, MAINSTEM_JOIN)
+    scappoose_index = _nearest_index(coords, SCAPPOOSE_BAY)
+    segment = _slice_polyline(coords, main_index, scappoose_index)
+    spur = _finalize_coords(
+        extend_toward_anchor(
+            round_coords(densify_coords(segment)),
+            SCAPPOOSE_BAY,
+            max_connector_m=2000.0,
+        ),
+    )
+    return _connect_spur_to_mainstem(spur)
+
+
+def _build_north_pool_spur() -> list[list[float]]:
+    pool_query = """
+    [out:json][timeout:90];
+    way["waterway"="river"]["name"~"Columbia",i](45.60,-122.85,45.90,-122.55);
+    out geom;
+    """
+    pool_ways = parse_ways(
+        fetch_overpass(pool_query, script_name=SCRIPT_NAME),
+    )
+    if not pool_ways:
+        raise RuntimeError("No Columbia River ways for lower-pool spur.")
+    main_way = max(
+        pool_ways,
+        key=lambda way: polyline_length_meters(
+            [[lon, lat] for lon, lat in way.coordinates],
+        ),
+    )
+    coords = [[lon, lat] for lon, lat in main_way.coordinates]
+    join_index = _nearest_index(coords, MAINSTEM_JOIN)
+    st_helens_index = _nearest_index(coords, ST_HELENS_MARINA)
+    segment = _slice_polyline(coords, join_index, st_helens_index)
+    spur = _finalize_coords(
+        extend_toward_anchor(
+            round_coords(densify_coords(segment)),
+            ST_HELENS_MARINA,
+            max_connector_m=2500.0,
+        ),
+    )
+    spur = _finalize_coords(
+        extend_toward_anchor(spur, FRENCHMANS_BAR, max_connector_m=12000.0),
+    )
+    return _connect_spur_to_mainstem(spur)
+
+
 def _build_lower_coords(
     graph: OsmGraph,
     mouth: tuple[float, float],
@@ -291,14 +356,14 @@ def _build_lower_coords(
             "No OSM path from Willamette mouth to Camas split — "
             "check Overpass bbox or waterway coverage."
         )
-    coords = graph.path_to_coords(path)
+    coords = prune_backtrack_loops(graph.path_to_coords(path))
     mouth_gap = haversine_meters(mouth[1], mouth[0], coords[0][1], coords[0][0])
     if mouth_gap > 12.0:
         raise RuntimeError(
             f"Lower Columbia start is {mouth_gap:.1f} m from Willamette mouth; "
             "expected shared OSM/NHD vertex within 12 m."
         )
-    return _round_coords(_densify_coords(coords))
+    return round_coords(densify_coords(coords))
 
 
 def _build_gorge_coords(
@@ -317,18 +382,7 @@ def _build_gorge_coords(
             f"Overpass result missing Sandy River tail way {SANDY_TAIL_WAY_ID}."
         )
 
-    columbia_coords = main_way.coordinates
-    washougal_nearest = min(
-        columbia_coords,
-        key=lambda point: haversine_meters(
-            WASHOUGAL_LAUNCH[1],
-            WASHOUGAL_LAUNCH[0],
-            point[1],
-            point[0],
-        ),
-    )
-    mainstem_head = _way_subline(main_way, camas, washougal_nearest)
-    mainstem_mid = _way_subline(main_way, washougal_nearest, SANDY_JUNCTION)
+    mainstem = _way_subline(main_way, camas, SANDY_JUNCTION)
     sandy_coords = sandy_way.coordinates
     sandy_start = min(
         range(len(sandy_coords)),
@@ -354,20 +408,9 @@ def _build_gorge_coords(
         sandy_segment = list(reversed(sandy_coords[sandy_end : sandy_start + 1]))
     sandy_tail = [[lon, lat] for lon, lat in sandy_segment]
 
-    junction_gap = haversine_meters(
-        mainstem_head[-1][1],
-        mainstem_head[-1][0],
-        mainstem_mid[0][1],
-        mainstem_mid[0][0],
-    )
-    if junction_gap > 12.0:
-        raise RuntimeError(
-            f"Columbia mainstem junction gap {junction_gap:.1f} m exceeds 12 m."
-        )
-
     sandy_junction_gap = haversine_meters(
-        mainstem_mid[-1][1],
-        mainstem_mid[-1][0],
+        mainstem[-1][1],
+        mainstem[-1][0],
         sandy_tail[0][1],
         sandy_tail[0][0],
     )
@@ -377,132 +420,8 @@ def _build_gorge_coords(
             "expected shared OSM vertex at Sandy River mouth."
         )
 
-    merged = _concat_polylines(
-        _concat_polylines(mainstem_head, mainstem_mid),
-        sandy_tail,
-    )
-    merged_coords = _round_coords(_densify_coords(merged))
-    return _append_launch_spur(merged_coords, WASHOUGAL_LAUNCH)
-
-
-def _nearest_on_ways(
-    ways: list[WayRecord],
-    lonlat: tuple[float, float],
-    *,
-    max_m: float = 900,
-) -> tuple[float, float]:
-    best = lonlat
-    best_d = float("inf")
-    for way in ways:
-        for lon, lat in way.coordinates:
-            distance = haversine_meters(lonlat[1], lonlat[0], lat, lon)
-            if distance < best_d:
-                best_d = distance
-                best = (lon, lat)
-    if best_d > max_m:
-        raise RuntimeError(
-            f"No way point within {max_m:.0f} m of {lonlat} (nearest {best_d:.0f} m)."
-        )
-    return best
-
-
-def _append_launch_spur(
-    coords: list[list[float]],
-    launch: tuple[float, float],
-) -> list[list[float]]:
-    """Append a marina coordinate when the line passes within routing snap range."""
-    lon, lat = launch
-    best_d = min(
-        haversine_meters(lat, lon, point[1], point[0]) for point in coords
-    )
-    if best_d <= 900:
-        return coords
-    end = coords[-1]
-    spur = haversine_meters(end[1], end[0], lat, lon)
-    if spur > MAX_EDGE_M:
-        raise RuntimeError(
-            f"Launch spur from line end to {launch} is {spur:.0f} m; "
-            f"max {MAX_EDGE_M:.0f} m."
-        )
-    return coords + [[round_coord(lon), round_coord(lat)]]
-
-
-def _launch_spur_segment(
-    coords: list[list[float]],
-    launch: tuple[float, float],
-) -> list[list[float]] | None:
-    """Return a two-point spur when [launch] is beyond snap range of [coords]."""
-    lon, lat = launch
-    nearest = min(
-        coords,
-        key=lambda point: haversine_meters(lat, lon, point[1], point[0]),
-    )
-    best_d = haversine_meters(lat, lon, nearest[1], nearest[0])
-    if best_d <= 900:
-        return None
-    spur = haversine_meters(nearest[1], nearest[0], lat, lon)
-    if spur > MAX_EDGE_M:
-        print(
-            f"Warning: skip launch spur to {launch} — {spur:.0f} m from nearest "
-            f"line point (max {MAX_EDGE_M:.0f} m)."
-        )
-        return None
-    return [
-        [round_coord(nearest[0]), round_coord(nearest[1])],
-        [round_coord(lon), round_coord(lat)],
-    ]
-
-
-def _build_path_through(
-    graph: OsmGraph,
-    ways: list[WayRecord],
-    points: list[tuple[float, float]],
-    *,
-    snap_max_m: float = 2000,
-) -> list[list[float]]:
-    """Concatenate shortest OSM paths between ordered lon/lat anchors."""
-    if len(points) < 2:
-        raise ValueError("Need at least two path anchors.")
-
-    merged: list[list[float]] = []
-    for start_lonlat, goal_lonlat in zip(points, points[1:]):
-        start_pt = _nearest_on_ways(ways, start_lonlat, max_m=snap_max_m)
-        goal_pt = _nearest_on_ways(ways, goal_lonlat, max_m=snap_max_m)
-        start = graph.find_or_add(start_pt[0], start_pt[1])
-        goal = graph.find_or_add(goal_pt[0], goal_pt[1])
-        path = graph.shortest_path(start, goal)
-        if path is None:
-            raise RuntimeError(
-                f"No OSM path from {start_lonlat} to {goal_lonlat}."
-            )
-        segment = graph.path_to_coords(path)
-        merged = _concat_polylines(merged, segment) if merged else segment
-
-    return merged
-
-
-def _build_multnomah_coords(
-    graph: OsmGraph,
-    ways: list[WayRecord],
-    mouth: tuple[float, float],
-    north_launch: tuple[float, float],
-) -> list[list[float]]:
-    mouth_pt = _nearest_on_ways(ways, mouth, max_m=100)
-    anchors = [mouth_pt, *MULTNOMAH_WAYPOINTS, north_launch]
-    coords = _build_path_through(graph, ways, anchors)
-    mouth_gap = haversine_meters(
-        mouth[1],
-        mouth[0],
-        coords[0][1],
-        coords[0][0],
-    )
-    if mouth_gap > 12.0:
-        raise RuntimeError(
-            f"Multnomah start is {mouth_gap:.1f} m from Willamette mouth; "
-            "expected shared OSM vertex within 12 m."
-        )
-    coords = _append_launch_spur(coords, north_launch)
-    return _round_coords(_densify_coords(coords))
+    merged = prune_backtrack_loops(_concat_polylines(mainstem, sandy_tail))
+    return round_coords(densify_coords(merged))
 
 
 def _feature(
@@ -527,69 +446,97 @@ def _feature(
     }
 
 
-def _validate_coords(label: str, coords: list[list[float]]) -> None:
-    longest = max_edge_meters(coords)
-    if longest > MAX_EDGE_M:
-        raise RuntimeError(
-            f"{label}: longest edge {longest:.1f} m exceeds {MAX_EDGE_M:.0f} m "
-            "after densify — review OSM geometry or import parameters."
-        )
+def _build_lower_features(
+    lower: list[list[float]],
+    ways: list[WayRecord],
+) -> list[dict[str, Any]]:
+    mainstem = _finalize_coords(lower)
+    vancouver_spur = _build_vancouver_wintler_spur(mainstem)
+    multnomah = _build_multnomah_scappoose_spur(ways)
+    north_pool = _build_north_pool_spur()
+    validate_coords("columbia_lower", mainstem)
+    validate_coords("vancouver_wintler_spur", vancouver_spur)
+    validate_coords("multnomah_channel_scappoose", multnomah)
+    validate_coords("columbia_lower_pool_north", north_pool)
+    return [
+        _feature(
+            reach_id="columbia_lower",
+            name="Columbia mainstem — Willamette mouth to Camas (OSM merged)",
+            source=(
+                "OpenStreetMap ODbL. Overpass merge of connected "
+                "waterway=river|canal|fairway ways; shortest path from "
+                "Willamette mouth to Camas split; backtrack loops pruned."
+            ),
+            coordinates=mainstem,
+        ),
+        _feature(
+            reach_id="vancouver_wintler_spur",
+            name="Columbia — Wintler Community Park launch spur",
+            source=(
+                "OpenStreetMap ODbL. Connector from Columbia mainstem to "
+                "Wintler Community Park catalog launch anchor."
+            ),
+            coordinates=vancouver_spur,
+        ),
+        _feature(
+            reach_id="multnomah_channel_scappoose",
+            name="Multnomah Channel — Scappoose Bay spur (OSM way 420655001)",
+            source=(
+                "OpenStreetMap ODbL. Subline of Multnomah Channel way 420655001 "
+                "with connector to Columbia lower mainstem."
+            ),
+            coordinates=multnomah,
+        ),
+        _feature(
+            reach_id="columbia_lower_pool_north",
+            name="Columbia lower pool — St Helens to Frenchman's Bar (OSM Columbia River)",
+            source=(
+                "OpenStreetMap ODbL. Subline of Columbia River ways with "
+                "connectors to lower mainstem and catalog launch anchors."
+            ),
+            coordinates=north_pool,
+        ),
+    ]
+
+
+def _existing_slough_spur_features(asset_dir: Path) -> list[dict[str, Any]]:
+    lower_path = asset_dir / "columbia_lower_waterway.geojson"
+    if not lower_path.exists():
+        return []
+    collection = load_feature_collection(lower_path)
+    features = collection.get("features") or []
+    return [
+        feature
+        for feature in features
+        if (feature.get("properties") or {}).get("reach_id") == SLOUGH_SPUR_REACH_ID
+    ]
 
 
 def _write_outputs(
-    lower: list[list[float]],
+    lower_features: list[dict[str, Any]],
     gorge: list[list[float]],
-    multnomah: list[list[float]],
-    multnomah_spurs: list[list[list[float]]],
     asset_dir: Path,
     fixture_dir: Path,
 ) -> None:
-    lower_feature = _feature(
-        reach_id="columbia_lower",
-        name="Columbia mainstem — Willamette mouth to Camas (OSM merged)",
-        source=(
-            "OpenStreetMap ODbL. Overpass merge of connected waterway=river|canal|fairway "
-            "ways; shortest path from Willamette mouth to Camas split."
-        ),
-        coordinates=lower,
-    )
     gorge_feature = _feature(
         reach_id="columbia_gorge",
         name="Columbia mainstem — Camas to Glenn Otto (OSM merged)",
         source=(
-            "OpenStreetMap ODbL. Way 163917830 mainstem subline plus connected "
-            "Sandy River / side-channel ways to Glenn Otto Park anchor."
+            "OpenStreetMap ODbL. Way 163917830 through-channel subline Camas to Sandy "
+            "junction plus Sandy River way 128946456 to Glenn Otto anchor."
         ),
         coordinates=gorge,
     )
-    multnomah_feature = _feature(
-        reach_id="columbia_multnomah",
-        name="Multnomah Channel — Willamette mouth to St. Helens pool (OSM merged)",
-        source=(
-            "OpenStreetMap ODbL. Shortest path on connected waterway graph from "
-            "Willamette mouth through Multnomah Channel to St. Helens marina anchor."
-        ),
-        coordinates=multnomah,
-    )
-    multnomah_features = [multnomah_feature]
-    for index, spur in enumerate(multnomah_spurs):
-        multnomah_features.append(
-            _feature(
-                reach_id=f"columbia_multnomah_spur_{index}",
-                name="Columbia / Multnomah marina spur (OSM + catalog anchor)",
-                source=(
-                    "OpenStreetMap ODbL centerline anchor with catalog launch "
-                    "coordinate appended for routing snap."
-                ),
-                coordinates=spur,
-            )
-        )
+    slough_features = _existing_slough_spur_features(asset_dir)
+    lower_features = [*lower_features, *slough_features]
     for directory in (asset_dir, fixture_dir):
-        write_feature_collection(directory / "columbia_lower_waterway.geojson", [lower_feature])
-        write_feature_collection(directory / "columbia_gorge_waterway.geojson", [gorge_feature])
         write_feature_collection(
-            directory / "columbia_multnomah_waterway.geojson",
-            multnomah_features,
+            directory / "columbia_lower_waterway.geojson",
+            lower_features,
+        )
+        write_feature_collection(
+            directory / "columbia_gorge_waterway.geojson",
+            [gorge_feature],
         )
 
 
@@ -629,92 +576,48 @@ def main() -> None:
     );
     out geom;
     """
-    payload = _fetch_overpass(query)
-    ways = _parse_ways(payload)
+    payload = fetch_overpass(query, script_name=SCRIPT_NAME)
+    ways = parse_ways(payload)
     if not ways:
         parser.error("Overpass returned no waterway ways.")
 
     graph = _build_graph(ways)
     print(f"OSM graph: {len(ways)} ways, {graph.vertex_count} merged vertices")
 
-    north_query = """
-    [out:json][timeout:90];
-    (
-      way["waterway"~"river|canal|fairway"](45.60,-122.95,45.90,-122.55);
-    );
-    out geom;
-    """
-    north_ways = _parse_ways(_fetch_overpass(north_query))
-    if not north_ways:
-        parser.error("Overpass returned no north Columbia / Multnomah ways.")
-    north_graph = _build_graph(north_ways)
-    print(
-        f"North OSM graph: {len(north_ways)} ways, "
-        f"{north_graph.vertex_count} merged vertices"
-    )
-    combined_graph = _build_graph(ways + north_ways)
-    print(
-        f"Combined OSM graph: {len(ways) + len(north_ways)} ways, "
-        f"{combined_graph.vertex_count} merged vertices"
-    )
-
     lower = _build_lower_coords(graph, mouth, CAMAS_SPLIT)
     gorge = _build_gorge_coords(ways, CAMAS_SPLIT, GORGE_END)
-    multnomah = _build_multnomah_coords(
-        combined_graph,
-        ways + north_ways,
-        mouth,
-        ST_HELEN_LAUNCH,
-    )
-    multnomah_spurs = []
-    for launch in (FRENCHMANS_LAUNCH, SCAPPOOSE_LAUNCH):
-        spur = _launch_spur_segment(multnomah, launch)
-        if spur is not None:
-            multnomah_spurs.append(spur)
-    _validate_coords("columbia_lower", lower)
-    _validate_coords("columbia_gorge", gorge)
-    _validate_coords("columbia_multnomah", multnomah)
+    lower_features = _build_lower_features(lower, ways)
+    validate_coords("columbia_gorge", gorge)
 
-    for index, spur in enumerate(multnomah_spurs):
-        _validate_coords(f"columbia_multnomah_spur_{index}", spur)
-
+    mainstem = lower_features[0]["geometry"]["coordinates"]
     lower_gap = haversine_meters(
         mouth[1],
         mouth[0],
-        lower[0][1],
-        lower[0][0],
+        mainstem[0][1],
+        mainstem[0][0],
     )
     split_gap = haversine_meters(
-        lower[-1][1],
-        lower[-1][0],
+        mainstem[-1][1],
+        mainstem[-1][0],
         gorge[0][1],
         gorge[0][0],
     )
     print(
-        f"Lower: {len(lower)} points, {polyline_length_meters(lower)/1000:.1f} km, "
-        f"mouth gap {lower_gap:.2f} m"
+        f"Lower: {len(mainstem)} points, "
+        f"{polyline_length_meters(mainstem)/1000:.1f} km, "
+        f"mouth gap {lower_gap:.2f} m "
+        f"(+ {len(lower_features) - 1} launch spurs)"
     )
     print(
         f"Gorge: {len(gorge)} points, {polyline_length_meters(gorge)/1000:.1f} km, "
         f"split gap {split_gap:.2f} m"
-    )
-    print(
-        f"Multnomah: {len(multnomah)} points, "
-        f"{polyline_length_meters(multnomah)/1000:.1f} km"
     )
 
     if args.dry_run:
         print("Dry run — files not written.")
         return
 
-    _write_outputs(
-        lower,
-        gorge,
-        multnomah,
-        multnomah_spurs,
-        args.asset_dir,
-        args.fixture_dir,
-    )
+    _write_outputs(lower_features, gorge, args.asset_dir, args.fixture_dir)
     print(f"Wrote {args.asset_dir} and {args.fixture_dir}")
 
 

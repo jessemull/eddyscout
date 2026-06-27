@@ -1,15 +1,25 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
+import 'package:eddyscout_hydro_routing/src/data/river_graph_binary_codec.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Future<List<String>> _loadFixtureHydroGeoJson() async {
+  const fixtureNames = [
+    'willamette_waterway.geojson',
+    'columbia_lower_waterway.geojson',
+    'columbia_gorge_waterway.geojson',
+    'clackamas_waterway.geojson',
+    'slough_waterway.geojson',
+    'tualatin_waterway.geojson',
+    'sandy_waterway.geojson',
+  ];
   return [
-    await File('test/fixtures/willamette_waterway.geojson').readAsString(),
-    await File('test/fixtures/columbia_lower_waterway.geojson').readAsString(),
-    await File('test/fixtures/columbia_gorge_waterway.geojson').readAsString(),
+    for (final name in fixtureNames)
+      await File('test/fixtures/$name').readAsString(),
   ];
 }
 
@@ -44,10 +54,10 @@ void main() {
 
       final planner = await container.read(riverRoutePlannerProvider.future);
       final putIn = LaunchPoint(
-        id: 'washougal_waterfront',
-        name: 'Washougal Waterfront Park',
-        latitude: 45.5791,
-        longitude: -122.3870,
+        id: 'port_of_camas',
+        name: 'Port of Camas Marina',
+        latitude: 45.5856,
+        longitude: -122.4244,
         shortNote: 'Test',
         riverSystem: RiverSystem.columbia,
         windExposure: WindExposure.moderate,
@@ -158,6 +168,47 @@ void main() {
       final async = container.read(riverRoutePlannerProvider);
       expect(async.hasError, isTrue);
       expect(hydroAppFailureFrom(async.error), isA<ParseFailure>());
+    });
+
+    test('prefers binary loader when bytes are valid', () async {
+      final geoPlanner = RiverRoutePlanner.fromGeoJsonDocuments(
+        await _loadFixtureHydroGeoJson(),
+      );
+      final bytes = encodeRiverLineGraph(geoPlanner.graphForTesting);
+      final container = ProviderContainer(
+        overrides: [
+          hydroGraphBinaryLoaderProvider.overrideWithValue(
+            () async => bytes,
+          ),
+          hydroGeoJsonLoaderProvider.overrideWithValue(
+            () async => throw StateError('GeoJSON should not load'),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(riverRoutePlannerProvider.future);
+      expect(
+        planner.graphForTesting.vertexCount,
+        geoPlanner.graphForTesting.vertexCount,
+      );
+    });
+
+    test('falls back to GeoJSON when binary decode fails', () async {
+      final container = ProviderContainer(
+        overrides: [
+          hydroGraphBinaryLoaderProvider.overrideWithValue(
+            () async => Uint8List.fromList([1, 2, 3, 4]),
+          ),
+          hydroGeoJsonLoaderProvider.overrideWithValue(
+            _loadFixtureHydroGeoJson,
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(riverRoutePlannerProvider.future);
+      expect(planner.graphForTesting.vertexCount, greaterThan(0));
     });
   });
 }
