@@ -96,8 +96,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'smith_lake_canoe_ramp',
     name: 'Smith Lake Canoe Ramp',
-    latitude: 45.622817,
-    longitude: -122.716974,
+    latitude: 45.613322,
+    longitude: -122.714018,
     shortNote:
         'Smith & Bybee Lakes canoe ramp; slough paddling separate from '
         'mainstem current.',
@@ -110,8 +110,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'gleason_memorial_boat_ramp',
     name: 'M. James Gleason Memorial Boat Ramp',
-    latitude: 45.606607,
-    longitude: -122.618097,
+    latitude: 45.600970,
+    longitude: -122.619451,
     shortNote:
         'Oaks Bottom / Sellwood area ramp on the Willamette; busy on '
         'weekends.',
@@ -256,8 +256,8 @@ const List<LaunchPoint> kLaunchPoints = [
   LaunchPoint(
     id: 'chinook_landing_marine_park',
     name: 'Chinook Landing Marine Park',
-    latitude: 45.571650,
-    longitude: -122.442659,
+    latitude: 45.561120,
+    longitude: -122.443013,
     shortNote:
         'Fairview / Troutdale Columbia put-in; confirm ramp fees and hours.',
     riverSystem: RiverSystem.columbia,

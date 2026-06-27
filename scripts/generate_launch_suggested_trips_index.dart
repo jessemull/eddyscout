@@ -15,10 +15,10 @@ import 'package:eddyscout_hydro_routing/src/data/river_route_planner.dart';
 
 const _hydroAssetNames = [
   'willamette_waterway.geojson',
+  'columbia_lower_waterway.geojson',
   'columbia_gorge_waterway.geojson',
-  // After feat/cross-system-routing merges, also load:
-  // columbia_lower_waterway.geojson + confluence_bridges.json
-  // and set crossSystemReachability: true in generateJson().
+  'columbia_multnomah_waterway.geojson',
+  'slough_waterway.geojson',
 ];
 
 const _outputRelativePath =
@@ -43,7 +43,17 @@ Future<void> main(List<String> args) async {
     docs.add(await file.readAsString());
   }
 
-  final planner = RiverRoutePlanner.fromGeoJsonDocuments(docs);
+  final bridgesFile = File('${hydroDir.path}/confluence_bridges.json');
+  if (!bridgesFile.existsSync()) {
+    stderr.writeln('Missing hydro asset: ${bridgesFile.path}');
+    exit(1);
+  }
+  final bridgesJson = await bridgesFile.readAsString();
+
+  final planner = RiverRoutePlanner.fromGeoJsonDocuments(
+    docs,
+    confluenceBridgesJson: bridgesJson,
+  );
   final generatedAt = DateTime.utc(2026, 6, 20);
   final jsonText = LaunchSuggestedTripsIndexGenerator.generateJson(
     planner: planner,

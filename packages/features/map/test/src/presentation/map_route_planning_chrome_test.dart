@@ -49,10 +49,13 @@ void main() {
     WidgetTester tester, {
     required List<LaunchPoint> waypoints,
     required double? routeLengthKm,
+    bool? canFinishPlanning,
     DisplayUnitSystem units = DisplayUnitSystem.metric,
     KeyValueStore? keyValueStore,
   }) async {
     final resolvedStore = keyValueStore ?? store;
+    final resolvedCanFinish =
+        canFinishPlanning ?? (waypoints.length >= 2 && routeLengthKm != null);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -63,6 +66,7 @@ void main() {
           child: MapRoutePlanningChrome(
             waypoints: waypoints,
             routeLengthKm: routeLengthKm,
+            canFinishPlanning: resolvedCanFinish,
             onBack: () {},
             onDone: () {},
             onRemoveStop: (_) {},

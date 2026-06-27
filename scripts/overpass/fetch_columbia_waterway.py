@@ -39,7 +39,16 @@ GORGE_END = (-122.3858, 45.5365)
 COLUMBIA_MAIN_WAY_ID = 163917830
 SANDY_TAIL_WAY_ID = 128946456
 SANDY_JUNCTION = (-122.4017553, 45.5691143)
-WASHOUGAL_LAUNCH = (-122.3870, 45.5791)
+WASHOUGAL_LAUNCH = (-122.377814, 45.578087)
+ST_HELEN_LAUNCH = (-122.798392, 45.867213)
+FRENCHMANS_LAUNCH = (-122.762164, 45.684178)
+SAUVIE_LAUNCH = (-122.838703, 45.653674)
+SCAPPOOSE_LAUNCH = (-122.839828, 45.828824)
+MULTNOMAH_WAYPOINTS = (
+    SAUVIE_LAUNCH,
+    FRENCHMANS_LAUNCH,
+    SCAPPOOSE_LAUNCH,
+)
 MAX_EDGE_M = 2000.0
 DENSIFY_STEP_M = 400.0
 
@@ -372,7 +381,128 @@ def _build_gorge_coords(
         _concat_polylines(mainstem_head, mainstem_mid),
         sandy_tail,
     )
-    return _round_coords(_densify_coords(merged))
+    merged_coords = _round_coords(_densify_coords(merged))
+    return _append_launch_spur(merged_coords, WASHOUGAL_LAUNCH)
+
+
+def _nearest_on_ways(
+    ways: list[WayRecord],
+    lonlat: tuple[float, float],
+    *,
+    max_m: float = 900,
+) -> tuple[float, float]:
+    best = lonlat
+    best_d = float("inf")
+    for way in ways:
+        for lon, lat in way.coordinates:
+            distance = haversine_meters(lonlat[1], lonlat[0], lat, lon)
+            if distance < best_d:
+                best_d = distance
+                best = (lon, lat)
+    if best_d > max_m:
+        raise RuntimeError(
+            f"No way point within {max_m:.0f} m of {lonlat} (nearest {best_d:.0f} m)."
+        )
+    return best
+
+
+def _append_launch_spur(
+    coords: list[list[float]],
+    launch: tuple[float, float],
+) -> list[list[float]]:
+    """Append a marina coordinate when the line passes within routing snap range."""
+    lon, lat = launch
+    best_d = min(
+        haversine_meters(lat, lon, point[1], point[0]) for point in coords
+    )
+    if best_d <= 900:
+        return coords
+    end = coords[-1]
+    spur = haversine_meters(end[1], end[0], lat, lon)
+    if spur > MAX_EDGE_M:
+        raise RuntimeError(
+            f"Launch spur from line end to {launch} is {spur:.0f} m; "
+            f"max {MAX_EDGE_M:.0f} m."
+        )
+    return coords + [[round_coord(lon), round_coord(lat)]]
+
+
+def _launch_spur_segment(
+    coords: list[list[float]],
+    launch: tuple[float, float],
+) -> list[list[float]] | None:
+    """Return a two-point spur when [launch] is beyond snap range of [coords]."""
+    lon, lat = launch
+    nearest = min(
+        coords,
+        key=lambda point: haversine_meters(lat, lon, point[1], point[0]),
+    )
+    best_d = haversine_meters(lat, lon, nearest[1], nearest[0])
+    if best_d <= 900:
+        return None
+    spur = haversine_meters(nearest[1], nearest[0], lat, lon)
+    if spur > MAX_EDGE_M:
+        print(
+            f"Warning: skip launch spur to {launch} — {spur:.0f} m from nearest "
+            f"line point (max {MAX_EDGE_M:.0f} m)."
+        )
+        return None
+    return [
+        [round_coord(nearest[0]), round_coord(nearest[1])],
+        [round_coord(lon), round_coord(lat)],
+    ]
+
+
+def _build_path_through(
+    graph: OsmGraph,
+    ways: list[WayRecord],
+    points: list[tuple[float, float]],
+    *,
+    snap_max_m: float = 2000,
+) -> list[list[float]]:
+    """Concatenate shortest OSM paths between ordered lon/lat anchors."""
+    if len(points) < 2:
+        raise ValueError("Need at least two path anchors.")
+
+    merged: list[list[float]] = []
+    for start_lonlat, goal_lonlat in zip(points, points[1:]):
+        start_pt = _nearest_on_ways(ways, start_lonlat, max_m=snap_max_m)
+        goal_pt = _nearest_on_ways(ways, goal_lonlat, max_m=snap_max_m)
+        start = graph.find_or_add(start_pt[0], start_pt[1])
+        goal = graph.find_or_add(goal_pt[0], goal_pt[1])
+        path = graph.shortest_path(start, goal)
+        if path is None:
+            raise RuntimeError(
+                f"No OSM path from {start_lonlat} to {goal_lonlat}."
+            )
+        segment = graph.path_to_coords(path)
+        merged = _concat_polylines(merged, segment) if merged else segment
+
+    return merged
+
+
+def _build_multnomah_coords(
+    graph: OsmGraph,
+    ways: list[WayRecord],
+    mouth: tuple[float, float],
+    north_launch: tuple[float, float],
+) -> list[list[float]]:
+    mouth_pt = _nearest_on_ways(ways, mouth, max_m=100)
+    anchors = [mouth_pt, *MULTNOMAH_WAYPOINTS, north_launch]
+    coords = _build_path_through(graph, ways, anchors)
+    mouth_gap = haversine_meters(
+        mouth[1],
+        mouth[0],
+        coords[0][1],
+        coords[0][0],
+    )
+    if mouth_gap > 12.0:
+        raise RuntimeError(
+            f"Multnomah start is {mouth_gap:.1f} m from Willamette mouth; "
+            "expected shared OSM vertex within 12 m."
+        )
+    coords = _append_launch_spur(coords, north_launch)
+    return _round_coords(_densify_coords(coords))
 
 
 def _feature(
@@ -409,6 +539,8 @@ def _validate_coords(label: str, coords: list[list[float]]) -> None:
 def _write_outputs(
     lower: list[list[float]],
     gorge: list[list[float]],
+    multnomah: list[list[float]],
+    multnomah_spurs: list[list[list[float]]],
     asset_dir: Path,
     fixture_dir: Path,
 ) -> None:
@@ -430,9 +562,35 @@ def _write_outputs(
         ),
         coordinates=gorge,
     )
+    multnomah_feature = _feature(
+        reach_id="columbia_multnomah",
+        name="Multnomah Channel — Willamette mouth to St. Helens pool (OSM merged)",
+        source=(
+            "OpenStreetMap ODbL. Shortest path on connected waterway graph from "
+            "Willamette mouth through Multnomah Channel to St. Helens marina anchor."
+        ),
+        coordinates=multnomah,
+    )
+    multnomah_features = [multnomah_feature]
+    for index, spur in enumerate(multnomah_spurs):
+        multnomah_features.append(
+            _feature(
+                reach_id=f"columbia_multnomah_spur_{index}",
+                name="Columbia / Multnomah marina spur (OSM + catalog anchor)",
+                source=(
+                    "OpenStreetMap ODbL centerline anchor with catalog launch "
+                    "coordinate appended for routing snap."
+                ),
+                coordinates=spur,
+            )
+        )
     for directory in (asset_dir, fixture_dir):
         write_feature_collection(directory / "columbia_lower_waterway.geojson", [lower_feature])
         write_feature_collection(directory / "columbia_gorge_waterway.geojson", [gorge_feature])
+        write_feature_collection(
+            directory / "columbia_multnomah_waterway.geojson",
+            multnomah_features,
+        )
 
 
 def main() -> None:
@@ -479,10 +637,46 @@ def main() -> None:
     graph = _build_graph(ways)
     print(f"OSM graph: {len(ways)} ways, {graph.vertex_count} merged vertices")
 
+    north_query = """
+    [out:json][timeout:90];
+    (
+      way["waterway"~"river|canal|fairway"](45.60,-122.95,45.90,-122.55);
+    );
+    out geom;
+    """
+    north_ways = _parse_ways(_fetch_overpass(north_query))
+    if not north_ways:
+        parser.error("Overpass returned no north Columbia / Multnomah ways.")
+    north_graph = _build_graph(north_ways)
+    print(
+        f"North OSM graph: {len(north_ways)} ways, "
+        f"{north_graph.vertex_count} merged vertices"
+    )
+    combined_graph = _build_graph(ways + north_ways)
+    print(
+        f"Combined OSM graph: {len(ways) + len(north_ways)} ways, "
+        f"{combined_graph.vertex_count} merged vertices"
+    )
+
     lower = _build_lower_coords(graph, mouth, CAMAS_SPLIT)
     gorge = _build_gorge_coords(ways, CAMAS_SPLIT, GORGE_END)
+    multnomah = _build_multnomah_coords(
+        combined_graph,
+        ways + north_ways,
+        mouth,
+        ST_HELEN_LAUNCH,
+    )
+    multnomah_spurs = []
+    for launch in (FRENCHMANS_LAUNCH, SCAPPOOSE_LAUNCH):
+        spur = _launch_spur_segment(multnomah, launch)
+        if spur is not None:
+            multnomah_spurs.append(spur)
     _validate_coords("columbia_lower", lower)
     _validate_coords("columbia_gorge", gorge)
+    _validate_coords("columbia_multnomah", multnomah)
+
+    for index, spur in enumerate(multnomah_spurs):
+        _validate_coords(f"columbia_multnomah_spur_{index}", spur)
 
     lower_gap = haversine_meters(
         mouth[1],
@@ -504,12 +698,23 @@ def main() -> None:
         f"Gorge: {len(gorge)} points, {polyline_length_meters(gorge)/1000:.1f} km, "
         f"split gap {split_gap:.2f} m"
     )
+    print(
+        f"Multnomah: {len(multnomah)} points, "
+        f"{polyline_length_meters(multnomah)/1000:.1f} km"
+    )
 
     if args.dry_run:
         print("Dry run — files not written.")
         return
 
-    _write_outputs(lower, gorge, args.asset_dir, args.fixture_dir)
+    _write_outputs(
+        lower,
+        gorge,
+        multnomah,
+        multnomah_spurs,
+        args.asset_dir,
+        args.fixture_dir,
+    )
     print(f"Wrote {args.asset_dir} and {args.fixture_dir}")
 
 

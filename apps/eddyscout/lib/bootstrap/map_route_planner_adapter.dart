@@ -22,4 +22,29 @@ final class HydroMapRoutePlanner implements MapRoutePlanner {
       ),
     };
   }
+
+  @override
+  Future<Result<void, RoutePlanningFailure>> validateLaunch(
+    LaunchPoint launch,
+  ) async {
+    final planner = await _ref.read(riverRoutePlannerProvider.future);
+    final failure = planner.validateLaunchSnap(launch);
+    if (failure != null) {
+      return Result.failure(routePlanningFailureFrom(failure));
+    }
+    return const Result.success(null);
+  }
+
+  @override
+  Future<Result<void, RoutePlanningFailure>> validateSegment(
+    LaunchPoint from,
+    LaunchPoint to,
+  ) async {
+    final planner = await _ref.read(riverRoutePlannerProvider.future);
+    final failure = planner.validateSegment(from, to);
+    if (failure != null) {
+      return Result.failure(routePlanningFailureFrom(failure));
+    }
+    return const Result.success(null);
+  }
 }

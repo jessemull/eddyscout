@@ -114,10 +114,10 @@ launch_avd_and_wait() {
   done < <(read_connected_ids)
 
   echo "dev: starting $avd_id (can take 1–2 minutes on first boot)..." >&2
-  echo "dev: emulator log → $emu_log" >&2
+  echo "dev: emulator log → $emu_log (INFO/WARNING only; not shown here)" >&2
   # flutter emulators --launch is unreliable when another AVD is running; use the
   # emulator binary directly instead.
-  "$EMULATOR_BIN" -avd "$avd_id" >>"$emu_log" 2>&1 &
+  "$EMULATOR_BIN" -avd "$avd_id" -no-audio -no-boot-anim >>"$emu_log" 2>&1 &
   local emu_pid=$!
 
   elapsed=0
@@ -189,6 +189,7 @@ echo "dev: preparing worktree..." >&2
 "$SCRIPT_DIR/ensure_worktree.sh" >&2
 "$SCRIPT_DIR/ensure_local_env.sh" >&2
 "$SCRIPT_DIR/ensure_android_secrets.sh" >&2
+"$SCRIPT_DIR/ensure_android_plugins.sh" >&2
 
 cd "$APP_ROOT"
 
@@ -218,9 +219,12 @@ fi
 echo "dev: flutter run -d $run_id" >&2
 if ! ./scripts/run_android.sh -d "$run_id" --device-timeout=120 "$@"; then
   echo "" >&2
-  echo "dev: flutter run ended (often 'Lost connection to device' = emulator closed or app crashed)." >&2
-  echo "  • Keep the emulator window open while the app runs" >&2
-  echo "  • Try another AVD or cold-boot the emulator if disconnects persist" >&2
-  echo "  • Logs: adb -s $run_id logcat -d | tail -80" >&2
+  echo "dev: flutter run failed." >&2
+  echo "  • Gradle Read timed out? Re-run make dev (first build after clearing ~/.gradle/caches re-downloads deps)" >&2
+  echo "  • cannot find symbol FilePickerPlugin? Run: rm -f apps/eddyscout/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java && make dev" >&2
+  echo "  • Or: cd apps/eddyscout && flutter clean && flutter pub get && make dev" >&2
+  echo "  • Lost connection? Keep the emulator window open" >&2
+  echo "  • Emulator log: $REPO_ROOT/.dart_tool/dev-emulator-*.log" >&2
+  echo "  • Device log: adb -s $run_id logcat -d | tail -80" >&2
   exit 1
 fi

@@ -90,7 +90,7 @@ void main() {
       expect(offLine, isA<RouteSuccess>());
     });
 
-    test('polyline omits raw off-graph endpoint coordinates', () {
+    test('polyline connects launch coords to river graph snap', () {
       const json = '''
 {
   "type": "FeatureCollection",
@@ -126,16 +126,14 @@ void main() {
       expect(result, isA<RouteSuccess>());
       final ok = result as RouteSuccess;
       final first = ok.polylineLonLat.first;
-      final inlandToFirst = haversineMeters(
-        inlandLat,
-        inlandLon,
-        first[1],
-        first[0],
-      );
-      expect(inlandToFirst, greaterThan(20));
+      final last = ok.polylineLonLat.last;
       expect(
-        haversineMeters(onRiverLat, onRiverLon, first[1], first[0]),
-        lessThan(100),
+        haversineMeters(inlandLat, inlandLon, first[1], first[0]),
+        lessThan(20),
+      );
+      expect(
+        haversineMeters(onRiverLat, onRiverLon, last[1], last[0]),
+        lessThan(20),
       );
     });
 

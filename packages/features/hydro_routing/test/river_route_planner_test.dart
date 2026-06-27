@@ -537,5 +537,89 @@ void main() {
       final result = planner.plan(putIn, takeOut);
       expect(result, isA<RouteSuccess>());
     });
+
+    test('cathedral park routes to columbia slough paddle launch', () async {
+      final planner = await _plannerFromBundledAssets();
+      final putIn = findLaunchPointById('cathedral_park')!;
+      final takeOut = findLaunchPointById('columbia_slough_paddle_launch')!;
+      final result = planner.plan(putIn, takeOut);
+      expect(result, isA<RouteSuccess>());
+      expect(
+        (result as RouteSuccess).lengthMeters,
+        greaterThan(10 * 1609),
+      );
+    });
+
+    test('southern willamette launches route on bundled assets', () async {
+      final planner = await _plannerFromBundledAssets();
+      final putIn = findLaunchPointById('cedaroak_boat_ramp')!;
+      final takeOut = findLaunchPointById('bernert_landing')!;
+      final result = planner.plan(putIn, takeOut);
+      expect(result, isA<RouteSuccess>());
+    });
+
+    test('north Columbia and Multnomah launches snap and route', () async {
+      final planner = await _plannerFromBundledAssets();
+      for (final id in [
+        'frenchmans_bar',
+        'sauvie_island_boat_ramp',
+        'scappoose_bay_marina',
+        'st_helens_public_marina',
+      ]) {
+        final launch = findLaunchPointById(id)!;
+        expect(planner.validateLaunchSnap(launch), isNull, reason: id);
+      }
+      final putIn = findLaunchPointById('frenchmans_bar')!;
+      final takeOut = findLaunchPointById('st_helens_public_marina')!;
+      final result = planner.plan(putIn, takeOut);
+      expect(result, isA<RouteSuccess>());
+    });
+
+    test('smith lake canoe ramp routes on bundled slough geometry', () async {
+      final planner = await _plannerFromBundledAssets();
+      final putIn = findLaunchPointById('smith_lake_canoe_ramp')!;
+      expect(planner.validateLaunchSnap(putIn), isNull);
+      final takeOut = findLaunchPointById('columbia_slough_paddle_launch')!;
+      final result = planner.plan(putIn, takeOut);
+      expect(result, isA<RouteSuccess>());
+    });
+
+    test('validateLaunchSnap rejects launches far from geometry', () async {
+      final planner = await _plannerFromBundledAssets();
+      final farLaunch = _launch(
+        id: 'far',
+        river: RiverSystem.willamette,
+        lat: 44.0,
+        lon: -123.0,
+      );
+      expect(
+        planner.validateLaunchSnap(farLaunch)?.code,
+        RouteFailureCode.putInTooFar,
+      );
+    });
+
+    test('validateSegment rejects disconnected launches', () async {
+      const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "willamette"},
+      "geometry": {"type": "LineString", "coordinates": [[-122.759, 45.588], [-122.758, 45.587]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "slough"},
+      "geometry": {"type": "LineString", "coordinates": [[-122.763, 45.646], [-122.762, 45.645]]}
+    }
+  ]
+}
+''';
+      final planner = RiverRoutePlanner.fromGeoJson(json);
+      final putIn = findLaunchPointById('cathedral_park')!;
+      final takeOut = findLaunchPointById('kelley_point')!;
+      expect(planner.validateSegment(putIn, takeOut), isA<RouteFailure>());
+    });
   });
 }

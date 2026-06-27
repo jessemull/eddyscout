@@ -10,8 +10,183 @@
   "crossSystemReachability": false,
   "entries": {
     "bernert_landing": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "sportcraft_enrg_oc",
+          "distanceKm": 4.9,
+          "estimatedMinutes": 74,
+          "waypoints": [
+            "bernert_landing",
+            "clackamette_park",
+            "sportcraft_enrg_oc"
+          ]
+        },
+        {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 8.9,
+          "estimatedMinutes": 133,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 12.2,
+          "estimatedMinutes": 183,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 16.2,
+          "estimatedMinutes": 243,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 19.5,
+          "estimatedMinutes": 292,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "willamette_park_sw",
+          "distanceKm": 21.0,
+          "estimatedMinutes": 315,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "willamette_park_sw"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 24.6,
+          "estimatedMinutes": 369,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "willamette_park_sw",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 26.0,
+          "estimatedMinutes": 390,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "willamette_park_sw",
+            "river_place_marina",
+            "tom_mccall_waterfront"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "sportcraft_enrg_oc",
+          "distanceKm": 9.9,
+          "estimatedMinutes": 148,
+          "waypoints": [
+            "bernert_landing",
+            "clackamette_park",
+            "sportcraft_enrg_oc",
+            "bernert_landing"
+          ]
+        },
+        {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 17.7,
+          "estimatedMinutes": 266,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "bernert_landing"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 24.4,
+          "estimatedMinutes": 366,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "bernert_landing"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 32.3,
+          "estimatedMinutes": 486,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "bernert_landing"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 38.9,
+          "estimatedMinutes": 584,
+          "waypoints": [
+            "bernert_landing",
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "bernert_landing"
+          ]
+        }
+      ]
     },
     "cathedral_park": {
       "oneWay": [
@@ -82,6 +257,16 @@
             "willamette_park_sw",
             "sellwood_riverfront",
             "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "gleason_memorial_boat_ramp",
+          "distanceKm": 23.8,
+          "estimatedMinutes": 356,
+          "waypoints": [
+            "cathedral_park",
+            "kelley_point",
+            "gleason_memorial_boat_ramp"
           ]
         },
         {
@@ -164,27 +349,421 @@
       ]
     },
     "cedaroak_boat_ramp": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 3.7,
+          "estimatedMinutes": 56,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "sportcraft_enrg_oc",
+          "distanceKm": 4.2,
+          "estimatedMinutes": 62,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "clackamette_park",
+            "sportcraft_enrg_oc"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 7.7,
+          "estimatedMinutes": 115,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "bernert_landing",
+          "distanceKm": 8.9,
+          "estimatedMinutes": 133,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "clackamette_park",
+            "sportcraft_enrg_oc",
+            "bernert_landing"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 11.0,
+          "estimatedMinutes": 165,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "willamette_park_sw",
+          "distanceKm": 12.5,
+          "estimatedMinutes": 188,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "willamette_park_sw"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 16.1,
+          "estimatedMinutes": 242,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "willamette_park_sw",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 17.5,
+          "estimatedMinutes": 263,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "willamette_park_sw",
+            "river_place_marina",
+            "tom_mccall_waterfront"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 7.5,
+          "estimatedMinutes": 112,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "cedaroak_boat_ramp"
+          ]
+        },
+        {
+          "destination": "sportcraft_enrg_oc",
+          "distanceKm": 8.3,
+          "estimatedMinutes": 124,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "clackamette_park",
+            "sportcraft_enrg_oc",
+            "cedaroak_boat_ramp"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 15.4,
+          "estimatedMinutes": 230,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "cedaroak_boat_ramp"
+          ]
+        },
+        {
+          "destination": "bernert_landing",
+          "distanceKm": 17.7,
+          "estimatedMinutes": 266,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "clackamette_park",
+            "sportcraft_enrg_oc",
+            "bernert_landing",
+            "cedaroak_boat_ramp"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 22.0,
+          "estimatedMinutes": 330,
+          "waypoints": [
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "cedaroak_boat_ramp"
+          ]
+        }
+      ]
     },
     "chinook_landing_marine_park": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 6.2,
+          "estimatedMinutes": 93,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "washougal_waterfront",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 6.2,
+          "estimatedMinutes": 93,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 8.4,
+          "estimatedMinutes": 127,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 15.3,
+          "estimatedMinutes": 229,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "vancouver_wintler"
+          ]
+        },
+        {
+          "destination": "frenchmans_bar",
+          "distanceKm": 31.8,
+          "estimatedMinutes": 477,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
+            "gleason_memorial_boat_ramp",
+            "kelley_point",
+            "frenchmans_bar"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 12.4,
+          "estimatedMinutes": 186,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "washougal_waterfront",
+            "port_of_camas",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 12.5,
+          "estimatedMinutes": 186,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "washougal_waterfront",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 16.9,
+          "estimatedMinutes": 254,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "glenn_otto_troutdale",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 30.5,
+          "estimatedMinutes": 458,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "frenchmans_bar",
+          "distanceKm": 63.6,
+          "estimatedMinutes": 954,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
+            "gleason_memorial_boat_ramp",
+            "kelley_point",
+            "frenchmans_bar",
+            "chinook_landing_marine_park"
+          ]
+        }
+      ]
     },
     "clackamette_park": {
       "oneWay": [],
       "roundTrips": []
     },
     "columbia_slough_paddle_launch": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "kelley_point",
+          "distanceKm": 17.4,
+          "estimatedMinutes": 261,
+          "waypoints": [
+            "columbia_slough_paddle_launch",
+            "kelley_point"
+          ]
+        },
+        {
+          "destination": "smith_lake_canoe_ramp",
+          "distanceKm": 25.0,
+          "estimatedMinutes": 375,
+          "waypoints": [
+            "columbia_slough_paddle_launch",
+            "kelley_point",
+            "smith_lake_canoe_ramp"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "kelley_point",
+          "distanceKm": 34.8,
+          "estimatedMinutes": 522,
+          "waypoints": [
+            "columbia_slough_paddle_launch",
+            "kelley_point",
+            "columbia_slough_paddle_launch"
+          ]
+        },
+        {
+          "destination": "smith_lake_canoe_ramp",
+          "distanceKm": 50.0,
+          "estimatedMinutes": 750,
+          "waypoints": [
+            "columbia_slough_paddle_launch",
+            "kelley_point",
+            "smith_lake_canoe_ramp",
+            "columbia_slough_paddle_launch"
+          ]
+        }
+      ]
     },
     "frenchmans_bar": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "sauvie_island_boat_ramp",
+          "distanceKm": 14.7,
+          "estimatedMinutes": 220,
+          "waypoints": [
+            "frenchmans_bar",
+            "kelley_point",
+            "sauvie_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 18.2,
+          "estimatedMinutes": 272,
+          "waypoints": [
+            "frenchmans_bar",
+            "kelley_point",
+            "gleason_memorial_boat_ramp",
+            "vancouver_wintler"
+          ]
+        },
+        {
+          "destination": "st_helens_public_marina",
+          "distanceKm": 23.7,
+          "estimatedMinutes": 356,
+          "waypoints": [
+            "frenchmans_bar",
+            "st_helens_public_marina"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 31.8,
+          "estimatedMinutes": 477,
+          "waypoints": [
+            "frenchmans_bar",
+            "kelley_point",
+            "gleason_memorial_boat_ramp",
+            "vancouver_wintler",
+            "chinook_landing_marine_park"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "sauvie_island_boat_ramp",
+          "distanceKm": 29.3,
+          "estimatedMinutes": 440,
+          "waypoints": [
+            "frenchmans_bar",
+            "kelley_point",
+            "sauvie_island_boat_ramp",
+            "frenchmans_bar"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 36.3,
+          "estimatedMinutes": 544,
+          "waypoints": [
+            "frenchmans_bar",
+            "kelley_point",
+            "gleason_memorial_boat_ramp",
+            "vancouver_wintler",
+            "frenchmans_bar"
+          ]
+        },
+        {
+          "destination": "st_helens_public_marina",
+          "distanceKm": 47.5,
+          "estimatedMinutes": 712,
+          "waypoints": [
+            "frenchmans_bar",
+            "st_helens_public_marina",
+            "frenchmans_bar"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 63.6,
+          "estimatedMinutes": 954,
+          "waypoints": [
+            "frenchmans_bar",
+            "kelley_point",
+            "gleason_memorial_boat_ramp",
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "frenchmans_bar"
+          ]
+        }
+      ]
     },
     "george_rogers_park": {
       "oneWay": [
+        {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 3.7,
+          "estimatedMinutes": 56,
+          "waypoints": [
+            "george_rogers_park",
+            "cedaroak_boat_ramp"
+          ]
+        },
         {
           "destination": "jefferson_st_milwaukie",
           "distanceKm": 4.4,
@@ -192,6 +771,17 @@
           "waypoints": [
             "george_rogers_park",
             "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "sportcraft_enrg_oc",
+          "distanceKm": 7.5,
+          "estimatedMinutes": 112,
+          "waypoints": [
+            "george_rogers_park",
+            "cedaroak_boat_ramp",
+            "clackamette_park",
+            "sportcraft_enrg_oc"
           ]
         },
         {
@@ -213,6 +803,18 @@
             "jefferson_st_milwaukie",
             "sellwood_riverfront",
             "willamette_park_sw"
+          ]
+        },
+        {
+          "destination": "bernert_landing",
+          "distanceKm": 12.2,
+          "estimatedMinutes": 183,
+          "waypoints": [
+            "george_rogers_park",
+            "cedaroak_boat_ramp",
+            "clackamette_park",
+            "sportcraft_enrg_oc",
+            "bernert_landing"
           ]
         },
         {
@@ -239,38 +841,19 @@
             "river_place_marina",
             "tom_mccall_waterfront"
           ]
-        },
-        {
-          "destination": "swan_island_boat_ramp",
-          "distanceKm": 20.0,
-          "estimatedMinutes": 301,
-          "waypoints": [
-            "george_rogers_park",
-            "jefferson_st_milwaukie",
-            "sellwood_riverfront",
-            "willamette_park_sw",
-            "river_place_marina",
-            "tom_mccall_waterfront",
-            "swan_island_boat_ramp"
-          ]
-        },
-        {
-          "destination": "cathedral_park",
-          "distanceKm": 24.8,
-          "estimatedMinutes": 372,
-          "waypoints": [
-            "george_rogers_park",
-            "jefferson_st_milwaukie",
-            "sellwood_riverfront",
-            "willamette_park_sw",
-            "river_place_marina",
-            "tom_mccall_waterfront",
-            "swan_island_boat_ramp",
-            "cathedral_park"
-          ]
         }
       ],
       "roundTrips": [
+        {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 7.5,
+          "estimatedMinutes": 112,
+          "waypoints": [
+            "george_rogers_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park"
+          ]
+        },
         {
           "destination": "jefferson_st_milwaukie",
           "distanceKm": 8.7,
@@ -278,6 +861,18 @@
           "waypoints": [
             "george_rogers_park",
             "jefferson_st_milwaukie",
+            "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "sportcraft_enrg_oc",
+          "distanceKm": 15.0,
+          "estimatedMinutes": 224,
+          "waypoints": [
+            "george_rogers_park",
+            "cedaroak_boat_ramp",
+            "clackamette_park",
+            "sportcraft_enrg_oc",
             "george_rogers_park"
           ]
         },
@@ -303,60 +898,140 @@
             "willamette_park_sw",
             "george_rogers_park"
           ]
-        },
-        {
-          "destination": "river_place_marina",
-          "distanceKm": 25.6,
-          "estimatedMinutes": 384,
-          "waypoints": [
-            "george_rogers_park",
-            "jefferson_st_milwaukie",
-            "sellwood_riverfront",
-            "willamette_park_sw",
-            "river_place_marina",
-            "george_rogers_park"
-          ]
-        },
-        {
-          "destination": "tom_mccall_waterfront",
-          "distanceKm": 28.4,
-          "estimatedMinutes": 426,
-          "waypoints": [
-            "george_rogers_park",
-            "jefferson_st_milwaukie",
-            "sellwood_riverfront",
-            "willamette_park_sw",
-            "river_place_marina",
-            "tom_mccall_waterfront",
-            "george_rogers_park"
-          ]
         }
       ]
     },
     "gleason_memorial_boat_ramp": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 23.8,
+          "estimatedMinutes": 356,
+          "waypoints": [
+            "gleason_memorial_boat_ramp",
+            "kelley_point",
+            "cathedral_park"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 29.4,
+          "estimatedMinutes": 440,
+          "waypoints": [
+            "gleason_memorial_boat_ramp",
+            "kelley_point",
+            "cathedral_park",
+            "swan_island_boat_ramp"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "cathedral_park",
+          "distanceKm": 47.5,
+          "estimatedMinutes": 712,
+          "waypoints": [
+            "gleason_memorial_boat_ramp",
+            "kelley_point",
+            "cathedral_park",
+            "gleason_memorial_boat_ramp"
+          ]
+        },
+        {
+          "destination": "swan_island_boat_ramp",
+          "distanceKm": 58.7,
+          "estimatedMinutes": 880,
+          "waypoints": [
+            "gleason_memorial_boat_ramp",
+            "kelley_point",
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "gleason_memorial_boat_ramp"
+          ]
+        }
+      ]
     },
     "glenn_otto_troutdale": {
       "oneWay": [
         {
           "destination": "port_of_camas",
-          "distanceKm": 6.6,
-          "estimatedMinutes": 98,
+          "distanceKm": 6.8,
+          "estimatedMinutes": 103,
           "waypoints": [
             "glenn_otto_troutdale",
+            "washougal_waterfront",
             "port_of_camas"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 6.9,
+          "estimatedMinutes": 103,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 8.4,
+          "estimatedMinutes": 127,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 22.2,
+          "estimatedMinutes": 333,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "chinook_landing_marine_park",
+            "vancouver_wintler"
           ]
         }
       ],
       "roundTrips": [
         {
           "destination": "port_of_camas",
-          "distanceKm": 13.1,
-          "estimatedMinutes": 196,
+          "distanceKm": 13.7,
+          "estimatedMinutes": 206,
           "waypoints": [
             "glenn_otto_troutdale",
+            "washougal_waterfront",
             "port_of_camas",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 13.8,
+          "estimatedMinutes": 206,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "washougal_waterfront",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 16.9,
+          "estimatedMinutes": 254,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "chinook_landing_marine_park",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 44.3,
+          "estimatedMinutes": 666,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
             "glenn_otto_troutdale"
           ]
         }
@@ -393,6 +1068,16 @@
           ]
         },
         {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 7.7,
+          "estimatedMinutes": 115,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "cedaroak_boat_ramp"
+          ]
+        },
+        {
           "destination": "river_place_marina",
           "distanceKm": 8.8,
           "estimatedMinutes": 132,
@@ -416,6 +1101,18 @@
           ]
         },
         {
+          "destination": "sportcraft_enrg_oc",
+          "distanceKm": 11.5,
+          "estimatedMinutes": 172,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "cedaroak_boat_ramp",
+            "clackamette_park",
+            "sportcraft_enrg_oc"
+          ]
+        },
+        {
           "destination": "swan_island_boat_ramp",
           "distanceKm": 16.1,
           "estimatedMinutes": 241,
@@ -426,20 +1123,6 @@
             "river_place_marina",
             "tom_mccall_waterfront",
             "swan_island_boat_ramp"
-          ]
-        },
-        {
-          "destination": "cathedral_park",
-          "distanceKm": 20.8,
-          "estimatedMinutes": 313,
-          "waypoints": [
-            "jefferson_st_milwaukie",
-            "sellwood_riverfront",
-            "willamette_park_sw",
-            "river_place_marina",
-            "tom_mccall_waterfront",
-            "swan_island_boat_ramp",
-            "cathedral_park"
           ]
         }
       ],
@@ -476,6 +1159,17 @@
           ]
         },
         {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 15.4,
+          "estimatedMinutes": 230,
+          "waypoints": [
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "cedaroak_boat_ramp",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
           "destination": "river_place_marina",
           "distanceKm": 17.6,
           "estimatedMinutes": 264,
@@ -486,46 +1180,138 @@
             "river_place_marina",
             "jefferson_st_milwaukie"
           ]
-        },
-        {
-          "destination": "tom_mccall_waterfront",
-          "distanceKm": 20.4,
-          "estimatedMinutes": 306,
-          "waypoints": [
-            "jefferson_st_milwaukie",
-            "sellwood_riverfront",
-            "willamette_park_sw",
-            "river_place_marina",
-            "tom_mccall_waterfront",
-            "jefferson_st_milwaukie"
-          ]
         }
       ]
     },
     "kelley_point": {
-      "oneWay": [],
-      "roundTrips": []
-    },
-    "port_of_camas": {
       "oneWay": [
         {
-          "destination": "glenn_otto_troutdale",
-          "distanceKm": 6.6,
-          "estimatedMinutes": 98,
+          "destination": "smith_lake_canoe_ramp",
+          "distanceKm": 8.5,
+          "estimatedMinutes": 127,
           "waypoints": [
-            "port_of_camas",
-            "glenn_otto_troutdale"
+            "kelley_point",
+            "smith_lake_canoe_ramp"
+          ]
+        },
+        {
+          "destination": "columbia_slough_paddle_launch",
+          "distanceKm": 17.4,
+          "estimatedMinutes": 261,
+          "waypoints": [
+            "kelley_point",
+            "columbia_slough_paddle_launch"
           ]
         }
       ],
       "roundTrips": [
         {
-          "destination": "glenn_otto_troutdale",
-          "distanceKm": 13.1,
-          "estimatedMinutes": 196,
+          "destination": "smith_lake_canoe_ramp",
+          "distanceKm": 16.9,
+          "estimatedMinutes": 254,
+          "waypoints": [
+            "kelley_point",
+            "smith_lake_canoe_ramp",
+            "kelley_point"
+          ]
+        },
+        {
+          "destination": "columbia_slough_paddle_launch",
+          "distanceKm": 34.8,
+          "estimatedMinutes": 522,
+          "waypoints": [
+            "kelley_point",
+            "columbia_slough_paddle_launch",
+            "kelley_point"
+          ]
+        }
+      ]
+    },
+    "port_of_camas": {
+      "oneWay": [
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 1.0,
+          "estimatedMinutes": 15,
           "waypoints": [
             "port_of_camas",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 6.2,
+          "estimatedMinutes": 93,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 6.8,
+          "estimatedMinutes": 103,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 19.9,
+          "estimatedMinutes": 299,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
+            "chinook_landing_marine_park",
+            "vancouver_wintler"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 2.0,
+          "estimatedMinutes": 30,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 12.4,
+          "estimatedMinutes": 186,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
+            "chinook_landing_marine_park",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 13.7,
+          "estimatedMinutes": 206,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
             "glenn_otto_troutdale",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 39.8,
+          "estimatedMinutes": 598,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
             "port_of_camas"
           ]
         }
@@ -604,6 +1390,19 @@
             "jefferson_st_milwaukie",
             "george_rogers_park"
           ]
+        },
+        {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 16.1,
+          "estimatedMinutes": 242,
+          "waypoints": [
+            "river_place_marina",
+            "willamette_park_sw",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "cedaroak_boat_ramp"
+          ]
         }
       ],
       "roundTrips": [
@@ -664,12 +1463,79 @@
       ]
     },
     "sauvie_island_boat_ramp": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "frenchmans_bar",
+          "distanceKm": 14.7,
+          "estimatedMinutes": 220,
+          "waypoints": [
+            "sauvie_island_boat_ramp",
+            "kelley_point",
+            "frenchmans_bar"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 26.1,
+          "estimatedMinutes": 392,
+          "waypoints": [
+            "sauvie_island_boat_ramp",
+            "kelley_point",
+            "gleason_memorial_boat_ramp",
+            "vancouver_wintler"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "frenchmans_bar",
+          "distanceKm": 29.3,
+          "estimatedMinutes": 440,
+          "waypoints": [
+            "sauvie_island_boat_ramp",
+            "kelley_point",
+            "frenchmans_bar",
+            "sauvie_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 52.3,
+          "estimatedMinutes": 784,
+          "waypoints": [
+            "sauvie_island_boat_ramp",
+            "kelley_point",
+            "gleason_memorial_boat_ramp",
+            "vancouver_wintler",
+            "sauvie_island_boat_ramp"
+          ]
+        }
+      ]
     },
     "scappoose_bay_marina": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "st_helens_public_marina",
+          "distanceKm": 11.9,
+          "estimatedMinutes": 179,
+          "waypoints": [
+            "scappoose_bay_marina",
+            "st_helens_public_marina"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "st_helens_public_marina",
+          "distanceKm": 23.9,
+          "estimatedMinutes": 358,
+          "waypoints": [
+            "scappoose_bay_marina",
+            "st_helens_public_marina",
+            "scappoose_bay_marina"
+          ]
+        }
+      ]
     },
     "sellwood_riverfront": {
       "oneWay": [
@@ -723,6 +1589,17 @@
           ]
         },
         {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 11.0,
+          "estimatedMinutes": 165,
+          "waypoints": [
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "cedaroak_boat_ramp"
+          ]
+        },
+        {
           "destination": "swan_island_boat_ramp",
           "distanceKm": 12.8,
           "estimatedMinutes": 193,
@@ -735,16 +1612,16 @@
           ]
         },
         {
-          "destination": "cathedral_park",
-          "distanceKm": 17.6,
-          "estimatedMinutes": 264,
+          "destination": "sportcraft_enrg_oc",
+          "distanceKm": 14.7,
+          "estimatedMinutes": 221,
           "waypoints": [
             "sellwood_riverfront",
-            "willamette_park_sw",
-            "river_place_marina",
-            "tom_mccall_waterfront",
-            "swan_island_boat_ramp",
-            "cathedral_park"
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "cedaroak_boat_ramp",
+            "clackamette_park",
+            "sportcraft_enrg_oc"
           ]
         }
       ],
@@ -806,16 +1683,262 @@
       ]
     },
     "smith_lake_canoe_ramp": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "kelley_point",
+          "distanceKm": 8.5,
+          "estimatedMinutes": 127,
+          "waypoints": [
+            "smith_lake_canoe_ramp",
+            "kelley_point"
+          ]
+        },
+        {
+          "destination": "columbia_slough_paddle_launch",
+          "distanceKm": 25.0,
+          "estimatedMinutes": 375,
+          "waypoints": [
+            "smith_lake_canoe_ramp",
+            "kelley_point",
+            "columbia_slough_paddle_launch"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "kelley_point",
+          "distanceKm": 16.9,
+          "estimatedMinutes": 254,
+          "waypoints": [
+            "smith_lake_canoe_ramp",
+            "kelley_point",
+            "smith_lake_canoe_ramp"
+          ]
+        },
+        {
+          "destination": "columbia_slough_paddle_launch",
+          "distanceKm": 50.0,
+          "estimatedMinutes": 750,
+          "waypoints": [
+            "smith_lake_canoe_ramp",
+            "kelley_point",
+            "columbia_slough_paddle_launch",
+            "smith_lake_canoe_ramp"
+          ]
+        }
+      ]
     },
     "sportcraft_enrg_oc": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 4.2,
+          "estimatedMinutes": 62,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp"
+          ]
+        },
+        {
+          "destination": "bernert_landing",
+          "distanceKm": 4.9,
+          "estimatedMinutes": 74,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "bernert_landing"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 7.5,
+          "estimatedMinutes": 112,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 11.5,
+          "estimatedMinutes": 172,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 14.7,
+          "estimatedMinutes": 221,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront"
+          ]
+        },
+        {
+          "destination": "willamette_park_sw",
+          "distanceKm": 16.3,
+          "estimatedMinutes": 244,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "willamette_park_sw"
+          ]
+        },
+        {
+          "destination": "river_place_marina",
+          "distanceKm": 19.9,
+          "estimatedMinutes": 298,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "willamette_park_sw",
+            "river_place_marina"
+          ]
+        },
+        {
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 21.3,
+          "estimatedMinutes": 319,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "willamette_park_sw",
+            "river_place_marina",
+            "tom_mccall_waterfront"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 8.3,
+          "estimatedMinutes": 124,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "sportcraft_enrg_oc"
+          ]
+        },
+        {
+          "destination": "bernert_landing",
+          "distanceKm": 9.9,
+          "estimatedMinutes": 148,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "bernert_landing",
+            "sportcraft_enrg_oc"
+          ]
+        },
+        {
+          "destination": "george_rogers_park",
+          "distanceKm": 15.0,
+          "estimatedMinutes": 224,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "sportcraft_enrg_oc"
+          ]
+        },
+        {
+          "destination": "jefferson_st_milwaukie",
+          "distanceKm": 22.9,
+          "estimatedMinutes": 344,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sportcraft_enrg_oc"
+          ]
+        },
+        {
+          "destination": "sellwood_riverfront",
+          "distanceKm": 29.5,
+          "estimatedMinutes": 442,
+          "waypoints": [
+            "sportcraft_enrg_oc",
+            "clackamette_park",
+            "cedaroak_boat_ramp",
+            "george_rogers_park",
+            "jefferson_st_milwaukie",
+            "sellwood_riverfront",
+            "sportcraft_enrg_oc"
+          ]
+        }
+      ]
     },
     "st_helens_public_marina": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "scappoose_bay_marina",
+          "distanceKm": 11.9,
+          "estimatedMinutes": 179,
+          "waypoints": [
+            "st_helens_public_marina",
+            "scappoose_bay_marina"
+          ]
+        },
+        {
+          "destination": "frenchmans_bar",
+          "distanceKm": 23.7,
+          "estimatedMinutes": 356,
+          "waypoints": [
+            "st_helens_public_marina",
+            "frenchmans_bar"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "scappoose_bay_marina",
+          "distanceKm": 23.9,
+          "estimatedMinutes": 358,
+          "waypoints": [
+            "st_helens_public_marina",
+            "scappoose_bay_marina",
+            "st_helens_public_marina"
+          ]
+        },
+        {
+          "destination": "frenchmans_bar",
+          "distanceKm": 47.5,
+          "estimatedMinutes": 712,
+          "waypoints": [
+            "st_helens_public_marina",
+            "frenchmans_bar",
+            "st_helens_public_marina"
+          ]
+        }
+      ]
     },
     "swan_island_boat_ramp": {
       "oneWay": [
@@ -895,6 +2018,21 @@
             "sellwood_riverfront",
             "jefferson_st_milwaukie",
             "george_rogers_park"
+          ]
+        },
+        {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 23.4,
+          "estimatedMinutes": 351,
+          "waypoints": [
+            "swan_island_boat_ramp",
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "willamette_park_sw",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "cedaroak_boat_ramp"
           ]
         }
       ],
@@ -1032,6 +2170,20 @@
             "jefferson_st_milwaukie",
             "george_rogers_park"
           ]
+        },
+        {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 17.5,
+          "estimatedMinutes": 263,
+          "waypoints": [
+            "tom_mccall_waterfront",
+            "river_place_marina",
+            "willamette_park_sw",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "cedaroak_boat_ramp"
+          ]
         }
       ],
       "roundTrips": [
@@ -1094,12 +2246,212 @@
       ]
     },
     "vancouver_wintler": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 15.3,
+          "estimatedMinutes": 229,
+          "waypoints": [
+            "vancouver_wintler",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "frenchmans_bar",
+          "distanceKm": 18.2,
+          "estimatedMinutes": 272,
+          "waypoints": [
+            "vancouver_wintler",
+            "gleason_memorial_boat_ramp",
+            "kelley_point",
+            "frenchmans_bar"
+          ]
+        },
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 19.9,
+          "estimatedMinutes": 299,
+          "waypoints": [
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "washougal_waterfront",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 20.0,
+          "estimatedMinutes": 299,
+          "waypoints": [
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 22.2,
+          "estimatedMinutes": 333,
+          "waypoints": [
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "sauvie_island_boat_ramp",
+          "distanceKm": 26.1,
+          "estimatedMinutes": 392,
+          "waypoints": [
+            "vancouver_wintler",
+            "gleason_memorial_boat_ramp",
+            "kelley_point",
+            "sauvie_island_boat_ramp"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 30.5,
+          "estimatedMinutes": 458,
+          "waypoints": [
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "vancouver_wintler"
+          ]
+        },
+        {
+          "destination": "frenchmans_bar",
+          "distanceKm": 36.3,
+          "estimatedMinutes": 544,
+          "waypoints": [
+            "vancouver_wintler",
+            "gleason_memorial_boat_ramp",
+            "kelley_point",
+            "frenchmans_bar",
+            "vancouver_wintler"
+          ]
+        },
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 39.8,
+          "estimatedMinutes": 598,
+          "waypoints": [
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "washougal_waterfront",
+            "port_of_camas",
+            "vancouver_wintler"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 39.9,
+          "estimatedMinutes": 598,
+          "waypoints": [
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "washougal_waterfront",
+            "vancouver_wintler"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 44.3,
+          "estimatedMinutes": 666,
+          "waypoints": [
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "glenn_otto_troutdale",
+            "vancouver_wintler"
+          ]
+        }
+      ]
     },
     "washougal_waterfront": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 1.0,
+          "estimatedMinutes": 15,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 6.2,
+          "estimatedMinutes": 93,
+          "waypoints": [
+            "washougal_waterfront",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 6.9,
+          "estimatedMinutes": 103,
+          "waypoints": [
+            "washougal_waterfront",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 20.0,
+          "estimatedMinutes": 299,
+          "waypoints": [
+            "washougal_waterfront",
+            "chinook_landing_marine_park",
+            "vancouver_wintler"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 2.0,
+          "estimatedMinutes": 30,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 12.5,
+          "estimatedMinutes": 186,
+          "waypoints": [
+            "washougal_waterfront",
+            "chinook_landing_marine_park",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 13.8,
+          "estimatedMinutes": 206,
+          "waypoints": [
+            "washougal_waterfront",
+            "glenn_otto_troutdale",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 39.9,
+          "estimatedMinutes": 598,
+          "waypoints": [
+            "washougal_waterfront",
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
+            "washougal_waterfront"
+          ]
+        }
+      ]
     },
     "willamette_park_sw": {
       "oneWay": [
@@ -1161,6 +2513,18 @@
             "river_place_marina",
             "tom_mccall_waterfront",
             "swan_island_boat_ramp"
+          ]
+        },
+        {
+          "destination": "cedaroak_boat_ramp",
+          "distanceKm": 12.5,
+          "estimatedMinutes": 188,
+          "waypoints": [
+            "willamette_park_sw",
+            "sellwood_riverfront",
+            "jefferson_st_milwaukie",
+            "george_rogers_park",
+            "cedaroak_boat_ramp"
           ]
         },
         {

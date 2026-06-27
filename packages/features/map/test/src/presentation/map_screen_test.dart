@@ -8,6 +8,42 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import '../../helpers/test_localized_app.dart';
 
+class _AcceptAllMapRoutePlanner implements MapRoutePlanner {
+  const _AcceptAllMapRoutePlanner();
+
+  @override
+  Future<Result<RouteGeometrySnapshot?, RoutePlanningFailure>> planMultiSegment(
+    List<LaunchPoint> waypoints,
+  ) async {
+    if (waypoints.length < 2) {
+      return const Result.success(null);
+    }
+    final putIn = waypoints.first;
+    final takeOut = waypoints.last;
+    return Result.success(
+      RouteGeometrySnapshot(
+        polylineLonLat: [
+          [putIn.longitude, putIn.latitude],
+          [takeOut.longitude, takeOut.latitude],
+        ],
+        lengthMeters: 4200,
+        computedAt: DateTime.utc(2026),
+      ),
+    );
+  }
+
+  @override
+  Future<Result<void, RoutePlanningFailure>> validateLaunch(
+    LaunchPoint launch,
+  ) async => const Result.success(null);
+
+  @override
+  Future<Result<void, RoutePlanningFailure>> validateSegment(
+    LaunchPoint from,
+    LaunchPoint to,
+  ) async => const Result.success(null);
+}
+
 CircleAnnotation _launchAnnotation(String launchId) {
   return CircleAnnotation(
     id: launchId,
@@ -257,6 +293,9 @@ void main() {
       tester,
       overrides: [
         mapInteractiveProvider.overrideWithValue(true),
+        mapRoutePlannerProvider.overrideWith(
+          (ref) async => const _AcceptAllMapRoutePlanner(),
+        ),
         routePlanningProvider.overrideWith(_SingleStopPlanning.new),
         mapSheetVisibilityStateProvider.overrideWith(_PlanningEditSheet.new),
       ],
@@ -422,6 +461,15 @@ class _RoutedTwoStopPlanning extends RoutePlanning {
       phase: MapPlanningPhase.routeReady,
       waypoints: [putIn, takeOut],
       routeLengthKm: 4.2,
+      activeGeometry: RouteGeometrySnapshot(
+        polylineLonLat: [
+          [putIn.longitude, putIn.latitude],
+          [takeOut.longitude, takeOut.latitude],
+        ],
+        lengthMeters: 4200,
+        computedAt: DateTime.utc(2026),
+      ),
+      routeOrigin: RouteOrigin.planner,
     );
   }
 }

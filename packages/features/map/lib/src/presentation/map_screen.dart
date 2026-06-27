@@ -138,25 +138,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   void _addStopFromSearch(LaunchPoint launch) {
-    final result = ref
-        .read(routePlanningProvider.notifier)
-        .handleLaunchTap(
-          launch,
-        );
+    unawaited(_addStopFromSearchAsync(launch));
+  }
+
+  Future<void> _addStopFromSearchAsync(LaunchPoint launch) async {
+    final result = await ref
+        .read(mapboxMapControllerProvider.notifier)
+        .tryAddPlanningWaypoint(launch);
     if (result == null) {
       return;
-    }
-    if (result == RoutePlanningTapResult.sameAsPutIn) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.mapPickDifferentTakeOut)),
-      );
-      ref.read(mapSearchExpandedProvider.notifier).collapse();
-      return;
-    }
-    if (result == RoutePlanningTapResult.takeOutSelected) {
-      unawaited(
-        ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute(),
-      );
     }
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
     ref.read(mapSearchExpandedProvider.notifier).collapse();
@@ -169,6 +159,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   void _startPlanPaddle(LaunchPoint launch) {
+    unawaited(_startPlanPaddleAsync(launch));
+  }
+
+  Future<void> _startPlanPaddleAsync(LaunchPoint launch) async {
+    final planner = await ref.read(mapRoutePlannerProvider.future);
+    final validation = await planner.validateLaunch(launch);
+    if (!mounted) {
+      return;
+    }
+    if (validation case Failure(:final error)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            localizeMapPlannerMessage(l10n: context.l10n, message: error),
+          ),
+        ),
+      );
+      return;
+    }
     ref.read(routePlanningProvider.notifier).startPlanPaddle(launch);
     _beginPlanningEditSession();
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningEdit();
@@ -179,6 +188,42 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     required LaunchPoint putIn,
     required LaunchPoint takeOut,
   }) {
+    unawaited(_handlePlanToDestinationAsync(putIn: putIn, takeOut: takeOut));
+  }
+
+  Future<void> _handlePlanToDestinationAsync({
+    required LaunchPoint putIn,
+    required LaunchPoint takeOut,
+  }) async {
+    final planner = await ref.read(mapRoutePlannerProvider.future);
+    final putInValidation = await planner.validateLaunch(putIn);
+    if (!mounted) {
+      return;
+    }
+    if (putInValidation case Failure(:final error)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            localizeMapPlannerMessage(l10n: context.l10n, message: error),
+          ),
+        ),
+      );
+      return;
+    }
+    final segmentValidation = await planner.validateSegment(putIn, takeOut);
+    if (!mounted) {
+      return;
+    }
+    if (segmentValidation case Failure(:final error)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            localizeMapPlannerMessage(l10n: context.l10n, message: error),
+          ),
+        ),
+      );
+      return;
+    }
     ref
         .read(routePlanningProvider.notifier)
         .startPlanFromHereTo(
@@ -274,6 +319,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Future<void> _finishPlanningEdit() async {
+    if (!ref.read(routePlanningProvider).canFinishPlanning) {
+      return;
+    }
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningPreview();
     final polyline = ref.read(routePlanningProvider).polylineLonLat;
     if (polyline != null && polyline.length >= 2) {
@@ -410,6 +458,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   child: MapRoutePlanningChrome(
                     waypoints: planning.waypoints,
                     routeLengthKm: planning.routeLengthKm,
+                    canFinishPlanning: planning.canFinishPlanning,
                     onBack: () => unawaited(_backFromPlanningEdit()),
                     onDone: () => unawaited(_finishPlanningEdit()),
                     onRemoveStop: (index) => unawaited(_removeStop(index)),

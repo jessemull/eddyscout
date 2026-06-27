@@ -27,6 +27,10 @@ Future<List<String>> readBundledHydroGeoJsonDocuments() async {
     await readBundledHydroAsset(
       'assets/hydro/columbia_gorge_waterway.geojson',
     ),
+    await readBundledHydroAsset(
+      'assets/hydro/columbia_multnomah_waterway.geojson',
+    ),
+    await readBundledHydroAsset('assets/hydro/slough_waterway.geojson'),
   ];
 }
 

@@ -53,6 +53,10 @@ List<Override> buildAppProviderOverrides({
         await rootBundle.loadString(
           'assets/hydro/columbia_gorge_waterway.geojson',
         ),
+        await rootBundle.loadString(
+          'assets/hydro/columbia_multnomah_waterway.geojson',
+        ),
+        await rootBundle.loadString('assets/hydro/slough_waterway.geojson'),
       ],
     ),
     hydroConfluenceBridgesLoaderProvider.overrideWithValue(

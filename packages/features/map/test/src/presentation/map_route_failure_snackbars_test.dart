@@ -27,7 +27,7 @@ const _disconnectedCrossSystemHydroGeoJson = '''
       "properties": {"river_system": "willamette", "reach_id": "w_reach"},
       "geometry": {
         "type": "LineString",
-        "coordinates": [[-122.733, 45.562], [-122.732, 45.561]]
+        "coordinates": [[-122.759, 45.588], [-122.758, 45.587]]
       }
     },
     {
@@ -35,7 +35,7 @@ const _disconnectedCrossSystemHydroGeoJson = '''
       "properties": {"river_system": "slough", "reach_id": "s_reach"},
       "geometry": {
         "type": "LineString",
-        "coordinates": [[-122.758, 45.646], [-122.757, 45.645]]
+        "coordinates": [[-122.763, 45.646], [-122.762, 45.645]]
       }
     }
   ]
@@ -75,7 +75,10 @@ void main() {
   }
 
   testWidgets('shows snackbar when take-out equals put-in', (tester) async {
-    final container = await pumpMap(tester);
+    final container = await pumpMap(
+      tester,
+      hydroGeoJson: _disconnectedCrossSystemHydroGeoJson,
+    );
     final map = container.read(mapboxMapControllerProvider.notifier);
 
     _enterPlanningEdit(container);
@@ -83,8 +86,10 @@ void main() {
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(
       find.text('Pick a different launch for take-out.'),
@@ -109,6 +114,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(
+      ProviderScope.containerOf(
+        tester.element(find.byType(MapScreen)),
+      ).read(routePlanningProvider).waypoints,
+      hasLength(1),
+    );
+    expect(
       find.descendant(
         of: find.byType(SnackBar),
         matching: find.textContaining('same river system'),
@@ -128,10 +139,12 @@ void main() {
 
     map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
     await tester.pump();
-    map.onLaunchCircleTap(_launchAnnotation('sellwood_riverfront'));
-    await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
+    expect(
+      container.read(routePlanningProvider).waypoints,
+      isEmpty,
+    );
     expect(
       find.descendant(
         of: find.byType(SnackBar),
