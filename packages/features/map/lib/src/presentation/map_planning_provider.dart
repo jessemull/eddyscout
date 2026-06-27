@@ -269,6 +269,21 @@ class RoutePlanning extends _$RoutePlanning {
     );
   }
 
+  /// Restores a prior waypoint order after a failed reorder reroute.
+  void restoreWaypoints(List<LaunchPoint> waypoints) {
+    if (waypoints.length != state.waypoints.length) {
+      return;
+    }
+    state = RoutePlanningState(
+      phase: state.phase,
+      waypoints: List<LaunchPoint>.of(waypoints),
+      routeLengthKm: state.routeLengthKm,
+      activeGeometry: state.activeGeometry,
+      loadedSavedRouteId: state.loadedSavedRouteId,
+      routeOrigin: state.routeOrigin,
+    );
+  }
+
   void loadFromSavedRoute(
     SavedRoute route,
     List<LaunchPoint> resolvedWaypoints,

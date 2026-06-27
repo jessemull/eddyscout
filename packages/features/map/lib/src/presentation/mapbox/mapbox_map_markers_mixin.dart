@@ -11,6 +11,14 @@ import 'mapbox_map_route_mixin.dart';
 import 'mapbox_map_style_mixin.dart';
 
 /// Launch circle annotations and first-time style setup.
+///
+/// Access pins use [LaunchPoint.latitude]/[LaunchPoint.longitude]. When a
+/// catalog launch sets optional water-entry coordinates and
+/// [LaunchPointCoordinates.hasDistinctWaterEntry] is true, this mixin also
+/// draws a smaller water-entry circle plus a connector line to the access pin.
+/// Both annotation layers share the same tap handler so planning taps resolve
+/// to the launch id regardless of which circle is hit. Water-entry visuals are
+/// omitted until catalog seeds exist; routing still uses water entry when set.
 mixin MapboxMapMarkersMixin
     on
         MapboxMapControllerBase,
@@ -101,6 +109,7 @@ mixin MapboxMapMarkersMixin
             await mapboxMap.annotations.createCircleAnnotationManager();
         waterEntryCircleManager = waterManager;
         if (distinctLaunches.isNotEmpty) {
+          // Secondary tap target on the channel; semantics follow launch id.
           await waterManager.createMulti(
             distinctLaunches
                 .map(

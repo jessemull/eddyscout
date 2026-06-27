@@ -316,6 +316,25 @@ void main() {
       );
     });
 
+    test('restoreWaypoints reverts a failed reorder attempt', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final a = _launch(id: 'a');
+      final b = _launch(id: 'b');
+      final c = _launch(id: 'c');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(a);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(b);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(c);
+      final previous = container.read(routePlanningProvider).waypoints;
+
+      container.read(routePlanningProvider.notifier).reorderWaypoints(0, 2);
+      container.read(routePlanningProvider.notifier).restoreWaypoints(previous);
+
+      expect(
+        container.read(routePlanningProvider).waypoints.map((w) => w.id),
+        ['a', 'b', 'c'],
+      );
+    });
+
     test('startPlanFromHereTo pre-fills put-in and take-out', () {
       final putIn = _launch(id: 'a', name: 'Put-in');
       final takeOut = _launch(id: 'b', name: 'Take-out');

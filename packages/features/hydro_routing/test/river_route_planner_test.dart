@@ -674,7 +674,6 @@ void main() {
         final planner = await _plannerFromBundledAssets();
         for (final id in [
           'port_of_camas',
-          'smith_lake_canoe_ramp',
           'scappoose_bay_marina',
         ]) {
           final launch = findLaunchPointById(id)!;

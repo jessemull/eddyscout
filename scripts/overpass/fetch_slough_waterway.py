@@ -13,6 +13,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 from _overpass_common import (  # noqa: E402
     WayRecord,
     extend_nearest_end_to_anchor,
+    extend_toward_anchor,
     fetch_overpass,
     hydro_feature,
     longest_single_way_coords,
@@ -25,6 +26,8 @@ from _overpass_common import (  # noqa: E402
 SCRIPT_NAME = "fetch_slough_waterway.py"
 
 KELLEY_POINT = (-122.7580, 45.6463)
+COLUMBIA_SLOUGH_LAUNCH = (-122.615007, 45.579700)
+SMITH_LAKE_LAUNCH = (-122.714018, 45.613322)
 
 
 def _filter_slough_ways(ways: list[WayRecord]) -> list[WayRecord]:
@@ -71,6 +74,16 @@ def main() -> None:
         KELLEY_POINT,
         max_connector_m=5000.0,
     )
+    coords = extend_nearest_end_to_anchor(
+        coords,
+        COLUMBIA_SLOUGH_LAUNCH,
+        max_connector_m=3000.0,
+    )
+    coords = extend_toward_anchor(
+        coords,
+        SMITH_LAKE_LAUNCH,
+        max_connector_m=2000.0,
+    )
     validate_coords("slough_main", coords)
 
     feature = hydro_feature(
@@ -78,8 +91,8 @@ def main() -> None:
         reach_id="multnomah_slough",
         name="Multnomah Channel / slough network (OSM waterway)",
         source=(
-            "OpenStreetMap ODbL. Slough/channel way near Kelley Point, "
-            "extended to the launch pin when OSM ends short."
+            "OpenStreetMap ODbL. Multnomah Channel / Columbia Slough network; "
+            "connectors to catalog pins when OSM ends short."
         ),
         coordinates=coords,
     )

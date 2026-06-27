@@ -12,8 +12,17 @@
   "entries": {
     "bernert_landing": {
       "5mi": [],
-      "10mi": [],
-      "20mi": []
+      "10mi": [
+        "cedaroak_boat_ramp",
+        "george_rogers_park",
+        "jefferson_st_milwaukie"
+      ],
+      "20mi": [
+        "sellwood_riverfront",
+        "willamette_park_sw",
+        "river_place_marina",
+        "tom_mccall_waterfront"
+      ]
     },
     "cathedral_park": {
       "5mi": [
@@ -28,11 +37,13 @@
       "20mi": [
         "willamette_park_sw",
         "sauvie_island_boat_ramp",
+        "smith_lake_canoe_ramp",
         "sellwood_riverfront",
         "jefferson_st_milwaukie",
         "gleason_memorial_boat_ramp",
         "vancouver_wintler",
         "george_rogers_park",
+        "columbia_slough_paddle_launch",
         "cedaroak_boat_ramp"
       ]
     },
@@ -42,6 +53,7 @@
       ],
       "10mi": [
         "jefferson_st_milwaukie",
+        "bernert_landing",
         "sellwood_riverfront",
         "willamette_park_sw"
       ],
@@ -73,8 +85,15 @@
     },
     "columbia_slough_paddle_launch": {
       "5mi": [],
-      "10mi": [],
-      "20mi": []
+      "10mi": [
+        "smith_lake_canoe_ramp"
+      ],
+      "20mi": [
+        "kelley_point",
+        "frenchmans_bar",
+        "sauvie_island_boat_ramp",
+        "cathedral_park"
+      ]
     },
     "frenchmans_bar": {
       "5mi": [
@@ -82,13 +101,15 @@
       ],
       "10mi": [
         "sauvie_island_boat_ramp",
-        "cathedral_park"
+        "cathedral_park",
+        "smith_lake_canoe_ramp"
       ],
       "20mi": [
         "gleason_memorial_boat_ramp",
         "vancouver_wintler",
         "swan_island_boat_ramp",
         "tom_mccall_waterfront",
+        "columbia_slough_paddle_launch",
         "river_place_marina",
         "willamette_park_sw",
         "sellwood_riverfront",
@@ -102,6 +123,7 @@
       ],
       "10mi": [
         "sellwood_riverfront",
+        "bernert_landing",
         "willamette_park_sw",
         "river_place_marina"
       ],
@@ -124,6 +146,7 @@
         "sauvie_island_boat_ramp",
         "glenn_otto_troutdale",
         "cathedral_park",
+        "smith_lake_canoe_ramp",
         "swan_island_boat_ramp"
       ]
     },
@@ -146,7 +169,8 @@
       "10mi": [
         "cedaroak_boat_ramp",
         "river_place_marina",
-        "tom_mccall_waterfront"
+        "tom_mccall_waterfront",
+        "bernert_landing"
       ],
       "20mi": [
         "swan_island_boat_ramp",
@@ -158,6 +182,7 @@
         "frenchmans_bar"
       ],
       "10mi": [
+        "smith_lake_canoe_ramp",
         "sauvie_island_boat_ramp",
         "cathedral_park",
         "swan_island_boat_ramp"
@@ -165,6 +190,7 @@
       "20mi": [
         "gleason_memorial_boat_ramp",
         "vancouver_wintler",
+        "columbia_slough_paddle_launch",
         "tom_mccall_waterfront",
         "river_place_marina",
         "willamette_park_sw",
@@ -193,7 +219,9 @@
         "cedaroak_boat_ramp",
         "kelley_point",
         "frenchmans_bar",
-        "sauvie_island_boat_ramp"
+        "bernert_landing",
+        "sauvie_island_boat_ramp",
+        "smith_lake_canoe_ramp"
       ]
     },
     "sauvie_island_boat_ramp": {
@@ -204,10 +232,12 @@
       ],
       "20mi": [
         "cathedral_park",
+        "smith_lake_canoe_ramp",
         "gleason_memorial_boat_ramp",
         "vancouver_wintler",
         "swan_island_boat_ramp",
         "tom_mccall_waterfront",
+        "columbia_slough_paddle_launch",
         "river_place_marina",
         "willamette_park_sw"
       ]
@@ -231,14 +261,27 @@
       ],
       "20mi": [
         "cathedral_park",
+        "bernert_landing",
         "kelley_point",
         "frenchmans_bar"
       ]
     },
     "smith_lake_canoe_ramp": {
       "5mi": [],
-      "10mi": [],
-      "20mi": []
+      "10mi": [
+        "kelley_point",
+        "columbia_slough_paddle_launch",
+        "frenchmans_bar"
+      ],
+      "20mi": [
+        "sauvie_island_boat_ramp",
+        "cathedral_park",
+        "swan_island_boat_ramp",
+        "gleason_memorial_boat_ramp",
+        "vancouver_wintler",
+        "tom_mccall_waterfront",
+        "river_place_marina"
+      ]
     },
     "sportcraft_enrg_oc": {
       "5mi": [
@@ -268,6 +311,7 @@
         "frenchmans_bar",
         "george_rogers_park",
         "sauvie_island_boat_ramp",
+        "smith_lake_canoe_ramp",
         "cedaroak_boat_ramp",
         "gleason_memorial_boat_ramp",
         "vancouver_wintler"
@@ -289,7 +333,9 @@
         "cedaroak_boat_ramp",
         "kelley_point",
         "frenchmans_bar",
-        "sauvie_island_boat_ramp"
+        "sauvie_island_boat_ramp",
+        "bernert_landing",
+        "smith_lake_canoe_ramp"
       ]
     },
     "vancouver_wintler": {
@@ -305,6 +351,7 @@
         "sauvie_island_boat_ramp",
         "glenn_otto_troutdale",
         "cathedral_park",
+        "smith_lake_canoe_ramp",
         "swan_island_boat_ramp"
       ]
     },
@@ -327,6 +374,7 @@
       ],
       "20mi": [
         "cathedral_park",
+        "bernert_landing",
         "kelley_point",
         "frenchmans_bar",
         "sauvie_island_boat_ramp"

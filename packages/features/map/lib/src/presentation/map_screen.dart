@@ -310,10 +310,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Future<void> _reorderStop(int oldIndex, int newIndex) async {
-    ref
-        .read(routePlanningProvider.notifier)
-        .reorderWaypoints(oldIndex, newIndex);
-    if (ref.read(routePlanningProvider).hasRunnableRoute) {
+    final planningNotifier = ref.read(routePlanningProvider.notifier);
+    final previousWaypoints = ref.read(routePlanningProvider).waypoints;
+    planningNotifier.reorderWaypoints(oldIndex, newIndex);
+    if (!ref.read(routePlanningProvider).hasRunnableRoute) {
+      return;
+    }
+    await ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute();
+    if (!ref.read(routePlanningProvider).canFinishPlanning) {
+      planningNotifier.restoreWaypoints(previousWaypoints);
       await ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute();
     }
   }
