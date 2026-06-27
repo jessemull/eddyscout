@@ -27,7 +27,7 @@ void main() {
       expect(index.entryFor('cathedral_park'), isNotNull);
       expect(
         index.oneWayTripsFor('cathedral_park').map((trip) => trip.destination),
-        contains('sellwood_riverfront'),
+        contains('swan_island_boat_ramp'),
       );
     });
 
