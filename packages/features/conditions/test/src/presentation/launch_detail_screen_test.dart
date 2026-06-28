@@ -310,7 +310,10 @@ void main() {
         loadConditions: () => Future.value(calmSnapshot()),
         extraOverrides: [
           conditionReportsListProvider(launch.id).overrideWith(
-            (ref) async => const <ConditionReportListItem>[],
+            (ref) async => const ConditionReportsListResult(
+              reports: [],
+              viewerHasPendingReport: false,
+            ),
           ),
         ],
       );
@@ -339,13 +342,16 @@ void main() {
       loadConditions: () => Future.value(calmSnapshot()),
       extraOverrides: [
         conditionReportsListProvider(launch.id).overrideWith(
-          (ref) async => [
-            ConditionReportListItem(
-              message: 'Choppy near the bridge',
-              createdAt: DateTime.utc(2026, 6, 14, 10),
-              isMine: true,
-            ),
-          ],
+          (ref) async => ConditionReportsListResult(
+            reports: [
+              ConditionReportListItem(
+                message: 'Choppy near the bridge',
+                createdAt: DateTime.utc(2026, 6, 14, 10),
+                isMine: true,
+              ),
+            ],
+            viewerHasPendingReport: false,
+          ),
         ),
       ],
     );
@@ -357,6 +363,31 @@ void main() {
 
     expect(find.textContaining('You'), findsOneWidget);
     expect(reportText, findsOneWidget);
+  });
+
+  testWidgets('shows pending review hint when viewer has held report', (
+    tester,
+  ) async {
+    FirebaseFlagsTestHooks.firebaseCallablesAvailableOverride = true;
+    addTearDown(FirebaseFlagsTestHooks.reset);
+
+    final container = await scopedContainer(
+      loadConditions: () => Future.value(calmSnapshot()),
+      extraOverrides: [
+        conditionReportsListProvider(launch.id).overrideWith(
+          (ref) async => const ConditionReportsListResult(
+            reports: [],
+            viewerHasPendingReport: true,
+          ),
+        ),
+      ],
+    );
+    await pumpLaunchDetail(tester, container: container);
+    await tester.pumpAndSettle();
+
+    final hint = find.textContaining('pending review');
+    await tester.scrollUntilVisible(hint, 200);
+    expect(hint, findsOneWidget);
   });
 
   testWidgets('shows go/no-go reasons for windy conditions', (tester) async {
@@ -405,7 +436,10 @@ void main() {
       loadConditions: () => Future.value(calmSnapshot()),
       extraOverrides: [
         conditionReportsListProvider(launch.id).overrideWith(
-          (ref) async => const <ConditionReportListItem>[],
+          (ref) async => const ConditionReportsListResult(
+            reports: [],
+            viewerHasPendingReport: false,
+          ),
         ),
       ],
     );
@@ -468,7 +502,10 @@ void main() {
       loadConditions: () => Future.value(calmSnapshot()),
       extraOverrides: [
         conditionReportsListProvider(launch.id).overrideWith(
-          (ref) async => const <ConditionReportListItem>[],
+          (ref) async => const ConditionReportsListResult(
+            reports: [],
+            viewerHasPendingReport: false,
+          ),
         ),
       ],
     );

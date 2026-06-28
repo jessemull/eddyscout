@@ -29,6 +29,10 @@ void main() {
     expect(container.read(conditionReportsRepositoryProvider), isNotNull);
     expect(container.read(conditionsAiSummaryRepositoryProvider), isNotNull);
     expect(container.read(conditionReportSubmitRepositoryProvider), isNotNull);
+    expect(
+      container.read(conditionReportModerationRepositoryProvider),
+      isNotNull,
+    );
     expect(container.read(goNoGoProfileRepositoryProvider), isNotNull);
     expect(container.read(gpxFileGatewayProvider), isA<GpxFileGatewayImpl>());
     expect(

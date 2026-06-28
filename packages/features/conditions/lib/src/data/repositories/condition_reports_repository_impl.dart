@@ -10,7 +10,7 @@ class ConditionReportsRepositoryImpl implements ConditionReportsRepository {
   const ConditionReportsRepositoryImpl();
 
   @override
-  FutureResult<List<ConditionReportListItem>, AppFailure> listReports(
+  FutureResult<ConditionReportsListResult, AppFailure> listReports(
     String launchId, {
     CancelToken? cancelToken,
   }) {

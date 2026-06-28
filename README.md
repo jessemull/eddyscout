@@ -14,7 +14,9 @@ cd apps/eddyscout && cp env.example .local.env
 
 # Optional: point all worktrees at canonical secrets (auto-linked from sibling worktrees by default)
 export EDDYSCOUT_LOCAL_ENV=~/Development/eddyscout/apps/eddyscout/.local.env
-export EDDYSCOUT_GOOGLE_SERVICES=~/Development/eddyscout/apps/eddyscout/android/app/google-services.json
+
+# Firebase (USE_FIREBASE=true in .local.env): one-time download, shared across worktrees
+# firebase login && make fetch-google-services
 
 # Optional: skip pickers — RUN_TARGET=launch:Pixel_9 DEV_INTERACTIVE=0 AUTO_LAUNCH=0
 ```
@@ -65,6 +67,7 @@ Read `CONTEXT.md` before making any changes. It provides mandatory loading order
 | `make preflight` | Full checks + coverage (optional; `git push` runs most gates) |
 | `make ci` | CI-grade validation |
 | `make clean` | Clean all packages |
+| `make fetch-google-services` | Download `google-services.json` via Firebase CLI (after `firebase login`) |
 | `make dev` | Bootstrap worktree + link secrets + start Android emulator + `flutter run` |
 | `make run` | Run app on device/emulator (needs `apps/eddyscout/.local.env`) |
 

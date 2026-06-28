@@ -8,11 +8,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'condition_reports_list_provider.g.dart';
 
-/// Recent paddler reports for a launch.
+/// Recent approved paddler reports for a launch.
 ///
 /// Refetches when [conditionReportsRefreshTokenProvider] changes.
 @Riverpod(retry: disableProviderRetry)
-Future<List<ConditionReportListItem>> conditionReportsList(
+Future<ConditionReportsListResult> conditionReportsList(
   Ref ref,
   String launchId,
 ) async {

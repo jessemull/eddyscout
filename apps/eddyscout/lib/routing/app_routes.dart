@@ -478,3 +478,15 @@ class WebMapPlaceholderRoute extends GoRouteData with $WebMapPlaceholderRoute {
   Widget build(BuildContext context, GoRouterState state) =>
       const WebMapPlaceholderScreen();
 }
+
+@TypedGoRoute<ModerationReportsRoute>(path: RoutePaths.moderationReports)
+class ModerationReportsRoute extends GoRouteData with $ModerationReportsRoute {
+  const ModerationReportsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const _ScreenViewLogger(
+        screenName: AnalyticsScreenNames.moderationReports,
+        child: ModerationQueueScreen(),
+      );
+}
