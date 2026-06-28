@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_moderation_repository_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/condition_reports_refresh_token_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/provider_result.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -32,17 +33,37 @@ class ModerationPendingReports extends _$ModerationPendingReports {
     return unwrapResultForAsyncProvider(result);
   }
 
-  /// Reloads the moderation queue.
+  /// Reloads the moderation queue (pull-to-refresh / retry).
+  ///
+  /// Keeps the current list visible while refetching.
   Future<void> refresh() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_load);
+    final previous = state.asData?.value;
+    try {
+      state = AsyncData(await _load());
+    } on Object catch (error, stackTrace) {
+      if (previous != null) {
+        state = AsyncData(previous);
+      } else {
+        state = AsyncError(error, stackTrace);
+      }
+    }
   }
 
-  /// Approves or rejects [reportId] and reloads the queue.
+  /// Approves or rejects [reportId] with an optimistic queue update.
   Future<bool> moderate({
     required String reportId,
     required bool approve,
   }) async {
+    final previous = state.asData?.value;
+    if (previous == null) {
+      return false;
+    }
+
+    final optimistic = previous
+        .where((report) => report.id != reportId)
+        .toList(growable: false);
+    state = AsyncData(optimistic);
+
     final cancelToken = CancelToken();
     final result = await ref
         .read(conditionReportModerationRepositoryProvider)
@@ -52,14 +73,15 @@ class ModerationPendingReports extends _$ModerationPendingReports {
           cancelToken: cancelToken,
         );
     if (cancelToken.isCancelled) {
+      state = AsyncData(previous);
       return false;
     }
     if (result.isFailure) {
-      final error = result.errorOrNull!;
-      state = AsyncError(error, error.stackTrace ?? StackTrace.current);
+      state = AsyncData(previous);
       return false;
     }
-    await refresh();
+
+    ref.read(conditionReportsRefreshTokenProvider.notifier).increment();
     return true;
   }
 }

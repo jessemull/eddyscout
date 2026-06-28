@@ -55,14 +55,22 @@ class ModerationQueueScreen extends ConsumerWidget {
               ),
             );
           }
-          return ListView.separated(
-            padding: const EdgeInsets.all(Spacing.md),
-            itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(height: Spacing.sm),
-            itemBuilder: (context, index) {
-              final report = items[index];
-              return _PendingReportCard(report: report);
-            },
+          return RefreshIndicator(
+            onRefresh: () =>
+                ref.read(moderationPendingReportsProvider.notifier).refresh(),
+            child: ListView.separated(
+              padding: const EdgeInsets.all(Spacing.md),
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: items.length,
+              separatorBuilder: (_, _) => const SizedBox(height: Spacing.sm),
+              itemBuilder: (context, index) {
+                final report = items[index];
+                return _PendingReportCard(
+                  key: ValueKey(report.id),
+                  report: report,
+                );
+              },
+            ),
           );
         },
       ),
@@ -71,7 +79,7 @@ class ModerationQueueScreen extends ConsumerWidget {
 }
 
 class _PendingReportCard extends ConsumerStatefulWidget {
-  const _PendingReportCard({required this.report});
+  const _PendingReportCard({required this.report, super.key});
 
   final ModerationQueueReport report;
 
@@ -112,6 +120,10 @@ class _PendingReportCardState extends ConsumerState<_PendingReportCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (_busy) ...[
+              const LinearProgressIndicator(),
+              const SizedBox(height: Spacing.sm),
+            ],
             Text(
               report.launchId,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
