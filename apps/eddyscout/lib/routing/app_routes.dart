@@ -336,6 +336,8 @@ class _LaunchDetailRouteBody extends ConsumerWidget {
           tripsFromHereSection: _LaunchDetailSuggestedTripsEntry(
             originLaunch: launch,
           ),
+          onOpenModerationQueue: () =>
+              unawaited(const ModerationReportsRoute().push<void>(context)),
         ),
       ),
     );
@@ -477,4 +479,13 @@ class WebMapPlaceholderRoute extends GoRouteData with $WebMapPlaceholderRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const WebMapPlaceholderScreen();
+}
+
+@TypedGoRoute<ModerationReportsRoute>(path: RoutePaths.moderationReports)
+class ModerationReportsRoute extends GoRouteData with $ModerationReportsRoute {
+  const ModerationReportsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const ModerationQueueScreen();
 }

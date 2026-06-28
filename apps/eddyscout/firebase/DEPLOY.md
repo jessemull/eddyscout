@@ -38,6 +38,42 @@ firebase deploy --only firestore:indexes
 
 If you deploy functions before indexes finish building, the first list call may fail until the index is ready (the Firebase console shows index status and offers a direct link if a query error mentions a missing index).
 
+Moderation adds additional composite indexes on `conditionReports`. Deploy indexes **before** functions when rolling out moderation.
+
+## Condition report moderation
+
+Callables: `submitConditionReport`, `listConditionReports`, `summarizeLaunchReports` (approved-only), `checkModeratorAccess`, `listPendingConditionReports`, `moderateConditionReport`, scheduled `purgeExpiredConditionReports`.
+
+### Deploy order
+
+1. `firebase deploy --only firestore:indexes` — wait until indexes show **Enabled**.
+2. Create Firestore doc **`config/moderation`**:
+
+   ```json
+   {
+     "retentionDays": 90,
+     "adminUids": ["YOUR_FIREBASE_AUTH_UID"],
+     "keywords": []
+   }
+   ```
+
+3. Backfill legacy `conditionReports` with `moderationStatus: "approved"` and `expiresAt`.
+4. `firebase deploy --only functions`
+5. Ship the Flutter client
+6. Add moderator UIDs to `config/moderation.adminUids` after sign-in
+
+### Moderator workflow
+
+- Launch detail → **Review reports** (visible when `checkModeratorAccess` is true)
+- Approve/reject held reports in the moderation queue screen
+
+### Local function tests
+
+```bash
+cd apps/eddyscout/firebase/functions
+npm test
+```
+
 ## Callable `summarizeLaunchReports`
 
 This function summarizes recent `conditionReports` for a launch (Anthropic Haiku; same `ANTHROPIC_API_KEY` secret as `summarizeConditions`). It writes **Admin-only** Firestore cache docs under `launchReportDigests` and rate-limit metadata under `reportDigestRate`. Clients never read those collections directly (see `firestore.rules`). Deploy with:

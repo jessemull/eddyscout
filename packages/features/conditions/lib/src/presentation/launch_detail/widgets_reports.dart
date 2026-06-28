@@ -141,6 +141,14 @@ class _RecentConditionReports extends ConsumerWidget {
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.launchDetailReportsModerationTrustLine,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
         const SizedBox(height: 8),
         reportsAsync.when(
           loading: () => const Padding(
@@ -159,26 +167,50 @@ class _RecentConditionReports extends ConsumerWidget {
               color: Theme.of(context).colorScheme.error,
             ),
           ),
-          data: (items) {
-            if (items.isEmpty) {
-              return Text(
-                l10n.launchDetailNoPaddlerReports,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+          data: (listResult) {
+            if (listResult.viewerHasPendingReport) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l10n.launchDetailReportsPendingReviewHint,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildReportList(context, listResult.reports),
+                ],
               );
             }
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < items.length; i++) ...[
-                  if (i > 0) const SizedBox(height: 8),
-                  _ConditionReportTile(report: items[i]),
-                ],
-              ],
-            );
+            return _buildReportList(context, listResult.reports);
           },
         ),
+      ],
+    );
+  }
+
+  Widget _buildReportList(
+    BuildContext context,
+    List<ConditionReportListItem> items,
+  ) {
+    final l10n = context.l10n;
+    if (items.isEmpty) {
+      return Text(
+        l10n.launchDetailNoPaddlerReports,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < items.length; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
+          _ConditionReportTile(report: items[i]),
+        ],
       ],
     );
   }
@@ -231,6 +263,36 @@ class _ConditionReportTile extends StatelessWidget {
   }
 }
 
+class _ModeratorReviewEntry extends ConsumerWidget {
+  const _ModeratorReviewEntry({required this.onOpen});
+
+  final VoidCallback? onOpen;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (onOpen == null) {
+      return const SizedBox.shrink();
+    }
+    final accessAsync = ref.watch(moderatorAccessProvider);
+    return accessAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+      data: (isModerator) {
+        if (!isModerator) {
+          return const SizedBox.shrink();
+        }
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            onPressed: onOpen,
+            child: Text(context.l10n.launchDetailReviewReportsButton),
+          ),
+        );
+      },
+    );
+  }
+}
+
 /// Bottom sheet content: owns `TextEditingController` until the route removes
 /// this widget (avoids "used after being disposed" during IME teardown).
 class _ConditionReportSheet extends ConsumerStatefulWidget {
@@ -244,7 +306,7 @@ class _ConditionReportSheet extends ConsumerStatefulWidget {
   final LaunchPoint launch;
   final DateTime conditionsFetchedAt;
   final ScaffoldMessengerState? scaffoldMessenger;
-  final VoidCallback onSuccessFeedback;
+  final void Function(ConditionReportSubmitResult result) onSuccessFeedback;
 
   @override
   ConsumerState<_ConditionReportSheet> createState() =>
@@ -286,13 +348,13 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
       );
       return;
     }
-    final ok = await ref
+    final submitResult = await ref
         .read(conditionReportSubmitProvider(_submitArgs).notifier)
         .submit(text);
     if (!mounted) {
       return;
     }
-    if (!ok) {
+    if (submitResult == null) {
       final submitState = ref.read(conditionReportSubmitProvider(_submitArgs));
       widget.scaffoldMessenger?.showSnackBar(
         SnackBar(
@@ -321,7 +383,7 @@ class _ConditionReportSheetState extends ConsumerState<_ConditionReportSheet> {
         return;
       }
       Navigator.of(context).pop();
-      widget.onSuccessFeedback();
+      widget.onSuccessFeedback(submitResult);
     });
   }
 

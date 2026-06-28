@@ -36,7 +36,13 @@ void main() {
         clientConditionsFetchedAt: any(named: 'clientConditionsFetchedAt'),
         cancelToken: any(named: 'cancelToken'),
       ),
-    ).thenAnswer((_) async => const Result.success(null));
+    ).thenAnswer(
+      (_) async => const Result.success(
+        ConditionReportSubmitResult(
+          moderationStatus: ConditionReportModerationStatus.approved,
+        ),
+      ),
+    );
 
     final container = ProviderContainer(
       overrides: [

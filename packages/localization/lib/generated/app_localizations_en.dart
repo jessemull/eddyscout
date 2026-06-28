@@ -299,6 +299,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get launchDetailReportThanks => 'Thanks—report submitted.';
 
   @override
+  String get launchDetailReportPendingReview =>
+      'Thanks—your report is being reviewed and will appear once approved.';
+
+  @override
+  String get launchDetailReportsPendingReviewHint =>
+      'You have a report pending review for this launch.';
+
+  @override
+  String get launchDetailReportsModerationTrustLine =>
+      'Community notes are reviewed before they appear—not official conditions or river status.';
+
+  @override
   String get launchDetailReportAddMessageFirst => 'Add a short message first.';
 
   @override
@@ -383,7 +395,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchDetailRecentReportsSubtitle =>
-      'Raw messages (newest first). Compare with the digest above.';
+      'Approved paddler messages (newest first). Compare with the digest above.';
 
   @override
   String get launchDetailNoPaddlerReports => 'No paddler reports yet.';
@@ -1178,4 +1190,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName) {
     return 'Route conditions: $verdict. $stopName.';
   }
+
+  @override
+  String get moderationQueueTitle => 'Review reports';
+
+  @override
+  String get moderationQueueEmpty => 'No reports waiting for review.';
+
+  @override
+  String get moderationQueueLoadError => 'Could not load the review queue.';
+
+  @override
+  String get moderationApprove => 'Approve';
+
+  @override
+  String get moderationReject => 'Reject';
+
+  @override
+  String get moderationActionError =>
+      'Could not update that report. Try again.';
+
+  @override
+  String get launchDetailReviewReportsButton => 'Review reports';
 }

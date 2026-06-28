@@ -123,7 +123,8 @@ FutureResult<String, AppFailure> callSummarizeConditions(
 }
 
 /// Calls `submitConditionReport`.
-FutureResult<void, AppFailure> callSubmitConditionReport({
+FutureResult<ConditionReportSubmitResult, AppFailure>
+callSubmitConditionReport({
   required String launchId,
   required String message,
   String? clientConditionsFetchedAt,
@@ -131,19 +132,20 @@ FutureResult<void, AppFailure> callSubmitConditionReport({
 }) {
   return _runCallable(() async {
     final callable = _functions.httpsCallable('submitConditionReport');
-    await callable.call<Map<String, dynamic>>(
+    final result = await callable.call<Map<String, dynamic>>(
       _jsonSafePayload(<String, Object?>{
         'launchId': launchId,
         'message': message,
         'clientConditionsFetchedAt': clientConditionsFetchedAt,
       }),
     );
+    final data = Map<Object?, Object?>.from(result.data as Map);
+    return ConditionReportSubmitResult.fromJson(data);
   }, cancelToken: cancelToken);
 }
 
 /// Calls `listConditionReports`.
-FutureResult<List<ConditionReportListItem>, AppFailure>
-callListConditionReports({
+FutureResult<ConditionReportsListResult, AppFailure> callListConditionReports({
   required String launchId,
   int limit = 20,
   CancelToken? cancelToken,
@@ -154,17 +156,7 @@ callListConditionReports({
       _jsonSafePayload(<String, Object?>{'launchId': launchId, 'limit': limit}),
     );
     final data = Map<Object?, Object?>.from(result.data as Map);
-    final raw = data['reports'];
-    if (raw is! List) {
-      throw StateError('listConditionReports: missing reports');
-    }
-    return raw
-        .map(
-          (e) => ConditionReportListItem.fromJson(
-            Map<Object?, Object?>.from(e as Map),
-          ),
-        )
-        .toList();
+    return ConditionReportsListResult.fromJson(data);
   }, cancelToken: cancelToken);
 }
 
@@ -186,5 +178,73 @@ FutureResult<LaunchReportsDigestResult, AppFailure> callSummarizeLaunchReports({
     );
     final data = Map<Object?, Object?>.from(result.data as Map);
     return LaunchReportsDigestResult.fromJson(data);
+  }, cancelToken: cancelToken);
+}
+
+/// Calls `checkModeratorAccess`.
+FutureResult<bool, AppFailure> callCheckModeratorAccess({
+  CancelToken? cancelToken,
+}) {
+  return _runCallable(() async {
+    final callable = _functions.httpsCallable('checkModeratorAccess');
+    final result = await callable.call<Map<String, dynamic>>(
+      <String, dynamic>{},
+    );
+    final data = Map<Object?, Object?>.from(result.data as Map);
+    final isModerator = data['isModerator'];
+    if (isModerator is! bool) {
+      throw StateError('checkModeratorAccess: missing isModerator');
+    }
+    return isModerator;
+  }, cancelToken: cancelToken);
+}
+
+/// Calls `listPendingConditionReports`.
+FutureResult<List<ModerationQueueReport>, AppFailure>
+callListPendingConditionReports({
+  int limit = 25,
+  CancelToken? cancelToken,
+}) {
+  return _runCallable(() async {
+    final callable = _functions.httpsCallable('listPendingConditionReports');
+    final result = await callable.call<Map<String, dynamic>>(
+      _jsonSafePayload(<String, Object?>{'limit': limit}),
+    );
+    final data = Map<Object?, Object?>.from(result.data as Map);
+    final raw = data['reports'];
+    if (raw is! List) {
+      throw StateError('listPendingConditionReports: missing reports');
+    }
+    return raw
+        .map(
+          (e) => ModerationQueueReport.fromJson(
+            Map<Object?, Object?>.from(e as Map),
+          ),
+        )
+        .toList();
+  }, cancelToken: cancelToken);
+}
+
+/// Calls `moderateConditionReport`.
+FutureResult<ConditionReportModerationStatus, AppFailure>
+callModerateConditionReport({
+  required String reportId,
+  required bool approve,
+  CancelToken? cancelToken,
+}) {
+  return _runCallable(() async {
+    final callable = _functions.httpsCallable('moderateConditionReport');
+    final result = await callable.call<Map<String, dynamic>>(
+      _jsonSafePayload(<String, Object?>{
+        'reportId': reportId,
+        'action': approve ? 'approve' : 'reject',
+      }),
+    );
+    final data = Map<Object?, Object?>.from(result.data as Map);
+    final status = data['moderationStatus'];
+    if (status is! String) {
+      throw StateError('moderateConditionReport: missing moderationStatus');
+    }
+    return parseConditionReportModerationStatus(status);
   }, cancelToken: cancelToken);
 }

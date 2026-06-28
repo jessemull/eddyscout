@@ -583,6 +583,24 @@ abstract class AppLocalizations {
   /// **'Thanks—report submitted.'**
   String get launchDetailReportThanks;
 
+  /// No description provided for @launchDetailReportPendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks—your report is being reviewed and will appear once approved.'**
+  String get launchDetailReportPendingReview;
+
+  /// No description provided for @launchDetailReportsPendingReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You have a report pending review for this launch.'**
+  String get launchDetailReportsPendingReviewHint;
+
+  /// No description provided for @launchDetailReportsModerationTrustLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Community notes are reviewed before they appear—not official conditions or river status.'**
+  String get launchDetailReportsModerationTrustLine;
+
   /// No description provided for @launchDetailReportAddMessageFirst.
   ///
   /// In en, this message translates to:
@@ -706,7 +724,7 @@ abstract class AppLocalizations {
   /// No description provided for @launchDetailRecentReportsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Raw messages (newest first). Compare with the digest above.'**
+  /// **'Approved paddler messages (newest first). Compare with the digest above.'**
   String get launchDetailRecentReportsSubtitle;
 
   /// No description provided for @launchDetailNoPaddlerReports.
@@ -1999,6 +2017,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Route conditions: {verdict}. {stopName}.'**
   String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName);
+
+  /// No description provided for @moderationQueueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review reports'**
+  String get moderationQueueTitle;
+
+  /// No description provided for @moderationQueueEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports waiting for review.'**
+  String get moderationQueueEmpty;
+
+  /// No description provided for @moderationQueueLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the review queue.'**
+  String get moderationQueueLoadError;
+
+  /// No description provided for @moderationApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get moderationApprove;
+
+  /// No description provided for @moderationReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get moderationReject;
+
+  /// No description provided for @moderationActionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update that report. Try again.'**
+  String get moderationActionError;
+
+  /// No description provided for @launchDetailReviewReportsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Review reports'**
+  String get launchDetailReviewReportsButton;
 }
 
 class _AppLocalizationsDelegate

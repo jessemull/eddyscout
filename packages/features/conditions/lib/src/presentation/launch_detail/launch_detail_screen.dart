@@ -14,6 +14,7 @@ import 'package:eddyscout_conditions/src/presentation/firebase_bootstrap_provide
 import 'package:eddyscout_conditions/src/presentation/go_no_go_l10n.dart';
 import 'package:eddyscout_conditions/src/presentation/go_no_go_profile_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/launch_reports_digest_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/moderation/moderator_access_provider.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_design_system/eddyscout_design_system.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
@@ -31,6 +32,7 @@ class LaunchDetailScreen extends ConsumerWidget {
   const LaunchDetailScreen({
     required this.launch,
     this.tripsFromHereSection,
+    this.onOpenModerationQueue,
     super.key,
   });
 
@@ -39,6 +41,9 @@ class LaunchDetailScreen extends ConsumerWidget {
 
   /// Optional trips-from-here section injected by the app shell.
   final Widget? tripsFromHereSection;
+
+  /// Opens the hidden moderator queue when the user has access.
+  final VoidCallback? onOpenModerationQueue;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -180,6 +185,7 @@ class LaunchDetailScreen extends ConsumerWidget {
                         data.fetchedAt,
                       ),
                     ),
+                    _ModeratorReviewEntry(onOpen: onOpenModerationQueue),
                   ] else if (kUseFirebase && !kIsWeb) ...[
                     const SizedBox(height: 12),
                     Text(

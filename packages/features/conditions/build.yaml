@@ -23,12 +23,15 @@ targets:
           include:
             - lib/src/data/conditions_http_provider.dart
             - lib/src/data/conditions_service_provider.dart
+            - lib/src/domain/condition_report_moderation_repository_provider.dart
             - lib/src/domain/condition_report_submit_repository_provider.dart
             - lib/src/domain/condition_reports_repository_provider.dart
             - lib/src/domain/conditions_ai_summary_repository_provider.dart
             - lib/src/domain/conditions_repository_provider.dart
             - lib/src/domain/go_no_go_profile_repository_provider.dart
             - lib/src/domain/launch_go_no_go_provider.dart
+            - lib/src/presentation/moderation/moderator_access_provider.dart
+            - lib/src/presentation/moderation/pending_reports_provider.dart
             - lib/src/presentation/condition_report_submit_provider.dart
             - lib/src/presentation/condition_reports_list_provider.dart
             - lib/src/presentation/condition_reports_refresh_token_provider.dart
