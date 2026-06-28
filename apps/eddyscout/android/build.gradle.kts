@@ -1,6 +1,10 @@
 allprojects {
     repositories {
-        google()
+        google {
+            content {
+                excludeGroupByRegex("org\\.jetbrains.*")
+            }
+        }
         mavenCentral()
     }
 }

@@ -74,11 +74,16 @@ final class MapboxMapController extends _$MapboxMapController
   Future<void> _prepareNewMapSurface(MapboxMap mapboxMap) async {
     tapCancelable?.cancel();
     tapCancelable = null;
+    waterEntryTapCancelable?.cancel();
+    waterEntryTapCancelable = null;
     selectionTapCancelable?.cancel();
     selectionTapCancelable = null;
     markersInstalled = false;
     launchCircleManager = null;
+    waterEntryCircleManager = null;
+    waterEntryConnectorManager = null;
     selectionAnnotation = null;
+    selectionWaterEntryAnnotation = null;
     selectionManager = null;
     ref.read(mapInteractiveProvider.notifier).resetInteractive();
     this.mapboxMap = mapboxMap;
@@ -173,27 +178,72 @@ final class MapboxMapController extends _$MapboxMapController
   }
 
   void _handlePlanningTap(LaunchPoint launch) {
+    unawaited(tryAddPlanningWaypoint(launch));
+  }
+
+  /// Validates hydro routing, then adds [launch] to the active plan when valid.
+  Future<RoutePlanningTapResult?> tryAddPlanningWaypoint(
+    LaunchPoint launch,
+  ) async {
+    final planning = ref.read(routePlanningProvider);
+    if (!planning.planningMode && planning.waypoints.isEmpty) {
+      return null;
+    }
+
+    final duplicate = _duplicatePlanningTapResult(planning.waypoints, launch);
+    if (duplicate != null) {
+      if (duplicate == RoutePlanningTapResult.sameAsPutIn) {
+        ui.showSnackBar?.call(ui.pickDifferentTakeOutMessage);
+      }
+      return duplicate;
+    }
+
+    final planner = await _resolveMapRoutePlanner();
+    if (planner == null) {
+      return null;
+    }
+
+    final validation = planning.waypoints.isEmpty
+        ? await planner.validateLaunch(launch)
+        : await planner.validateSegment(planning.waypoints.last, launch);
+    if (validation case Failure(:final error)) {
+      ui.showSnackBar?.call(error);
+      return null;
+    }
+
     final result = ref
         .read(routePlanningProvider.notifier)
         .handleLaunchTap(launch);
+    if (result == null) {
+      return null;
+    }
+
     switch (result) {
       case RoutePlanningTapResult.putInSelected:
-        unawaited(clearRouteLine());
-        unawaited(flyToLaunch(launch));
-        unawaited(
-          highlightLaunch(launch, onSelectionTap: onLaunchCircleTap),
-        );
+        await clearRouteLine();
+        await flyToLaunch(launch);
+        await highlightLaunch(launch, onSelectionTap: onLaunchCircleTap);
       case RoutePlanningTapResult.takeOutSelected:
-        unawaited(_runRoute());
-        unawaited(flyToLaunch(launch));
-        unawaited(
-          highlightLaunch(launch, onSelectionTap: onLaunchCircleTap),
-        );
+        await _runRoute(rollbackLastWaypointOnFailure: true);
+        await flyToLaunch(launch);
+        await highlightLaunch(launch, onSelectionTap: onLaunchCircleTap);
       case RoutePlanningTapResult.sameAsPutIn:
         ui.showSnackBar?.call(ui.pickDifferentTakeOutMessage);
-      case null:
-        break;
     }
+    return result;
+  }
+
+  RoutePlanningTapResult? _duplicatePlanningTapResult(
+    List<LaunchPoint> waypoints,
+    LaunchPoint launch,
+  ) {
+    if (waypoints.isNotEmpty && waypoints.last.id == launch.id) {
+      return RoutePlanningTapResult.sameAsPutIn;
+    }
+    if (waypoints.length == 1 && waypoints.first.id == launch.id) {
+      return RoutePlanningTapResult.sameAsPutIn;
+    }
+    return null;
   }
 
   /// Invalidates in-flight [_runRoute] work and clears the map line.
@@ -205,7 +255,9 @@ final class MapboxMapController extends _$MapboxMapController
     await clearRouteLine();
   }
 
-  Future<void> _runRoute() async {
+  Future<void> rerunActiveRoute() => _runRoute();
+
+  Future<void> _runRoute({bool rollbackLastWaypointOnFailure = false}) async {
     final routeGeneration = routeLineGeneration;
     final planning = ref.read(routePlanningProvider);
     final waypoints = planning.waypoints;
@@ -242,6 +294,9 @@ final class MapboxMapController extends _$MapboxMapController
             geometry: null,
             routeLengthKm: null,
           );
+      if (rollbackLastWaypointOnFailure) {
+        ref.read(routePlanningProvider.notifier).removeLastWaypoint();
+      }
       unawaited(clearRouteLine());
       ui.showSnackBar?.call(error);
       return;
@@ -321,9 +376,6 @@ final class MapboxMapController extends _$MapboxMapController
       await mapDebugLogMapboxSnapshot(map, 'afterExitPlanning');
     }
   }
-
-  /// Recomputes and draws the route for the current planning waypoints.
-  Future<void> rerunActiveRoute() => _runRoute();
 
   bool _shouldFitCameraAfterRoute() {
     final visibility = ref.read(mapSheetVisibilityStateProvider);

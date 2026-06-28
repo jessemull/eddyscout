@@ -29,6 +29,7 @@ SOUTH_ANCHOR = (-122.6580, 45.4109)
 MOUTH_ANCHOR = (-122.7909498, 45.6178872)
 WILLAMETTE_PARK = (-122.6703, 45.4492)
 SPORTCRAFT_OC = (-122.6100, 45.3525)
+BERNERT_LANDING = (-122.649930, 45.340081)
 
 
 def main() -> None:
@@ -62,6 +63,11 @@ def main() -> None:
         SPORTCRAFT_OC,
         max_connector_m=8000.0,
     )
+    coords = extend_nearest_end_to_anchor(
+        coords,
+        BERNERT_LANDING,
+        max_connector_m=4000.0,
+    )
     validate_coords("willamette_main", coords)
 
     feature = hydro_feature(
@@ -70,7 +76,8 @@ def main() -> None:
         name="Willamette main stem (OSM waterway=river)",
         source=(
             "OpenStreetMap ODbL. Overpass merge of Willamette River ways; "
-            "Oregon City pool through Columbia mouth."
+            "Oregon City pool through Columbia mouth; southern spur to "
+            "Bernert Landing when OSM ends short."
         ),
         coordinates=coords,
     )

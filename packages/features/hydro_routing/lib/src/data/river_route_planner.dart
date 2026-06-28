@@ -74,6 +74,29 @@ class RiverRoutePlanner {
 
   final RiverLineGraph _graph;
 
+  /// Returns a failure when [launch] does not snap to bundled geometry.
+  RouteFailure? validateLaunchSnap(LaunchPoint launch) {
+    final result = _graph.route(
+      launch.routingLatitude,
+      launch.routingLongitude,
+      launch.routingLatitude,
+      launch.routingLongitude,
+    );
+    if (result is RouteFailure) {
+      if (result.code == RouteFailureCode.takeOutTooFar) {
+        return const RouteFailure(code: RouteFailureCode.putInTooFar);
+      }
+      return result;
+    }
+    return null;
+  }
+
+  /// Returns a failure when no route exists between [from] and [to].
+  RouteFailure? validateSegment(LaunchPoint from, LaunchPoint to) {
+    final result = plan(from, to);
+    return result is RouteFailure ? result : null;
+  }
+
   /// Underlying graph for tests and offline encoders.
   @visibleForTesting
   RiverLineGraph get graphForTesting => _graph;
@@ -100,10 +123,10 @@ class RiverRoutePlanner {
     }
 
     final result = _graph.route(
-      putIn.latitude,
-      putIn.longitude,
-      takeOut.latitude,
-      takeOut.longitude,
+      putIn.routingLatitude,
+      putIn.routingLongitude,
+      takeOut.routingLatitude,
+      takeOut.routingLongitude,
     );
 
     if (result is! RouteFailure) {

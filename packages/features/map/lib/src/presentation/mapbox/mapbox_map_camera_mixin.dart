@@ -234,13 +234,25 @@ mixin MapboxMapCameraMixin on MapboxMapControllerBase, MapboxMapStyleMixin {
       _ => MbxEdgeInsets(top: 100, left: 48, bottom: 120, right: 48),
     };
     try {
-      final point = Point(
-        coordinates: Position(launch.longitude, launch.latitude),
-      );
+      final coords = <Point>[
+        Point(
+          coordinates: Position(launch.accessLongitude, launch.accessLatitude),
+        ),
+      ];
+      if (launch.hasDistinctWaterEntry) {
+        coords.add(
+          Point(
+            coordinates: Position(
+              launch.routingLongitude,
+              launch.routingLatitude,
+            ),
+          ),
+        );
+      }
       final fitted = await map.cameraForCoordinatesPadding(
-        [point],
+        coords,
         CameraOptions(
-          center: point,
+          center: coords.first,
           zoom: kLaunchFocusZoom,
           bearing: 0,
           pitch: 0,

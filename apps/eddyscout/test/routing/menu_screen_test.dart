@@ -26,8 +26,8 @@ const _sampleGpx = '''
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="test">
   <trk><trkseg>
-    <trkpt lat="45.5620" lon="-122.7320"/>
-    <trkpt lat="45.4710" lon="-122.6610"/>
+    <trkpt lat="45.5880" lon="-122.7588"/>
+    <trkpt lat="45.4670" lon="-122.6635"/>
   </trkseg></trk>
 </gpx>''';
 

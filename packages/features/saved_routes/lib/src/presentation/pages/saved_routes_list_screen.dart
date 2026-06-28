@@ -140,15 +140,14 @@ class _SavedRouteListTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final displayUnits = ref.watch(effectiveDisplayUnitSystemProvider);
-    final distanceLabel = route.metadata.distanceMeters == null
+    final formattedDistance = localizedDistanceFromMeters(
+      l10n,
+      route.metadata.distanceMeters,
+      displayUnits,
+    );
+    final distanceLabel = formattedDistance == null
         ? null
-        : l10n.savedRoutesDistance(
-            localizedDistanceFromMeters(
-              l10n,
-              route.metadata.distanceMeters,
-              displayUnits,
-            )!,
-          );
+        : l10n.savedRoutesDistance(formattedDistance);
     final subtitleParts = <String>[
       ?distanceLabel,
       l10n.savedRoutesWaypointCount(route.waypoints.length),

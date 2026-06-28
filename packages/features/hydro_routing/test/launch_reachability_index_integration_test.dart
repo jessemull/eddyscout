@@ -24,7 +24,7 @@ Future<RiverRoutePlanner> _plannerFromFixtures() async {
 
 void main() {
   group('LaunchReachabilityIndexGenerator integration', () {
-    test('Willamette pair in 10mi band but not 5mi', () async {
+    test('Willamette pair in 5mi band on lower river pool', () async {
       final planner = await _plannerFromFixtures();
       final index = LaunchReachabilityIndexGenerator.generate(
         planner: planner,
@@ -32,9 +32,8 @@ void main() {
         generatedAt: DateTime.utc(2026, 6, 14),
       );
 
-      final cathedral = index.entryFor('cathedral_park')!;
-      expect(cathedral.within10Mi, contains('sellwood_riverfront'));
-      expect(cathedral.within5Mi, isNot(contains('sellwood_riverfront')));
+      final sellwood = index.entryFor('sellwood_riverfront')!;
+      expect(sellwood.within5Mi, contains('willamette_park_sw'));
     });
 
     test(
@@ -49,8 +48,9 @@ void main() {
         expect(index.crossSystemReachability, isFalse);
         final kelley = index.entryFor('kelley_point')!;
         expect(kelley.within5Mi, isEmpty);
-        expect(kelley.within10Mi, isEmpty);
-        expect(kelley.within20Mi, isEmpty);
+        expect(kelley.within10Mi, contains('smith_lake_canoe_ramp'));
+        expect(kelley.within10Mi, isNot(contains('cathedral_park')));
+        expect(kelley.within20Mi, isNot(contains('cathedral_park')));
 
         final cathedral = index.entryFor('cathedral_park')!;
         expect(cathedral.within5Mi, isNot(contains('kelley_point')));

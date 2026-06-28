@@ -30,8 +30,8 @@ List<String> suggestedTripWaypoints({
     }
 
     final projection = _closestPointAlongPolyline(
-      latitude: candidate.latitude,
-      longitude: candidate.longitude,
+      latitude: candidate.routingLatitude,
+      longitude: candidate.routingLongitude,
       polylineLonLat: polylineLonLat,
       cumulativeMeters: cumulative,
     );

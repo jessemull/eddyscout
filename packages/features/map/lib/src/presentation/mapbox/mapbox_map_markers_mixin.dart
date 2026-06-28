@@ -11,6 +11,14 @@ import 'mapbox_map_route_mixin.dart';
 import 'mapbox_map_style_mixin.dart';
 
 /// Launch circle annotations and first-time style setup.
+///
+/// Access pins use [LaunchPoint.latitude]/[LaunchPoint.longitude]. When a
+/// catalog launch sets optional water-entry coordinates and
+/// [LaunchPointCoordinates.hasDistinctWaterEntry] is true, this mixin also
+/// draws a smaller water-entry circle plus a connector line to the access pin.
+/// Both annotation layers share the same tap handler so planning taps resolve
+/// to the launch id regardless of which circle is hit. Water-entry visuals are
+/// omitted until catalog seeds exist; routing still uses water entry when set.
 mixin MapboxMapMarkersMixin
     on
         MapboxMapControllerBase,
@@ -37,31 +45,98 @@ mixin MapboxMapMarkersMixin
       await configureStandardStyleMap(mapboxMap);
       await ensureRouteLineStyle(mapboxMap);
 
-      final circleManager =
-          launchCircleManager ??
-          await mapboxMap.annotations.createCircleAnnotationManager();
-      launchCircleManager = circleManager;
-
       if (!markersInstalled) {
-        final options = kLaunchPoints
-            .map(
-              (p) => CircleAnnotationOptions(
-                geometry: Point(
-                  coordinates: Position(p.longitude, p.latitude),
-                ),
-                circleRadius: 10,
-                circleColor: kMapMarkerColor,
-                circleStrokeWidth: 2,
-                circleStrokeColor: kMapMarkerStroke,
-                customData: <String, Object>{'launchId': p.id},
-              ),
-            )
+        final distinctLaunches = kLaunchPoints
+            .where((launch) => launch.hasDistinctWaterEntry)
             .toList();
 
-        await circleManager.createMulti(options);
+        final connectorManager =
+            waterEntryConnectorManager ??
+            await mapboxMap.annotations.createPolylineAnnotationManager();
+        waterEntryConnectorManager = connectorManager;
+        if (distinctLaunches.isNotEmpty) {
+          await connectorManager.createMulti(
+            distinctLaunches
+                .map(
+                  (launch) => PolylineAnnotationOptions(
+                    geometry: LineString(
+                      coordinates: [
+                        Position(
+                          launch.accessLongitude,
+                          launch.accessLatitude,
+                        ),
+                        Position(
+                          launch.routingLongitude,
+                          launch.routingLatitude,
+                        ),
+                      ],
+                    ),
+                    lineColor: kMapWaterEntryConnectorColor,
+                    lineWidth: kMapWaterEntryConnectorWidth,
+                    lineOpacity: 0.85,
+                  ),
+                )
+                .toList(),
+          );
+        }
+
+        final accessManager =
+            launchCircleManager ??
+            await mapboxMap.annotations.createCircleAnnotationManager();
+        launchCircleManager = accessManager;
+        await accessManager.createMulti(
+          kLaunchPoints
+              .map(
+                (launch) => CircleAnnotationOptions(
+                  geometry: Point(
+                    coordinates: Position(
+                      launch.accessLongitude,
+                      launch.accessLatitude,
+                    ),
+                  ),
+                  circleRadius: 10,
+                  circleColor: kMapMarkerColor,
+                  circleStrokeWidth: 2,
+                  circleStrokeColor: kMapMarkerStroke,
+                  customData: <String, Object>{'launchId': launch.id},
+                ),
+              )
+              .toList(),
+        );
+
+        final waterManager =
+            waterEntryCircleManager ??
+            await mapboxMap.annotations.createCircleAnnotationManager();
+        waterEntryCircleManager = waterManager;
+        if (distinctLaunches.isNotEmpty) {
+          // Secondary tap target on the channel; semantics follow launch id.
+          await waterManager.createMulti(
+            distinctLaunches
+                .map(
+                  (launch) => CircleAnnotationOptions(
+                    geometry: Point(
+                      coordinates: Position(
+                        launch.routingLongitude,
+                        launch.routingLatitude,
+                      ),
+                    ),
+                    circleRadius: kMapWaterEntryCircleRadius,
+                    circleColor: kMapWaterEntryMarkerColor,
+                    circleStrokeWidth: 2,
+                    circleStrokeColor: kMapWaterEntryMarkerStroke,
+                    customData: <String, Object>{'launchId': launch.id},
+                  ),
+                )
+                .toList(),
+          );
+        }
+
         markersInstalled = true;
         mapDebugLog(
-          '_installLaunchMarkersIfNeeded OK markers=${kLaunchPoints.length}',
+          '_installLaunchMarkersIfNeeded OK '
+          'launches=${kLaunchPoints.length} '
+          'connectors=${distinctLaunches.length} '
+          'waterEntry=${distinctLaunches.length}',
         );
 
         await fitViewportToAllLaunches(mapboxMap);
@@ -69,8 +144,16 @@ mixin MapboxMapMarkersMixin
         mapDebugLog('_installLaunchMarkersIfNeeded rebind tapEvents');
       }
 
-      tapCancelable?.cancel();
-      tapCancelable = circleManager.tapEvents(onTap: onLaunchTap);
+      final accessManager = launchCircleManager;
+      if (accessManager != null) {
+        tapCancelable?.cancel();
+        tapCancelable = accessManager.tapEvents(onTap: onLaunchTap);
+      }
+      final waterManager = waterEntryCircleManager;
+      if (waterManager != null) {
+        waterEntryTapCancelable?.cancel();
+        waterEntryTapCancelable = waterManager.tapEvents(onTap: onLaunchTap);
+      }
       if (alive) {
         mapControllerRef
             .read(mapInteractiveProvider.notifier)
@@ -113,7 +196,12 @@ mixin MapboxMapMarkersMixin
       launches: kLaunchPoints,
       tap: tap,
       launchToPixel: (launch) => map.pixelForCoordinate(
-        Point(coordinates: Position(launch.longitude, launch.latitude)),
+        Point(
+          coordinates: Position(
+            launch.accessLongitude,
+            launch.accessLatitude,
+          ),
+        ),
       ),
     );
   }
@@ -139,13 +227,21 @@ mixin MapboxMapMarkersMixin
         await manager.delete(existing);
         selectionAnnotation = null;
       }
+      final existingWaterEntry = selectionWaterEntryAnnotation;
+      if (existingWaterEntry != null) {
+        await manager.delete(existingWaterEntry);
+        selectionWaterEntryAnnotation = null;
+      }
       if (launch == null) {
         return;
       }
       selectionAnnotation = await manager.create(
         CircleAnnotationOptions(
           geometry: Point(
-            coordinates: Position(launch.longitude, launch.latitude),
+            coordinates: Position(
+              launch.accessLongitude,
+              launch.accessLatitude,
+            ),
           ),
           circleRadius: 18,
           circleColor: kMapSelectedMarkerFill,
@@ -154,6 +250,23 @@ mixin MapboxMapMarkersMixin
           customData: <String, Object>{'launchId': launch.id},
         ),
       );
+      if (launch.hasDistinctWaterEntry) {
+        selectionWaterEntryAnnotation = await manager.create(
+          CircleAnnotationOptions(
+            geometry: Point(
+              coordinates: Position(
+                launch.routingLongitude,
+                launch.routingLatitude,
+              ),
+            ),
+            circleRadius: 14,
+            circleColor: kMapSelectedMarkerFill,
+            circleStrokeWidth: 2,
+            circleStrokeColor: kMapWaterEntryMarkerColor,
+            customData: <String, Object>{'launchId': launch.id},
+          ),
+        );
+      }
       if (onSelectionTap != null && selectionTapCancelable == null) {
         selectionTapCancelable = manager.tapEvents(onTap: onSelectionTap);
       }

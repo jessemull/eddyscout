@@ -46,6 +46,9 @@ class RoutePlanningState {
   /// Whether hydro routing can run (at least two distinct stops).
   bool get hasRunnableRoute => waypoints.length >= 2;
 
+  /// Whether the user can finish planning edit (valid routed geometry).
+  bool get canFinishPlanning => hasRunnableRoute && activeGeometry != null;
+
   /// Mapbox order: each pair is `[longitude, latitude]`.
   List<List<double>>? get polylineLonLat => activeGeometry?.polylineLonLat;
 
@@ -222,6 +225,18 @@ class RoutePlanning extends _$RoutePlanning {
       return;
     }
     final waypoints = List<LaunchPoint>.of(state.waypoints)..removeAt(index);
+    _applyWaypointList(waypoints);
+  }
+
+  /// Removes the last waypoint after a failed route attempt.
+  void removeLastWaypoint() {
+    if (state.waypoints.isEmpty) {
+      return;
+    }
+    removeWaypoint(state.waypoints.length - 1);
+  }
+
+  void _applyWaypointList(List<LaunchPoint> waypoints) {
     state = RoutePlanningState(
       phase: waypoints.length >= 2 && state.activeGeometry != null
           ? MapPlanningPhase.routeReady
@@ -247,6 +262,21 @@ class RoutePlanning extends _$RoutePlanning {
     state = RoutePlanningState(
       phase: state.phase,
       waypoints: waypoints,
+      routeLengthKm: state.routeLengthKm,
+      activeGeometry: state.activeGeometry,
+      loadedSavedRouteId: state.loadedSavedRouteId,
+      routeOrigin: state.routeOrigin,
+    );
+  }
+
+  /// Restores a prior waypoint order after a failed reorder reroute.
+  void restoreWaypoints(List<LaunchPoint> waypoints) {
+    if (waypoints.length != state.waypoints.length) {
+      return;
+    }
+    state = RoutePlanningState(
+      phase: state.phase,
+      waypoints: List<LaunchPoint>.of(waypoints),
       routeLengthKm: state.routeLengthKm,
       activeGeometry: state.activeGeometry,
       loadedSavedRouteId: state.loadedSavedRouteId,

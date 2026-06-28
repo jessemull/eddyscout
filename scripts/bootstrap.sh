@@ -33,7 +33,7 @@ dart pub get
 
 # Bootstrap workspace packages
 echo "Running melos bootstrap..."
-melos bootstrap
+dart run melos bootstrap
 
 echo ""
 echo "--- Git hooks (husky) ---"

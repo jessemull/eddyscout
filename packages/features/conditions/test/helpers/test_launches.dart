@@ -4,8 +4,8 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 const testCathedralParkLaunch = LaunchPoint(
   id: 'cathedral_park',
   name: 'Cathedral Park Boat Ramp',
-  latitude: 45.5621,
-  longitude: -122.7328,
+  latitude: 45.588002,
+  longitude: -122.758764,
   shortNote:
       'Willamette put-in below St. Johns Bridge; '
       'motorboat traffic and current.',

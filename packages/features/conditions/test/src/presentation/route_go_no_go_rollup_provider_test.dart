@@ -60,19 +60,31 @@ void main() {
     );
   });
 
+  void stubLoad({
+    required Future<Result<ConditionsSnapshot, AppFailure>> Function(
+      LaunchPoint launch,
+    )
+    onLoad,
+  }) {
+    when(
+      () => repository.load(
+        any(),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer((invocation) {
+      final launch = invocation.positionalArguments[0] as LaunchPoint;
+      return onLoad(launch);
+    });
+  }
+
   test('rolls up worst verdict across waypoints', () async {
-    when(
-      () => repository.load(
-        testCathedralParkLaunch,
-        cancelToken: any(named: 'cancelToken'),
-      ),
-    ).thenAnswer((_) async => Success(_calmSnapshot()));
-    when(
-      () => repository.load(
-        testKelleyPointLaunch,
-        cancelToken: any(named: 'cancelToken'),
-      ),
-    ).thenAnswer((_) async => Success(_windySnapshot()));
+    stubLoad(
+      onLoad: (launch) async => switch (launch.id) {
+        'cathedral_park' => Success(_calmSnapshot()),
+        'kelley_point' => Success(_windySnapshot()),
+        _ => Failure(UnexpectedFailure(message: 'unexpected ${launch.id}')),
+      },
+    );
 
     final container = ProviderContainer(
       overrides: [
@@ -97,19 +109,12 @@ void main() {
   });
 
   test('continues when one waypoint fetch fails', () async {
-    when(
-      () => repository.load(
-        testCathedralParkLaunch,
-        cancelToken: any(named: 'cancelToken'),
-      ),
-    ).thenAnswer((_) async => Success(_calmSnapshot()));
-    when(
-      () => repository.load(
-        testKelleyPointLaunch,
-        cancelToken: any(named: 'cancelToken'),
-      ),
-    ).thenAnswer(
-      (_) async => Failure(NetworkFailure(message: 'network down')),
+    stubLoad(
+      onLoad: (launch) async => switch (launch.id) {
+        'cathedral_park' => Success(_calmSnapshot()),
+        'kelley_point' => Failure(NetworkFailure(message: 'network down')),
+        _ => Failure(UnexpectedFailure(message: 'unexpected ${launch.id}')),
+      },
     );
 
     final container = ProviderContainer(
@@ -135,21 +140,8 @@ void main() {
   });
 
   test('throws when all waypoint fetches fail', () async {
-    when(
-      () => repository.load(
-        testCathedralParkLaunch,
-        cancelToken: any(named: 'cancelToken'),
-      ),
-    ).thenAnswer(
-      (_) async => Failure(NetworkFailure(message: 'network down')),
-    );
-    when(
-      () => repository.load(
-        testKelleyPointLaunch,
-        cancelToken: any(named: 'cancelToken'),
-      ),
-    ).thenAnswer(
-      (_) async => Failure(NetworkFailure(message: 'network down')),
+    stubLoad(
+      onLoad: (_) async => Failure(NetworkFailure(message: 'network down')),
     );
 
     final container = ProviderContainer(
@@ -174,12 +166,12 @@ void main() {
   });
 
   test('records unknown launch id in waypointFailures', () async {
-    when(
-      () => repository.load(
-        testCathedralParkLaunch,
-        cancelToken: any(named: 'cancelToken'),
-      ),
-    ).thenAnswer((_) async => Success(_calmSnapshot()));
+    stubLoad(
+      onLoad: (launch) async => switch (launch.id) {
+        'cathedral_park' => Success(_calmSnapshot()),
+        _ => Failure(UnexpectedFailure(message: 'unexpected ${launch.id}')),
+      },
+    );
 
     final container = ProviderContainer(
       overrides: [

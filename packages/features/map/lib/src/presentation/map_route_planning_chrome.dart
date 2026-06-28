@@ -15,6 +15,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
   const MapRoutePlanningChrome({
     required this.waypoints,
     required this.routeLengthKm,
+    required this.canFinishPlanning,
     required this.onBack,
     required this.onDone,
     required this.onRemoveStop,
@@ -24,6 +25,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
 
   final List<LaunchPoint> waypoints;
   final double? routeLengthKm;
+  final bool canFinishPlanning;
   final VoidCallback onBack;
   final VoidCallback onDone;
   final ValueChanged<int> onRemoveStop;
@@ -67,7 +69,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final hasDestination = waypoints.length >= 2;
-    final canDone = waypoints.length >= 2;
+    final canDone = canFinishPlanning;
     final speedKmh = ref.watch(effectivePaddleSpeedKmhProvider);
     final displayUnits = ref.watch(effectiveDisplayUnitSystemProvider);
     final tripMinutes = estimateTripDurationMinutes(

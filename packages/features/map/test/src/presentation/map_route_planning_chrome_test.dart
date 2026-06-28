@@ -49,10 +49,13 @@ void main() {
     WidgetTester tester, {
     required List<LaunchPoint> waypoints,
     required double? routeLengthKm,
+    bool? canFinishPlanning,
     DisplayUnitSystem units = DisplayUnitSystem.metric,
     KeyValueStore? keyValueStore,
   }) async {
     final resolvedStore = keyValueStore ?? store;
+    final resolvedCanFinish =
+        canFinishPlanning ?? (waypoints.length >= 2 && routeLengthKm != null);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -63,6 +66,7 @@ void main() {
           child: MapRoutePlanningChrome(
             waypoints: waypoints,
             routeLengthKm: routeLengthKm,
+            canFinishPlanning: resolvedCanFinish,
             onBack: () {},
             onDone: () {},
             onRemoveStop: (_) {},
@@ -149,5 +153,41 @@ void main() {
     );
 
     expect(find.text('Total trip: 150 min (6.2 mi)'), findsOneWidget);
+  });
+
+  testWidgets('disables Done when canFinishPlanning is false', (tester) async {
+    var doneTapped = false;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mapKeyValueStoreProvider.overrideWith((ref) async => store),
+          effectiveDisplayUnitSystemProvider.overrideWithValue(
+            DisplayUnitSystem.metric,
+          ),
+        ],
+        child: testLocalizedApp(
+          child: MapRoutePlanningChrome(
+            waypoints: const [_origin, _destination],
+            routeLengthKm: 10,
+            canFinishPlanning: false,
+            onBack: () {},
+            onDone: () => doneTapped = true,
+            onRemoveStop: (_) {},
+            onReorderStop: (_, _) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Done'));
+    await tester.pump();
+    expect(doneTapped, isFalse);
+    expect(
+      tester.widget<Text>(find.text('Done')).style?.color,
+      isNot(
+        equals(Theme.of(tester.element(find.text('Done'))).colorScheme.primary),
+      ),
+    );
   });
 }

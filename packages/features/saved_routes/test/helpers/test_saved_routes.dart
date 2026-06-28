@@ -5,6 +5,7 @@ SavedRoute testSavedRoute({
   String id = 'sr_test',
   String name = 'Test Route',
   bool isFavorite = false,
+  double? distanceMeters = 5200,
 }) {
   final now = DateTime.utc(2026);
   return SavedRoute(
@@ -15,7 +16,7 @@ SavedRoute testSavedRoute({
       RouteWaypoint(launchId: 'launch-a', order: 0),
       RouteWaypoint(launchId: 'launch-b', order: 1),
     ],
-    metadata: const SavedRouteMetadata(distanceMeters: 5200),
+    metadata: SavedRouteMetadata(distanceMeters: distanceMeters),
     createdAt: now,
     updatedAt: now,
   );

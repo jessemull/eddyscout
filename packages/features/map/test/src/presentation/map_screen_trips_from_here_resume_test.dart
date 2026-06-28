@@ -20,6 +20,17 @@ class _RecordingMapRoutePlanner implements MapRoutePlanner {
     planCalls.value++;
     return const Result.success(null);
   }
+
+  @override
+  Future<Result<void, RoutePlanningFailure>> validateLaunch(
+    LaunchPoint launch,
+  ) async => const Result.success(null);
+
+  @override
+  Future<Result<void, RoutePlanningFailure>> validateSegment(
+    LaunchPoint from,
+    LaunchPoint to,
+  ) async => const Result.success(null);
 }
 
 LaunchPoint _launch(String id, String name) {

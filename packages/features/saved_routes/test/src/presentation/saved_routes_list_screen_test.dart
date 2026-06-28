@@ -90,6 +90,24 @@ void main() {
     expect(find.text('Columbia Loop'), findsOneWidget);
   });
 
+  testWidgets('omits distance when stored distance is invalid', (tester) async {
+    await pumpList(
+      tester,
+      overrides: [
+        savedRoutesListProvider.overrideWith(
+          () => _FixedSavedRoutesList([
+            testSavedRoute(name: 'Stale Route', distanceMeters: 0),
+          ]),
+        ),
+      ],
+    );
+
+    expect(find.text('Stale Route'), findsOneWidget);
+    expect(find.textContaining('mi'), findsNothing);
+    expect(find.textContaining('km'), findsNothing);
+    expect(find.text('2 stops'), findsOneWidget);
+  });
+
   testWidgets('shows imperial distance when units preference is imperial', (
     tester,
   ) async {

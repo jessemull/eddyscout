@@ -115,6 +115,12 @@ const LaunchFlowBands kFlowBandsUsgs14144700ColumbiaVancouver = LaunchFlowBands(
 );
 
 /// Curated kayak / small-craft access point with API linkage metadata.
+///
+/// [latitude] and [longitude] are **access** coordinates (parking, park
+/// entrance, ramp approach) used for map markers, conditions geolocation,
+/// and GPX waypoints. Optional [waterEntryLatitude] and [waterEntryLongitude]
+/// override routing snap and graph-distance indexes; when null, routing uses
+/// access coords. See `LaunchPointCoordinates` in launch_coordinates.dart.
 @freezed
 abstract class LaunchPoint with _$LaunchPoint {
   /// Creates a launch used across map, conditions, and routing features.
@@ -125,10 +131,10 @@ abstract class LaunchPoint with _$LaunchPoint {
     /// Display name on map pins and detail screens.
     required String name,
 
-    /// WGS84 latitude for map camera and distance checks.
+    /// WGS84 access latitude (map marker, camera, conditions).
     required double latitude,
 
-    /// WGS84 longitude for map camera and distance checks.
+    /// WGS84 access longitude (map marker, camera, conditions).
     required double longitude,
 
     /// One-line editorial note shown on launch detail.
@@ -142,6 +148,12 @@ abstract class LaunchPoint with _$LaunchPoint {
 
     /// Whether and how strongly to surface tide predictions.
     required TideRelevance tideRelevance,
+
+    /// WGS84 water-entry latitude for hydro routing snap; null → [latitude].
+    double? waterEntryLatitude,
+
+    /// WGS84 water-entry longitude for hydro routing snap; null → [longitude].
+    double? waterEntryLongitude,
 
     /// NOAA CO-OPS station id when [tideRelevance] is not [TideRelevance.none].
     String? noaaTideStationId,

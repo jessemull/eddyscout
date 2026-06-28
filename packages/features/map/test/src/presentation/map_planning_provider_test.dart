@@ -316,6 +316,25 @@ void main() {
       );
     });
 
+    test('restoreWaypoints reverts a failed reorder attempt', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final a = _launch(id: 'a');
+      final b = _launch(id: 'b');
+      final c = _launch(id: 'c');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(a);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(b);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(c);
+      final previous = container.read(routePlanningProvider).waypoints;
+
+      container.read(routePlanningProvider.notifier).reorderWaypoints(0, 2);
+      container.read(routePlanningProvider.notifier).restoreWaypoints(previous);
+
+      expect(
+        container.read(routePlanningProvider).waypoints.map((w) => w.id),
+        ['a', 'b', 'c'],
+      );
+    });
+
     test('startPlanFromHereTo pre-fills put-in and take-out', () {
       final putIn = _launch(id: 'a', name: 'Put-in');
       final takeOut = _launch(id: 'b', name: 'Take-out');
@@ -332,6 +351,179 @@ void main() {
       expect(state.putIn, putIn);
       expect(state.takeOut, takeOut);
       expect(state.activeGeometry, isNull);
+    });
+
+    test('startPlanPaddle seeds put-in in planning phase', () {
+      final launch = _launch(id: 'a');
+      container.read(routePlanningProvider.notifier).startPlanPaddle(launch);
+
+      final state = container.read(routePlanningProvider);
+      expect(state.phase, MapPlanningPhase.planning);
+      expect(state.putIn, launch);
+      expect(state.loadedSavedRouteId, isNull);
+    });
+
+    test('selectPlace moves to placeSelected without waypoints', () {
+      final launch = _launch(id: 'a');
+      container.read(routePlanningProvider.notifier).selectPlace(launch);
+
+      final state = container.read(routePlanningProvider);
+      expect(state.phase, MapPlanningPhase.placeSelected);
+      expect(state.waypoints, isEmpty);
+      expect(state.planningMode, isFalse);
+    });
+
+    test('restoreWaypoints ignores mismatched waypoint counts', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final a = _launch(id: 'a');
+      final b = _launch(id: 'b');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(a);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(b);
+      container.read(routePlanningProvider.notifier).reorderWaypoints(0, 1);
+
+      container.read(routePlanningProvider.notifier).restoreWaypoints([
+        a,
+        b,
+        _launch(id: 'c'),
+      ]);
+
+      expect(
+        container.read(routePlanningProvider).waypoints.map((w) => w.id),
+        ['b', 'a'],
+      );
+    });
+
+    test('removeLastWaypoint drops the final stop', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final a = _launch(id: 'a');
+      final b = _launch(id: 'b');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(a);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(b);
+
+      container.read(routePlanningProvider.notifier).removeLastWaypoint();
+
+      expect(container.read(routePlanningProvider).waypoints, [a]);
+    });
+
+    test('captureForSave throws when geometry is missing', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      container
+          .read(routePlanningProvider.notifier)
+          .handleLaunchTap(_launch(id: 'a'));
+      container
+          .read(routePlanningProvider.notifier)
+          .handleLaunchTap(_launch(id: 'b'));
+
+      expect(
+        () => container.read(routePlanningProvider.notifier).captureForSave(),
+        throwsStateError,
+      );
+    });
+
+    test('snapshotForSave returns null when route is not ready', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      container
+          .read(routePlanningProvider.notifier)
+          .handleLaunchTap(_launch(id: 'a'));
+
+      expect(
+        container
+            .read(routePlanningProvider.notifier)
+            .snapshotForSave(
+              name: 'Draft',
+            ),
+        isNull,
+      );
+    });
+
+    test('snapshotForSave returns draft when route geometry is ready', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final putIn = _launch(id: 'a');
+      final takeOut = _launch(id: 'b');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
+      container.read(routePlanningProvider.notifier).handleLaunchTap(takeOut);
+      container
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: RouteGeometrySnapshot(
+              polylineLonLat: const [
+                [-122.6, 45.5],
+                [-122.5, 45.6],
+              ],
+              lengthMeters: 5000,
+              computedAt: DateTime.utc(2026),
+            ),
+            routeLengthKm: 5,
+          );
+
+      final draft = container
+          .read(routePlanningProvider.notifier)
+          .snapshotForSave(
+            name: 'Afternoon paddle',
+            notes: 'Test notes',
+          );
+
+      expect(draft, isNotNull);
+      expect(draft!.name, 'Afternoon paddle');
+      expect(draft.notes, 'Test notes');
+    });
+
+    test('clearSelection from placeSelected keeps phase', () {
+      container
+          .read(routePlanningProvider.notifier)
+          .selectPlace(_launch(id: 'a'));
+      container.read(routePlanningProvider.notifier).clearSelection();
+
+      expect(
+        container.read(routePlanningProvider).phase,
+        MapPlanningPhase.placeSelected,
+      );
+    });
+
+    test(
+      'setActiveGeometry from browse enters planning when clearing geometry',
+      () {
+        container
+            .read(routePlanningProvider.notifier)
+            .setActiveGeometry(geometry: null, routeLengthKm: null);
+
+        expect(
+          container.read(routePlanningProvider).phase,
+          MapPlanningPhase.planning,
+        );
+      },
+    );
+  });
+
+  group('RoutePlanningState', () {
+    test('canFinishPlanning requires geometry and two waypoints', () {
+      const empty = RoutePlanningState();
+      expect(empty.canFinishPlanning, isFalse);
+      expect(empty.hasRunnableRoute, isFalse);
+
+      final putIn = _launch(id: 'a');
+      final takeOut = _launch(id: 'b');
+      final withoutGeometry = RoutePlanningState(
+        waypoints: [putIn, takeOut],
+      );
+      expect(withoutGeometry.hasRunnableRoute, isTrue);
+      expect(withoutGeometry.canFinishPlanning, isFalse);
+
+      final ready = RoutePlanningState(
+        phase: MapPlanningPhase.routeReady,
+        waypoints: [putIn, takeOut],
+        activeGeometry: RouteGeometrySnapshot(
+          polylineLonLat: const [
+            [-122.6, 45.5],
+            [-122.5, 45.6],
+          ],
+          lengthMeters: 4200,
+          computedAt: DateTime.utc(2026),
+        ),
+      );
+      expect(ready.canFinishPlanning, isTrue);
+      expect(ready.putIn, putIn);
+      expect(ready.takeOut, takeOut);
     });
   });
 }
