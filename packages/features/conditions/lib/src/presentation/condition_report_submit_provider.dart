@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_submit_repository_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/condition_reports_refresh_token_provider.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -24,11 +25,11 @@ class ConditionReportSubmit extends _$ConditionReportSubmit {
     });
   }
 
-  /// Posts [message] and bumps the reports refresh token on success.
-  Future<bool> submit(String message) async {
+  /// Posts [message]; returns submit result or null on failure/cancel.
+  Future<ConditionReportSubmitResult?> submit(String message) async {
     final trimmed = message.trim();
     if (trimmed.isEmpty) {
-      return false;
+      return null;
     }
 
     _submitToken?.cancel('superseded');
@@ -46,18 +47,20 @@ class ConditionReportSubmit extends _$ConditionReportSubmit {
         );
 
     if (cancelToken.isCancelled) {
-      return false;
+      return null;
     }
 
     return result.when(
-      success: (_) {
-        ref.read(conditionReportsRefreshTokenProvider.notifier).increment();
+      success: (value) {
+        if (value.isPubliclyVisible) {
+          ref.read(conditionReportsRefreshTokenProvider.notifier).increment();
+        }
         state = const AsyncData(null);
-        return true;
+        return value;
       },
       failure: (error) {
         state = AsyncError(error, error.stackTrace ?? StackTrace.current);
-        return false;
+        return null;
       },
     );
   }

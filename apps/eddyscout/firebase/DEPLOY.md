@@ -38,6 +38,56 @@ firebase deploy --only firestore:indexes
 
 If you deploy functions before indexes finish building, the first list call may fail until the index is ready (the Firebase console shows index status and offers a direct link if a query error mentions a missing index).
 
+Moderation adds additional composite indexes on `conditionReports`. Deploy indexes **before** functions when rolling out moderation.
+
+Callables: `submitConditionReport`, `listConditionReports`, `summarizeLaunchReports` (approved-only), `checkModeratorAccess`, `listPendingConditionReports`, `listModerationHistory`, `moderateConditionReport`, `moderateConditionReportsBatch`, `reopenConditionReport`, scheduled `purgeExpiredConditionReports`, scheduled `releaseStaleHeldConditionReports`.
+
+### Deploy order
+
+1. `firebase deploy --only firestore:indexes` — wait until indexes show **Enabled**.
+2. Seed **`config/moderation`** (or create manually):
+
+   ```json
+   {
+     "retentionDays": 90,
+     "holdMaxDays": 30,
+     "adminUids": ["YOUR_FIREBASE_AUTH_UID"],
+     "keywords": []
+   }
+   ```
+
+   Or run: `node firebase/scripts/seed_moderation_config.mjs --project YOUR_PROJECT`
+
+   - **`retentionDays`**: all reports are deleted after this many days (`expiresAt` + `purgeExpiredConditionReports`).
+   - **`holdMaxDays`**: held reports with no moderator action are **auto-approved** after this many days (`releaseStaleHeldConditionReports`).
+
+3. Backfill legacy `conditionReports` with `moderationStatus: "approved"` and `expiresAt`.
+4. `firebase deploy --only functions`
+5. Ship the Flutter client
+6. Add moderator UIDs to `config/moderation.adminUids` after sign-in
+
+### Moderator workflow
+
+- **Menu tab → Review reports** (visible when `checkModeratorAccess` is true)
+- **Pending** tab: filter/sort, bulk approve/reject, rich metadata (submitter UID, hold age)
+- **History** tab: audit trail (`reviewedBy`, `reviewedAt`, outcome, reason); **Return to pending** to undo an approve/reject
+
+### Manual QA checklist
+
+- Submit keyword-held report → appears on Pending with submitter UID and hold reason
+- Approve/reject single item and bulk selection (confirm on reject / bulk approve)
+- History tab: return an approved/rejected report to Pending via **Return to pending**
+- History tab shows moderator UID or **System** for auto-release
+- Filter by launch id, date presets, sort oldest/newest
+- Stale hold: backdate a held doc’s `createdAt` by 31+ days, run scheduler or wait for daily job → auto-approved with `hold_timeout_release`
+
+### Local function tests
+
+```bash
+cd apps/eddyscout/firebase/functions
+npm test
+```
+
 ## Callable `summarizeLaunchReports`
 
 This function summarizes recent `conditionReports` for a launch (Anthropic Haiku; same `ANTHROPIC_API_KEY` secret as `summarizeConditions`). It writes **Admin-only** Firestore cache docs under `launchReportDigests` and rate-limit metadata under `reportDigestRate`. Clients never read those collections directly (see `firestore.rules`). Deploy with:

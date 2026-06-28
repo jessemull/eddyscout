@@ -180,7 +180,7 @@ void main() {
       );
 
       final ok = await notifier.submit('   ');
-      expect(ok, isFalse);
+      expect(ok, isNull);
       verifyNever(
         () => submitRepo.submit(
           launchId: any(named: 'launchId'),
@@ -200,7 +200,13 @@ void main() {
           clientConditionsFetchedAt: any(named: 'clientConditionsFetchedAt'),
           cancelToken: any(named: 'cancelToken'),
         ),
-      ).thenAnswer((_) async => const Result.success(null));
+      ).thenAnswer(
+        (_) async => const Result.success(
+          ConditionReportSubmitResult(
+            moderationStatus: ConditionReportModerationStatus.approved,
+          ),
+        ),
+      );
 
       final container = ProviderContainer(
         overrides: [
@@ -217,7 +223,7 @@ void main() {
         ).notifier,
       );
       final ok = await notifier.submit(' hi ');
-      expect(ok, isTrue);
+      expect(ok?.isPubliclyVisible, isTrue);
       expect(container.read(conditionReportsRefreshTokenProvider), 1);
     });
 
@@ -247,7 +253,7 @@ void main() {
       final notifier = container.read(provider.notifier);
 
       final ok = await notifier.submit('hello');
-      expect(ok, isFalse);
+      expect(ok, isNull);
       expect(container.read(provider).hasError, isTrue);
       expect(
         conditionReportSubmitErrorMessage(container.read(provider)),
@@ -363,7 +369,12 @@ void main() {
           cancelToken: any(named: 'cancelToken'),
         ),
       ).thenAnswer(
-        (_) async => const Result.success(<ConditionReportListItem>[]),
+        (_) async => const Result.success(
+          ConditionReportsListResult(
+            reports: [],
+            viewerHasPendingReport: false,
+          ),
+        ),
       );
 
       final container = ProviderContainer(
@@ -376,7 +387,7 @@ void main() {
       final list = await container.read(
         conditionReportsListProvider('l').future,
       );
-      expect(list, isEmpty);
+      expect(list.reports, isEmpty);
     });
 
     test('throws AppFailure on failure', () async {

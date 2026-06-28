@@ -41,10 +41,12 @@ class IntegrationConditionReportsRepository
   const IntegrationConditionReportsRepository();
 
   @override
-  FutureResult<List<ConditionReportListItem>, AppFailure> listReports(
+  FutureResult<ConditionReportsListResult, AppFailure> listReports(
     String launchId, {
     CancelToken? cancelToken,
-  }) async => const Result.success(<ConditionReportListItem>[]);
+  }) async => const Result.success(
+    ConditionReportsListResult(reports: [], viewerHasPendingReport: false),
+  );
 
   @override
   FutureResult<LaunchReportsDigestResult, AppFailure> summarizeLaunchReports({

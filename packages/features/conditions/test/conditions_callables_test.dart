@@ -150,6 +150,26 @@ void main() {
       },
     );
 
+    test('callSubmitConditionReport parses moderation status', () async {
+      when(() => result.data).thenReturn({
+        'ok': true,
+        'moderationStatus': 'held',
+      });
+      when(
+        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+      ).thenAnswer((_) async => result);
+
+      final res = await callSubmitConditionReport(
+        launchId: 'cathedral_park',
+        message: 'test',
+      );
+
+      expect(
+        res.valueOrNull?.moderationStatus,
+        ConditionReportModerationStatus.held,
+      );
+    });
+
     test('callListConditionReports maps report rows', () async {
       when(() => result.data).thenReturn({
         'reports': [
@@ -159,6 +179,7 @@ void main() {
             'isMine': false,
           },
         ],
+        'viewerHasPendingReport': true,
       });
       when(
         () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
@@ -166,8 +187,9 @@ void main() {
 
       final res = await callListConditionReports(launchId: 'cathedral_park');
 
-      expect(res.valueOrNull, hasLength(1));
-      expect(res.valueOrNull!.first.message, 'Choppy');
+      expect(res.valueOrNull?.reports, hasLength(1));
+      expect(res.valueOrNull!.reports.first.message, 'Choppy');
+      expect(res.valueOrNull!.viewerHasPendingReport, isTrue);
       verify(() => functions.httpsCallable('listConditionReports')).called(1);
     });
 
@@ -185,6 +207,23 @@ void main() {
 
       expect(res.valueOrNull?.digestText, 'Quiet day.');
       verify(() => functions.httpsCallable('summarizeLaunchReports')).called(1);
+    });
+
+    test('callReopenConditionReport invokes reopen callable', () async {
+      when(() => result.data).thenReturn({'ok': true});
+      when(
+        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+      ).thenAnswer((_) async => result);
+
+      final res = await callReopenConditionReport(reportId: 'report-1');
+
+      expect(res.isSuccess, isTrue);
+      verify(() => functions.httpsCallable('reopenConditionReport')).called(1);
+      verify(
+        () => callable.call<Map<String, dynamic>>({
+          'reportId': 'report-1',
+        }),
+      ).called(1);
     });
 
     test('retries once on unauthenticated', () async {

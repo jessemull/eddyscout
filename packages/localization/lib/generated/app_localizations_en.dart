@@ -294,6 +294,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get launchDetailReportThanks => 'Thanks—report submitted.';
 
   @override
+  String get launchDetailReportPendingReview =>
+      'Thanks—your report is being reviewed and will appear once approved.';
+
+  @override
+  String get launchDetailReportsPendingReviewHint =>
+      'You have a report pending review for this launch.';
+
+  @override
+  String get launchDetailReportsModerationTrustLine =>
+      'Community notes are reviewed before they appear—not official conditions or river status.';
+
+  @override
   String get launchDetailReportAddMessageFirst => 'Add a short message first.';
 
   @override
@@ -378,7 +390,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchDetailRecentReportsSubtitle =>
-      'Raw messages (newest first). Compare with the digest above.';
+      'Approved paddler messages (newest first). Compare with the digest above.';
 
   @override
   String get launchDetailNoPaddlerReports => 'No paddler reports yet.';
@@ -1173,4 +1185,166 @@ class AppLocalizationsEn extends AppLocalizations {
   String routeGoNoGoSemanticsVerdictWithStop(String verdict, String stopName) {
     return 'Route conditions: $verdict. $stopName.';
   }
+
+  @override
+  String get moderationQueueTitle => 'Review Reports';
+
+  @override
+  String get moderationQueueEmpty => 'No reports waiting for review.';
+
+  @override
+  String get moderationQueueLoadError => 'Could not load the review queue.';
+
+  @override
+  String get moderationApprove => 'Approve';
+
+  @override
+  String get moderationReject => 'Reject';
+
+  @override
+  String get moderationActionError =>
+      'Could not update that report. Try again.';
+
+  @override
+  String get moderationTabPending => 'Pending';
+
+  @override
+  String get moderationTabHistory => 'History';
+
+  @override
+  String get moderationHistoryEmpty => 'No moderation history yet.';
+
+  @override
+  String get moderationHistoryLoadError => 'Could not load moderation history.';
+
+  @override
+  String get moderationLaunchSearchHint => 'Search by ID or name...';
+
+  @override
+  String get moderationSortOldestWaiting => 'Oldest waiting';
+
+  @override
+  String get moderationSortMostRecent => 'Most recent';
+
+  @override
+  String get moderationSortRecentAction => 'Recent action';
+
+  @override
+  String get moderationSortOldestAction => 'Oldest action';
+
+  @override
+  String get moderationDateFilterAll => 'All dates';
+
+  @override
+  String get moderationDateFilter7Days => 'Last 7 days';
+
+  @override
+  String get moderationDateFilter30Days => 'Last 30 days';
+
+  @override
+  String get moderationStatusFilterAll => 'All outcomes';
+
+  @override
+  String get moderationStatusFilterApproved => 'Approved';
+
+  @override
+  String get moderationStatusFilterRejected => 'Rejected';
+
+  @override
+  String get moderationSubmitterUid => 'Submitter';
+
+  @override
+  String get moderationModeratorUid => 'Moderator';
+
+  @override
+  String get moderationSystemActor => 'System';
+
+  @override
+  String get moderationHoldReason => 'Hold Reason';
+
+  @override
+  String get moderationMessage => 'Message';
+
+  @override
+  String get moderationSubmittedAt => 'Submitted';
+
+  @override
+  String get moderationReviewedAt => 'Reviewed';
+
+  @override
+  String moderationWaitingDays(int days) {
+    return 'Waiting $days days';
+  }
+
+  @override
+  String get moderationCopyUid => 'Copy UID';
+
+  @override
+  String get moderationUidCopied => 'UID copied';
+
+  @override
+  String get moderationSelectAll => 'Select all';
+
+  @override
+  String get moderationClearSelection => 'Clear';
+
+  @override
+  String get moderationBulkSelect => 'Select';
+
+  @override
+  String get moderationBulkSelectDone => 'Done';
+
+  @override
+  String get moderationReasonKeywordHold => 'Matched moderation keyword';
+
+  @override
+  String get moderationReasonAdminApprove => 'Approved by moderator';
+
+  @override
+  String get moderationReasonAdminReject => 'Rejected by moderator';
+
+  @override
+  String get moderationReasonAdminReopen => 'Returned to pending by moderator';
+
+  @override
+  String get moderationReasonHoldTimeout => 'Auto-approved after hold period';
+
+  @override
+  String get moderationBulkApprove => 'Approve selected';
+
+  @override
+  String get moderationBulkReject => 'Reject selected';
+
+  @override
+  String get moderationBulkApproveConfirmTitle => 'Approve selected reports?';
+
+  @override
+  String get moderationBulkApproveConfirmBody =>
+      'These reports will become visible to paddlers.';
+
+  @override
+  String get moderationBulkRejectConfirmTitle => 'Reject selected reports?';
+
+  @override
+  String get moderationBulkRejectConfirmBody =>
+      'These reports will stay hidden from the public list.';
+
+  @override
+  String moderationBatchPartialFailure(int count) {
+    return 'Could not update $count selected reports.';
+  }
+
+  @override
+  String get moderationReturnToPending => 'Return to pending';
+
+  @override
+  String get moderationReturnToPendingConfirmTitle =>
+      'Return report to pending?';
+
+  @override
+  String get moderationReturnToPendingConfirmBody =>
+      'This report will reappear on the pending tab for review. If it was approved, it will be removed from the public list.';
+
+  @override
+  String get launchDetailReviewReportsButton => 'Review Reports';
 }
