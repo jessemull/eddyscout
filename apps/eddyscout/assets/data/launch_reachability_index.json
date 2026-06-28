@@ -65,8 +65,11 @@
       ]
     },
     "chinook_landing_marine_park": {
-      "5mi": [],
+      "5mi": [
+        "port_of_camas"
+      ],
       "10mi": [
+        "washougal_waterfront",
         "glenn_otto_troutdale",
         "vancouver_wintler",
         "gleason_memorial_boat_ramp"
@@ -144,6 +147,8 @@
         "kelley_point",
         "frenchmans_bar",
         "sauvie_island_boat_ramp",
+        "port_of_camas",
+        "washougal_waterfront",
         "glenn_otto_troutdale",
         "cathedral_park",
         "smith_lake_canoe_ramp",
@@ -153,7 +158,9 @@
     "glenn_otto_troutdale": {
       "5mi": [],
       "10mi": [
-        "chinook_landing_marine_park"
+        "chinook_landing_marine_park",
+        "port_of_camas",
+        "washougal_waterfront"
       ],
       "20mi": [
         "vancouver_wintler",
@@ -199,9 +206,17 @@
       ]
     },
     "port_of_camas": {
-      "5mi": [],
-      "10mi": [],
-      "20mi": []
+      "5mi": [
+        "washougal_waterfront",
+        "chinook_landing_marine_park"
+      ],
+      "10mi": [
+        "glenn_otto_troutdale"
+      ],
+      "20mi": [
+        "vancouver_wintler",
+        "gleason_memorial_boat_ramp"
+      ]
     },
     "river_place_marina": {
       "5mi": [
@@ -236,6 +251,7 @@
         "gleason_memorial_boat_ramp",
         "vancouver_wintler",
         "swan_island_boat_ramp",
+        "scappoose_bay_marina",
         "tom_mccall_waterfront",
         "columbia_slough_paddle_launch",
         "river_place_marina",
@@ -245,7 +261,9 @@
     "scappoose_bay_marina": {
       "5mi": [],
       "10mi": [],
-      "20mi": []
+      "20mi": [
+        "sauvie_island_boat_ramp"
+      ]
     },
     "sellwood_riverfront": {
       "5mi": [
@@ -348,7 +366,9 @@
       "20mi": [
         "kelley_point",
         "frenchmans_bar",
+        "port_of_camas",
         "sauvie_island_boat_ramp",
+        "washougal_waterfront",
         "glenn_otto_troutdale",
         "cathedral_park",
         "smith_lake_canoe_ramp",
@@ -356,9 +376,17 @@
       ]
     },
     "washougal_waterfront": {
-      "5mi": [],
-      "10mi": [],
-      "20mi": []
+      "5mi": [
+        "port_of_camas"
+      ],
+      "10mi": [
+        "chinook_landing_marine_park",
+        "glenn_otto_troutdale"
+      ],
+      "20mi": [
+        "vancouver_wintler",
+        "gleason_memorial_boat_ramp"
+      ]
     },
     "willamette_park_sw": {
       "5mi": [
