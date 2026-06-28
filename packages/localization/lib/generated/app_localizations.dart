@@ -1273,6 +1273,18 @@ abstract class AppLocalizations {
   /// **'Stop {letter}, {name}'**
   String mapRouteMiddleStopSemantics(String letter, String name);
 
+  /// No description provided for @mapRouteCustomStopLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom stop {index}'**
+  String mapRouteCustomStopLabel(int index);
+
+  /// No description provided for @mapRouteCustomStopSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom stop, {name}'**
+  String mapRouteCustomStopSemantics(String name);
+
   /// No description provided for @mapRouteStartComingSoon.
   ///
   /// In en, this message translates to:

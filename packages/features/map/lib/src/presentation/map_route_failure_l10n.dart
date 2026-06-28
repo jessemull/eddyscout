@@ -72,9 +72,6 @@ String _localizedRouteFailure({
 }) => switch (code) {
   RouteFailureCode.sameLaunch => l10n.mapRouteFailureSameLaunch,
   RouteFailureCode.differentSystem => l10n.mapRouteFailureDifferentSystem,
-  RouteFailureCode.noBundledLine => l10n.mapRouteFailureNoBundledLine(
-    riverSystemName ?? '',
-  ),
   RouteFailureCode.noRiverGeometryLoaded => l10n.mapRouteFailureNoData,
   RouteFailureCode.putInTooFar => l10n.mapRouteFailurePutInTooFar,
   RouteFailureCode.takeOutTooFar => l10n.mapRouteFailureTakeOutTooFar,

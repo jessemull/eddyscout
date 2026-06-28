@@ -36,6 +36,15 @@ Run **after** `fetch_columbia_waterway.py`. Fetches OSM way `130204446` (Camas S
 and local connector ways, then appends a `camas_slough_spur` feature to
 `columbia_lower_waterway.geojson` (shared Camas split vertex with mainstem + gorge).
 
+## Washougal Waterfront spur
+
+```bash
+python3 scripts/overpass/fetch_washougal_waterfront_spur.py
+```
+
+Run **after** `fetch_camas_slough_waterway.py`. Builds `washougal_waterfront_spur`
+branching from `camas_slough_spur` to the Washougal Waterfront catalog anchor.
+
 ## Portland slough network
 
 ```bash

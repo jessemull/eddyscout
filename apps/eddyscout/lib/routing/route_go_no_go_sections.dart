@@ -25,8 +25,16 @@ class SavedRouteGoNoGoSection extends ConsumerWidget {
     final launchIds = List<RouteWaypoint>.of(route.waypoints)
       ..sort((a, b) => a.order.compareTo(b.order));
 
+    // Snap waypoints have no catalog launch id; go/no-go uses catalog stops only.
+    final catalogLaunchIds = [
+      for (final w in launchIds) ?w.launchId,
+    ];
+    if (catalogLaunchIds.length < 2) {
+      return const SizedBox.shrink();
+    }
+
     return RouteGoNoGoSummarySection(
-      launchIdsInOrder: launchIds.map((w) => w.launchId).toList(),
+      launchIdsInOrder: catalogLaunchIds,
     );
   }
 }

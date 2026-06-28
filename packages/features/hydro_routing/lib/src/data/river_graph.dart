@@ -8,6 +8,7 @@ import 'package:eddyscout_hydro_routing/src/data/hydro_debug_log.dart';
 import 'package:eddyscout_hydro_routing/src/data/min_heap.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_graph_binary_codec.dart';
+import 'package:eddyscout_hydro_routing/src/data/vertex_merge_index.dart';
 import 'package:eddyscout_hydro_routing/src/domain/route_result.dart';
 import 'package:meta/meta.dart';
 
@@ -176,17 +177,41 @@ class RiverLineGraph {
     );
   }
 
+  /// O(n²) vertex merge for parity tests against [VertexMergeIndex] builds.
+  @visibleForTesting
+  static RiverLineGraph buildFromFeaturesBruteForceForTesting(
+    List<HydroLineFeature> features, {
+    String? riverSystemName,
+    double mergeVertexMeters = 12,
+  }) {
+    return _buildFromFeatures(
+      features,
+      riverSystemName: riverSystemName,
+      mergeVertexMeters: mergeVertexMeters,
+      useMergeIndex: false,
+    );
+  }
+
   static RiverLineGraph _buildFromFeatures(
     List<HydroLineFeature> features, {
     required String? riverSystemName,
     required double mergeVertexMeters,
+    bool useMergeIndex = true,
   }) {
     final lat = <double>[];
     final lon = <double>[];
     final adj = <List<GraphEdge>>[];
     final vertexReachId = <String?>[];
 
-    int? findExistingVertex(double la, double lo) {
+    VertexMergeIndex? mergeIndex;
+    if (useMergeIndex) {
+      mergeIndex = VertexMergeIndex(
+        mergeMeters: mergeVertexMeters,
+        refLatitude: 45,
+      );
+    }
+
+    int? findExistingVertexBruteForce(double la, double lo) {
       int? best;
       for (var i = 0; i < lat.length; i++) {
         if (haversineMeters(lat[i], lon[i], la, lo) <= mergeVertexMeters) {
@@ -199,7 +224,9 @@ class RiverLineGraph {
     }
 
     int findOrAdd(double la, double lo, String? reachId) {
-      final existing = findExistingVertex(la, lo);
+      final existing = useMergeIndex
+          ? mergeIndex!.findExisting(lat, lon, la, lo)
+          : findExistingVertexBruteForce(la, lo);
       if (existing != null) {
         if (vertexReachId[existing] == null && reachId != null) {
           vertexReachId[existing] = reachId;
@@ -211,6 +238,7 @@ class RiverLineGraph {
       lon.add(lo);
       adj.add([]);
       vertexReachId.add(reachId);
+      mergeIndex?.add(index, la, lo);
       return index;
     }
 
@@ -284,6 +312,45 @@ class RiverLineGraph {
     final adj = _adj.map(List<GraphEdge>.from).toList();
     final vertexReachId = List<String?>.from(_vertexReachId);
 
+    final endpointIndex = GraphSnapIndex(
+      lat: lat,
+      lon: lon,
+      adj: adj,
+      vertexReachId: vertexReachId,
+      refLatitude: lat.isEmpty ? 45.0 : lat.first,
+      baseCellMeters: maxEndpointSnapMeters,
+    );
+
+    return _applyConfluenceBridges(
+      lat,
+      lon,
+      adj,
+      vertexReachId,
+      bridges,
+      (la, lo) => endpointIndex.nearestVertexIndex(
+        la,
+        lo,
+        maxEndpointSnapMeters,
+      ),
+    );
+  }
+
+  /// O(n) endpoint scan for parity tests against indexed
+  /// [addConfluenceBridges].
+  @visibleForTesting
+  RiverLineGraph addConfluenceBridgesBruteForceForTesting(
+    List<ConfluenceBridge> bridges, {
+    double maxEndpointSnapMeters = 200,
+  }) {
+    if (bridges.isEmpty) {
+      return this;
+    }
+
+    final lat = List<double>.from(_lat);
+    final lon = List<double>.from(_lon);
+    final adj = _adj.map(List<GraphEdge>.from).toList();
+    final vertexReachId = List<String?>.from(_vertexReachId);
+
     int? nearestVertexIndex(double la, double lo) {
       var bestI = -1;
       var bestD = maxEndpointSnapMeters;
@@ -297,6 +364,24 @@ class RiverLineGraph {
       return bestI < 0 ? null : bestI;
     }
 
+    return _applyConfluenceBridges(
+      lat,
+      lon,
+      adj,
+      vertexReachId,
+      bridges,
+      nearestVertexIndex,
+    );
+  }
+
+  RiverLineGraph _applyConfluenceBridges(
+    List<double> lat,
+    List<double> lon,
+    List<List<GraphEdge>> adj,
+    List<String?> vertexReachId,
+    List<ConfluenceBridge> bridges,
+    int? Function(double la, double lo) nearestVertexIndex,
+  ) {
     void addUndirectedBridge(int u, int v, double w) {
       if (u == v) {
         return;
@@ -819,12 +904,39 @@ class RiverLineGraph {
   /// Nearest graph snap within [maxSnapMeters].
   ///
   /// Returns null when the point is too far from geometry.
+  GraphSnapResult? nearestSnapResult(
+    double lat,
+    double lon, {
+    double maxSnapMeters = 900,
+  }) {
+    final indexed = _snapIndex?.nearestSnap(lat, lon, maxSnapMeters);
+    if (indexed != null) {
+      return indexed;
+    }
+    final snap = _nearestSnapBruteForce(lat, lon, maxSnapMeters);
+    if (snap == null) {
+      return null;
+    }
+    return GraphSnapResult(
+      lat: snap.lat,
+      lon: snap.lon,
+      distanceMeters: snap.distanceMeters,
+      vertexIndex: snap.vertexIndex,
+      edgeU: snap.edgeU,
+      edgeV: snap.edgeV,
+      reachId: snap.reachId,
+    );
+  }
+
+  /// Nearest graph snap within [maxSnapMeters].
+  ///
+  /// Returns null when the point is too far from geometry.
   ({int? vertexIndex, double snapMeters})? snapToVertex(
     double lat,
     double lon, {
     double maxSnapMeters = 900,
   }) {
-    final snap = _nearestSnap(lat, lon, maxSnapMeters);
+    final snap = nearestSnapResult(lat, lon, maxSnapMeters: maxSnapMeters);
     if (snap == null) {
       return null;
     }

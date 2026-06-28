@@ -23,7 +23,10 @@ class _RunnableRoutePlanning extends RoutePlanning {
     final takeOut = findLaunchPointById('sellwood_riverfront');
     return RoutePlanningState(
       phase: MapPlanningPhase.routeReady,
-      waypoints: [putIn!, takeOut!],
+      stops: [
+        RoutePlanningStop.catalog(putIn!),
+        RoutePlanningStop.catalog(takeOut!),
+      ],
       routeLengthKm: 5.2,
       activeGeometry: RouteGeometrySnapshot(
         polylineLonLat: const [
@@ -54,8 +57,8 @@ void main() {
         id: 'fallback',
         name: 'Fallback',
         waypoints: const [
-          RouteWaypoint(launchId: 'a', order: 0),
-          RouteWaypoint(launchId: 'b', order: 1),
+          RouteWaypoint.catalog(launchId: 'a', order: 0),
+          RouteWaypoint.catalog(launchId: 'b', order: 1),
         ],
         metadata: const SavedRouteMetadata(),
         createdAt: DateTime.utc(2026),
@@ -240,7 +243,7 @@ void main() {
 
       final planning = container.read(routePlanningProvider);
       expect(planning.planningMode, isTrue);
-      expect(planning.waypoints.length, 2);
+      expect(planning.stops.length, 2);
       expect(planning.activeGeometry, isNotNull);
       expect(planning.routeLengthKm, closeTo(5.2, 0.01));
     },
@@ -282,8 +285,8 @@ void main() {
       id: 'sr_load_ok',
       name: 'Load me',
       waypoints: const [
-        RouteWaypoint(launchId: 'cathedral_park', order: 0),
-        RouteWaypoint(launchId: 'sellwood_riverfront', order: 1),
+        RouteWaypoint.catalog(launchId: 'cathedral_park', order: 0),
+        RouteWaypoint.catalog(launchId: 'sellwood_riverfront', order: 1),
       ],
       metadata: const SavedRouteMetadata(distanceMeters: 5200),
       geometrySnapshot: RouteGeometrySnapshot(
@@ -340,7 +343,7 @@ void main() {
 
     final planning = container.read(routePlanningProvider);
     expect(planning.planningMode, isTrue);
-    expect(planning.waypoints, [putIn, takeOut]);
+    expect(planning.catalogLaunches, [putIn, takeOut]);
     expect(planning.routeLengthKm, closeTo(5.2, 0.01));
     expect(planning.polylineLonLat, route.geometrySnapshot!.polylineLonLat);
   });
@@ -354,8 +357,8 @@ void main() {
         id: 'sr_load',
         name: 'Load me',
         waypoints: const [
-          RouteWaypoint(launchId: 'missing-a', order: 0),
-          RouteWaypoint(launchId: 'missing-b', order: 1),
+          RouteWaypoint.catalog(launchId: 'missing-a', order: 0),
+          RouteWaypoint.catalog(launchId: 'missing-b', order: 1),
         ],
         metadata: const SavedRouteMetadata(),
         createdAt: DateTime.utc(2026),
@@ -413,8 +416,8 @@ void main() {
         id: 'missing',
         name: 'Ghost route',
         waypoints: const [
-          RouteWaypoint(launchId: 'cathedral_park', order: 0),
-          RouteWaypoint(launchId: 'sellwood_riverfront', order: 1),
+          RouteWaypoint.catalog(launchId: 'cathedral_park', order: 0),
+          RouteWaypoint.catalog(launchId: 'sellwood_riverfront', order: 1),
         ],
         metadata: const SavedRouteMetadata(),
         createdAt: DateTime.utc(2026),
@@ -468,8 +471,8 @@ void main() {
         id: 'sr_draft',
         name: 'Persisted',
         waypoints: const [
-          RouteWaypoint(launchId: 'cathedral_park', order: 0),
-          RouteWaypoint(launchId: 'sellwood_riverfront', order: 1),
+          RouteWaypoint.catalog(launchId: 'cathedral_park', order: 0),
+          RouteWaypoint.catalog(launchId: 'sellwood_riverfront', order: 1),
         ],
         metadata: const SavedRouteMetadata(distanceMeters: 5200),
         geometrySnapshot: RouteGeometrySnapshot(
@@ -485,8 +488,8 @@ void main() {
       );
       final draft = persisted.copyWith(
         waypoints: const [
-          RouteWaypoint(launchId: 'sellwood_riverfront', order: 0),
-          RouteWaypoint(launchId: 'cathedral_park', order: 1),
+          RouteWaypoint.catalog(launchId: 'sellwood_riverfront', order: 0),
+          RouteWaypoint.catalog(launchId: 'cathedral_park', order: 1),
         ],
         geometrySnapshot: null,
       );
@@ -530,7 +533,7 @@ void main() {
       await tester.pumpAndSettle();
 
       final planning = container.read(routePlanningProvider);
-      expect(planning.waypoints, [takeOut, putIn]);
+      expect(planning.catalogLaunches, [takeOut, putIn]);
       expect(planning.activeGeometry, isNull);
     },
   );
@@ -577,8 +580,8 @@ void main() {
       id: 'broken',
       name: 'Broken',
       waypoints: const [
-        RouteWaypoint(launchId: 'cathedral_park', order: 0),
-        RouteWaypoint(launchId: 'sellwood_riverfront', order: 1),
+        RouteWaypoint.catalog(launchId: 'cathedral_park', order: 0),
+        RouteWaypoint.catalog(launchId: 'sellwood_riverfront', order: 1),
       ],
       metadata: const SavedRouteMetadata(),
       createdAt: DateTime.utc(2026),
@@ -633,8 +636,8 @@ void main() {
       id: 'sr_draw_fail',
       name: 'Draw fail',
       waypoints: const [
-        RouteWaypoint(launchId: 'cathedral_park', order: 0),
-        RouteWaypoint(launchId: 'sellwood_riverfront', order: 1),
+        RouteWaypoint.catalog(launchId: 'cathedral_park', order: 0),
+        RouteWaypoint.catalog(launchId: 'sellwood_riverfront', order: 1),
       ],
       metadata: const SavedRouteMetadata(),
       geometrySnapshot: RouteGeometrySnapshot(
@@ -695,6 +698,6 @@ void main() {
       findsOneWidget,
     );
     final planning = container.read(routePlanningProvider);
-    expect(planning.waypoints, [putIn, takeOut]);
+    expect(planning.catalogLaunches, [putIn, takeOut]);
   });
 }

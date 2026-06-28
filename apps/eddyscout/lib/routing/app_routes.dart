@@ -167,19 +167,19 @@ class _MapRouteHost extends ConsumerWidget {
     }
 
     final planning = ref.watch(routePlanningProvider);
-    if (planning.planningMode && planning.waypoints.length >= 2) {
+    // Snap stops are excluded — go/no-go evaluates catalog launches only.
+    final catalogLaunchIds = planning.catalogLaunches.map((l) => l.id).toList();
+    if (planning.planningMode && catalogLaunchIds.length >= 2) {
       ref.watch(
         routeGoNoGoRollupProvider(
-          RouteGoNoGoWaypointsKey.fromOrdered(
-            planning.waypoints.map((w) => w.id).toList(),
-          ),
+          RouteGoNoGoWaypointsKey.fromOrdered(catalogLaunchIds),
         ),
       );
     }
 
-    final routeGoNoGoSection = planning.waypoints.length >= 2
+    final routeGoNoGoSection = catalogLaunchIds.length >= 2
         ? MapRouteGoNoGoSection(
-            launchIdsInOrder: planning.waypoints.map((w) => w.id).toList(),
+            launchIdsInOrder: catalogLaunchIds,
           )
         : null;
 

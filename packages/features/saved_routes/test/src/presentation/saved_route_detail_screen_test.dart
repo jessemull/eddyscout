@@ -446,9 +446,9 @@ void main() {
   ) async {
     final route = testSavedRoute(name: 'Edit me').copyWith(
       waypoints: const [
-        RouteWaypoint(launchId: 'a', order: 0),
-        RouteWaypoint(launchId: 'b', order: 1),
-        RouteWaypoint(launchId: 'c', order: 2),
+        RouteWaypoint.catalog(launchId: 'a', order: 0),
+        RouteWaypoint.catalog(launchId: 'b', order: 1),
+        RouteWaypoint.catalog(launchId: 'c', order: 2),
       ],
       geometrySnapshot: RouteGeometrySnapshot(
         polylineLonLat: const [
@@ -502,9 +502,9 @@ void main() {
   ) async {
     final existing = testSavedRoute(name: 'Reorder me').copyWith(
       waypoints: const [
-        RouteWaypoint(launchId: 'a', order: 0),
-        RouteWaypoint(launchId: 'b', order: 1),
-        RouteWaypoint(launchId: 'c', order: 2),
+        RouteWaypoint.catalog(launchId: 'a', order: 0),
+        RouteWaypoint.catalog(launchId: 'b', order: 1),
+        RouteWaypoint.catalog(launchId: 'c', order: 2),
       ],
       geometrySnapshot: RouteGeometrySnapshot(
         polylineLonLat: const [

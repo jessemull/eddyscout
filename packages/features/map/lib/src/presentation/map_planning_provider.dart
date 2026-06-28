@@ -19,11 +19,11 @@ enum RoutePlanningTapResult {
   sameAsPutIn,
 }
 
-/// Waypoint selection and route geometry for map-first paddle planning.
+/// Stop selection and route geometry for map-first paddle planning.
 class RoutePlanningState {
   const RoutePlanningState({
     this.phase = MapPlanningPhase.browse,
-    this.waypoints = const [],
+    this.stops = const [],
     this.routeLengthKm,
     this.activeGeometry,
     this.loadedSavedRouteId,
@@ -31,20 +31,23 @@ class RoutePlanningState {
   });
 
   final MapPlanningPhase phase;
-  final List<LaunchPoint> waypoints;
+  final List<RoutePlanningStop> stops;
   final double? routeLengthKm;
   final RouteGeometrySnapshot? activeGeometry;
   final String? loadedSavedRouteId;
   final RouteOrigin? routeOrigin;
 
-  /// First waypoint (put-in).
-  LaunchPoint? get putIn => waypoints.isNotEmpty ? waypoints.first : null;
+  /// First stop (put-in).
+  RoutePlanningStop? get putIn => stops.isNotEmpty ? stops.first : null;
 
-  /// Last waypoint (take-out for two-stop routes).
-  LaunchPoint? get takeOut => waypoints.length >= 2 ? waypoints.last : null;
+  /// Last stop (take-out for two-stop routes).
+  RoutePlanningStop? get takeOut => stops.length >= 2 ? stops.last : null;
+
+  /// Catalog launches from stops (metadata, go/no-go, suggested names).
+  List<LaunchPoint> get catalogLaunches => catalogLaunchesFromStops(stops);
 
   /// Whether hydro routing can run (at least two distinct stops).
-  bool get hasRunnableRoute => waypoints.length >= 2;
+  bool get hasRunnableRoute => stops.length >= 2;
 
   /// Whether the user can finish planning edit (valid routed geometry).
   bool get canFinishPlanning => hasRunnableRoute && activeGeometry != null;
@@ -60,12 +63,12 @@ class RoutePlanningState {
 
 /// Frozen planning selection used while save UI is open.
 ///
-/// Captures waypoints and geometry before the bottom sheet so a save still
+/// Captures stops and geometry before the bottom sheet so a save still
 /// succeeds if map planning state is cleared during async work.
 class RoutePlanningSaveCapture {
   const RoutePlanningSaveCapture({
     required this.planningMode,
-    required this.waypoints,
+    required this.stops,
     required this.geometry,
     required this.routeLengthKm,
     required this.routeOrigin,
@@ -80,7 +83,7 @@ class RoutePlanningSaveCapture {
     }
     return RoutePlanningSaveCapture(
       planningMode: state.planningMode,
-      waypoints: List<LaunchPoint>.of(state.waypoints),
+      stops: List<RoutePlanningStop>.of(state.stops),
       geometry: geometry,
       routeLengthKm: state.routeLengthKm,
       routeOrigin: state.routeOrigin,
@@ -89,11 +92,14 @@ class RoutePlanningSaveCapture {
   }
 
   final bool planningMode;
-  final List<LaunchPoint> waypoints;
+  final List<RoutePlanningStop> stops;
   final RouteGeometrySnapshot geometry;
   final double? routeLengthKm;
   final RouteOrigin? routeOrigin;
   final String? loadedSavedRouteId;
+
+  /// Catalog launches from [stops] for suggested names and metadata.
+  List<LaunchPoint> get catalogLaunches => catalogLaunchesFromStops(stops);
 }
 
 @Riverpod(keepAlive: true)
@@ -120,7 +126,7 @@ class RoutePlanning extends _$RoutePlanning {
   void startPlanPaddle(LaunchPoint launch) {
     state = RoutePlanningState(
       phase: MapPlanningPhase.planning,
-      waypoints: [launch],
+      stops: [RoutePlanningStop.catalog(launch)],
       loadedSavedRouteId: state.loadedSavedRouteId,
     );
   }
@@ -132,7 +138,10 @@ class RoutePlanning extends _$RoutePlanning {
   }) {
     state = RoutePlanningState(
       phase: MapPlanningPhase.planning,
-      waypoints: [putIn, takeOut],
+      stops: [
+        RoutePlanningStop.catalog(putIn),
+        RoutePlanningStop.catalog(takeOut),
+      ],
       loadedSavedRouteId: state.loadedSavedRouteId,
     );
   }
@@ -145,9 +154,7 @@ class RoutePlanning extends _$RoutePlanning {
     }
     state = RoutePlanningState(
       phase: MapPlanningPhase.planning,
-      waypoints: state.waypoints.isNotEmpty
-          ? [state.waypoints.first]
-          : const [],
+      stops: state.stops.isNotEmpty ? [state.stops.first] : const [],
       loadedSavedRouteId: state.loadedSavedRouteId,
     );
   }
@@ -157,14 +164,14 @@ class RoutePlanning extends _$RoutePlanning {
     required double? routeLengthKm,
     RouteOrigin? routeOrigin,
   }) {
-    final phase = geometry != null && state.waypoints.length >= 2
+    final phase = geometry != null && state.stops.length >= 2
         ? MapPlanningPhase.routeReady
         : state.phase == MapPlanningPhase.browse
         ? MapPlanningPhase.planning
         : state.phase;
     state = RoutePlanningState(
       phase: phase,
-      waypoints: state.waypoints,
+      stops: state.stops,
       routeLengthKm: routeLengthKm,
       activeGeometry: geometry,
       loadedSavedRouteId: state.loadedSavedRouteId,
@@ -184,7 +191,9 @@ class RoutePlanning extends _$RoutePlanning {
       phase: geometry != null && waypoints.length >= 2
           ? MapPlanningPhase.routeReady
           : MapPlanningPhase.planning,
-      waypoints: waypoints,
+      stops: [
+        for (final launch in waypoints) RoutePlanningStop.catalog(launch),
+      ],
       routeLengthKm: routeLengthKm,
       activeGeometry: geometry,
       routeOrigin: routeOrigin,
@@ -192,76 +201,98 @@ class RoutePlanning extends _$RoutePlanning {
   }
 
   RoutePlanningTapResult? handleLaunchTap(LaunchPoint launch) {
-    if (!state.planningMode && state.waypoints.isEmpty) {
+    return addStop(RoutePlanningStop.catalog(launch));
+  }
+
+  RoutePlanningTapResult? handleSnapStop(
+    WaterwaySnapPoint snap, {
+    required String label,
+  }) {
+    return addStop(
+      RoutePlanningStop.snap(
+        id: generatePlanningSnapId(),
+        latitude: snap.latitude,
+        longitude: snap.longitude,
+        label: label,
+        reachId: snap.reachId,
+      ),
+    );
+  }
+
+  /// Adds [stop] to the active plan when planning mode is active.
+  RoutePlanningTapResult? addStop(RoutePlanningStop stop) => _addStop(stop);
+
+  RoutePlanningTapResult? _addStop(RoutePlanningStop stop) {
+    if (!state.planningMode && state.stops.isEmpty) {
       return null;
     }
-    final waypoints = List<LaunchPoint>.of(state.waypoints);
-    if (waypoints.isNotEmpty && waypoints.last.id == launch.id) {
+    final stops = List<RoutePlanningStop>.of(state.stops);
+    if (stops.isNotEmpty && stops.last.sameStopAs(stop)) {
       return RoutePlanningTapResult.sameAsPutIn;
     }
-    if (waypoints.length == 1 && waypoints.first.id == launch.id) {
+    if (stops.length == 1 && stops.first.sameStopAs(stop)) {
       return RoutePlanningTapResult.sameAsPutIn;
     }
-    if (waypoints.isEmpty) {
-      waypoints.add(launch);
+    if (stops.isEmpty) {
+      stops.add(stop);
       state = RoutePlanningState(
         phase: MapPlanningPhase.planning,
-        waypoints: waypoints,
+        stops: stops,
         loadedSavedRouteId: state.loadedSavedRouteId,
       );
       return RoutePlanningTapResult.putInSelected;
     }
-    waypoints.add(launch);
+    stops.add(stop);
     state = RoutePlanningState(
       phase: MapPlanningPhase.planning,
-      waypoints: waypoints,
+      stops: stops,
       loadedSavedRouteId: state.loadedSavedRouteId,
     );
     return RoutePlanningTapResult.takeOutSelected;
   }
 
-  void removeWaypoint(int index) {
-    if (index < 0 || index >= state.waypoints.length) {
+  void removeStop(int index) {
+    if (index < 0 || index >= state.stops.length) {
       return;
     }
-    final waypoints = List<LaunchPoint>.of(state.waypoints)..removeAt(index);
-    _applyWaypointList(waypoints);
+    final stops = List<RoutePlanningStop>.of(state.stops)..removeAt(index);
+    _applyStopList(stops);
   }
 
-  /// Removes the last waypoint after a failed route attempt.
-  void removeLastWaypoint() {
-    if (state.waypoints.isEmpty) {
+  /// Removes the last stop after a failed route attempt.
+  void removeLastStop() {
+    if (state.stops.isEmpty) {
       return;
     }
-    removeWaypoint(state.waypoints.length - 1);
+    removeStop(state.stops.length - 1);
   }
 
-  void _applyWaypointList(List<LaunchPoint> waypoints) {
+  void _applyStopList(List<RoutePlanningStop> stops) {
     state = RoutePlanningState(
-      phase: waypoints.length >= 2 && state.activeGeometry != null
+      phase: stops.length >= 2 && state.activeGeometry != null
           ? MapPlanningPhase.routeReady
           : MapPlanningPhase.planning,
-      waypoints: waypoints,
-      routeLengthKm: waypoints.length >= 2 ? state.routeLengthKm : null,
-      activeGeometry: waypoints.length >= 2 ? state.activeGeometry : null,
+      stops: stops,
+      routeLengthKm: stops.length >= 2 ? state.routeLengthKm : null,
+      activeGeometry: stops.length >= 2 ? state.activeGeometry : null,
       loadedSavedRouteId: state.loadedSavedRouteId,
       routeOrigin: state.routeOrigin,
     );
   }
 
-  void reorderWaypoints(int oldIndex, int newIndex) {
-    final waypoints = List<LaunchPoint>.of(state.waypoints);
+  void reorderStops(int oldIndex, int newIndex) {
+    final stops = List<RoutePlanningStop>.of(state.stops);
     if (oldIndex < 0 ||
-        oldIndex >= waypoints.length ||
+        oldIndex >= stops.length ||
         newIndex < 0 ||
-        newIndex >= waypoints.length) {
+        newIndex >= stops.length) {
       return;
     }
-    final item = waypoints.removeAt(oldIndex);
-    waypoints.insert(newIndex, item);
+    final item = stops.removeAt(oldIndex);
+    stops.insert(newIndex, item);
     state = RoutePlanningState(
       phase: state.phase,
-      waypoints: waypoints,
+      stops: stops,
       routeLengthKm: state.routeLengthKm,
       activeGeometry: state.activeGeometry,
       loadedSavedRouteId: state.loadedSavedRouteId,
@@ -269,14 +300,14 @@ class RoutePlanning extends _$RoutePlanning {
     );
   }
 
-  /// Restores a prior waypoint order after a failed reorder reroute.
-  void restoreWaypoints(List<LaunchPoint> waypoints) {
-    if (waypoints.length != state.waypoints.length) {
+  /// Restores a prior stop order after a failed reorder reroute.
+  void restoreStops(List<RoutePlanningStop> stops) {
+    if (stops.length != state.stops.length) {
       return;
     }
     state = RoutePlanningState(
       phase: state.phase,
-      waypoints: List<LaunchPoint>.of(waypoints),
+      stops: List<RoutePlanningStop>.of(stops),
       routeLengthKm: state.routeLengthKm,
       activeGeometry: state.activeGeometry,
       loadedSavedRouteId: state.loadedSavedRouteId,
@@ -286,13 +317,13 @@ class RoutePlanning extends _$RoutePlanning {
 
   void loadFromSavedRoute(
     SavedRoute route,
-    List<LaunchPoint> resolvedWaypoints,
+    List<RoutePlanningStop> resolvedStops,
   ) {
     state = RoutePlanningState(
-      phase: route.geometrySnapshot != null && resolvedWaypoints.length >= 2
+      phase: route.geometrySnapshot != null && resolvedStops.length >= 2
           ? MapPlanningPhase.routeReady
           : MapPlanningPhase.planning,
-      waypoints: resolvedWaypoints,
+      stops: resolvedStops,
       loadedSavedRouteId: route.id,
       activeGeometry: route.geometrySnapshot,
       routeLengthKm: route.geometrySnapshot != null
@@ -312,7 +343,7 @@ class RoutePlanning extends _$RoutePlanning {
       phase: capture.planningMode
           ? MapPlanningPhase.routeReady
           : MapPlanningPhase.browse,
-      waypoints: List<LaunchPoint>.of(capture.waypoints),
+      stops: List<RoutePlanningStop>.of(capture.stops),
       routeLengthKm: capture.routeLengthKm,
       activeGeometry: capture.geometry,
       loadedSavedRouteId: capture.loadedSavedRouteId,
@@ -359,7 +390,7 @@ class RoutePlanning extends _$RoutePlanning {
     String? existingId,
     DateTime? existingCreatedAt,
   }) {
-    if (capture.waypoints.length < 2) {
+    if (capture.stops.length < 2) {
       return null;
     }
     final now = DateTime.now();
@@ -373,7 +404,7 @@ class RoutePlanning extends _$RoutePlanning {
         );
     final metadata =
         computeSavedRouteMetadata(
-          launches: capture.waypoints,
+          launches: capture.catalogLaunches,
           distanceMeters: capture.geometry.lengthMeters,
         ).copyWith(
           difficulty: difficulty,
@@ -386,8 +417,8 @@ class RoutePlanning extends _$RoutePlanning {
       description: description,
       notes: notes ?? '',
       waypoints: [
-        for (var i = 0; i < capture.waypoints.length; i++)
-          RouteWaypoint(launchId: capture.waypoints[i].id, order: i),
+        for (var i = 0; i < capture.stops.length; i++)
+          routeWaypointFromPlanningStop(capture.stops[i], i),
       ],
       metadata: metadata,
       geometrySnapshot: capture.geometry,

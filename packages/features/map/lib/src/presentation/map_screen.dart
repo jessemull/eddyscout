@@ -82,6 +82,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             pickDifferentTakeOutMessage: l10n.mapPickDifferentTakeOut,
             riverDataLoadingMessage: l10n.mapRiverDataLoading,
             riverDataLoadFailedMessage: l10n.mapRiverDataUnavailable,
+            customStopLabel: l10n.mapRouteCustomStopLabel,
             showSnackBar: (message) {
               if (!context.mounted) {
                 return;
@@ -164,7 +165,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Future<void> _startPlanPaddleAsync(LaunchPoint launch) async {
     final planner = await ref.read(mapRoutePlannerProvider.future);
-    final validation = await planner.validateLaunch(launch);
+    final validation = await planner.validateStop(
+      RoutePlanningStop.catalog(launch),
+    );
     if (!mounted) {
       return;
     }
@@ -196,7 +199,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     required LaunchPoint takeOut,
   }) async {
     final planner = await ref.read(mapRoutePlannerProvider.future);
-    final putInValidation = await planner.validateLaunch(putIn);
+    final putInValidation = await planner.validateStop(
+      RoutePlanningStop.catalog(putIn),
+    );
     if (!mounted) {
       return;
     }
@@ -210,7 +215,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       );
       return;
     }
-    final segmentValidation = await planner.validateSegment(putIn, takeOut);
+    final segmentValidation = await planner.validateSegmentStops(
+      RoutePlanningStop.catalog(putIn),
+      RoutePlanningStop.catalog(takeOut),
+    );
     if (!mounted) {
       return;
     }
@@ -258,7 +266,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   void _resumePendingTripsFromHereRoute() {
     final planning = ref.read(routePlanningProvider);
-    if (planning.waypoints.length < 2) {
+    if (planning.stops.length < 2) {
       return;
     }
     _beginPlanningEditSession();
@@ -268,7 +276,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
     final takeOut = planning.takeOut;
     if (takeOut != null) {
-      _scheduleFocusLaunch(takeOut);
+      unawaited(
+        ref.read(mapboxMapControllerProvider.notifier).focusStop(takeOut),
+      );
     }
   }
 
@@ -289,12 +299,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Future<void> _exitPlanningToPlacePeek() async {
     ref.read(mapPlanningInlineAddStopProvider.notifier).hide();
     ref.read(mapSearchExpandedProvider.notifier).collapse();
-    final putIn = ref.read(routePlanningProvider).putIn;
+    final putInLaunch = ref.read(routePlanningProvider).putIn?.catalogLaunch;
     final mapController = ref.read(mapboxMapControllerProvider.notifier);
     await mapController.abandonPlanningRouteLine();
-    if (putIn != null) {
-      ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(putIn);
-      ref.read(routePlanningProvider.notifier).selectPlace(putIn);
+    if (putInLaunch != null) {
+      ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(putInLaunch);
+      ref.read(routePlanningProvider.notifier).selectPlace(putInLaunch);
     } else {
       ref.read(routePlanningProvider.notifier).resetToBrowse();
     }
@@ -311,14 +321,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Future<void> _reorderStop(int oldIndex, int newIndex) async {
     final planningNotifier = ref.read(routePlanningProvider.notifier);
-    final previousWaypoints = ref.read(routePlanningProvider).waypoints;
-    planningNotifier.reorderWaypoints(oldIndex, newIndex);
+    final previousStops = ref.read(routePlanningProvider).stops;
+    planningNotifier.reorderStops(oldIndex, newIndex);
     if (!ref.read(routePlanningProvider).hasRunnableRoute) {
       return;
     }
     await ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute();
     if (!ref.read(routePlanningProvider).canFinishPlanning) {
-      planningNotifier.restoreWaypoints(previousWaypoints);
+      planningNotifier.restoreStops(previousStops);
       await ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute();
     }
   }
@@ -337,9 +347,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Future<void> _removeStop(int index) async {
-    ref.read(routePlanningProvider.notifier).removeWaypoint(index);
+    ref.read(routePlanningProvider.notifier).removeStop(index);
     final planning = ref.read(routePlanningProvider);
-    if (planning.waypoints.length >= 2) {
+    if (planning.stops.length >= 2) {
       await ref.read(mapboxMapControllerProvider.notifier).rerunActiveRoute();
     } else {
       await ref.read(mapboxMapControllerProvider.notifier).clearRouteLine();
@@ -461,7 +471,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 child: Align(
                   alignment: Alignment.topCenter,
                   child: MapRoutePlanningChrome(
-                    waypoints: planning.waypoints,
+                    stops: planning.stops,
                     routeLengthKm: planning.routeLengthKm,
                     canFinishPlanning: planning.canFinishPlanning,
                     onBack: () => unawaited(_backFromPlanningEdit()),

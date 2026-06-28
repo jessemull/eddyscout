@@ -32,6 +32,8 @@ const double kMapWaterEntryConnectorWidth = 2.5;
 const int kMapSelectedMarkerFill = 0x330077B6;
 const int kMapSelectedMarkerStroke = 0xFF0077B6;
 const int kMapRouteLineColor = 0xFFE63946;
+const int kMapPlanningSnapMarkerColor = 0xFF9C6644;
+const int kMapPlanningSnapMarkerStroke = 0xFFFFFFFF;
 
 const String kMapRouteSourceId = 'eddyscout-route-source';
 const String kMapRouteLayerId = 'eddyscout-route-layer';
@@ -62,3 +64,6 @@ const double kMapPlanningPreviewWithGoNoGoBottomPadding =
 
 /// [MapboxMap.addInteraction] id for map-surface tap handling.
 const String kMapContentTapInteractionId = 'eddyscout_map_content_tap';
+
+/// [MapboxMap.addInteraction] id for long-press drop-pin during planning.
+const String kMapLongTapInteractionId = 'eddyscout_map_long_tap';

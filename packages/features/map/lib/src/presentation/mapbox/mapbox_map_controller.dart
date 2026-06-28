@@ -40,11 +40,12 @@ final class MapboxMapController extends _$MapboxMapController
       ..onDispose(() {
         alive = false;
         tapCancelable?.cancel();
+        longTapCancelable?.cancel();
         selectionTapCancelable?.cancel();
       })
       ..listen(mapRoutePlannerProvider, (previous, next) {
         final planning = ref.read(routePlanningProvider);
-        if (planning.waypoints.length < 2) {
+        if (planning.stops.length < 2) {
           return;
         }
         final wasPending = previous == null || !previous.hasValue;
@@ -58,6 +59,7 @@ final class MapboxMapController extends _$MapboxMapController
         if (prevPoints >= 2 && nextPoints < 2) {
           unawaited(clearRouteLine());
         }
+        unawaited(syncPlanningSnapMarkers(next.stops));
       });
   }
 
@@ -74,12 +76,15 @@ final class MapboxMapController extends _$MapboxMapController
   Future<void> _prepareNewMapSurface(MapboxMap mapboxMap) async {
     tapCancelable?.cancel();
     tapCancelable = null;
+    longTapCancelable?.cancel();
+    longTapCancelable = null;
     waterEntryTapCancelable?.cancel();
     waterEntryTapCancelable = null;
     selectionTapCancelable?.cancel();
     selectionTapCancelable = null;
     markersInstalled = false;
     launchCircleManager = null;
+    planningSnapManager = null;
     waterEntryCircleManager = null;
     waterEntryConnectorManager = null;
     selectionAnnotation = null;
@@ -89,9 +94,14 @@ final class MapboxMapController extends _$MapboxMapController
     this.mapboxMap = mapboxMap;
     mapboxMap
       ..removeInteraction(kMapContentTapInteractionId)
+      ..removeInteraction(kMapLongTapInteractionId)
       ..addInteraction(
         TapInteraction.onMap(onMapContentTap),
         interactionID: kMapContentTapInteractionId,
+      )
+      ..addInteraction(
+        LongTapInteraction.onMap(onMapLongPress),
+        interactionID: kMapLongTapInteractionId,
       );
     await setMapGesturesEnabled(mapboxMap, enabled: false);
   }
@@ -104,6 +114,14 @@ final class MapboxMapController extends _$MapboxMapController
     unawaited(_handleMapContentTap(context));
   }
 
+  /// Map long-press — adds a hydro-snapped custom stop during planning edit.
+  void onMapLongPress(MapContentGestureContext context) {
+    if (context.gestureState != GestureState.ended) {
+      return;
+    }
+    unawaited(_handleMapLongPress(context));
+  }
+
   Future<void> _handleMapContentTap(MapContentGestureContext context) async {
     if (!alive || !ref.read(mapInteractiveProvider)) {
       return;
@@ -113,6 +131,34 @@ final class MapboxMapController extends _$MapboxMapController
       return;
     }
     _handleLaunchSelected(launch);
+  }
+
+  Future<void> _handleMapLongPress(MapContentGestureContext context) async {
+    if (!alive || !ref.read(mapInteractiveProvider)) {
+      return;
+    }
+    if (ref.read(mapSheetVisibilityStateProvider) !=
+        MapSheetVisibility.planningEdit) {
+      return;
+    }
+    final launch = await nearestLaunchAtTap(context.touchPosition);
+    if (launch != null) {
+      return;
+    }
+    final map = mapboxMap;
+    if (map == null) {
+      return;
+    }
+    try {
+      final point = await map.coordinateForPixel(context.touchPosition);
+      final coords = point.coordinates;
+      await tryAddPlanningSnapStop(
+        coords.lat.toDouble(),
+        coords.lng.toDouble(),
+      );
+    } on Object catch (e, st) {
+      mapDebugLog('_handleMapLongPress failed: $e\n$st');
+    }
   }
 
   void onStyleLoaded() {
@@ -153,9 +199,22 @@ final class MapboxMapController extends _$MapboxMapController
     await highlightLaunch(launch, onSelectionTap: onLaunchCircleTap);
   }
 
+  /// Centers the camera on a planning stop.
+  Future<void> focusStop(RoutePlanningStop stop) async {
+    if (stop case CatalogRoutePlanningStop(:final launch)) {
+      await focusLaunch(launch);
+      return;
+    }
+    await flyToCoordinate(
+      latitude: stop.routingLatitude,
+      longitude: stop.routingLongitude,
+    );
+  }
+
   Future<void> dismissPlanningSession() async {
     ref.read(routePlanningProvider.notifier).resetToBrowse();
     await clearLaunchHighlight();
+    await clearPlanningSnapMarkers();
     await _afterExitPlanning();
   }
 
@@ -170,6 +229,7 @@ final class MapboxMapController extends _$MapboxMapController
     mapDebugLog('_clearPlanningSelection');
     ref.read(routePlanningProvider.notifier).clearSelection();
     await clearRouteLine();
+    await clearPlanningSnapMarkers();
     final map = mapboxMap;
     if (map != null) {
       await fitViewportToAllLaunches(map);
@@ -185,12 +245,57 @@ final class MapboxMapController extends _$MapboxMapController
   Future<RoutePlanningTapResult?> tryAddPlanningWaypoint(
     LaunchPoint launch,
   ) async {
+    return tryAddPlanningStop(RoutePlanningStop.catalog(launch));
+  }
+
+  /// Snaps a map coordinate and adds it as a custom planning stop when valid.
+  Future<RoutePlanningTapResult?> tryAddPlanningSnapStop(
+    double latitude,
+    double longitude,
+  ) async {
     final planning = ref.read(routePlanningProvider);
-    if (!planning.planningMode && planning.waypoints.isEmpty) {
+    if (!planning.planningMode && planning.stops.isEmpty) {
       return null;
     }
 
-    final duplicate = _duplicatePlanningTapResult(planning.waypoints, launch);
+    final planner = await _resolveMapRoutePlanner();
+    if (planner == null) {
+      return null;
+    }
+
+    final snapResult = await planner.snapToWaterway(latitude, longitude);
+    if (snapResult case Failure(:final error)) {
+      ui.showSnackBar?.call(error);
+      return null;
+    }
+    final snap = (snapResult as Success<WaterwaySnapPoint, Object>).value;
+    final stopIndex = planning.stops.length + 1;
+    final label =
+        ui.customStopLabel?.call(stopIndex) ??
+        '${snap.latitude.toStringAsFixed(4)}, '
+            '${snap.longitude.toStringAsFixed(4)}';
+
+    final stop = RoutePlanningStop.snap(
+      id: generatePlanningSnapId(),
+      latitude: snap.latitude,
+      longitude: snap.longitude,
+      label: label,
+      reachId: snap.reachId,
+    );
+
+    return tryAddPlanningStop(stop);
+  }
+
+  /// Validates hydro routing, then adds [stop] to the active plan when valid.
+  Future<RoutePlanningTapResult?> tryAddPlanningStop(
+    RoutePlanningStop stop,
+  ) async {
+    final planning = ref.read(routePlanningProvider);
+    if (!planning.planningMode && planning.stops.isEmpty) {
+      return null;
+    }
+
+    final duplicate = _duplicatePlanningTapResult(planning.stops, stop);
     if (duplicate != null) {
       if (duplicate == RoutePlanningTapResult.sameAsPutIn) {
         ui.showSnackBar?.call(ui.pickDifferentTakeOutMessage);
@@ -203,17 +308,15 @@ final class MapboxMapController extends _$MapboxMapController
       return null;
     }
 
-    final validation = planning.waypoints.isEmpty
-        ? await planner.validateLaunch(launch)
-        : await planner.validateSegment(planning.waypoints.last, launch);
+    final validation = planning.stops.isEmpty
+        ? await planner.validateStop(stop)
+        : await planner.validateSegmentStops(planning.stops.last, stop);
     if (validation case Failure(:final error)) {
       ui.showSnackBar?.call(error);
       return null;
     }
 
-    final result = ref
-        .read(routePlanningProvider.notifier)
-        .handleLaunchTap(launch);
+    final result = ref.read(routePlanningProvider.notifier).addStop(stop);
     if (result == null) {
       return null;
     }
@@ -221,26 +324,25 @@ final class MapboxMapController extends _$MapboxMapController
     switch (result) {
       case RoutePlanningTapResult.putInSelected:
         await clearRouteLine();
-        await flyToLaunch(launch);
-        await highlightLaunch(launch, onSelectionTap: onLaunchCircleTap);
+        await focusStop(stop);
       case RoutePlanningTapResult.takeOutSelected:
-        await _runRoute(rollbackLastWaypointOnFailure: true);
-        await flyToLaunch(launch);
-        await highlightLaunch(launch, onSelectionTap: onLaunchCircleTap);
+        await _runRoute(rollbackLastStopOnFailure: true);
+        await focusStop(stop);
       case RoutePlanningTapResult.sameAsPutIn:
         ui.showSnackBar?.call(ui.pickDifferentTakeOutMessage);
     }
+    await syncPlanningSnapMarkers(ref.read(routePlanningProvider).stops);
     return result;
   }
 
   RoutePlanningTapResult? _duplicatePlanningTapResult(
-    List<LaunchPoint> waypoints,
-    LaunchPoint launch,
+    List<RoutePlanningStop> stops,
+    RoutePlanningStop stop,
   ) {
-    if (waypoints.isNotEmpty && waypoints.last.id == launch.id) {
+    if (stops.isNotEmpty && stops.last.sameStopAs(stop)) {
       return RoutePlanningTapResult.sameAsPutIn;
     }
-    if (waypoints.length == 1 && waypoints.first.id == launch.id) {
+    if (stops.length == 1 && stops.first.sameStopAs(stop)) {
       return RoutePlanningTapResult.sameAsPutIn;
     }
     return null;
@@ -253,29 +355,30 @@ final class MapboxMapController extends _$MapboxMapController
   Future<void> abandonPlanningRouteLine() async {
     bumpRouteLineGeneration();
     await clearRouteLine();
+    await clearPlanningSnapMarkers();
   }
 
   Future<void> rerunActiveRoute() => _runRoute();
 
-  Future<void> _runRoute({bool rollbackLastWaypointOnFailure = false}) async {
+  Future<void> _runRoute({bool rollbackLastStopOnFailure = false}) async {
     final routeGeneration = routeLineGeneration;
     final planning = ref.read(routePlanningProvider);
-    final waypoints = planning.waypoints;
-    if (waypoints.length < 2) {
+    final stops = planning.stops;
+    if (stops.length < 2) {
       return;
     }
-    final waypointIds = waypoints.map((w) => w.id).toList(growable: false);
+    final stopIds = stops.map((stop) => stop.stopId).toList(growable: false);
 
     final planner = await _resolveMapRoutePlanner();
     if (planner == null ||
         !_canApplyRouteResult(
           routeGeneration: routeGeneration,
-          waypointIds: waypointIds,
+          stopIds: stopIds,
         )) {
       return;
     }
 
-    final planResult = await planner.planMultiSegment(waypoints);
+    final planResult = await planner.planMultiSegment(stops);
     if (!alive) {
       return;
     }
@@ -284,7 +387,7 @@ final class MapboxMapController extends _$MapboxMapController
       mapDebugLog('plan FAILED multi-segment: $error');
       if (!_canApplyRouteResult(
         routeGeneration: routeGeneration,
-        waypointIds: waypointIds,
+        stopIds: stopIds,
       )) {
         return;
       }
@@ -294,8 +397,8 @@ final class MapboxMapController extends _$MapboxMapController
             geometry: null,
             routeLengthKm: null,
           );
-      if (rollbackLastWaypointOnFailure) {
-        ref.read(routePlanningProvider.notifier).removeLastWaypoint();
+      if (rollbackLastStopOnFailure) {
+        ref.read(routePlanningProvider.notifier).removeLastStop();
       }
       unawaited(clearRouteLine());
       ui.showSnackBar?.call(error);
@@ -307,12 +410,12 @@ final class MapboxMapController extends _$MapboxMapController
     if (geometry == null ||
         !_canApplyRouteResult(
           routeGeneration: routeGeneration,
-          waypointIds: waypointIds,
+          stopIds: stopIds,
         )) {
       return;
     }
     mapDebugLog(
-      'plan OK ${waypoints.length} stops '
+      'plan OK ${stops.length} stops '
       'lengthM=${geometry.lengthMeters.toStringAsFixed(0)}',
     );
     mapDebugLogRoutePolyline('planner output', geometry.polylineLonLat);
@@ -324,7 +427,7 @@ final class MapboxMapController extends _$MapboxMapController
         );
     if (!_canApplyRouteResult(
       routeGeneration: routeGeneration,
-      waypointIds: waypointIds,
+      stopIds: stopIds,
     )) {
       return;
     }
@@ -382,13 +485,13 @@ final class MapboxMapController extends _$MapboxMapController
     return visibility == MapSheetVisibility.planningPreview;
   }
 
-  bool _matchesPlannedWaypoints(List<String> waypointIds) {
-    final current = ref.read(routePlanningProvider).waypoints;
-    if (current.length != waypointIds.length) {
+  bool _matchesPlannedStops(List<String> stopIds) {
+    final current = ref.read(routePlanningProvider).stops;
+    if (current.length != stopIds.length) {
       return false;
     }
-    for (var i = 0; i < waypointIds.length; i++) {
-      if (current[i].id != waypointIds[i]) {
+    for (var i = 0; i < stopIds.length; i++) {
+      if (current[i].stopId != stopIds[i]) {
         return false;
       }
     }
@@ -403,11 +506,11 @@ final class MapboxMapController extends _$MapboxMapController
 
   bool _canApplyRouteResult({
     required int routeGeneration,
-    required List<String> waypointIds,
+    required List<String> stopIds,
   }) {
     if (!alive ||
         !isRouteLineGenerationCurrent(routeGeneration) ||
-        !_matchesPlannedWaypoints(waypointIds) ||
+        !_matchesPlannedStops(stopIds) ||
         !_shouldShowRouteOnMap()) {
       return false;
     }

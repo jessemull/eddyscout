@@ -13,7 +13,7 @@ import 'paddle_speed_provider.dart';
 /// Floating edit-stops card (Google Maps directions style).
 class MapRoutePlanningChrome extends ConsumerWidget {
   const MapRoutePlanningChrome({
-    required this.waypoints,
+    required this.stops,
     required this.routeLengthKm,
     required this.canFinishPlanning,
     required this.onBack,
@@ -23,7 +23,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
     super.key,
   });
 
-  final List<LaunchPoint> waypoints;
+  final List<RoutePlanningStop> stops;
   final double? routeLengthKm;
   final bool canFinishPlanning;
   final VoidCallback onBack;
@@ -53,11 +53,19 @@ class MapRoutePlanningChrome extends ConsumerWidget {
     ref.read(mapSearchExpandedProvider.notifier).expand();
   }
 
-  String _stopSemanticsLabel(AppLocalizations l10n, int index, String name) {
+  String _stopSemanticsLabel(
+    AppLocalizations l10n,
+    int index,
+    RoutePlanningStop stop,
+  ) {
+    final name = stop.displayLabel;
+    if (stop.isSnap) {
+      return l10n.mapRouteCustomStopSemantics(name);
+    }
     if (index == 0) {
       return l10n.mapRouteOriginStopSemantics(name);
     }
-    if (waypoints.length >= 2 && index == waypoints.length - 1) {
+    if (stops.length >= 2 && index == stops.length - 1) {
       return l10n.mapRouteDestinationStopSemantics(name);
     }
     final letter = String.fromCharCode(65 + (index - 1));
@@ -68,7 +76,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
-    final hasDestination = waypoints.length >= 2;
+    final hasDestination = stops.length >= 2;
     final canDone = canFinishPlanning;
     final speedKmh = ref.watch(effectivePaddleSpeedKmhProvider);
     final displayUnits = ref.watch(effectiveDisplayUnitSystemProvider);
@@ -106,11 +114,11 @@ class MapRoutePlanningChrome extends ConsumerWidget {
                 _PlanningChromeBackButton(onBack: onBack),
                 Expanded(
                   child: _PlanningStopListSection(
-                    waypoints: waypoints,
+                    stops: stops,
                     hasDestination: hasDestination,
                     searchHintText: l10n.mapSearchPlaceholder,
-                    stopSemanticsLabel: (index, name) =>
-                        _stopSemanticsLabel(l10n, index, name),
+                    stopSemanticsLabel: (index, stop) =>
+                        _stopSemanticsLabel(l10n, index, stop),
                     onRemoveStop: onRemoveStop,
                     onReorderStop: onReorderStop,
                     onInlineSearchChanged: (value) =>
@@ -173,7 +181,7 @@ class _PlanningChromeBackButton extends StatelessWidget {
 
 class _PlanningStopListSection extends StatelessWidget {
   const _PlanningStopListSection({
-    required this.waypoints,
+    required this.stops,
     required this.hasDestination,
     required this.searchHintText,
     required this.stopSemanticsLabel,
@@ -182,10 +190,10 @@ class _PlanningStopListSection extends StatelessWidget {
     required this.onInlineSearchChanged,
   });
 
-  final List<LaunchPoint> waypoints;
+  final List<RoutePlanningStop> stops;
   final bool hasDestination;
   final String searchHintText;
-  final String Function(int index, String name) stopSemanticsLabel;
+  final String Function(int index, RoutePlanningStop stop) stopSemanticsLabel;
   final ValueChanged<int> onRemoveStop;
   final void Function(int oldIndex, int newIndex) onReorderStop;
   final ValueChanged<String> onInlineSearchChanged;
@@ -196,30 +204,31 @@ class _PlanningStopListSection extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (waypoints.isNotEmpty)
+        if (stops.isNotEmpty)
           ReorderableListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             buildDefaultDragHandles: false,
-            itemCount: waypoints.length,
+            itemCount: stops.length,
             onReorderItem: onReorderStop,
             itemBuilder: (context, index) {
-              final launch = waypoints[index];
-              final canRemove = waypoints.length > 1;
+              final stop = stops[index];
+              final canRemove = stops.length > 1;
               return Semantics(
-                key: ValueKey('${launch.id}_$index'),
-                label: stopSemanticsLabel(index, launch.name),
+                key: ValueKey('${stop.stopId}_$index'),
+                label: stopSemanticsLabel(index, stop),
                 hint: l10n.mapRouteReorderStopHint,
                 child: _EditStopRow(
                   showConnectorBelow: true,
                   indicator: _StopIndicator(
                     index: index,
-                    totalStops: waypoints.length,
+                    totalStops: stops.length,
+                    isSnap: stop.isSnap,
                   ),
-                  label: launch.name,
+                  label: stop.displayLabel,
                   onRemove: canRemove ? () => onRemoveStop(index) : null,
                   removeSemanticsLabel: l10n.mapRouteDeleteStopSemantics(
-                    launch.name,
+                    stop.displayLabel,
                   ),
                   reorderHint: l10n.mapRouteReorderStopHint,
                   dragIndex: index,
@@ -431,14 +440,23 @@ class _StopIndicator extends StatelessWidget {
   const _StopIndicator({
     required this.index,
     required this.totalStops,
+    required this.isSnap,
   });
 
   final int index;
   final int totalStops;
+  final bool isSnap;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    if (isSnap) {
+      return Icon(
+        Icons.place_outlined,
+        size: 16,
+        color: scheme.tertiary,
+      );
+    }
     if (index == 0) {
       return SizedBox(
         width: 14,

@@ -11,12 +11,33 @@ part of 'saved_route_models.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
+RouteWaypoint _$RouteWaypointFromJson(
+  Map<String, dynamic> json
+) {
+        switch (json['type']) {
+                  case 'catalog':
+          return CatalogRouteWaypoint.fromJson(
+            json
+          );
+                case 'snap':
+          return SnapRouteWaypoint.fromJson(
+            json
+          );
+        
+          default:
+            throw CheckedFromJsonException(
+  json,
+  'type',
+  'RouteWaypoint',
+  'Invalid union type "${json['type']}"!'
+);
+        }
+      
+}
 
 /// @nodoc
 mixin _$RouteWaypoint {
 
-/// Stable launch id from the catalog.
- String get launchId;/// Zero-based order along the route.
  int get order;
 /// Create a copy of RouteWaypoint
 /// with the given fields replaced by the non-null parameter values.
@@ -30,16 +51,16 @@ $RouteWaypointCopyWith<RouteWaypoint> get copyWith => _$RouteWaypointCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteWaypoint&&(identical(other.launchId, launchId) || other.launchId == launchId)&&(identical(other.order, order) || other.order == order));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteWaypoint&&(identical(other.order, order) || other.order == order));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,launchId,order);
+int get hashCode => Object.hash(runtimeType,order);
 
 @override
 String toString() {
-  return 'RouteWaypoint(launchId: $launchId, order: $order)';
+  return 'RouteWaypoint(order: $order)';
 }
 
 
@@ -50,7 +71,7 @@ abstract mixin class $RouteWaypointCopyWith<$Res>  {
   factory $RouteWaypointCopyWith(RouteWaypoint value, $Res Function(RouteWaypoint) _then) = _$RouteWaypointCopyWithImpl;
 @useResult
 $Res call({
- String launchId, int order
+ int order
 });
 
 
@@ -67,10 +88,9 @@ class _$RouteWaypointCopyWithImpl<$Res>
 
 /// Create a copy of RouteWaypoint
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? launchId = null,Object? order = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? order = null,}) {
   return _then(_self.copyWith(
-launchId: null == launchId ? _self.launchId : launchId // ignore: cast_nullable_to_non_nullable
-as String,order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
+order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -92,11 +112,12 @@ extension RouteWaypointPatterns on RouteWaypoint {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RouteWaypoint value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( CatalogRouteWaypoint value)?  catalog,TResult Function( SnapRouteWaypoint value)?  snap,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _RouteWaypoint() when $default != null:
-return $default(_that);case _:
+case CatalogRouteWaypoint() when catalog != null:
+return catalog(_that);case SnapRouteWaypoint() when snap != null:
+return snap(_that);case _:
   return orElse();
 
 }
@@ -114,14 +135,12 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RouteWaypoint value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( CatalogRouteWaypoint value)  catalog,required TResult Function( SnapRouteWaypoint value)  snap,}){
 final _that = this;
 switch (_that) {
-case _RouteWaypoint():
-return $default(_that);case _:
-  throw StateError('Unexpected subclass');
-
-}
+case CatalogRouteWaypoint():
+return catalog(_that);case SnapRouteWaypoint():
+return snap(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -135,11 +154,12 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RouteWaypoint value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( CatalogRouteWaypoint value)?  catalog,TResult? Function( SnapRouteWaypoint value)?  snap,}){
 final _that = this;
 switch (_that) {
-case _RouteWaypoint() when $default != null:
-return $default(_that);case _:
+case CatalogRouteWaypoint() when catalog != null:
+return catalog(_that);case SnapRouteWaypoint() when snap != null:
+return snap(_that);case _:
   return null;
 
 }
@@ -156,10 +176,11 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String launchId,  int order)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String launchId,  int order)?  catalog,TResult Function( double latitude,  double longitude,  int order,  String? label)?  snap,required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _RouteWaypoint() when $default != null:
-return $default(_that.launchId,_that.order);case _:
+case CatalogRouteWaypoint() when catalog != null:
+return catalog(_that.launchId,_that.order);case SnapRouteWaypoint() when snap != null:
+return snap(_that.latitude,_that.longitude,_that.order,_that.label);case _:
   return orElse();
 
 }
@@ -177,13 +198,11 @@ return $default(_that.launchId,_that.order);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String launchId,  int order)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String launchId,  int order)  catalog,required TResult Function( double latitude,  double longitude,  int order,  String? label)  snap,}) {final _that = this;
 switch (_that) {
-case _RouteWaypoint():
-return $default(_that.launchId,_that.order);case _:
-  throw StateError('Unexpected subclass');
-
-}
+case CatalogRouteWaypoint():
+return catalog(_that.launchId,_that.order);case SnapRouteWaypoint():
+return snap(_that.latitude,_that.longitude,_that.order,_that.label);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -197,10 +216,11 @@ return $default(_that.launchId,_that.order);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String launchId,  int order)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String launchId,  int order)?  catalog,TResult? Function( double latitude,  double longitude,  int order,  String? label)?  snap,}) {final _that = this;
 switch (_that) {
-case _RouteWaypoint() when $default != null:
-return $default(_that.launchId,_that.order);case _:
+case CatalogRouteWaypoint() when catalog != null:
+return catalog(_that.launchId,_that.order);case SnapRouteWaypoint() when snap != null:
+return snap(_that.latitude,_that.longitude,_that.order,_that.label);case _:
   return null;
 
 }
@@ -211,29 +231,31 @@ return $default(_that.launchId,_that.order);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _RouteWaypoint implements RouteWaypoint {
-  const _RouteWaypoint({required this.launchId, required this.order});
-  factory _RouteWaypoint.fromJson(Map<String, dynamic> json) => _$RouteWaypointFromJson(json);
+class CatalogRouteWaypoint extends RouteWaypoint {
+  const CatalogRouteWaypoint({required this.launchId, required this.order, final  String? $type}): $type = $type ?? 'catalog',super._();
+  factory CatalogRouteWaypoint.fromJson(Map<String, dynamic> json) => _$CatalogRouteWaypointFromJson(json);
 
-/// Stable launch id from the catalog.
-@override final  String launchId;
-/// Zero-based order along the route.
+ final  String launchId;
 @override final  int order;
+
+@JsonKey(name: 'type')
+final String $type;
+
 
 /// Create a copy of RouteWaypoint
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$RouteWaypointCopyWith<_RouteWaypoint> get copyWith => __$RouteWaypointCopyWithImpl<_RouteWaypoint>(this, _$identity);
+$CatalogRouteWaypointCopyWith<CatalogRouteWaypoint> get copyWith => _$CatalogRouteWaypointCopyWithImpl<CatalogRouteWaypoint>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$RouteWaypointToJson(this, );
+  return _$CatalogRouteWaypointToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteWaypoint&&(identical(other.launchId, launchId) || other.launchId == launchId)&&(identical(other.order, order) || other.order == order));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CatalogRouteWaypoint&&(identical(other.launchId, launchId) || other.launchId == launchId)&&(identical(other.order, order) || other.order == order));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -242,15 +264,15 @@ int get hashCode => Object.hash(runtimeType,launchId,order);
 
 @override
 String toString() {
-  return 'RouteWaypoint(launchId: $launchId, order: $order)';
+  return 'RouteWaypoint.catalog(launchId: $launchId, order: $order)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$RouteWaypointCopyWith<$Res> implements $RouteWaypointCopyWith<$Res> {
-  factory _$RouteWaypointCopyWith(_RouteWaypoint value, $Res Function(_RouteWaypoint) _then) = __$RouteWaypointCopyWithImpl;
+abstract mixin class $CatalogRouteWaypointCopyWith<$Res> implements $RouteWaypointCopyWith<$Res> {
+  factory $CatalogRouteWaypointCopyWith(CatalogRouteWaypoint value, $Res Function(CatalogRouteWaypoint) _then) = _$CatalogRouteWaypointCopyWithImpl;
 @override @useResult
 $Res call({
  String launchId, int order
@@ -261,20 +283,99 @@ $Res call({
 
 }
 /// @nodoc
-class __$RouteWaypointCopyWithImpl<$Res>
-    implements _$RouteWaypointCopyWith<$Res> {
-  __$RouteWaypointCopyWithImpl(this._self, this._then);
+class _$CatalogRouteWaypointCopyWithImpl<$Res>
+    implements $CatalogRouteWaypointCopyWith<$Res> {
+  _$CatalogRouteWaypointCopyWithImpl(this._self, this._then);
 
-  final _RouteWaypoint _self;
-  final $Res Function(_RouteWaypoint) _then;
+  final CatalogRouteWaypoint _self;
+  final $Res Function(CatalogRouteWaypoint) _then;
 
 /// Create a copy of RouteWaypoint
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? launchId = null,Object? order = null,}) {
-  return _then(_RouteWaypoint(
+  return _then(CatalogRouteWaypoint(
 launchId: null == launchId ? _self.launchId : launchId // ignore: cast_nullable_to_non_nullable
 as String,order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
 as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class SnapRouteWaypoint extends RouteWaypoint {
+  const SnapRouteWaypoint({required this.latitude, required this.longitude, required this.order, this.label, final  String? $type}): $type = $type ?? 'snap',super._();
+  factory SnapRouteWaypoint.fromJson(Map<String, dynamic> json) => _$SnapRouteWaypointFromJson(json);
+
+ final  double latitude;
+ final  double longitude;
+@override final  int order;
+ final  String? label;
+
+@JsonKey(name: 'type')
+final String $type;
+
+
+/// Create a copy of RouteWaypoint
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SnapRouteWaypointCopyWith<SnapRouteWaypoint> get copyWith => _$SnapRouteWaypointCopyWithImpl<SnapRouteWaypoint>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SnapRouteWaypointToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SnapRouteWaypoint&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.order, order) || other.order == order)&&(identical(other.label, label) || other.label == label));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,latitude,longitude,order,label);
+
+@override
+String toString() {
+  return 'RouteWaypoint.snap(latitude: $latitude, longitude: $longitude, order: $order, label: $label)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SnapRouteWaypointCopyWith<$Res> implements $RouteWaypointCopyWith<$Res> {
+  factory $SnapRouteWaypointCopyWith(SnapRouteWaypoint value, $Res Function(SnapRouteWaypoint) _then) = _$SnapRouteWaypointCopyWithImpl;
+@override @useResult
+$Res call({
+ double latitude, double longitude, int order, String? label
+});
+
+
+
+
+}
+/// @nodoc
+class _$SnapRouteWaypointCopyWithImpl<$Res>
+    implements $SnapRouteWaypointCopyWith<$Res> {
+  _$SnapRouteWaypointCopyWithImpl(this._self, this._then);
+
+  final SnapRouteWaypoint _self;
+  final $Res Function(SnapRouteWaypoint) _then;
+
+/// Create a copy of RouteWaypoint
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? latitude = null,Object? longitude = null,Object? order = null,Object? label = freezed,}) {
+  return _then(SnapRouteWaypoint(
+latitude: null == latitude ? _self.latitude : latitude // ignore: cast_nullable_to_non_nullable
+as double,longitude: null == longitude ? _self.longitude : longitude // ignore: cast_nullable_to_non_nullable
+as double,order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
+as int,label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

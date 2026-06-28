@@ -737,6 +737,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String mapRouteCustomStopLabel(int index) {
+    return 'Custom stop $index';
+  }
+
+  @override
+  String mapRouteCustomStopSemantics(String name) {
+    return 'Custom stop, $name';
+  }
+
+  @override
   String get mapRouteStartComingSoon => 'On-water navigation is coming soon.';
 
   @override

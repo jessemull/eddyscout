@@ -17,9 +17,11 @@ HYRO_DIR = SCRIPT_DIR.parent / "hydro"
 sys.path.insert(0, str(HYRO_DIR))
 
 from _common import (  # noqa: E402
+    assert_launch_snap_within,
     bundled_hydro_dir,
     haversine_meters,
     hydro_fixture_dir,
+    launch_anchor_lonlat,
     load_feature_collection,
     polyline_length_meters,
     prune_backtrack_loops,
@@ -47,11 +49,13 @@ SANDY_TAIL_WAY_ID = 128946456
 SANDY_JUNCTION = (-122.4017553, 45.5691143)
 MAINSTEM_JOIN = (-122.7633908, 45.659415)
 VANCOUVER_WINTLER = (-122.6558, 45.6275)
-SCAPPOOSE_BAY = (-122.8495, 45.7580)
 ST_HELENS_MARINA = (-122.7974, 45.8642)
 FRENCHMANS_BAR = (-122.6332, 45.8317)
 MULTNOMAH_CHANNEL_WAY_ID = 420655001
-SLOUGH_SPUR_REACH_ID = "camas_slough_spur"
+SCAPPOOSE_MARINA_CONNECTOR_MAX_M = 10000.0
+PRESERVED_SPUR_REACH_IDS = frozenset(
+    {"camas_slough_spur", "washougal_waterfront_spur"},
+)
 MAX_EDGE_M = 2000.0
 DENSIFY_STEP_M = 400.0
 MERGE_VERTEX_M = 12.0
@@ -296,17 +300,24 @@ def _build_vancouver_wintler_spur(mainstem: list[list[float]]) -> list[list[floa
 def _build_multnomah_scappoose_spur(ways: list[WayRecord]) -> list[list[float]]:
     channel = _multnomah_channel_way(ways)
     coords = [[lon, lat] for lon, lat in channel.coordinates]
+    marina = launch_anchor_lonlat("scappoose_bay_marina")
     main_index = _nearest_index(coords, MAINSTEM_JOIN)
-    scappoose_index = _nearest_index(coords, SCAPPOOSE_BAY)
-    segment = _slice_polyline(coords, main_index, scappoose_index)
+    marina_index = _nearest_index(coords, marina)
+    segment = _slice_polyline(coords, main_index, marina_index)
     spur = _finalize_coords(
         extend_toward_anchor(
             round_coords(densify_coords(segment)),
-            SCAPPOOSE_BAY,
-            max_connector_m=2000.0,
+            marina,
+            max_connector_m=SCAPPOOSE_MARINA_CONNECTOR_MAX_M,
         ),
     )
-    return _connect_spur_to_mainstem(spur)
+    connected = _connect_spur_to_mainstem(spur)
+    assert_launch_snap_within(
+        connected,
+        "scappoose_bay_marina",
+        context="Multnomah Channel spur",
+    )
+    return connected
 
 
 def _build_north_pool_spur() -> list[list[float]]:
@@ -480,10 +491,11 @@ def _build_lower_features(
         ),
         _feature(
             reach_id="multnomah_channel_scappoose",
-            name="Multnomah Channel — Scappoose Bay spur (OSM way 420655001)",
+            name="Multnomah Channel — Scappoose Bay Marina spur (OSM way 420655001)",
             source=(
                 "OpenStreetMap ODbL. Subline of Multnomah Channel way 420655001 "
-                "with connector to Columbia lower mainstem."
+                "with connector to Columbia lower mainstem and extension to "
+                "Scappoose Bay Marina catalog launch anchor."
             ),
             coordinates=multnomah,
         ),
@@ -499,7 +511,7 @@ def _build_lower_features(
     ]
 
 
-def _existing_slough_spur_features(asset_dir: Path) -> list[dict[str, Any]]:
+def _existing_preserved_spur_features(asset_dir: Path) -> list[dict[str, Any]]:
     lower_path = asset_dir / "columbia_lower_waterway.geojson"
     if not lower_path.exists():
         return []
@@ -508,7 +520,8 @@ def _existing_slough_spur_features(asset_dir: Path) -> list[dict[str, Any]]:
     return [
         feature
         for feature in features
-        if (feature.get("properties") or {}).get("reach_id") == SLOUGH_SPUR_REACH_ID
+        if (feature.get("properties") or {}).get("reach_id")
+        in PRESERVED_SPUR_REACH_IDS
     ]
 
 
@@ -527,7 +540,7 @@ def _write_outputs(
         ),
         coordinates=gorge,
     )
-    slough_features = _existing_slough_spur_features(asset_dir)
+    slough_features = _existing_preserved_spur_features(asset_dir)
     lower_features = [*lower_features, *slough_features]
     for directory in (asset_dir, fixture_dir):
         write_feature_collection(

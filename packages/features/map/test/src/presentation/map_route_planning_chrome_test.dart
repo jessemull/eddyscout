@@ -35,6 +35,12 @@ const _destination = LaunchPoint(
   tideRelevance: TideRelevance.none,
 );
 
+List<RoutePlanningStop> _catalogStops(List<LaunchPoint> launches) {
+  return [
+    for (final launch in launches) RoutePlanningStop.catalog(launch),
+  ];
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -47,7 +53,7 @@ void main() {
 
   Future<void> pumpChrome(
     WidgetTester tester, {
-    required List<LaunchPoint> waypoints,
+    required List<RoutePlanningStop> stops,
     required double? routeLengthKm,
     bool? canFinishPlanning,
     DisplayUnitSystem units = DisplayUnitSystem.metric,
@@ -55,7 +61,7 @@ void main() {
   }) async {
     final resolvedStore = keyValueStore ?? store;
     final resolvedCanFinish =
-        canFinishPlanning ?? (waypoints.length >= 2 && routeLengthKm != null);
+        canFinishPlanning ?? (stops.length >= 2 && routeLengthKm != null);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -64,7 +70,7 @@ void main() {
         ],
         child: testLocalizedApp(
           child: MapRoutePlanningChrome(
-            waypoints: waypoints,
+            stops: stops,
             routeLengthKm: routeLengthKm,
             canFinishPlanning: resolvedCanFinish,
             onBack: () {},
@@ -81,7 +87,7 @@ void main() {
   testWidgets('centers Done vertically in the footer band', (tester) async {
     await pumpChrome(
       tester,
-      waypoints: [kLaunchPoints.first],
+      stops: _catalogStops([kLaunchPoints.first]),
       routeLengthKm: null,
     );
 
@@ -101,7 +107,7 @@ void main() {
   testWidgets('aligns footer edges with chrome columns', (tester) async {
     await pumpChrome(
       tester,
-      waypoints: [kLaunchPoints[0], kLaunchPoints[1]],
+      stops: _catalogStops([kLaunchPoints[0], kLaunchPoints[1]]),
       routeLengthKm: 5.8,
     );
 
@@ -125,7 +131,7 @@ void main() {
 
     await pumpChrome(
       tester,
-      waypoints: [kLaunchPoints[0], kLaunchPoints[1]],
+      stops: _catalogStops([kLaunchPoints[0], kLaunchPoints[1]]),
       routeLengthKm: 5,
       keyValueStore: memoryStore,
     );
@@ -136,7 +142,7 @@ void main() {
   testWidgets('shows metric distance in planning footer', (tester) async {
     await pumpChrome(
       tester,
-      waypoints: const [_origin, _destination],
+      stops: _catalogStops(const [_origin, _destination]),
       routeLengthKm: 10,
       units: DisplayUnitSystem.metric,
     );
@@ -147,12 +153,31 @@ void main() {
   testWidgets('shows imperial distance in planning footer', (tester) async {
     await pumpChrome(
       tester,
-      waypoints: const [_origin, _destination],
+      stops: _catalogStops(const [_origin, _destination]),
       routeLengthKm: 10,
       units: DisplayUnitSystem.imperial,
     );
 
     expect(find.text('Total trip: 150 min (6.2 mi)'), findsOneWidget);
+  });
+
+  testWidgets('shows snap stop label with place indicator', (tester) async {
+    await pumpChrome(
+      tester,
+      stops: [
+        const RoutePlanningStop.catalog(_origin),
+        const RoutePlanningStop.snap(
+          id: 'snap_1',
+          latitude: 45.55,
+          longitude: -122.55,
+          label: 'Custom stop 2',
+        ),
+      ],
+      routeLengthKm: 8,
+    );
+
+    expect(find.text('Custom stop 2'), findsOneWidget);
+    expect(find.byIcon(Icons.place_outlined), findsOneWidget);
   });
 
   testWidgets('disables Done when canFinishPlanning is false', (tester) async {
@@ -167,7 +192,7 @@ void main() {
         ],
         child: testLocalizedApp(
           child: MapRoutePlanningChrome(
-            waypoints: const [_origin, _destination],
+            stops: _catalogStops(const [_origin, _destination]),
             routeLengthKm: 10,
             canFinishPlanning: false,
             onBack: () {},

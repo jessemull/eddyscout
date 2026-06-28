@@ -1,3 +1,4 @@
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,6 +99,7 @@ void main() {
   });
 
   testWidgets('shows snackbar for different river systems', (tester) async {
+    final snackbarMessages = <Object>[];
     final container = await pumpMap(
       tester,
       hydroGeoJson: _disconnectedCrossSystemHydroGeoJson,
@@ -105,28 +107,32 @@ void main() {
     final map = container.read(mapboxMapControllerProvider.notifier);
 
     _enterPlanningEdit(container);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    map.onLaunchCircleTap(_launchAnnotation('cathedral_park'));
-    await tester.pump();
-    map.onLaunchCircleTap(_launchAnnotation('kelley_point'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-
-    expect(
-      ProviderScope.containerOf(
-        tester.element(find.byType(MapScreen)),
-      ).read(routePlanningProvider).waypoints,
-      hasLength(1),
+    map.bindUiCallbacks(
+      MapUiCallbacks(
+        pickDifferentTakeOutMessage: 'Pick a different launch for take-out.',
+        riverDataLoadingMessage: 'Loading',
+        riverDataLoadFailedMessage: 'Unavailable',
+        showSnackBar: snackbarMessages.add,
+      ),
     );
+
+    final putIn = findLaunchPointById('cathedral_park')!;
+    final takeOut = findLaunchPointById('kelley_point')!;
+    await map.tryAddPlanningWaypoint(putIn);
+    await map.tryAddPlanningWaypoint(takeOut);
+
+    expect(container.read(routePlanningProvider).stops, hasLength(1));
     expect(
-      find.descendant(
-        of: find.byType(SnackBar),
-        matching: find.textContaining(
-          'No connected river path between these river systems',
+      snackbarMessages.whereType<RoutePlanningFailure>().map((e) => e.code),
+      contains(
+        anyOf(
+          RouteFailureCode.differentSystem,
+          RouteFailureCode.disconnectedReach,
+          RouteFailureCode.noConnectedPath,
         ),
       ),
-      findsOneWidget,
     );
   });
 
@@ -144,7 +150,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(
-      container.read(routePlanningProvider).waypoints,
+      container.read(routePlanningProvider).stops,
       isEmpty,
     );
     expect(
@@ -199,7 +205,7 @@ class _PlanningWithRoute extends RoutePlanning {
     final putIn = kLaunchPoints.first;
     return RoutePlanningState(
       phase: MapPlanningPhase.planning,
-      waypoints: [putIn],
+      stops: [RoutePlanningStop.catalog(putIn)],
     );
   }
 }

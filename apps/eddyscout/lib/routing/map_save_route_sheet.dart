@@ -24,7 +24,7 @@ Future<void> showMapSaveRouteSheet(BuildContext context, WidgetRef ref) async {
   final capture = RoutePlanningSaveCapture.fromState(planning);
   final planningNotifier = ref.read(routePlanningProvider.notifier);
 
-  final suggestedName = suggestedSavedRouteName(capture.waypoints) ?? '';
+  final suggestedName = suggestedSavedRouteName(capture.catalogLaunches) ?? '';
   final nameController = TextEditingController(text: suggestedName);
   final notesController = TextEditingController();
 
@@ -194,16 +194,16 @@ Future<void> handlePendingSavedRouteLoad(
 
   final route = draft;
   final lookup = ref.read(launchPointLookupProvider);
-  final launches = <LaunchPoint>[];
+  final resolvedStops = <RoutePlanningStop>[];
   final sorted = List<RouteWaypoint>.of(route.waypoints)
     ..sort((a, b) => a.order.compareTo(b.order));
   for (final wp in sorted) {
-    final launch = lookup(wp.launchId);
-    if (launch != null) {
-      launches.add(launch);
+    final stop = routePlanningStopFromWaypoint(wp, lookup);
+    if (stop != null) {
+      resolvedStops.add(stop);
     }
   }
-  if (launches.length < 2) {
+  if (resolvedStops.length < 2) {
     if (!context.mounted) {
       return;
     }
@@ -212,10 +212,16 @@ Future<void> handlePendingSavedRouteLoad(
     );
     return;
   }
-  ref.read(routePlanningProvider.notifier).loadFromSavedRoute(route, launches);
+  ref
+      .read(routePlanningProvider.notifier)
+      .loadFromSavedRoute(route, resolvedStops);
   ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningPreview();
-  if (launches.isNotEmpty) {
-    ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(launches.first);
+  final firstCatalog = resolvedStops
+      .map((stop) => stop.catalogLaunch)
+      .whereType<LaunchPoint>()
+      .firstOrNull;
+  if (firstCatalog != null) {
+    ref.read(mapPlaceSelectionProvider.notifier).pickLaunch(firstCatalog);
   }
 
   try {

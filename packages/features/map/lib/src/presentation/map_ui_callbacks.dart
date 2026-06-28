@@ -6,6 +6,7 @@ class MapUiCallbacks {
     required this.pickDifferentTakeOutMessage,
     required this.riverDataLoadingMessage,
     required this.riverDataLoadFailedMessage,
+    this.customStopLabel,
     this.showSnackBar,
     this.openLaunchDetail,
     this.onLaunchPlaceSelected,
@@ -19,6 +20,9 @@ class MapUiCallbacks {
 
   /// Place-first flow: user tapped a launch pin while browsing the map.
   final void Function(LaunchPoint launch)? onLaunchPlaceSelected;
+
+  /// Localized label for a custom snap stop (one-based display index).
+  final String Function(int index)? customStopLabel;
 
   /// Localized snack bar when take-out equals put-in.
   final String pickDifferentTakeOutMessage;

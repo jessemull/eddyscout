@@ -77,7 +77,10 @@ void main() {
       final takeOut = kLaunchPoints.firstWhere(
         (l) => l.id == 'glenn_otto_troutdale',
       );
-      final result = await planner.planMultiSegment([putIn, takeOut]);
+      final result = await planner.planMultiSegment([
+        RoutePlanningStop.catalog(putIn),
+        RoutePlanningStop.catalog(takeOut),
+      ]);
 
       expect(
         result,
@@ -93,7 +96,10 @@ void main() {
 
       final planner = await container.read(mapRoutePlannerProvider.future);
       final launch = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
-      final result = await planner.planMultiSegment([launch, launch]);
+      final result = await planner.planMultiSegment([
+        RoutePlanningStop.catalog(launch),
+        RoutePlanningStop.catalog(launch),
+      ]);
 
       expect(
         result,

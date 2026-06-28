@@ -474,6 +474,20 @@
       "name": {"type": "String"}
     }
   },
+  "mapRouteCustomStopLabel": "Custom stop {index}",
+  "@mapRouteCustomStopLabel": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "mapRouteCustomStopSemantics": "Custom stop, {name}",
+  "@mapRouteCustomStopSemantics": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
   "mapRouteStartComingSoon": "On-water navigation is coming soon.",
   "mapLocateMeLabel": "Locate me",
   "mapCloseSheetLabel": "Close",

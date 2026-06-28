@@ -11,11 +11,26 @@ final class TestHydroMapRoutePlanner implements MapRoutePlanner {
   final Ref _ref;
 
   @override
-  Future<Result<RouteGeometrySnapshot?, RoutePlanningFailure>> planMultiSegment(
-    List<LaunchPoint> waypoints,
+  Future<Result<WaterwaySnapPoint, RoutePlanningFailure>> snapToWaterway(
+    double latitude,
+    double longitude,
   ) async {
     final planner = await _ref.read(riverRoutePlannerProvider.future);
-    final planResult = planMultiSegmentRoute(planner, waypoints);
+    final snap = planner.snapToWaterway(latitude, longitude);
+    if (snap == null) {
+      return const Result.failure(
+        RoutePlanningFailure(code: RouteFailureCode.putInTooFar),
+      );
+    }
+    return Result.success(snap);
+  }
+
+  @override
+  Future<Result<RouteGeometrySnapshot?, RoutePlanningFailure>> planMultiSegment(
+    List<RoutePlanningStop> stops,
+  ) async {
+    final planner = await _ref.read(riverRoutePlannerProvider.future);
+    final planResult = planMultiSegmentStops(planner, stops);
     return switch (planResult) {
       Success(:final value) => Result.success(mergeRouteSegments(value)),
       Failure(:final error) => Result.failure(
@@ -25,11 +40,11 @@ final class TestHydroMapRoutePlanner implements MapRoutePlanner {
   }
 
   @override
-  Future<Result<void, RoutePlanningFailure>> validateLaunch(
-    LaunchPoint launch,
+  Future<Result<void, RoutePlanningFailure>> validateStop(
+    RoutePlanningStop stop,
   ) async {
     final planner = await _ref.read(riverRoutePlannerProvider.future);
-    final failure = planner.validateLaunchSnap(launch);
+    final failure = planner.validateStop(stop);
     if (failure != null) {
       return Result.failure(routePlanningFailureFrom(failure));
     }
@@ -37,12 +52,12 @@ final class TestHydroMapRoutePlanner implements MapRoutePlanner {
   }
 
   @override
-  Future<Result<void, RoutePlanningFailure>> validateSegment(
-    LaunchPoint from,
-    LaunchPoint to,
+  Future<Result<void, RoutePlanningFailure>> validateSegmentStops(
+    RoutePlanningStop from,
+    RoutePlanningStop to,
   ) async {
     final planner = await _ref.read(riverRoutePlannerProvider.future);
-    final failure = planner.validateSegment(from, to);
+    final failure = planner.validateSegmentStops(from, to);
     if (failure != null) {
       return Result.failure(routePlanningFailureFrom(failure));
     }
