@@ -8,6 +8,7 @@
 INTEGRATION_DEVICE := $(shell uname -s | grep -q Darwin && echo macos || echo linux)
 
 .PHONY: help analyze bootstrap ci clean coverage coverage-check dev ensure-husky \
+	fetch-google-services \
 	format format-fix gen gen-check gen-reachability gen-reachability-check \
 	gen-suggested-trips gen-suggested-trips-check gen-hydro-graph gen-hydro-graph-check \
 	gen-launch-snap-check \
@@ -37,6 +38,10 @@ ensure-husky: ## Setup@install git hooks (once per worktree)
 
 setup: ## Setup@alias for bootstrap
 	./scripts/bootstrap.sh
+
+fetch-google-services: ## Setup@download google-services.json (firebase login; shared across worktrees)
+	./scripts/fetch_google_services.sh
+	./scripts/ensure_android_secrets.sh
 
 # ── Quality / CI ───────────────────────────────────────────────────
 

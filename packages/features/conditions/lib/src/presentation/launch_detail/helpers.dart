@@ -61,13 +61,17 @@ Future<void> _openLaunchDetailConditionReportSheet(
       launch: launch,
       conditionsFetchedAt: conditionsFetchedAt,
       scaffoldMessenger: scaffoldMessenger,
-      onSuccessFeedback: () {
+      onSuccessFeedback: (result) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) {
             return;
           }
+          final message =
+              result.moderationStatus == ConditionReportModerationStatus.held
+              ? sheetCtx.l10n.launchDetailReportPendingReview
+              : sheetCtx.l10n.launchDetailReportThanks;
           scaffoldMessenger?.showSnackBar(
-            SnackBar(content: Text(sheetCtx.l10n.launchDetailReportThanks)),
+            SnackBar(content: Text(message)),
           );
         });
       },

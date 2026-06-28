@@ -172,6 +172,40 @@ void main() {
     expect(find.text(l10n.mapGpxImportSuccess), findsOneWidget);
     expect(find.text(l10n.mapRoutePreviewStart), findsOneWidget);
   });
+
+  testWidgets('MenuScreen shows moderator queue entry for moderators', (
+    tester,
+  ) async {
+    FirebaseFlagsTestHooks.firebaseCallablesAvailableOverride = true;
+    addTearDown(FirebaseFlagsTestHooks.reset);
+    await pumpMenuWidget(
+      tester,
+      extra: [
+        moderatorAccessProvider.overrideWith((ref) async => true),
+      ],
+    );
+
+    expect(
+      find.byKey(const Key('menu_moderator_review_queue')),
+      findsOneWidget,
+    );
+    expect(find.text('Review Reports'), findsOneWidget);
+  });
+
+  testWidgets('MenuScreen hides moderator queue entry for non-moderators', (
+    tester,
+  ) async {
+    FirebaseFlagsTestHooks.firebaseCallablesAvailableOverride = true;
+    addTearDown(FirebaseFlagsTestHooks.reset);
+    await pumpMenuWidget(
+      tester,
+      extra: [
+        moderatorAccessProvider.overrideWith((ref) async => false),
+      ],
+    );
+
+    expect(find.byKey(const Key('menu_moderator_review_queue')), findsNothing);
+  });
 }
 
 class _PlannedRoutePlanning extends RoutePlanning {

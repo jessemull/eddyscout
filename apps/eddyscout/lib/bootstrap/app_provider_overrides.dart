@@ -38,6 +38,9 @@ List<Override> buildAppProviderOverrides({
     conditionReportSubmitRepositoryProvider.overrideWithValue(
       const ConditionReportSubmitRepositoryImpl(),
     ),
+    conditionReportModerationRepositoryProvider.overrideWithValue(
+      const ConditionReportModerationRepositoryImpl(),
+    ),
     goNoGoProfileRepositoryProvider.overrideWithValue(
       GoNoGoProfileRepositoryImpl(keyValueStore),
     ),

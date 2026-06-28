@@ -8,28 +8,28 @@ part of 'condition_reports_list_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Recent paddler reports for a launch.
+/// Recent approved paddler reports for a launch.
 ///
 /// Refetches when [conditionReportsRefreshTokenProvider] changes.
 
 @ProviderFor(conditionReportsList)
 final conditionReportsListProvider = ConditionReportsListFamily._();
 
-/// Recent paddler reports for a launch.
+/// Recent approved paddler reports for a launch.
 ///
 /// Refetches when [conditionReportsRefreshTokenProvider] changes.
 
 final class ConditionReportsListProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<ConditionReportListItem>>,
-          List<ConditionReportListItem>,
-          FutureOr<List<ConditionReportListItem>>
+          AsyncValue<ConditionReportsListResult>,
+          ConditionReportsListResult,
+          FutureOr<ConditionReportsListResult>
         >
     with
-        $FutureModifier<List<ConditionReportListItem>>,
-        $FutureProvider<List<ConditionReportListItem>> {
-  /// Recent paddler reports for a launch.
+        $FutureModifier<ConditionReportsListResult>,
+        $FutureProvider<ConditionReportsListResult> {
+  /// Recent approved paddler reports for a launch.
   ///
   /// Refetches when [conditionReportsRefreshTokenProvider] changes.
   ConditionReportsListProvider._({
@@ -55,12 +55,12 @@ final class ConditionReportsListProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<ConditionReportListItem>> $createElement(
+  $FutureProviderElement<ConditionReportsListResult> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<ConditionReportListItem>> create(Ref ref) {
+  FutureOr<ConditionReportsListResult> create(Ref ref) {
     final argument = this.argument as String;
     return conditionReportsList(ref, argument);
   }
@@ -77,16 +77,16 @@ final class ConditionReportsListProvider
 }
 
 String _$conditionReportsListHash() =>
-    r'd0b9bda53dd38863ed79471b2364e7bb5c69e01c';
+    r'0caffd87c5bc169ce0700c24430f5162b4e7698b';
 
-/// Recent paddler reports for a launch.
+/// Recent approved paddler reports for a launch.
 ///
 /// Refetches when [conditionReportsRefreshTokenProvider] changes.
 
 final class ConditionReportsListFamily extends $Family
     with
         $FunctionalFamilyOverride<
-          FutureOr<List<ConditionReportListItem>>,
+          FutureOr<ConditionReportsListResult>,
           String
         > {
   ConditionReportsListFamily._()
@@ -98,7 +98,7 @@ final class ConditionReportsListFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Recent paddler reports for a launch.
+  /// Recent approved paddler reports for a launch.
   ///
   /// Refetches when [conditionReportsRefreshTokenProvider] changes.
 

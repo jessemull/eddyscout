@@ -7,6 +7,102 @@
         { "fieldPath": "launchId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "launchId", "order": "ASCENDING" },
+        { "fieldPath": "moderationStatus", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "launchId", "order": "ASCENDING" },
+        { "fieldPath": "moderationStatus", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "launchId", "order": "ASCENDING" },
+        { "fieldPath": "uid", "order": "ASCENDING" },
+        { "fieldPath": "moderationStatus", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moderationStatus", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moderationStatus", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moderationReviewed", "order": "ASCENDING" },
+        { "fieldPath": "reviewedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moderationReviewed", "order": "ASCENDING" },
+        { "fieldPath": "reviewedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moderationReviewed", "order": "ASCENDING" },
+        { "fieldPath": "launchId", "order": "ASCENDING" },
+        { "fieldPath": "reviewedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moderationStatus", "order": "ASCENDING" },
+        { "fieldPath": "moderationReviewed", "order": "ASCENDING" },
+        { "fieldPath": "reviewedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moderationStatus", "order": "ASCENDING" },
+        { "fieldPath": "moderationReviewed", "order": "ASCENDING" },
+        { "fieldPath": "reviewedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moderationStatus", "order": "ASCENDING" },
+        { "fieldPath": "moderationReviewed", "order": "ASCENDING" },
+        { "fieldPath": "launchId", "order": "ASCENDING" },
+        { "fieldPath": "reviewedAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
