@@ -1192,7 +1192,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get moderationQueueTitle => 'Review reports';
+  String get moderationQueueTitle => 'Review Reports';
 
   @override
   String get moderationQueueEmpty => 'No reports waiting for review.';
@@ -1223,7 +1223,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moderationHistoryLoadError => 'Could not load moderation history.';
 
   @override
-  String get moderationLaunchSearchHint => 'Launch id or name';
+  String get moderationLaunchSearchHint => 'Search by ID or name...';
 
   @override
   String get moderationSortOldestWaiting => 'Oldest waiting';
@@ -1265,7 +1265,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moderationSystemActor => 'System';
 
   @override
-  String get moderationHoldReason => 'Hold reason';
+  String get moderationHoldReason => 'Hold Reason';
+
+  @override
+  String get moderationMessage => 'Message';
 
   @override
   String get moderationSubmittedAt => 'Submitted';
@@ -1289,6 +1292,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moderationClearSelection => 'Clear';
+
+  @override
+  String get moderationBulkSelect => 'Select';
+
+  @override
+  String get moderationBulkSelectDone => 'Done';
+
+  @override
+  String get moderationReasonKeywordHold => 'Matched moderation keyword';
+
+  @override
+  String get moderationReasonAdminApprove => 'Approved by moderator';
+
+  @override
+  String get moderationReasonAdminReject => 'Rejected by moderator';
+
+  @override
+  String get moderationReasonAdminReopen => 'Returned to pending by moderator';
+
+  @override
+  String get moderationReasonHoldTimeout => 'Auto-approved after hold period';
 
   @override
   String get moderationBulkApprove => 'Approve selected';
@@ -1316,5 +1340,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get launchDetailReviewReportsButton => 'Review reports';
+  String get moderationReturnToPending => 'Return to pending';
+
+  @override
+  String get moderationReturnToPendingConfirmTitle =>
+      'Return report to pending?';
+
+  @override
+  String get moderationReturnToPendingConfirmBody =>
+      'This report will reappear on the pending tab for review. If it was approved, it will be removed from the public list.';
+
+  @override
+  String get launchDetailReviewReportsButton => 'Review Reports';
 }

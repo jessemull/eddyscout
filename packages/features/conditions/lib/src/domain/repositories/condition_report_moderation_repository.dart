@@ -34,4 +34,10 @@ abstract interface class ConditionReportModerationRepository {
     required bool approve,
     CancelToken? cancelToken,
   });
+
+  /// Returns an approved or rejected report to the pending queue.
+  FutureResult<void, AppFailure> reopenReport({
+    required String reportId,
+    CancelToken? cancelToken,
+  });
 }

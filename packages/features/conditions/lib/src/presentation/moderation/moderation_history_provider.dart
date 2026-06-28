@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:eddyscout_conditions/src/domain/condition_report_moderation_repository_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/condition_reports_refresh_token_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/moderation/moderation_queue_filters_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/provider_result.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -62,5 +63,34 @@ class ModerationHistory extends _$ModerationHistory {
         state = AsyncError(error, stackTrace);
       }
     }
+  }
+
+  /// Returns a moderated report to the pending queue with optimistic removal.
+  Future<bool> reopen({required String reportId}) async {
+    final previous = state.asData?.value;
+    if (previous == null) {
+      return false;
+    }
+
+    final optimistic = previous
+        .where((report) => report.id != reportId)
+        .toList(growable: false);
+    state = AsyncData(optimistic);
+
+    final cancelToken = CancelToken();
+    final result = await ref
+        .read(conditionReportModerationRepositoryProvider)
+        .reopenReport(reportId: reportId, cancelToken: cancelToken);
+    if (cancelToken.isCancelled) {
+      state = AsyncData(previous);
+      return false;
+    }
+    if (result.isFailure) {
+      state = AsyncData(previous);
+      return false;
+    }
+
+    ref.read(conditionReportsRefreshTokenProvider.notifier).increment();
+    return true;
   }
 }

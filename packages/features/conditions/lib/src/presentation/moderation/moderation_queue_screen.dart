@@ -64,13 +64,27 @@ class _ModerationQueueScreenState extends ConsumerState<ModerationQueueScreen>
   }
 }
 
-class _PendingTab extends ConsumerWidget {
+class _PendingTab extends ConsumerStatefulWidget {
   const _PendingTab({required this.launchSearchController});
 
   final TextEditingController launchSearchController;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_PendingTab> createState() => _PendingTabState();
+}
+
+class _PendingTabState extends ConsumerState<_PendingTab> {
+  var _bulkSelectActive = false;
+
+  void _setBulkSelectActive(bool active) {
+    if (!active) {
+      ref.read(moderationSelectionProvider.notifier).clear();
+    }
+    setState(() => _bulkSelectActive = active);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final pendingAsync = ref.watch(moderationPendingReportsProvider);
     final selection = ref.watch(moderationSelectionProvider);
@@ -92,34 +106,32 @@ class _PendingTab extends ConsumerWidget {
     return Column(
       children: [
         _ModerationFilterBar(
-          launchSearchController: launchSearchController,
+          launchSearchController: widget.launchSearchController,
           launchQuery: filters.launchQuery,
           onLaunchQueryChanged: ref
               .read(moderationPendingFiltersProvider.notifier)
               .setLaunchQuery,
-          sortLabel: filters.sort == ModerationQueueSort.createdAtAsc
-              ? l10n.moderationSortOldestWaiting
-              : l10n.moderationSortMostRecent,
-          onSortToggle: () {
-            ref
-                .read(moderationPendingFiltersProvider.notifier)
-                .setSort(
-                  filters.sort == ModerationQueueSort.createdAtAsc
-                      ? ModerationQueueSort.createdAtDesc
-                      : ModerationQueueSort.createdAtAsc,
-                );
-          },
+          pendingSort: filters.sort,
+          onPendingSortChanged: ref
+              .read(moderationPendingFiltersProvider.notifier)
+              .setSort,
           submittedDateFilter: filters.submittedDateFilter,
           onSubmittedDateFilterChanged: ref
               .read(moderationPendingFiltersProvider.notifier)
               .setSubmittedDateFilter,
-          selectionActions: pendingAsync.maybeWhen(
-            data: (items) => _SelectionAppBarActions(
-              visibleIds: items.map((e) => e.id),
-              selectedCount: visibleSelectedCount,
-            ),
-            orElse: () => const SizedBox.shrink(),
+          bulkSelectActive: _bulkSelectActive,
+          onBulkSelectToggle: () => _setBulkSelectActive(!_bulkSelectActive),
+          onSelectAll: pendingAsync.maybeWhen(
+            data: (items) => () {
+              ref
+                  .read(moderationSelectionProvider.notifier)
+                  .selectAll(items.map((e) => e.id));
+            },
+            orElse: () => null,
           ),
+          onClearSelection: () =>
+              ref.read(moderationSelectionProvider.notifier).clear(),
+          canClearSelection: visibleSelectedCount > 0,
         ),
         Expanded(
           child: pendingAsync.when(
@@ -160,16 +172,22 @@ class _PendingTab extends ConsumerWidget {
                     .read(moderationPendingReportsProvider.notifier)
                     .refresh(),
                 child: ListView.separated(
-                  padding: const EdgeInsets.all(Spacing.md),
+                  padding: const EdgeInsets.fromLTRB(
+                    _moderationCardHorizontalGutter,
+                    _moderationCardHorizontalGutter,
+                    _moderationCardHorizontalGutter,
+                    Spacing.xs,
+                  ),
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: items.length,
                   separatorBuilder: (_, _) =>
-                      const SizedBox(height: Spacing.sm),
+                      const SizedBox(height: Spacing.xs),
                   itemBuilder: (context, index) {
                     final report = items[index];
                     return _PendingReportCard(
                       key: ValueKey(report.id),
                       report: report,
+                      bulkSelectActive: _bulkSelectActive,
                       selected: effectiveSelection.contains(report.id),
                       onSelectedChanged: (selected) {
                         ref
@@ -183,7 +201,7 @@ class _PendingTab extends ConsumerWidget {
             },
           ),
         ),
-        if (effectiveSelection.isNotEmpty)
+        if (_bulkSelectActive && effectiveSelection.isNotEmpty)
           _BulkActionBar(
             selectedCount: effectiveSelection.length,
             onApprove: () => _confirmBulkModerate(
@@ -191,12 +209,14 @@ class _PendingTab extends ConsumerWidget {
               ref: ref,
               approve: true,
               reportIds: effectiveSelection.toList(growable: false),
+              onComplete: () => _setBulkSelectActive(false),
             ),
             onReject: () => _confirmBulkModerate(
               context: context,
               ref: ref,
               approve: false,
               reportIds: effectiveSelection.toList(growable: false),
+              onComplete: () => _setBulkSelectActive(false),
             ),
           ),
       ],
@@ -223,18 +243,10 @@ class _HistoryTab extends ConsumerWidget {
           onLaunchQueryChanged: ref
               .read(moderationHistoryFiltersProvider.notifier)
               .setLaunchQuery,
-          sortLabel: filters.sort == ModerationHistorySort.reviewedAtDesc
-              ? l10n.moderationSortRecentAction
-              : l10n.moderationSortOldestAction,
-          onSortToggle: () {
-            ref
-                .read(moderationHistoryFiltersProvider.notifier)
-                .setSort(
-                  filters.sort == ModerationHistorySort.reviewedAtDesc
-                      ? ModerationHistorySort.reviewedAtAsc
-                      : ModerationHistorySort.reviewedAtDesc,
-                );
-          },
+          historySort: filters.sort,
+          onHistorySortChanged: ref
+              .read(moderationHistoryFiltersProvider.notifier)
+              .setSort,
           reviewedDateFilter: filters.reviewedDateFilter,
           onReviewedDateFilterChanged: ref
               .read(moderationHistoryFiltersProvider.notifier)
@@ -281,11 +293,16 @@ class _HistoryTab extends ConsumerWidget {
                 onRefresh: () =>
                     ref.read(moderationHistoryProvider.notifier).refresh(),
                 child: ListView.separated(
-                  padding: const EdgeInsets.all(Spacing.md),
+                  padding: const EdgeInsets.fromLTRB(
+                    _moderationCardHorizontalGutter,
+                    _moderationCardHorizontalGutter,
+                    _moderationCardHorizontalGutter,
+                    Spacing.xs,
+                  ),
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: items.length,
                   separatorBuilder: (_, _) =>
-                      const SizedBox(height: Spacing.sm),
+                      const SizedBox(height: Spacing.xs),
                   itemBuilder: (context, index) {
                     return _HistoryReportCard(
                       key: ValueKey(items[index].id),
@@ -302,27 +319,49 @@ class _HistoryTab extends ConsumerWidget {
   }
 }
 
+const double _moderationRowSpacing = Spacing.sm;
+const double _moderationFilterHorizontalPadding = Spacing.sm;
+const double _moderationFilterTopPadding = Spacing.sm + Spacing.xs;
+const double _moderationCardHorizontalGutter = Spacing.md;
+
+ButtonStyle _moderationFilterTextButtonStyle() {
+  return TextButton.styleFrom(
+    visualDensity: VisualDensity.compact,
+    padding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
+    minimumSize: Size.zero,
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  );
+}
+
 class _ModerationFilterBar extends StatelessWidget {
   const _ModerationFilterBar({
     required this.launchSearchController,
     required this.launchQuery,
     required this.onLaunchQueryChanged,
-    required this.sortLabel,
-    required this.onSortToggle,
+    this.pendingSort,
+    this.onPendingSortChanged,
+    this.historySort,
+    this.onHistorySortChanged,
     this.submittedDateFilter,
     this.onSubmittedDateFilterChanged,
     this.reviewedDateFilter,
     this.onReviewedDateFilterChanged,
     this.statusFilter,
     this.onStatusFilterChanged,
-    this.selectionActions = const SizedBox.shrink(),
+    this.bulkSelectActive = false,
+    this.onBulkSelectToggle,
+    this.onSelectAll,
+    this.onClearSelection,
+    this.canClearSelection = false,
   });
 
   final TextEditingController launchSearchController;
   final String launchQuery;
   final ValueChanged<String> onLaunchQueryChanged;
-  final String sortLabel;
-  final VoidCallback onSortToggle;
+  final ModerationQueueSort? pendingSort;
+  final ValueChanged<ModerationQueueSort>? onPendingSortChanged;
+  final ModerationHistorySort? historySort;
+  final ValueChanged<ModerationHistorySort>? onHistorySortChanged;
   final ModerationSubmittedDateFilter? submittedDateFilter;
   final ValueChanged<ModerationSubmittedDateFilter>?
   onSubmittedDateFilterChanged;
@@ -330,16 +369,130 @@ class _ModerationFilterBar extends StatelessWidget {
   final ValueChanged<ModerationReviewedDateFilter>? onReviewedDateFilterChanged;
   final ModerationHistoryStatusFilter? statusFilter;
   final ValueChanged<ModerationHistoryStatusFilter>? onStatusFilterChanged;
-  final Widget selectionActions;
+  final bool bulkSelectActive;
+  final VoidCallback? onBulkSelectToggle;
+  final VoidCallback? onSelectAll;
+  final VoidCallback? onClearSelection;
+  final bool canClearSelection;
+
+  List<Widget> _buildFilterChips(AppLocalizations l10n) {
+    return [
+      if (pendingSort != null && onPendingSortChanged != null) ...[
+        _DateFilterChip(
+          label: l10n.moderationSortOldestWaiting,
+          selected: pendingSort == ModerationQueueSort.createdAtAsc,
+          onSelected: () =>
+              onPendingSortChanged!(ModerationQueueSort.createdAtAsc),
+        ),
+        _DateFilterChip(
+          label: l10n.moderationSortMostRecent,
+          selected: pendingSort == ModerationQueueSort.createdAtDesc,
+          onSelected: () =>
+              onPendingSortChanged!(ModerationQueueSort.createdAtDesc),
+        ),
+      ],
+      if (historySort != null && onHistorySortChanged != null) ...[
+        _DateFilterChip(
+          label: l10n.moderationSortRecentAction,
+          selected: historySort == ModerationHistorySort.reviewedAtDesc,
+          onSelected: () =>
+              onHistorySortChanged!(ModerationHistorySort.reviewedAtDesc),
+        ),
+        _DateFilterChip(
+          label: l10n.moderationSortOldestAction,
+          selected: historySort == ModerationHistorySort.reviewedAtAsc,
+          onSelected: () =>
+              onHistorySortChanged!(ModerationHistorySort.reviewedAtAsc),
+        ),
+      ],
+      if (submittedDateFilter != null &&
+          onSubmittedDateFilterChanged != null) ...[
+        _DateFilterChip(
+          label: l10n.moderationDateFilterAll,
+          selected: submittedDateFilter == ModerationSubmittedDateFilter.all,
+          onSelected: () =>
+              onSubmittedDateFilterChanged!(ModerationSubmittedDateFilter.all),
+        ),
+        _DateFilterChip(
+          label: l10n.moderationDateFilter7Days,
+          selected:
+              submittedDateFilter == ModerationSubmittedDateFilter.last7Days,
+          onSelected: () => onSubmittedDateFilterChanged!(
+            ModerationSubmittedDateFilter.last7Days,
+          ),
+        ),
+        _DateFilterChip(
+          label: l10n.moderationDateFilter30Days,
+          selected:
+              submittedDateFilter == ModerationSubmittedDateFilter.last30Days,
+          onSelected: () => onSubmittedDateFilterChanged!(
+            ModerationSubmittedDateFilter.last30Days,
+          ),
+        ),
+      ],
+      if (reviewedDateFilter != null &&
+          onReviewedDateFilterChanged != null) ...[
+        _DateFilterChip(
+          label: l10n.moderationDateFilterAll,
+          selected: reviewedDateFilter == ModerationReviewedDateFilter.all,
+          onSelected: () =>
+              onReviewedDateFilterChanged!(ModerationReviewedDateFilter.all),
+        ),
+        _DateFilterChip(
+          label: l10n.moderationDateFilter7Days,
+          selected:
+              reviewedDateFilter == ModerationReviewedDateFilter.last7Days,
+          onSelected: () => onReviewedDateFilterChanged!(
+            ModerationReviewedDateFilter.last7Days,
+          ),
+        ),
+        _DateFilterChip(
+          label: l10n.moderationDateFilter30Days,
+          selected:
+              reviewedDateFilter == ModerationReviewedDateFilter.last30Days,
+          onSelected: () => onReviewedDateFilterChanged!(
+            ModerationReviewedDateFilter.last30Days,
+          ),
+        ),
+      ],
+      if (statusFilter != null && onStatusFilterChanged != null) ...[
+        _DateFilterChip(
+          label: l10n.moderationStatusFilterAll,
+          selected: statusFilter == ModerationHistoryStatusFilter.all,
+          onSelected: () =>
+              onStatusFilterChanged!(ModerationHistoryStatusFilter.all),
+        ),
+        _DateFilterChip(
+          label: l10n.moderationStatusFilterApproved,
+          selected: statusFilter == ModerationHistoryStatusFilter.approved,
+          onSelected: () =>
+              onStatusFilterChanged!(ModerationHistoryStatusFilter.approved),
+        ),
+        _DateFilterChip(
+          label: l10n.moderationStatusFilterRejected,
+          selected: statusFilter == ModerationHistoryStatusFilter.rejected,
+          onSelected: () =>
+              onStatusFilterChanged!(ModerationHistoryStatusFilter.rejected),
+        ),
+      ],
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final chips = _buildFilterChips(l10n);
 
-    return Material(
-      elevation: 1,
+    return DecoratedBox(
+      decoration: BoxDecoration(color: scheme.surface),
       child: Padding(
-        padding: const EdgeInsets.all(Spacing.sm),
+        padding: const EdgeInsets.fromLTRB(
+          _moderationFilterHorizontalPadding,
+          _moderationFilterTopPadding,
+          _moderationFilterHorizontalPadding,
+          0,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -350,111 +503,85 @@ class _ModerationFilterBar extends StatelessWidget {
                     controller: launchSearchController,
                     decoration: InputDecoration(
                       isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: Spacing.md,
+                        vertical: Spacing.sm,
+                      ),
                       hintText: l10n.moderationLaunchSearchHint,
-                      border: const OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(28),
+                        borderSide: BorderSide(color: scheme.outline),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(28),
+                        borderSide: BorderSide(
+                          color: scheme.primary,
+                          width: 2,
+                        ),
+                      ),
                     ),
                     onChanged: onLaunchQueryChanged,
                   ),
                 ),
-                const SizedBox(width: Spacing.sm),
-                selectionActions,
-              ],
-            ),
-            const SizedBox(height: Spacing.sm),
-            Wrap(
-              spacing: Spacing.xs,
-              runSpacing: Spacing.xs,
-              children: [
-                ActionChip(
-                  label: Text(sortLabel),
-                  onPressed: onSortToggle,
-                ),
-                if (submittedDateFilter != null &&
-                    onSubmittedDateFilterChanged != null) ...[
-                  _DateFilterChip(
-                    label: l10n.moderationDateFilterAll,
-                    selected:
-                        submittedDateFilter ==
-                        ModerationSubmittedDateFilter.all,
-                    onSelected: () => onSubmittedDateFilterChanged!(
-                      ModerationSubmittedDateFilter.all,
-                    ),
-                  ),
-                  _DateFilterChip(
-                    label: l10n.moderationDateFilter7Days,
-                    selected:
-                        submittedDateFilter ==
-                        ModerationSubmittedDateFilter.last7Days,
-                    onSelected: () => onSubmittedDateFilterChanged!(
-                      ModerationSubmittedDateFilter.last7Days,
-                    ),
-                  ),
-                  _DateFilterChip(
-                    label: l10n.moderationDateFilter30Days,
-                    selected:
-                        submittedDateFilter ==
-                        ModerationSubmittedDateFilter.last30Days,
-                    onSelected: () => onSubmittedDateFilterChanged!(
-                      ModerationSubmittedDateFilter.last30Days,
-                    ),
-                  ),
-                ],
-                if (reviewedDateFilter != null &&
-                    onReviewedDateFilterChanged != null) ...[
-                  _DateFilterChip(
-                    label: l10n.moderationDateFilterAll,
-                    selected:
-                        reviewedDateFilter == ModerationReviewedDateFilter.all,
-                    onSelected: () => onReviewedDateFilterChanged!(
-                      ModerationReviewedDateFilter.all,
-                    ),
-                  ),
-                  _DateFilterChip(
-                    label: l10n.moderationDateFilter7Days,
-                    selected:
-                        reviewedDateFilter ==
-                        ModerationReviewedDateFilter.last7Days,
-                    onSelected: () => onReviewedDateFilterChanged!(
-                      ModerationReviewedDateFilter.last7Days,
-                    ),
-                  ),
-                  _DateFilterChip(
-                    label: l10n.moderationDateFilter30Days,
-                    selected:
-                        reviewedDateFilter ==
-                        ModerationReviewedDateFilter.last30Days,
-                    onSelected: () => onReviewedDateFilterChanged!(
-                      ModerationReviewedDateFilter.last30Days,
-                    ),
-                  ),
-                ],
-                if (statusFilter != null && onStatusFilterChanged != null) ...[
-                  _DateFilterChip(
-                    label: l10n.moderationStatusFilterAll,
-                    selected: statusFilter == ModerationHistoryStatusFilter.all,
-                    onSelected: () => onStatusFilterChanged!(
-                      ModerationHistoryStatusFilter.all,
-                    ),
-                  ),
-                  _DateFilterChip(
-                    label: l10n.moderationStatusFilterApproved,
-                    selected:
-                        statusFilter == ModerationHistoryStatusFilter.approved,
-                    onSelected: () => onStatusFilterChanged!(
-                      ModerationHistoryStatusFilter.approved,
-                    ),
-                  ),
-                  _DateFilterChip(
-                    label: l10n.moderationStatusFilterRejected,
-                    selected:
-                        statusFilter == ModerationHistoryStatusFilter.rejected,
-                    onSelected: () => onStatusFilterChanged!(
-                      ModerationHistoryStatusFilter.rejected,
+                if (onBulkSelectToggle != null) ...[
+                  const SizedBox(width: Spacing.xs),
+                  TextButton(
+                    onPressed: onBulkSelectToggle,
+                    style: _moderationFilterTextButtonStyle(),
+                    child: Text(
+                      bulkSelectActive
+                          ? l10n.moderationBulkSelectDone
+                          : l10n.moderationBulkSelect,
                     ),
                   ),
                 ],
               ],
             ),
+            const SizedBox(height: _moderationRowSpacing),
+            SizedBox(
+              height: 36,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: chips.length,
+                separatorBuilder: (_, _) => const SizedBox(width: Spacing.xs),
+                itemBuilder: (context, index) => chips[index],
+              ),
+            ),
+            if (bulkSelectActive) ...[
+              const SizedBox(height: _moderationRowSpacing),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: onSelectAll,
+                    style: _moderationFilterTextButtonStyle(),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(l10n.moderationSelectAll),
+                        const SizedBox(width: Spacing.xs),
+                        const Icon(Icons.select_all, size: 16),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: canClearSelection ? onClearSelection : null,
+                    style: _moderationFilterTextButtonStyle(),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(l10n.moderationClearSelection),
+                        const SizedBox(width: Spacing.xs),
+                        const Icon(Icons.close, size: 16),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -478,39 +605,9 @@ class _DateFilterChip extends StatelessWidget {
     return FilterChip(
       label: Text(label),
       selected: selected,
+      visualDensity: VisualDensity.compact,
+      showCheckmark: false,
       onSelected: (_) => onSelected(),
-    );
-  }
-}
-
-class _SelectionAppBarActions extends ConsumerWidget {
-  const _SelectionAppBarActions({
-    required this.visibleIds,
-    required this.selectedCount,
-  });
-
-  final Iterable<String> visibleIds;
-  final int selectedCount;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TextButton(
-          onPressed: () => ref
-              .read(moderationSelectionProvider.notifier)
-              .selectAll(visibleIds),
-          child: Text(l10n.moderationSelectAll),
-        ),
-        TextButton(
-          onPressed: selectedCount == 0
-              ? null
-              : () => ref.read(moderationSelectionProvider.notifier).clear(),
-          child: Text(l10n.moderationClearSelection),
-        ),
-      ],
     );
   }
 }
@@ -530,16 +627,22 @@ class _BulkActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Material(
-      elevation: 8,
+      elevation: 4,
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.all(Spacing.sm),
+          padding: const EdgeInsets.symmetric(
+            horizontal: _moderationFilterHorizontalPadding,
+            vertical: Spacing.xs,
+          ),
           child: Row(
             children: [
               Expanded(
                 child: OutlinedButton(
                   onPressed: onReject,
+                  style: OutlinedButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                  ),
                   child: Text(l10n.moderationBulkReject),
                 ),
               ),
@@ -547,6 +650,9 @@ class _BulkActionBar extends StatelessWidget {
               Expanded(
                 child: FilledButton(
                   onPressed: onApprove,
+                  style: FilledButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                  ),
                   child: Text(l10n.moderationBulkApprove),
                 ),
               ),
@@ -598,12 +704,14 @@ class _ModerationErrorBody extends StatelessWidget {
 class _PendingReportCard extends ConsumerStatefulWidget {
   const _PendingReportCard({
     required this.report,
+    required this.bulkSelectActive,
     required this.selected,
     required this.onSelectedChanged,
     super.key,
   });
 
   final ModerationQueueReport report;
+  final bool bulkSelectActive;
   final bool selected;
   final ValueChanged<bool> onSelectedChanged;
 
@@ -630,7 +738,7 @@ class _PendingReportCardState extends ConsumerState<_PendingReportCard> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.moderationActionError)),
       );
-    } else {
+    } else if (widget.selected) {
       ref.read(moderationSelectionProvider.notifier).toggle(widget.report.id);
     }
   }
@@ -641,91 +749,130 @@ class _PendingReportCardState extends ConsumerState<_PendingReportCard> {
     final scheme = Theme.of(context).colorScheme;
     final report = widget.report;
     final launchName = resolveLaunchDisplayName(report.launchId);
+    final submittedAt = report.createdAt.toLocal();
+    final submittedTime = MaterialLocalizations.of(
+      context,
+    ).formatTimeOfDay(TimeOfDay.fromDateTime(submittedAt));
+    final submittedLabel =
+        '${MaterialLocalizations.of(context).formatShortDate(submittedAt)} · '
+        '$submittedTime';
+
     return Card(
+      margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(Spacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_busy) ...[
-              const LinearProgressIndicator(),
-              const SizedBox(height: Spacing.sm),
-            ],
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Checkbox(
+            if (widget.bulkSelectActive) ...[
+              Transform.translate(
+                offset: const Offset(0, -2),
+                child: Checkbox(
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
                   value: widget.selected,
                   onChanged: _busy
                       ? null
                       : (value) => widget.onSelectedChanged(value ?? false),
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+              ),
+              const SizedBox(width: Spacing.xs),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_busy)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: Spacing.xs),
+                      child: LinearProgressIndicator(),
+                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        launchName,
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      Text(
-                        report.launchId,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
+                      Expanded(
+                        child: Text(
+                          launchName,
+                          style: Theme.of(context).textTheme.titleSmall,
                         ),
                       ),
+                      if (report.holdAgeDays != null)
+                        Text(
+                          l10n.moderationWaitingDays(report.holdAgeDays!),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
                     ],
                   ),
-                ),
-                if (report.holdAgeDays != null)
-                  Chip(
-                    label: Text(
-                      l10n.moderationWaitingDays(report.holdAgeDays!),
+                  Text(
+                    submittedLabel,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
-              ],
-            ),
-            const SizedBox(height: Spacing.sm),
-            _MetadataRow(
-              label: l10n.moderationSubmittedAt,
-              value: MaterialLocalizations.of(
-                context,
-              ).formatFullDate(report.createdAt.toLocal()),
-              secondaryValue:
-                  MaterialLocalizations.of(
-                    context,
-                  ).formatTimeOfDay(
-                    TimeOfDay.fromDateTime(report.createdAt.toLocal()),
+                  const SizedBox(height: Spacing.sm),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: _ModerationSubmitterField(
+                          label: l10n.moderationSubmitterUid,
+                          uid: report.submitterUid,
+                        ),
+                      ),
+                      if (report.moderationReason != null) ...[
+                        const SizedBox(width: Spacing.sm),
+                        Expanded(
+                          child: _ModerationLabeledText(
+                            label: l10n.moderationHoldReason,
+                            value: formatModerationReason(
+                              l10n,
+                              report.moderationReason!,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-            ),
-            _UidRow(
-              label: l10n.moderationSubmitterUid,
-              uid: report.submitterUid,
-            ),
-            if (report.moderationReason != null)
-              _MetadataRow(
-                label: l10n.moderationHoldReason,
-                value: report.moderationReason!,
+                  const SizedBox(height: Spacing.sm),
+                  _ModerationMessageField(
+                    label: l10n.moderationMessage,
+                    message: report.message,
+                  ),
+                  if (!widget.bulkSelectActive) ...[
+                    const SizedBox(height: Spacing.sm),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: _busy
+                              ? null
+                              : () => _moderate(approve: false),
+                          style: TextButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Spacing.sm,
+                            ),
+                          ),
+                          child: Text(l10n.moderationReject),
+                        ),
+                        FilledButton.tonal(
+                          onPressed: _busy
+                              ? null
+                              : () => _moderate(approve: true),
+                          style: FilledButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Spacing.md,
+                            ),
+                          ),
+                          child: Text(l10n.moderationApprove),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
-            const SizedBox(height: Spacing.sm),
-            Text(report.message, style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: Spacing.md),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _busy ? null : () => _moderate(approve: false),
-                    child: Text(l10n.moderationReject),
-                  ),
-                ),
-                const SizedBox(width: Spacing.sm),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: _busy ? null : () => _moderate(approve: true),
-                    child: Text(l10n.moderationApprove),
-                  ),
-                ),
-              ],
             ),
           ],
         ),
@@ -734,15 +881,68 @@ class _PendingReportCardState extends ConsumerState<_PendingReportCard> {
   }
 }
 
-class _HistoryReportCard extends StatelessWidget {
+class _HistoryReportCard extends ConsumerStatefulWidget {
   const _HistoryReportCard({required this.report, super.key});
 
   final ModerationHistoryReport report;
 
   @override
+  ConsumerState<_HistoryReportCard> createState() => _HistoryReportCardState();
+}
+
+class _HistoryReportCardState extends ConsumerState<_HistoryReportCard> {
+  var _busy = false;
+
+  Future<void> _confirmReopen() async {
+    if (_busy) {
+      return;
+    }
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.moderationReturnToPendingConfirmTitle),
+          content: Text(l10n.moderationReturnToPendingConfirmBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.cancelButton),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10n.moderationReturnToPending),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    setState(() => _busy = true);
+    final ok = await ref
+        .read(moderationHistoryProvider.notifier)
+        .reopen(reportId: widget.report.id);
+    if (!mounted) {
+      return;
+    }
+    setState(() => _busy = false);
+    if (!ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.moderationActionError)),
+      );
+      return;
+    }
+    ref.invalidate(moderationPendingReportsProvider);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
+    final report = widget.report;
     final launchName = resolveLaunchDisplayName(report.launchId);
     final statusLabel = switch (report.moderationStatus) {
       ConditionReportModerationStatus.approved =>
@@ -751,75 +951,97 @@ class _HistoryReportCard extends StatelessWidget {
         l10n.moderationStatusFilterRejected,
       ConditionReportModerationStatus.held => report.moderationStatus.name,
     };
+    final reviewedAt = report.reviewedAt.toLocal();
+    final reviewedTime = MaterialLocalizations.of(
+      context,
+    ).formatTimeOfDay(TimeOfDay.fromDateTime(reviewedAt));
+    final reviewedLabel =
+        '${MaterialLocalizations.of(context).formatShortDate(reviewedAt)} · '
+        '$reviewedTime';
 
     return Card(
+      margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (_busy)
+              const Padding(
+                padding: EdgeInsets.only(bottom: Spacing.xs),
+                child: LinearProgressIndicator(),
+              ),
             Row(
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        launchName,
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      Text(
-                        report.launchId,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    launchName,
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
-                Chip(label: Text(statusLabel)),
+                Text(
+                  statusLabel,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: scheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: Spacing.sm),
-            _MetadataRow(
-              label: l10n.moderationSubmittedAt,
-              value: MaterialLocalizations.of(
-                context,
-              ).formatFullDate(report.createdAt.toLocal()),
+            Text(
+              '${l10n.moderationReviewedAt}: $reviewedLabel',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
             ),
-            _MetadataRow(
-              label: l10n.moderationReviewedAt,
-              value: MaterialLocalizations.of(
-                context,
-              ).formatFullDate(report.reviewedAt.toLocal()),
-              secondaryValue:
-                  MaterialLocalizations.of(
-                    context,
-                  ).formatTimeOfDay(
-                    TimeOfDay.fromDateTime(report.reviewedAt.toLocal()),
+            const SizedBox(height: Spacing.sm),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _ModerationSubmitterField(
+                    label: l10n.moderationSubmitterUid,
+                    uid: report.submitterUid,
                   ),
+                ),
+                const SizedBox(width: Spacing.sm),
+                Expanded(
+                  child: report.reviewedBy != null
+                      ? _ModerationSubmitterField(
+                          label: l10n.moderationModeratorUid,
+                          uid: report.reviewedBy!,
+                        )
+                      : _ModerationLabeledText(
+                          label: l10n.moderationModeratorUid,
+                          value: l10n.moderationSystemActor,
+                        ),
+                ),
+              ],
             ),
-            _UidRow(
-              label: l10n.moderationSubmitterUid,
-              uid: report.submitterUid,
-            ),
-            if (report.reviewedBy != null)
-              _UidRow(
-                label: l10n.moderationModeratorUid,
-                uid: report.reviewedBy!,
-              )
-            else
-              _MetadataRow(
-                label: l10n.moderationModeratorUid,
-                value: l10n.moderationSystemActor,
-              ),
-            if (report.moderationReason != null)
-              _MetadataRow(
+            if (report.moderationReason != null) ...[
+              const SizedBox(height: Spacing.sm),
+              _ModerationLabeledText(
                 label: l10n.moderationHoldReason,
-                value: report.moderationReason!,
+                value: formatModerationReason(l10n, report.moderationReason!),
               ),
+            ],
             const SizedBox(height: Spacing.sm),
-            Text(report.message, style: Theme.of(context).textTheme.bodyMedium),
+            _ModerationMessageField(
+              label: l10n.moderationMessage,
+              message: report.message,
+            ),
+            const SizedBox(height: Spacing.sm),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _busy ? null : _confirmReopen,
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
+                ),
+                child: Text(l10n.moderationReturnToPending),
+              ),
+            ),
           ],
         ),
       ),
@@ -827,42 +1049,46 @@ class _HistoryReportCard extends StatelessWidget {
   }
 }
 
-class _MetadataRow extends StatelessWidget {
-  const _MetadataRow({
+TextStyle? _moderationFieldLabelStyle(BuildContext context) {
+  return Theme.of(context).textTheme.labelMedium?.copyWith(
+    fontWeight: FontWeight.bold,
+  );
+}
+
+TextStyle? _moderationFieldValueStyle(BuildContext context) {
+  return Theme.of(context).textTheme.bodySmall?.copyWith(
+    color: Theme.of(context).colorScheme.onSurfaceVariant,
+    fontWeight: FontWeight.normal,
+  );
+}
+
+class _ModerationLabeledText extends StatelessWidget {
+  const _ModerationLabeledText({
     required this.label,
     required this.value,
-    this.secondaryValue,
   });
 
   final String label;
   final String value;
-  final String? secondaryValue;
 
   @override
   Widget build(BuildContext context) {
-    final text = secondaryValue == null ? value : '$value · $secondaryValue';
-    return Padding(
-      padding: const EdgeInsets.only(bottom: Spacing.xxs),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: '$label: ',
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            TextSpan(
-              text: text,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: _moderationFieldLabelStyle(context)),
+        const SizedBox(height: Spacing.xxs),
+        Text(value, style: _moderationFieldValueStyle(context)),
+      ],
     );
   }
 }
 
-class _UidRow extends StatelessWidget {
-  const _UidRow({required this.label, required this.uid});
+class _ModerationSubmitterField extends StatelessWidget {
+  const _ModerationSubmitterField({
+    required this.label,
+    required this.uid,
+  });
 
   final String label;
   final String uid;
@@ -870,41 +1096,66 @@ class _UidRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: Spacing.xxs),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: '$label: ',
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                  TextSpan(
-                    text: truncateUid(uid),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: _moderationFieldLabelStyle(context)),
+        const SizedBox(height: Spacing.xxs),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                truncateUid(uid),
+                style: _moderationFieldValueStyle(context),
               ),
             ),
-          ),
-          IconButton(
-            tooltip: l10n.moderationCopyUid,
-            onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: uid));
-              if (!context.mounted) {
-                return;
-              }
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.moderationUidCopied)),
-              );
-            },
-            icon: const Icon(Icons.copy, size: 18),
-          ),
-        ],
-      ),
+            const SizedBox(width: Spacing.sm),
+            InkWell(
+              onTap: () async {
+                await Clipboard.setData(ClipboardData(text: uid));
+                if (!context.mounted) {
+                  return;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.moderationUidCopied)),
+                );
+              },
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.all(Spacing.xxs),
+                child: Icon(
+                  Icons.copy,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ModerationMessageField extends StatelessWidget {
+  const _ModerationMessageField({
+    required this.label,
+    required this.message,
+  });
+
+  final String label;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: _moderationFieldLabelStyle(context)),
+        const SizedBox(height: Spacing.xxs),
+        Text(message, style: Theme.of(context).textTheme.bodyMedium),
+      ],
     );
   }
 }
@@ -914,6 +1165,7 @@ Future<void> _confirmBulkModerate({
   required WidgetRef ref,
   required bool approve,
   required List<String> reportIds,
+  VoidCallback? onComplete,
 }) async {
   final l10n = context.l10n;
   final needsConfirm = !approve || reportIds.length > 1;
@@ -959,6 +1211,7 @@ Future<void> _confirmBulkModerate({
     return;
   }
   ref.read(moderationSelectionProvider.notifier).clear();
+  onComplete?.call();
   if (result == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.moderationActionError)),

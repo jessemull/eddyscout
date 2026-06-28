@@ -2021,7 +2021,7 @@ abstract class AppLocalizations {
   /// No description provided for @moderationQueueTitle.
   ///
   /// In en, this message translates to:
-  /// **'Review reports'**
+  /// **'Review Reports'**
   String get moderationQueueTitle;
 
   /// No description provided for @moderationQueueEmpty.
@@ -2081,7 +2081,7 @@ abstract class AppLocalizations {
   /// No description provided for @moderationLaunchSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Launch id or name'**
+  /// **'Search by ID or name...'**
   String get moderationLaunchSearchHint;
 
   /// No description provided for @moderationSortOldestWaiting.
@@ -2165,8 +2165,14 @@ abstract class AppLocalizations {
   /// No description provided for @moderationHoldReason.
   ///
   /// In en, this message translates to:
-  /// **'Hold reason'**
+  /// **'Hold Reason'**
   String get moderationHoldReason;
+
+  /// No description provided for @moderationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get moderationMessage;
 
   /// No description provided for @moderationSubmittedAt.
   ///
@@ -2210,6 +2216,48 @@ abstract class AppLocalizations {
   /// **'Clear'**
   String get moderationClearSelection;
 
+  /// No description provided for @moderationBulkSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get moderationBulkSelect;
+
+  /// No description provided for @moderationBulkSelectDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get moderationBulkSelectDone;
+
+  /// No description provided for @moderationReasonKeywordHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Matched moderation keyword'**
+  String get moderationReasonKeywordHold;
+
+  /// No description provided for @moderationReasonAdminApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved by moderator'**
+  String get moderationReasonAdminApprove;
+
+  /// No description provided for @moderationReasonAdminReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected by moderator'**
+  String get moderationReasonAdminReject;
+
+  /// No description provided for @moderationReasonAdminReopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned to pending by moderator'**
+  String get moderationReasonAdminReopen;
+
+  /// No description provided for @moderationReasonHoldTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-approved after hold period'**
+  String get moderationReasonHoldTimeout;
+
   /// No description provided for @moderationBulkApprove.
   ///
   /// In en, this message translates to:
@@ -2252,10 +2300,28 @@ abstract class AppLocalizations {
   /// **'Could not update {count} selected reports.'**
   String moderationBatchPartialFailure(int count);
 
+  /// No description provided for @moderationReturnToPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to pending'**
+  String get moderationReturnToPending;
+
+  /// No description provided for @moderationReturnToPendingConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Return report to pending?'**
+  String get moderationReturnToPendingConfirmTitle;
+
+  /// No description provided for @moderationReturnToPendingConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This report will reappear on the pending tab for review. If it was approved, it will be removed from the public list.'**
+  String get moderationReturnToPendingConfirmBody;
+
   /// No description provided for @launchDetailReviewReportsButton.
   ///
   /// In en, this message translates to:
-  /// **'Review reports'**
+  /// **'Review Reports'**
   String get launchDetailReviewReportsButton;
 }
 

@@ -64,4 +64,15 @@ class ConditionReportModerationRepositoryImpl
       cancelToken: cancelToken,
     );
   }
+
+  @override
+  FutureResult<void, AppFailure> reopenReport({
+    required String reportId,
+    CancelToken? cancelToken,
+  }) {
+    return callReopenConditionReport(
+      reportId: reportId,
+      cancelToken: cancelToken,
+    );
+  }
 }

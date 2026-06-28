@@ -189,7 +189,7 @@ void main() {
       find.byKey(const Key('menu_moderator_review_queue')),
       findsOneWidget,
     );
-    expect(find.text('Review reports'), findsOneWidget);
+    expect(find.text('Review Reports'), findsOneWidget);
   });
 
   testWidgets('MenuScreen hides moderator queue entry for non-moderators', (

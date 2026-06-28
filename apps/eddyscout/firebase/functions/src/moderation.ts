@@ -32,6 +32,7 @@ export const MODERATION_STATUS_REJECTED: ModerationStatus = "rejected";
 
 export const MODERATION_REASON_ADMIN_APPROVE = "admin_approve";
 export const MODERATION_REASON_ADMIN_REJECT = "admin_reject";
+export const MODERATION_REASON_ADMIN_REOPEN = "admin_reopen";
 export const MODERATION_REASON_HOLD_TIMEOUT = "hold_timeout_release";
 
 export const STALE_HOLD_RELEASE_BATCH_SIZE = 500;
@@ -360,6 +361,54 @@ export async function moderateHeldReport(
   await invalidateLaunchDigest(db, launchId);
 
   return { moderationStatus, launchId };
+}
+
+export function isReopenEligibleStatus(
+  status: ModerationStatus | null,
+): status is typeof MODERATION_STATUS_APPROVED | typeof MODERATION_STATUS_REJECTED {
+  return (
+    status === MODERATION_STATUS_APPROVED ||
+    status === MODERATION_STATUS_REJECTED
+  );
+}
+
+export async function reopenModeratedReport(
+  db: FirebaseFirestore.Firestore,
+  reportId: string,
+  _reopenedBy: string,
+): Promise<ModerateReportResult> {
+  const reportRef = db.collection("conditionReports").doc(reportId);
+  const reportSnap = await reportRef.get();
+  if (!reportSnap.exists) {
+    throw new HttpsError("not-found", "Report not found.");
+  }
+
+  const data = reportSnap.data()!;
+  const currentStatus = resolveModerationStatus(data.moderationStatus);
+  if (!isReopenEligibleStatus(currentStatus)) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Report is not eligible to return to pending.",
+    );
+  }
+
+  const launchId =
+    typeof data.launchId === "string" ? data.launchId : undefined;
+  if (!launchId) {
+    throw new HttpsError("failed-precondition", "Report missing launchId.");
+  }
+
+  await reportRef.update({
+    moderationStatus: MODERATION_STATUS_HELD,
+    moderationReason: MODERATION_REASON_ADMIN_REOPEN,
+    moderationReviewed: false,
+    reviewedAt: admin.firestore.FieldValue.delete(),
+    reviewedBy: admin.firestore.FieldValue.delete(),
+  });
+
+  await invalidateLaunchDigest(db, launchId);
+
+  return { moderationStatus: MODERATION_STATUS_HELD, launchId };
 }
 
 export function httpsErrorCode(error: unknown): string {

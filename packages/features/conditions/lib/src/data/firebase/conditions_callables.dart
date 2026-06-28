@@ -337,3 +337,16 @@ callModerateConditionReportsBatch({
     return ModerationBatchModerateResult.fromJson(data);
   }, cancelToken: cancelToken);
 }
+
+/// Calls `reopenConditionReport`.
+FutureResult<void, AppFailure> callReopenConditionReport({
+  required String reportId,
+  CancelToken? cancelToken,
+}) {
+  return _runCallable(() async {
+    final callable = _functions.httpsCallable('reopenConditionReport');
+    await callable.call<Map<String, dynamic>>(
+      _jsonSafePayload(<String, Object?>{'reportId': reportId}),
+    );
+  }, cancelToken: cancelToken);
+}

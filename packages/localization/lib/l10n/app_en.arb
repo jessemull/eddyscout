@@ -758,7 +758,7 @@
       "stopName": {"type": "String"}
     }
   },
-  "moderationQueueTitle": "Review reports",
+  "moderationQueueTitle": "Review Reports",
   "moderationQueueEmpty": "No reports waiting for review.",
   "moderationQueueLoadError": "Could not load the review queue.",
   "moderationApprove": "Approve",
@@ -768,7 +768,7 @@
   "moderationTabHistory": "History",
   "moderationHistoryEmpty": "No moderation history yet.",
   "moderationHistoryLoadError": "Could not load moderation history.",
-  "moderationLaunchSearchHint": "Launch id or name",
+  "moderationLaunchSearchHint": "Search by ID or name...",
   "moderationSortOldestWaiting": "Oldest waiting",
   "moderationSortMostRecent": "Most recent",
   "moderationSortRecentAction": "Recent action",
@@ -782,7 +782,8 @@
   "moderationSubmitterUid": "Submitter",
   "moderationModeratorUid": "Moderator",
   "moderationSystemActor": "System",
-  "moderationHoldReason": "Hold reason",
+  "moderationHoldReason": "Hold Reason",
+  "moderationMessage": "Message",
   "moderationSubmittedAt": "Submitted",
   "moderationReviewedAt": "Reviewed",
   "moderationWaitingDays": "Waiting {days} days",
@@ -795,6 +796,13 @@
   "moderationUidCopied": "UID copied",
   "moderationSelectAll": "Select all",
   "moderationClearSelection": "Clear",
+  "moderationBulkSelect": "Select",
+  "moderationBulkSelectDone": "Done",
+  "moderationReasonKeywordHold": "Matched moderation keyword",
+  "moderationReasonAdminApprove": "Approved by moderator",
+  "moderationReasonAdminReject": "Rejected by moderator",
+  "moderationReasonAdminReopen": "Returned to pending by moderator",
+  "moderationReasonHoldTimeout": "Auto-approved after hold period",
   "moderationBulkApprove": "Approve selected",
   "moderationBulkReject": "Reject selected",
   "moderationBulkApproveConfirmTitle": "Approve selected reports?",
@@ -807,5 +815,8 @@
       "count": {"type": "int"}
     }
   },
-  "launchDetailReviewReportsButton": "Review reports"
+  "moderationReturnToPending": "Return to pending",
+  "moderationReturnToPendingConfirmTitle": "Return report to pending?",
+  "moderationReturnToPendingConfirmBody": "This report will reappear on the pending tab for review. If it was approved, it will be removed from the public list.",
+  "launchDetailReviewReportsButton": "Review Reports"
 }

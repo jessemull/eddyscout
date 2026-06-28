@@ -40,7 +40,7 @@ If you deploy functions before indexes finish building, the first list call may 
 
 Moderation adds additional composite indexes on `conditionReports`. Deploy indexes **before** functions when rolling out moderation.
 
-Callables: `submitConditionReport`, `listConditionReports`, `summarizeLaunchReports` (approved-only), `checkModeratorAccess`, `listPendingConditionReports`, `listModerationHistory`, `moderateConditionReport`, `moderateConditionReportsBatch`, scheduled `purgeExpiredConditionReports`, scheduled `releaseStaleHeldConditionReports`.
+Callables: `submitConditionReport`, `listConditionReports`, `summarizeLaunchReports` (approved-only), `checkModeratorAccess`, `listPendingConditionReports`, `listModerationHistory`, `moderateConditionReport`, `moderateConditionReportsBatch`, `reopenConditionReport`, scheduled `purgeExpiredConditionReports`, scheduled `releaseStaleHeldConditionReports`.
 
 ### Deploy order
 
@@ -70,12 +70,13 @@ Callables: `submitConditionReport`, `listConditionReports`, `summarizeLaunchRepo
 
 - **Menu tab → Review reports** (visible when `checkModeratorAccess` is true)
 - **Pending** tab: filter/sort, bulk approve/reject, rich metadata (submitter UID, hold age)
-- **History** tab: audit trail (`reviewedBy`, `reviewedAt`, outcome, reason)
+- **History** tab: audit trail (`reviewedBy`, `reviewedAt`, outcome, reason); **Return to pending** to undo an approve/reject
 
 ### Manual QA checklist
 
 - Submit keyword-held report → appears on Pending with submitter UID and hold reason
 - Approve/reject single item and bulk selection (confirm on reject / bulk approve)
+- History tab: return an approved/rejected report to Pending via **Return to pending**
 - History tab shows moderator UID or **System** for auto-release
 - Filter by launch id, date presets, sort oldest/newest
 - Stale hold: backdate a held doc’s `createdAt` by 31+ days, run scheduler or wait for daily job → auto-approved with `hold_timeout_release`

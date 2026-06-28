@@ -8,6 +8,7 @@ import {
   evaluateKeywordHold,
   isModerator,
   isPubliclyVisibleStatus,
+  isReopenEligibleStatus,
   isStaleHold,
   parseModerationConfig,
   resolveModerationStatus,
@@ -87,6 +88,18 @@ describe("isPubliclyVisibleStatus", () => {
     assert.equal(isPubliclyVisibleStatus("approved"), true);
     assert.equal(isPubliclyVisibleStatus("held"), false);
     assert.equal(isPubliclyVisibleStatus("rejected"), false);
+  });
+});
+
+describe("isReopenEligibleStatus", () => {
+  test("allows approved and rejected reports", () => {
+    assert.equal(isReopenEligibleStatus("approved"), true);
+    assert.equal(isReopenEligibleStatus("rejected"), true);
+  });
+
+  test("rejects held and unknown statuses", () => {
+    assert.equal(isReopenEligibleStatus("held"), false);
+    assert.equal(isReopenEligibleStatus(null), false);
   });
 });
 

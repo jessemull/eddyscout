@@ -98,8 +98,8 @@ flowchart TB
 | Step | Work | Status |
 |------|------|--------|
 | 1 | **Platform waves 1–3** — monorepo, `@riverpod`, Result boundaries, router package, feature `presentation/` layering, app-shell closeout | **Done** (#19–#36, closeout) |
-| 2 | **Firebase dev / production environments** — separate GCP projects, client config selection, deploy runbook (§ Firebase environments) | **Next** |
-| 3 | **Phase C+** — product slices in this file (GPX, saved routes, moderation QA, auth, two-pin catalog, …) | **Now** (after step 2 for Firebase-backed QA) |
+| 2 | **Firebase dev / production environments** — `.firebaserc` aliases, client config selection, deploy runbook (§ Firebase environments) | **In progress** (projects configured in repo; wiring + deploy to both remain) |
+| 3 | **Phase C+** — product slices in this file (GPX, saved routes, moderation QA, auth, two-pin catalog, …) | **Now** (Firebase-backed QA: pick project via alias; prefer **dev** once mirrored) |
 
 ---
 
@@ -152,11 +152,9 @@ Today, adding or fixing a launch requires editing `launch_catalog.dart` (and oft
 
 Relates to **Launch contributions (v1)** below (crowd-sourced *suggestions*) — contributions must not bypass editorial merge into the catalog pipeline.
 
-### Firebase environments (dev / production) — **next up**
+### Firebase environments (dev / production) — **configured in repo; wiring remaining**
 
-**Why now:** Condition-report **moderation** (Phase C) is implemented but hard to QA safely. Today there is **one effective backend** (`eddyscout-c29b9`, alias `mvp` in `.firebaserc`) and a **single** gitignored `google-services.json`. `USE_FIREBASE=true` only toggles Firebase on/off — it does **not** select dev vs prod. Local work and deploys can accidentally write test reports, moderation config, and secrets into the same Firestore the store build would use.
-
-**Goal:** Two clearly named environments with a documented switch for **deploy** and **local run**, so engineers default to **dev** and only deploy to **prod** deliberately.
+**Status:** Two Firebase/GCP projects are **already configured** in `apps/eddyscout/.firebaserc`:
 
 | Environment | Firebase / GCP project | `.firebaserc` alias | Intended use |
 |-------------|------------------------|---------------------|--------------|
@@ -165,17 +163,28 @@ Relates to **Launch contributions (v1)** below (crowd-sourced *suggestions*) —
 
 Optional **staging** (`eddyscout-staging`) is out of scope for v1 unless release cadence needs it; CI can add it later per `docs/CI_CD.md`.
 
-**Current repo hooks (already present — wire them up):**
+**Working directory:** All Firebase CLI commands and Node scripts (e.g. moderation seed) run from **`apps/eddyscout`**, not the monorepo root. Example:
+
+```bash
+cd apps/eddyscout
+node firebase/scripts/seed_moderation_config.mjs --project eddyscout-c29b9
+```
+
+**Why wiring still matters:** Condition-report **moderation** (Phase C) is implemented but hard to QA safely if everyone hits prod by accident. `USE_FIREBASE=true` only toggles Firebase on/off — it does **not** select dev vs prod. Which backend you use is determined by **`google-services.json`** (symlinked via `make dev` / `make fetch-google-services`) and optional **`EDDYSCOUT_FIREBASE_ALIAS`** (`default` → dev, `mvp` → prod). Today helper scripts **default to `mvp` (prod)** unless you override the alias.
+
+**Goal (remaining):** Document and enforce a default of **dev** for daily local work; deploy to **both** projects deliberately; never ship backend changes to prod without a dev smoke-test.
+
+**Repo hooks (present — use them):**
 
 | Piece | Location | Notes |
 |-------|----------|-------|
 | Firebase CLI aliases | `apps/eddyscout/.firebaserc` | `firebase use default` → dev; `firebase use mvp` → prod |
 | Client project binding | `apps/eddyscout/android/app/google-services.json` (gitignored) | Whichever JSON is present wins; no Dart constant overrides project |
-| Symlink helper | `scripts/ensure_android_secrets.sh`, `make fetch-google-services` | Canonical copy in `~/.config/eddyscout/`; `EDDYSCOUT_GOOGLE_SERVICES` override |
+| Symlink helper | `scripts/ensure_android_secrets.sh`, `make fetch-google-services` | Canonical copy in `~/.config/eddyscout/`; **`EDDYSCOUT_FIREBASE_ALIAS`** (`default` \| `mvp`; scripts default **`mvp`**) |
 | Feature gate | `USE_FIREBASE` in `.local.env` → `--dart-define` | See `apps/eddyscout/env.example`, `scripts/run_android.sh` |
 | Bootstrap | `Firebase.initializeApp()` + anonymous auth | `apps/eddyscout/lib/bootstrap/app_bootstrap.dart` |
 | Backend deploy docs | `apps/eddyscout/firebase/DEPLOY.md` | Indexes, functions, moderation order, Android SHA fingerprints |
-| Moderation seed script | `apps/eddyscout/firebase/scripts/seed_moderation_config.mjs` | `--project eddyscout-dev` or `eddyscout-c29b9` |
+| Moderation seed script | `apps/eddyscout/firebase/scripts/seed_moderation_config.mjs` | From `apps/eddyscout`: `--project eddyscout-dev` or `eddyscout-c29b9` |
 | Function unit tests | `cd apps/eddyscout/firebase/functions && npm test` | No Firestore; safe offline |
 
 **What is *not* built yet:**
@@ -197,12 +206,14 @@ Optional **staging** (`eddyscout-staging`) is out of scope for v1 unless release
 5. **Docs:** Extend `firebase/DEPLOY.md` with an **Environments** section (aliases, never deploy functions to prod without dev smoke-test). Update `env.example` / `CONTRIBUTING.md` with “local dev uses **dev** project”.
 6. **Optional hardening:** Android `productFlavors` `dev` / `prod` with distinct `applicationIdSuffix` for side-by-side installs; iOS schemes when iOS Firebase ships.
 
-**Interim (until step 2 above is done):** Manual moderation QA can run against **`eddyscout-c29b9`** only — accept test `conditionReports` in prod Firestore or keep testing to function unit tests + a single controlled device. See moderation test steps in team runbooks / PR notes; prefer finishing dev env before broader QA.
+**Interim:** Until dev is mirrored and local default flips to **`default`**, moderation QA may run against **`eddyscout-c29b9`** — accept test `conditionReports` in prod Firestore or restrict to function unit tests + one controlled device.
 
-**Checklist (Phase C / infra — implement next):**
+**Checklist (Phase C / infra):**
 
-- [ ] **(Infra / Firebase)** Confirm or create **`eddyscout-dev`** project; mirror Android app + Anonymous auth + SHA fingerprints
-- [ ] **(Infra / Firebase)** Document and store **dev + prod** `google-services.json` paths; default local dev to **dev** via symlink or flavor
+- [x] **(Infra / Firebase)** Configure **`.firebaserc`** — `default` → `eddyscout-dev`, `mvp` → `eddyscout-c29b9`
+- [x] **(Infra / Firebase)** Moderation seed script + backend paths under **`apps/eddyscout/firebase/`**
+- [ ] **(Infra / Firebase)** Confirm **both** GCP projects exist in Console; mirror Android app + Anonymous auth + SHA fingerprints on each
+- [ ] **(Infra / Firebase)** Document and store **dev + prod** `google-services.json` paths; **default local dev to dev** (`EDDYSCOUT_FIREBASE_ALIAS=default` or flavor)
 - [ ] **(Infra / Firebase)** Deploy rules, indexes, functions, and `config/moderation` to **dev**; smoke-test all Callables
 - [ ] **(Infra / Firebase)** Deploy runbook in `firebase/DEPLOY.md` — `firebase use default` vs `mvp`, order of operations, per-project secrets
 - [ ] **(Infra / Firebase)** Prod deploy checklist — explicit `firebase use mvp` + human confirmation before functions/indexes hit `eddyscout-c29b9`
@@ -322,7 +333,7 @@ Apply these **with** the product slice that needs them — not as standalone pla
 | Product trigger | Engineering work |
 |-----------------|------------------|
 | **(Phase C) Auth** / saved routes needing identity | `flutter_secure_storage`, session router guards, auth feature package |
-| **Firebase-backed features** (reports, moderation, LLM Callables) | **Dev / prod project split** (§ Firebase environments); deploy runbook; client config selection — **next** |
+| **Firebase-backed features** (reports, moderation, LLM Callables) | **Dev / prod aliases configured** (§ Firebase environments); finish deploy runbook + default-to-dev client selection |
 | **Tab shell** (e.g. map + trips + profile) | `StatefulShellRoute`, shell routes in `packages/routing/` |
 | **(Phase D) Media** / trip cards with photos | `CachedNetworkImage`, image sizing, optional upload pipeline |
 | **New HTTP-heavy feature** | Extend `CancelToken` + `Result` pattern from conditions to that feature's repos |
@@ -343,9 +354,9 @@ Budget: at most **one new** `integration_test/` file per product epic unless jus
 
 ### Recommended next implementation
 
-**Now (infra — Phase C):** **Firebase dev / production environments** (§ Firebase environments) — separate `eddyscout-dev` from `eddyscout-c29b9`, default local builds to dev, document deploy order and native config selection. **Blocks safe moderation QA** and reduces risk of test data and config changes on the MVP project.
+**Now (infra — Phase C):** **Firebase environment wiring** (§ Firebase environments) — projects and CLI aliases exist; finish mirroring both Console projects, default local builds to **dev**, and document deploy order. Reduces risk of test data and config changes on the MVP project.
 
-**Next (product — Phase C):** **Moderation manual QA** on the **dev** project after the env slice; then **launch coordinate quality** — **two-pin model** (access vs water entry), catalog pin realignment, water-only polylines / mainstem geometry hygiene. Portland metro Overpass geometry, A\*, cross-system routing, reachability / suggested trips indexes, and **Trips from here** UI are shipped; moderation **code** is shipped — env + QA remain.
+**Next (product — Phase C):** **Moderation manual QA** (prefer **dev** once mirrored; prod acceptable interim); then **launch coordinate quality** — **two-pin model** (access vs water entry), catalog pin realignment, water-only polylines / mainstem geometry hygiene. Portland metro Overpass geometry, A\*, cross-system routing, reachability / suggested trips indexes, and **Trips from here** UI are shipped; moderation **code** is shipped — env + QA remain.
 
 **Done (platform):** Waves 1–3 — monorepo, `@riverpod`, Result boundaries, router package, feature presentation layering, app-shell closeout (#19–#36).
 
@@ -386,9 +397,9 @@ Single list of **everything** tracked for build progress. Tags show the original
 
 ### Not yet
 
-> **Gate:** Phase C items below are ready to implement — platform architecture is complete (§ Platform architecture). **Exception:** Firebase-backed manual QA should use **dev** after § Firebase environments lands.
+> **Gate:** Phase C items below are ready to implement — platform architecture is complete (§ Platform architecture). Firebase-backed manual QA: use **`eddyscout-dev`** when mirrored; until then prod (`eddyscout-c29b9`) is the practical fallback.
 
-- [ ] **(Infra / Firebase)** Dev vs production environments — see § Firebase environments checklist (**next**)
+- [ ] **(Infra / Firebase)** Environment wiring — see § Firebase environments checklist (aliases **configured**; default-to-dev + dual deploy **remaining**)
 - [x] **(Reports / mod)** Moderation — admin queue, TTL, keyword hold (optional report-abuse UX)
 - [x] **(Phase C)** Route preview on map — planning mode, put-in / take-out from existing launches, path along bundled open hydro LineStrings (`assets/hydro/`; Willamette Portland reach first); not navigation-grade
 - [x] **(Phase C)** Route planner follow-ups — more rivers / segment snap (`feat/route-planner-hydro-expansion`; Willamette + Columbia gorge hydro, edge snap, `PlannedRoute` domain model)

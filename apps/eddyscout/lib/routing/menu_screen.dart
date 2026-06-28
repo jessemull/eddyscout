@@ -167,7 +167,7 @@ class _ModeratorMenuEntry extends ConsumerWidget {
         }
         return ListTile(
           key: const Key('menu_moderator_review_queue'),
-          leading: const Icon(Icons.fact_check_outlined),
+          leading: const Icon(Icons.rate_review_outlined),
           title: Text(context.l10n.moderationQueueTitle),
           onTap: () => context.push(RoutePaths.moderationReports),
         );

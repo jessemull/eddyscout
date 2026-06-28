@@ -28,6 +28,7 @@ import {
   moderateHeldReport,
   moderateHeldReportsBatch,
   parseIsoDate,
+  reopenModeratedReport,
   resolveModerationStatus,
   staleHoldCutoff,
 } from "./moderation.js";
@@ -702,6 +703,37 @@ export const moderateConditionReportsBatch = onCall(
     });
 
     return { succeeded, failed };
+  },
+);
+
+const reopenReportSchema = z.object({
+  reportId: z.string().min(1),
+});
+
+export const reopenConditionReport = onCall(
+  { cors: true, invoker: "public" },
+  async (request) => {
+    const db = admin.firestore();
+    const config = await loadModerationConfig(db);
+    const moderatorUid = assertModerator(request, config);
+
+    const parsed = reopenReportSchema.safeParse(request.data ?? {});
+    if (!parsed.success) {
+      throw new HttpsError("invalid-argument", "Invalid request.");
+    }
+
+    const result = await reopenModeratedReport(
+      db,
+      parsed.data.reportId,
+      moderatorUid,
+    );
+
+    logger.info("reopenConditionReport", {
+      reportId: parsed.data.reportId,
+      launchId: result.launchId,
+    });
+
+    return { ok: true, moderationStatus: result.moderationStatus };
   },
 );
 
