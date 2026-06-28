@@ -375,7 +375,7 @@ export function isReopenEligibleStatus(
 export async function reopenModeratedReport(
   db: FirebaseFirestore.Firestore,
   reportId: string,
-  _reopenedBy: string,
+  reopenedBy: string,
 ): Promise<ModerateReportResult> {
   const reportRef = db.collection("conditionReports").doc(reportId);
   const reportSnap = await reportRef.get();
@@ -404,6 +404,8 @@ export async function reopenModeratedReport(
     moderationReviewed: false,
     reviewedAt: admin.firestore.FieldValue.delete(),
     reviewedBy: admin.firestore.FieldValue.delete(),
+    reopenedBy,
+    reopenedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
   await invalidateLaunchDigest(db, launchId);

@@ -209,6 +209,23 @@ void main() {
       verify(() => functions.httpsCallable('summarizeLaunchReports')).called(1);
     });
 
+    test('callReopenConditionReport invokes reopen callable', () async {
+      when(() => result.data).thenReturn({'ok': true});
+      when(
+        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+      ).thenAnswer((_) async => result);
+
+      final res = await callReopenConditionReport(reportId: 'report-1');
+
+      expect(res.isSuccess, isTrue);
+      verify(() => functions.httpsCallable('reopenConditionReport')).called(1);
+      verify(
+        () => callable.call<Map<String, dynamic>>({
+          'reportId': 'report-1',
+        }),
+      ).called(1);
+    });
+
     test('retries once on unauthenticated', () async {
       when(() => result.data).thenReturn({'summaryText': 'Retry ok.'});
       var calls = 0;

@@ -73,6 +73,13 @@ void main() {
       );
     });
 
+    test('maps moderation reports screen', () {
+      expect(
+        AnalyticsScreenNames.fromMatchedLocation('/moderation/reports'),
+        AnalyticsScreenNames.moderationReports,
+      );
+    });
+
     test('returns null for unknown locations', () {
       expect(AnalyticsScreenNames.fromMatchedLocation('/unknown'), isNull);
     });

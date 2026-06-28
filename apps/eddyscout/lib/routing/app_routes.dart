@@ -485,5 +485,8 @@ class ModerationReportsRoute extends GoRouteData with $ModerationReportsRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      const ModerationQueueScreen();
+      const _ScreenViewLogger(
+        screenName: AnalyticsScreenNames.moderationReports,
+        child: ModerationQueueScreen(),
+      );
 }

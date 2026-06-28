@@ -731,6 +731,7 @@ export const reopenConditionReport = onCall(
     logger.info("reopenConditionReport", {
       reportId: parsed.data.reportId,
       launchId: result.launchId,
+      reopenedBy: moderatorUid,
     });
 
     return { ok: true, moderationStatus: result.moderationStatus };
