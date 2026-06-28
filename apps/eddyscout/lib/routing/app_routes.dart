@@ -336,8 +336,6 @@ class _LaunchDetailRouteBody extends ConsumerWidget {
           tripsFromHereSection: _LaunchDetailSuggestedTripsEntry(
             originLaunch: launch,
           ),
-          onOpenModerationQueue: () =>
-              unawaited(const ModerationReportsRoute().push<void>(context)),
         ),
       ),
     );

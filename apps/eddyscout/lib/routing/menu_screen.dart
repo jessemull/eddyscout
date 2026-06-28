@@ -2,8 +2,10 @@ import 'dart:async' show unawaited;
 
 import 'package:eddyscout/routing/app_routes.dart';
 import 'package:eddyscout/routing/app_shell.dart';
+import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_map/eddyscout_map.dart';
+import 'package:eddyscout_routing/eddyscout_routing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -122,6 +124,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                   ? () => unawaited(_handleGpxExport())
                   : null,
             ),
+            const _ModeratorMenuEntry(),
             ListTile(
               leading: const Icon(Icons.settings_outlined),
               title: Text(l10n.menuSettings),
@@ -141,6 +144,34 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Moderator-only menu row for the global condition-report review queue.
+class _ModeratorMenuEntry extends ConsumerWidget {
+  const _ModeratorMenuEntry();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!firebaseCallablesAvailable) {
+      return const SizedBox.shrink();
+    }
+    final accessAsync = ref.watch(moderatorAccessProvider);
+    return accessAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+      data: (isModerator) {
+        if (!isModerator) {
+          return const SizedBox.shrink();
+        }
+        return ListTile(
+          key: const Key('menu_moderator_review_queue'),
+          leading: const Icon(Icons.fact_check_outlined),
+          title: Text(context.l10n.moderationQueueTitle),
+          onTap: () => context.push(RoutePaths.moderationReports),
+        );
+      },
     );
   }
 }

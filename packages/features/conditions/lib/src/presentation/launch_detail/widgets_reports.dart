@@ -263,36 +263,6 @@ class _ConditionReportTile extends StatelessWidget {
   }
 }
 
-class _ModeratorReviewEntry extends ConsumerWidget {
-  const _ModeratorReviewEntry({required this.onOpen});
-
-  final VoidCallback? onOpen;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (onOpen == null) {
-      return const SizedBox.shrink();
-    }
-    final accessAsync = ref.watch(moderatorAccessProvider);
-    return accessAsync.when(
-      loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
-      data: (isModerator) {
-        if (!isModerator) {
-          return const SizedBox.shrink();
-        }
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton(
-            onPressed: onOpen,
-            child: Text(context.l10n.launchDetailReviewReportsButton),
-          ),
-        );
-      },
-    );
-  }
-}
-
 /// Bottom sheet content: owns `TextEditingController` until the route removes
 /// this widget (avoids "used after being disposed" during IME teardown).
 class _ConditionReportSheet extends ConsumerStatefulWidget {

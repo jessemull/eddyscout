@@ -64,7 +64,7 @@ Callables: `submitConditionReport`, `listConditionReports`, `summarizeLaunchRepo
 
 ### Moderator workflow
 
-- Launch detail → **Review reports** (visible when `checkModeratorAccess` is true)
+- **Menu tab → Review reports** (visible when `checkModeratorAccess` is true)
 - Approve/reject held reports in the moderation queue screen
 
 ### Local function tests
