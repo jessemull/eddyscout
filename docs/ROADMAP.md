@@ -4,7 +4,7 @@ High-level feature map for a PNW-focused kayak companion: **decision-first**, **
 
 > **Platform:** target architecture is **complete** (waves 1–3 merged; see § Platform architecture). **Product work** is Phase C+ below. New UI belongs in `packages/features/*/presentation/`, not `apps/eddyscout/lib/screens/`.
 >
-> **Last updated:** 2026-06-27
+> **Last updated:** 2026-06-28
 
 ## Vision
 
@@ -98,7 +98,170 @@ flowchart TB
 | Step | Work | Status |
 |------|------|--------|
 | 1 | **Platform waves 1–3** — monorepo, `@riverpod`, Result boundaries, router package, feature `presentation/` layering, app-shell closeout | **Done** (#19–#36, closeout) |
-| 2 | **Phase C+** — product slices in this file (GPX, saved routes, moderation, auth, …) | **Now** |
+| 2 | **Firebase dev / production environments** — separate GCP projects, client config selection, deploy runbook (§ Firebase environments) | **Next** |
+| 3 | **Phase C+** — product slices in this file (GPX, saved routes, moderation QA, auth, two-pin catalog, …) | **Now** (after step 2 for Firebase-backed QA) |
+
+---
+
+## Data architecture & storage (today)
+
+EddyScout **intentionally splits data by type**. Not everything belongs in Firebase; that is a product choice for a **curated regional guide**, not an oversight.
+
+| Data | Where today | Role |
+|------|-------------|------|
+| **Launch catalog** (ids, names, access + water-entry coordinates, flow bands, tide/marine tags) | Dart source: `packages/core/lib/src/launch_catalog.dart` (`kLaunchPoints`) | Editorial truth — **ships with the app**; offline; PR-reviewed |
+| **River / routing geometry** | Bundled assets: `apps/eddyscout/assets/hydro/*.geojson` | Offline routing; versioned in git + CI geometry gates |
+| **Reachability / suggested trips** | Bundled JSON: `assets/data/launch_*_index.json` | Precomputed from hydro graph at build time |
+| **Live conditions** (weather, USGS flow, tides, marine) | **External APIs** (NWS, USGS, NOAA) at runtime | Authoritative sources — not copied into our DB as source of truth |
+| **Saved routes** | **Local device** (Drift / SQLite) | User-owned; private by default |
+| **Preferences / skill profile** | **Local** (`SharedPreferences` via `KeyValueStore`) | Device-local settings |
+| **Community condition reports** | **Firestore** `conditionReports` (Admin SDK + Callables only) | User-generated text; references launches by **`launchId`** |
+| **Report moderation policy** | **Firestore** `config/moderation` | Admin UIDs, keywords, retention — **not map coordinates** |
+| **AI digest / summary caches** | **Firestore** (`launchReportDigests`, `reportDigestRate`; admin-only reads) | Server-side Anthropic key; Callable responses to clients |
+
+**How reports attach to the map:** Firestore stores `launchId` + message + moderation fields. The app resolves `launchId` → coordinates from **`kLaunchPoints`**, not from Firestore.
+
+**Principles:**
+
+- **Curated map truth** — bundled catalog + hydro assets; quality control via code review and release.
+- **User-generated notes** — Firebase with auth, moderation, TTL; clients never write Firestore directly.
+- **Live conditions** — fetch from agencies; show source + timestamp in UI.
+- **Do not** store launch lat/lng as client-writable Firestore documents in the current design.
+
+### Catalog distribution pipeline (deferred)
+
+**Not prioritized yet** — document so we do not forget when launch churn or multi-region scale outgrows ship-with-app.
+
+Today, adding or fixing a launch requires editing `launch_catalog.dart` (and often hydro indexes / reachability regen) and shipping an app release. That is acceptable for a small curated PNW catalog; it becomes painful when we want frequent pin fixes or many regions without store cycles.
+
+**Future direction (pick one or hybrid when needed):**
+
+| Approach | Idea |
+|----------|------|
+| **Build-time pipeline (minimal)** | Editorial YAML/JSON in repo → CI generates `launch_catalog.dart` + validates snaps → same release cadence, less hand-editing |
+| **Remote catalog + bundled fallback** | Versioned catalog JSON on CDN or Firestore (read-only to clients); app loads remote when online, falls back to bundled copy when offline or fetch fails |
+| **CMS → pipeline** | Human-friendly editor exports into the build-time or remote path above |
+
+**Checklist (when prioritized — Phase D / ops):**
+
+- [ ] **(Phase D / catalog)** Editorial source of truth — structured launch schema (access + water-entry coords, bands, tags); document ownership and review
+- [ ] **(Phase D / catalog)** CI pipeline — source → generated catalog artifact(s); wire into `make gen` / preflight; regen reachability/suggested-trips hooks where coords change
+- [ ] **(Phase D / catalog)** Optional remote distribution — semver’d catalog blob; client fetch + **bundled fallback**; never client-writable launch coordinates in Firestore
+- [ ] **(Phase D / catalog)** Migration path — two-pin coordinate model + snap-quality gates before bulk catalog moves (see R3 items below)
+- [ ] **(Phase D / catalog)** Ops runbook — pin fix without app release (remote path only); rollback; embedding/index invalidation when copy changes
+
+Relates to **Launch contributions (v1)** below (crowd-sourced *suggestions*) — contributions must not bypass editorial merge into the catalog pipeline.
+
+### Firebase environments (dev / production) — **next up**
+
+**Why now:** Condition-report **moderation** (Phase C) is implemented but hard to QA safely. Today there is **one effective backend** (`eddyscout-c29b9`, alias `mvp` in `.firebaserc`) and a **single** gitignored `google-services.json`. `USE_FIREBASE=true` only toggles Firebase on/off — it does **not** select dev vs prod. Local work and deploys can accidentally write test reports, moderation config, and secrets into the same Firestore the store build would use.
+
+**Goal:** Two clearly named environments with a documented switch for **deploy** and **local run**, so engineers default to **dev** and only deploy to **prod** deliberately.
+
+| Environment | Firebase / GCP project | `.firebaserc` alias | Intended use |
+|-------------|------------------------|---------------------|--------------|
+| **Development** | `eddyscout-dev` | `default` | Local `make run`, moderation QA, keyword holds, destructive tests, function iteration |
+| **Production (MVP)** | `eddyscout-c29b9` | `mvp` | Store / TestFlight builds, real community data, moderated content users see |
+
+Optional **staging** (`eddyscout-staging`) is out of scope for v1 unless release cadence needs it; CI can add it later per `docs/CI_CD.md`.
+
+**Current repo hooks (already present — wire them up):**
+
+| Piece | Location | Notes |
+|-------|----------|-------|
+| Firebase CLI aliases | `apps/eddyscout/.firebaserc` | `firebase use default` → dev; `firebase use mvp` → prod |
+| Client project binding | `apps/eddyscout/android/app/google-services.json` (gitignored) | Whichever JSON is present wins; no Dart constant overrides project |
+| Symlink helper | `scripts/ensure_android_secrets.sh`, `make fetch-google-services` | Canonical copy in `~/.config/eddyscout/`; `EDDYSCOUT_GOOGLE_SERVICES` override |
+| Feature gate | `USE_FIREBASE` in `.local.env` → `--dart-define` | See `apps/eddyscout/env.example`, `scripts/run_android.sh` |
+| Bootstrap | `Firebase.initializeApp()` + anonymous auth | `apps/eddyscout/lib/bootstrap/app_bootstrap.dart` |
+| Backend deploy docs | `apps/eddyscout/firebase/DEPLOY.md` | Indexes, functions, moderation order, Android SHA fingerprints |
+| Moderation seed script | `apps/eddyscout/firebase/scripts/seed_moderation_config.mjs` | `--project eddyscout-dev` or `eddyscout-c29b9` |
+| Function unit tests | `cd apps/eddyscout/firebase/functions && npm test` | No Firestore; safe offline |
+
+**What is *not* built yet:**
+
+- Documented **two** native config files (e.g. `google-services.dev.json` / `google-services.prod.json`) and how to select them for daily dev vs release builds
+- Android **product flavors** (or equivalent) so `make run` defaults to dev without manual file swapping
+- Deploy runbook: **always deploy to dev first**, smoke-test, then `firebase use mvp` + prod deploy
+- Separate **Secret Manager** secrets per project (`ANTHROPIC_API_KEY`, future keys)
+- `config/moderation` and indexes deployed to **both** projects with different `adminUids` / test keywords on dev
+- CI policy: PRs never deploy to prod; tagged releases deploy prod only (`docs/CI_CD.md` environment-scoped secrets)
+- Flutter **emulator** wiring (Firestore + Functions) — optional follow-up; not required if dev GCP project exists
+
+**Recommended implementation (pick-up guide):**
+
+1. **Console:** Confirm `eddyscout-dev` exists (or create). Register Android app `com.eddyscout.eddyscout` in **both** projects. Enable **Anonymous** sign-in on both. Add debug **SHA-1 / SHA-256** fingerprints on both (see `firebase/DEPLOY.md`).
+2. **Secrets:** `firebase use default` then `firebase functions:secrets:set ANTHROPIC_API_KEY` on dev; repeat on `mvp` for prod (same or separate Anthropic key — separate is safer for rate limits).
+3. **Deploy dev backend:** From `apps/eddyscout`: `firebase use default` → `firebase deploy --only firestore:rules,firestore:indexes` → wait for indexes → `node firebase/scripts/seed_moderation_config.mjs --project eddyscout-dev` → `firebase deploy --only functions`.
+4. **Client config:** `make fetch-google-services` (after `firebase login`) writes `~/.config/eddyscout/google-services-<project>.json`; `make dev` symlinks into each worktree. Override with `EDDYSCOUT_FIREBASE_ALIAS` / `EDDYSCOUT_GOOGLE_SERVICES`. Document prod path for release builds only.
+5. **Docs:** Extend `firebase/DEPLOY.md` with an **Environments** section (aliases, never deploy functions to prod without dev smoke-test). Update `env.example` / `CONTRIBUTING.md` with “local dev uses **dev** project”.
+6. **Optional hardening:** Android `productFlavors` `dev` / `prod` with distinct `applicationIdSuffix` for side-by-side installs; iOS schemes when iOS Firebase ships.
+
+**Interim (until step 2 above is done):** Manual moderation QA can run against **`eddyscout-c29b9`** only — accept test `conditionReports` in prod Firestore or keep testing to function unit tests + a single controlled device. See moderation test steps in team runbooks / PR notes; prefer finishing dev env before broader QA.
+
+**Checklist (Phase C / infra — implement next):**
+
+- [ ] **(Infra / Firebase)** Confirm or create **`eddyscout-dev`** project; mirror Android app + Anonymous auth + SHA fingerprints
+- [ ] **(Infra / Firebase)** Document and store **dev + prod** `google-services.json` paths; default local dev to **dev** via symlink or flavor
+- [ ] **(Infra / Firebase)** Deploy rules, indexes, functions, and `config/moderation` to **dev**; smoke-test all Callables
+- [ ] **(Infra / Firebase)** Deploy runbook in `firebase/DEPLOY.md` — `firebase use default` vs `mvp`, order of operations, per-project secrets
+- [ ] **(Infra / Firebase)** Prod deploy checklist — explicit `firebase use mvp` + human confirmation before functions/indexes hit `eddyscout-c29b9`
+- [ ] **(Infra / Firebase)** CI / release policy — no prod Firebase deploy from PR CI; prod on tag or manual workflow (align with `docs/CI_CD.md`)
+- [ ] **(Infra / Firebase)** Re-run moderation manual QA on **dev** after env split (submit, keyword hold, moderator queue, approve/reject, approved-only list)
+
+Relates to **§ Data architecture** (Firestore UGC), **(Reports / mod)** moderation (shipped), and **Integration test backlog** (report submit journey after env is stable).
+
+### Content moderation automation (Phase D)
+
+**Shipped (Phase C):** keyword **hold** (not auto-reject), human approve/reject queue, TTL, approved-only reads, moderator ACLs. Default posture is **auto-approve** unless a configured keyword matches — adequate for plumbing and low-volume QA, **not** production-grade trust & safety alone.
+
+**Goal (Phase D):** Layer **policy + automation + metrics** on the existing `moderationStatus` model (`approved` | `held` | `rejected`) in `submitConditionReport` — no client writes; scores/reasons stored server-side for audit.
+
+#### Free / low-cost options (verify pricing pages before ship — tiers change)
+
+| Option | Free tier? | Rough paid | Notes for EddyScout |
+|--------|------------|------------|---------------------|
+| **Keyword + regex hold** (shipped) | Free (self) | — | Fast, brittle; good for test hooks + obvious spam; false positives on paddling vocabulary (“dam”, “kill switch”, etc.) |
+| **Domain allowlist / denylist** (repo) | Free (self) | — | Pairs with keywords; document PNW paddling terms that must not auto-hold |
+| **OpenAI Moderation API** (`omni-moderation-latest`) | **Free** (per OpenAI pricing docs) | — | Separate API key; category flags + scores; text (+ images if needed later); rate limits by account tier |
+| **Google Perspective API** | **Free** today (~1 QPS default) | — | **Sunsetting Dec 31, 2026** — do **not** build new long-term dependency |
+| **Azure AI Content Safety** (F0) | **5,000 text records / month** | ~$0.38 / 1k text records (S0) | Extra cloud account; strong categories; good if already on Azure |
+| **AWS Comprehend DetectToxicContent** | **Not** in standard 12‑mo NLP free-tier list | ~$0.0005 / 100 chars (min 3 units/request) | Fine at MVP volume; adds AWS surface if stack stays GCP-only |
+| **Anthropic** (summaries) | N/A for moderation | Usage-based | **No dedicated moderation endpoint** — keep for digests, not UGC classification |
+| **bad-words** / profanity npm lists | Free | — | Slightly better than raw keywords; still high false-positive rate |
+| **Hive, Sightengine, Checkstep, etc.** | Trials / sales-led | Often **$100–500+/mo** and up | Full UGC platforms — overkill for short condition notes until volume, images, or legal exposure justify |
+
+**Volume context:** Short text reports at regional MVP scale are usually **well inside** free tiers (OpenAI moderation, Azure F0) if each submit is one API call.
+
+#### Recommended path for this app (tradeoffs)
+
+| Phase | Approach | Why |
+|-------|----------|-----|
+| **D0 (now)** | Shipped queue + keywords + human review | Infrastructure correct; policy TBD |
+| **D1 (first automation)** | **OpenAI Moderation API** in `submitConditionReport` → **hold** (not auto-reject) when `flagged` or score above threshold; store `moderationReason` + category scores on doc | **$0 at MVP volume**; one HTTP call; fits existing Cloud Functions; no dashboard lock-in |
+| **D1b (same release)** | **Rate limit** per UID + max length (extend zod); optional **hold-all** for first N reports from new accounts | Stops spam without ML; requires **(Phase C) Auth** for durable identity |
+| **D1c (same release)** | **Paddling allowlist** in repo — terms that must never single-handedly trigger hold | Reduces false positives from generic toxicity models |
+| **D2 (if OpenAI undesirable)** | **Azure Content Safety F0** as alternate provider behind a small `ModerationClassifier` interface | 5k/month free; more setup if GCP-only today |
+| **D3 (scale / images / legal)** | Evaluate **Hive**-class platforms or dedicated human ops | When report volume, photo UGC, or compliance needs exceed function + queue |
+
+**Do not:** Auto-**reject** on ML alone for safety-adjacent paddling notes (false negatives/positives); prefer **hold → human** or **hold → approve with audit**. **Do not** adopt Perspective for new work (sunset 2026).
+
+**Integration sketch (D1):** `evaluateKeywordHold` → `classifyReportText` (provider) → `moderationStatus` + `moderationReason` + optional `moderationScores` map → existing queue + approved-only list/digest unchanged.
+
+#### Checklist (Phase D / moderation — after policy doc)
+
+- [ ] **(Phase D / mod)** **Moderation policy** — allowed content, prohibited content, hold vs reject rules, appeals, response SLA, liability copy (pairs with launch-detail disclaimers)
+- [ ] **(Phase D / mod)** **Provider abstraction** — `ModerationClassifier` in functions (mock in unit tests); config in `config/moderation` (thresholds, provider id, enabled flags)
+- [ ] **(Phase D / mod)** **OpenAI Moderation** (recommended v1) — secret `OPENAI_API_KEY`; hold above threshold; persist scores; fail-open vs fail-closed decision documented
+- [ ] **(Phase D / mod)** **Paddling allowlist** — repo list + tests for false-positive regressions (“deadhead”, “dam release”, “strainer”, etc.)
+- [ ] **(Phase D / mod)** **Rate limits** — per-UID submit caps (Firestore counter or sliding window); optional cooldown after reject
+- [ ] **(Phase D / mod)** **Posture toggle** — `config/moderation.defaultStatus`: `approved` vs `held` for all new reports (product switch)
+- [ ] **(Phase D / mod)** **Metrics** — log holds by reason (`keyword_hold`, `openai_flag`, `rate_limit`); moderator time-to-review (manual or later dashboard)
+- [ ] **(Phase D / mod)** **In-app report abuse** — “Report this note” → second queue or auto-hold (optional)
+- [ ] **(Phase D / mod)** **Alt provider spike** — Azure Content Safety F0 only if rejecting OpenAI second vendor
+- [ ] **(Phase D / mod)** Revisit **Hive-class** vendors when photo reports or social feed (Phase D) ships
+
+Relates to **(Phase D) Reputation / trust**, **(Phase C) Auth**, and **(Phase E) Ops** (quotas, cost dashboards).
 
 ---
 
@@ -159,6 +322,7 @@ Apply these **with** the product slice that needs them — not as standalone pla
 | Product trigger | Engineering work |
 |-----------------|------------------|
 | **(Phase C) Auth** / saved routes needing identity | `flutter_secure_storage`, session router guards, auth feature package |
+| **Firebase-backed features** (reports, moderation, LLM Callables) | **Dev / prod project split** (§ Firebase environments); deploy runbook; client config selection — **next** |
 | **Tab shell** (e.g. map + trips + profile) | `StatefulShellRoute`, shell routes in `packages/routing/` |
 | **(Phase D) Media** / trip cards with photos | `CachedNetworkImage`, image sizing, optional upload pipeline |
 | **New HTTP-heavy feature** | Extend `CancelToken` + `Result` pattern from conditions to that feature's repos |
@@ -179,7 +343,9 @@ Budget: at most **one new** `integration_test/` file per product epic unless jus
 
 ### Recommended next implementation
 
-**Now (product — Phase C):** Prioritize **launch coordinate quality** — implement the **two-pin model** (access vs water entry), then realign bad catalog pins and fix water-only route polylines / mainstem geometry hygiene. Portland metro Overpass geometry, A\*, cross-system routing, reachability / suggested trips indexes, and **Trips from here** UI are shipped. **Moderation** for condition reports remains an alternative slice if community trust is the bottleneck.
+**Now (infra — Phase C):** **Firebase dev / production environments** (§ Firebase environments) — separate `eddyscout-dev` from `eddyscout-c29b9`, default local builds to dev, document deploy order and native config selection. **Blocks safe moderation QA** and reduces risk of test data and config changes on the MVP project.
+
+**Next (product — Phase C):** **Moderation manual QA** on the **dev** project after the env slice; then **launch coordinate quality** — **two-pin model** (access vs water entry), catalog pin realignment, water-only polylines / mainstem geometry hygiene. Portland metro Overpass geometry, A\*, cross-system routing, reachability / suggested trips indexes, and **Trips from here** UI are shipped; moderation **code** is shipped — env + QA remain.
 
 **Done (platform):** Waves 1–3 — monorepo, `@riverpod`, Result boundaries, router package, feature presentation layering, app-shell closeout (#19–#36).
 
@@ -220,8 +386,9 @@ Single list of **everything** tracked for build progress. Tags show the original
 
 ### Not yet
 
-> **Gate:** Phase C items below are ready to implement — platform architecture is complete (§ Platform architecture).
+> **Gate:** Phase C items below are ready to implement — platform architecture is complete (§ Platform architecture). **Exception:** Firebase-backed manual QA should use **dev** after § Firebase environments lands.
 
+- [ ] **(Infra / Firebase)** Dev vs production environments — see § Firebase environments checklist (**next**)
 - [x] **(Reports / mod)** Moderation — admin queue, TTL, keyword hold (optional report-abuse UX)
 - [x] **(Phase C)** Route preview on map — planning mode, put-in / take-out from existing launches, path along bundled open hydro LineStrings (`assets/hydro/`; Willamette Portland reach first); not navigation-grade
 - [x] **(Phase C)** Route planner follow-ups — more rivers / segment snap (`feat/route-planner-hydro-expansion`; Willamette + Columbia gorge hydro, edge snap, `PlannedRoute` domain model)
@@ -258,14 +425,14 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase D)** **Multi-day trip planning (exploration)** — user research + product spec for **river multi-day** (daily legs, flow/camp constraints) vs **sea-kayak archipelago** (island hops, tide/current day windows, portage); define overnight-stop / campsite waypoint model; daily distance-time budgets; how per-day **route Go/No-Go** and float plans attach to each leg
 - [ ] **(Phase D / R4)** **Multi-day trips (v1)** — plan a trip as ordered **days**, each with its own waypoints and overnight stop; per-day route preview + distance/time estimate; disconnected segments (archipelago/portage) with explicit gaps; save as multi-day saved route; GPX export per day or whole trip
 - [ ] **(Phase D)** Planned trips / trip intent
-- [ ] **(Phase D)** Moderation posture (policy + product, beyond technical queue above)
+- [ ] **(Phase D)** Moderation posture (policy + product, beyond technical queue above) — see § Content moderation automation
 - [ ] **(Phase D)** **Live pins** only with explicit privacy/product decision
 - [ ] **(Phase D)** User profile (v1) — basic stats, achievements placeholder, activity history
 - [ ] **(Phase D)** Social feed (v1) — follow, likes/comments, basic posting
 - [ ] **(Phase D)** Trip sharing (v1) — share cards + route screenshots + privacy controls
 - [ ] **(Phase D)** Privacy controls (v1) — public/private trips, blur start/end, hide home launch
 - [ ] **(Phase D)** Community reports expansion — hazards, debris, closures, boat traffic, algae blooms, wildlife
-- [ ] **(Phase D)** Launch contributions (v1) — add/edit launches, photos, description edits, report inaccuracies
+- [ ] **(Phase D)** Launch contributions (v1) — add/edit launches, photos, description edits, report inaccuracies *(merge via § Catalog distribution pipeline; not direct client writes to production catalog)*
 - [ ] **(Phase D)** Reputation / trust (v1) — badges, verified reports, moderation hooks
 - [ ] **(Phase E)** **Model-agnostic client** (`LlmClient`-style abstraction)
 - [ ] **(Phase E)** **Chat + tools** (refresh conditions, list launches, etc.)
@@ -640,11 +807,14 @@ Client → Route API (POST /routes/plan)
 |------|------------|
 | **Liability** from automated Go/No-Go | Disclaimers; prefer “marginal”; no medical or rescue guarantees |
 | **Wrong gauge for stretch** | Model gauge–segment links; show data source + timestamp |
-| **Social abuse / harassment** | Reports, blocks, minimal PII; TTL on location-ish posts |
+| **Social abuse / harassment** | Reports, blocks, minimal PII; TTL on location-ish posts; § Content moderation automation (Phase D) |
 | **Token / API costs** | Cache conditions; rate-limit; restrict geography early |
 | **LLM hallucination next to safety** | Tool-grounding, strict system prompts, show sources; safety facts from canonical copy |
 | **LLM spend / abuse** | Per-user or per-device quotas; Haiku by default; short context windows |
 | **Bad similarity results** | Hybrid geo/skill filters; human-readable “why similar”; refresh embeddings when copy changes |
+| **Catalog drift / stale pins** | Bundled catalog + CI snap gates today; § Catalog distribution pipeline when remote updates are needed |
+| **Test data on production Firebase** | § Firebase environments — default dev project for local work; explicit prod deploy only |
+| **Wrong Firebase project / UNAUTHENTICATED Callables** | Matching `google-services.json` to deploy target; SHA fingerprints per project (`firebase/DEPLOY.md`) |
 
 ---
 

@@ -33,13 +33,6 @@
         { "fieldPath": "moderationStatus", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "ASCENDING" }
       ]
-    },
-    {
-      "collectionGroup": "conditionReports",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "expiresAt", "order": "ASCENDING" }
-      ]
     }
   ],
   "fieldOverrides": []
