@@ -12,31 +12,50 @@ void main() async {
   final features = parseAndMergeHydroGeoJson(docs);
   final unified = RiverLineGraph.fromAllFeatures(features);
 
-  final rows = <({String id, double meters, String system})>[];
+  final rows =
+      <
+        ({
+          String id,
+          double routingMeters,
+          double? accessMeters,
+          String system,
+        })
+      >[];
   for (final launch in kLaunchPoints) {
-    final snap = unified.snapToVertex(
-      launch.latitude,
-      launch.longitude,
+    final routingSnap = unified.snapToVertex(
+      launch.routingLatitude,
+      launch.routingLongitude,
       maxSnapMeters: 10000,
     );
+    final accessSnap = launch.hasDistinctWaterEntry
+        ? unified.snapToVertex(
+            launch.accessLatitude,
+            launch.accessLongitude,
+            maxSnapMeters: 10000,
+          )
+        : null;
     rows.add((
       id: launch.id,
-      meters: snap?.snapMeters ?? double.infinity,
+      routingMeters: routingSnap?.snapMeters ?? double.infinity,
+      accessMeters: accessSnap?.snapMeters,
       system: launch.riverSystem.name,
     ));
   }
-  rows.sort((a, b) => b.meters.compareTo(a.meters));
+  rows.sort((a, b) => b.routingMeters.compareTo(a.routingMeters));
   for (final row in rows) {
-    final flag = row.meters > 200
+    final flag = row.routingMeters > kCatalogWaterEntrySnapMaxMeters
         ? ' ***'
-        : row.meters > 100
+        : row.routingMeters > 100
         ? ' *'
         : '';
+    final accessNote = row.accessMeters == null
+        ? ''
+        : '  access=${row.accessMeters!.toStringAsFixed(0)}m';
     // CLI diagnostic output (not a test).
     // ignore: avoid_print
     print(
-      '${row.meters.toStringAsFixed(0).padLeft(5)} m  '
-      '${row.id.padRight(24)} (${row.system})$flag',
+      '${row.routingMeters.toStringAsFixed(0).padLeft(5)} m  '
+      '${row.id.padRight(24)} (${row.system})$flag$accessNote',
     );
   }
 }

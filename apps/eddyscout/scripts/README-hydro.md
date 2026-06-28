@@ -39,10 +39,13 @@ Launch anchor extensions (Willamette Park, Sportcraft, Vancouver Wintler, Scappo
 
 ### Launch snap gaps (known)
 
-| Launch | Gap to bundled geometry | Notes |
-|--------|------------------------|-------|
-| Port of Camas marina | ~890 m to `camas_slough_spur` | Routable via slough spur connected to Columbia mainstem at Camas split. |
-| Washougal Waterfront Park | ~965 m to nearest geometry | Beyond 900 m route snap; needs a future Washougal side-channel spur (not mainstem-inlined). |
+All catalog launches use **access** + **water-entry** coordinates. Water-entry snap is gated at 200 m in CI. Side spurs for Port of Camas, Scappoose Bay Marina, and Washougal Waterfront are maintained via `scripts/hydro/patch_launch_spurs.py` (also run after Camas Slough Overpass import).
+
+| Launch | Notes |
+|--------|-------|
+| Port of Camas marina | `camas_slough_spur` extended to catalog water-entry anchor |
+| Scappoose Bay Marina | `scappoose_marina_spur` side branch from lower-pool geometry |
+| Washougal Waterfront Park | `washougal_waterfront_spur` side branch from gorge mainstem |
 
 ## Refreshing data (Overpass)
 
@@ -83,7 +86,8 @@ After changing geometry locally, run `make hydro-check` before committing.
 |------|----------------|-----------|
 | Geometry (CI) | `make hydro-check` / `scripts/preflight.sh` | Max edge **2000 m**; required confluence endpoint gaps **12 m**; backtrack loop detection within **12 m** |
 | Graph load | `packages/features/hydro_routing/test/bundled_hydro_connectivity_test.dart` | Non-empty graph per system; required confluences connected; informational gaps documented |
-| Launch snap | `packages/features/hydro_routing/test/bundled_launch_snap_test.dart` | Each catalog launch on a system with geometry snaps within **900 m** (`kReachabilitySnapMaxMeters`) |
+| Launch snap (water entry) | `packages/features/hydro_routing/test/bundled_launch_snap_test.dart` | Each catalog launch **water-entry** coords snap within **200 m** (`kCatalogWaterEntrySnapMaxMeters`) |
+| Launch routability | same test file | Routing validates at **900 m** (`kReachabilitySnapMaxMeters`) |
 | Bundle size | `apps/eddyscout/test/assets/hydro_asset_bounds_test.dart` | Per-file ceilings + total **< 500 KB** |
 
 ## Launch reachability index
@@ -104,7 +108,6 @@ Expected runtime: **< 2 s** for the full catalog on CI hardware. Indexes use the
 
 - **Replacing bundled GeoJSON with NHD output** — compare/report only; see `scripts/nhd/`
 - **Server-side / PostGIS routing** (R5)
-- **Two-pin launch model** — catalog coordinates unchanged; side spurs only
 
 ## NHD alternative source
 

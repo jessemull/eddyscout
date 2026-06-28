@@ -967,6 +967,68 @@
           [
             -122.3951134,
             45.5716847
+          ],
+          [
+            -122.380485,
+            45.57877
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "river_system": "columbia",
+        "reach_id": "scappoose_marina_spur",
+        "name": "Scappoose Bay Marina launch spur",
+        "source": "Curated connector from columbia_lower_pool_north geometry to Scappoose Bay Marina catalog water-entry anchor."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.7924726,
+            45.8238979
+          ],
+          [
+            -122.7972081,
+            45.8243905
+          ],
+          [
+            -122.8019437,
+            45.8248831
+          ],
+          [
+            -122.8066792,
+            45.8253757
+          ],
+          [
+            -122.8114148,
+            45.8258683
+          ],
+          [
+            -122.8161503,
+            45.8263609
+          ],
+          [
+            -122.8208858,
+            45.8268536
+          ],
+          [
+            -122.8256214,
+            45.8273462
+          ],
+          [
+            -122.8303569,
+            45.8278388
+          ],
+          [
+            -122.8350925,
+            45.8283314
+          ],
+          [
+            -122.839828,
+            45.828824
           ]
         ]
       }

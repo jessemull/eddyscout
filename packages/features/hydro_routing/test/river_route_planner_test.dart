@@ -588,13 +588,13 @@ void main() {
 
   group('two-coordinate launch model', () {
     test(
-      'cathedral to glenn otto polyline starts on river graph near put-in',
+      'cathedral to glenn otto polyline is graph-only with distinct water entry',
       () async {
         final planner = await _plannerFromBundledAssets();
         final putIn = findLaunchPointById('cathedral_park')!;
         final takeOut = findLaunchPointById('glenn_otto_troutdale')!;
-        expect(putIn.hasDistinctWaterEntry, isFalse);
-        expect(takeOut.hasDistinctWaterEntry, isFalse);
+        expect(putIn.hasDistinctWaterEntry, isTrue);
+        expect(takeOut.hasDistinctWaterEntry, isTrue);
 
         final result = planner.plan(putIn, takeOut);
         expect(result, isA<RouteSuccess>());
@@ -606,12 +606,23 @@ void main() {
 
         expect(
           haversineMeters(
+            putIn.accessLatitude,
+            putIn.accessLongitude,
+            first[1],
+            first[0],
+          ),
+          greaterThan(50),
+          reason: 'polyline must not start at inland access pin',
+        );
+
+        expect(
+          haversineMeters(
             putIn.routingLatitude,
             putIn.routingLongitude,
             first[1],
             first[0],
           ),
-          lessThan(kReachabilitySnapMaxMeters),
+          lessThan(kCatalogWaterEntrySnapMaxMeters),
         );
 
         expect(
@@ -621,7 +632,7 @@ void main() {
             last[1],
             last[0],
           ),
-          lessThan(kReachabilitySnapMaxMeters),
+          lessThan(kCatalogWaterEntrySnapMaxMeters),
         );
       },
     );
@@ -672,17 +683,6 @@ void main() {
       'validateLaunchSnap rejects launches far from bundled geometry',
       () async {
         final planner = await _plannerFromBundledAssets();
-        for (final id in [
-          'port_of_camas',
-          'scappoose_bay_marina',
-        ]) {
-          final launch = findLaunchPointById(id)!;
-          expect(
-            planner.validateLaunchSnap(launch)?.code,
-            RouteFailureCode.putInTooFar,
-            reason: id,
-          );
-        }
         final farLaunch = _launch(
           id: 'far',
           river: RiverSystem.willamette,

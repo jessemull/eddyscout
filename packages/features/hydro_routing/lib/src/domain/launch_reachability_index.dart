@@ -27,6 +27,9 @@ const kReachabilityMilesToMeters = 1609.344;
 /// Default snap threshold when generating or querying the reachability index.
 const kReachabilitySnapMaxMeters = 900.0;
 
+/// Catalog quality gate for water-entry snap distance (CI only).
+const kCatalogWaterEntrySnapMaxMeters = 200.0;
+
 /// Reachability thresholds in statute miles (exclusive upper bands).
 const kReachabilityThresholdsMi = [5, 10, 20];
 

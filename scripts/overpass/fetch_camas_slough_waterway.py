@@ -30,6 +30,7 @@ from _overpass_common import (  # noqa: E402
     build_graph,
     concat_polylines,
     densify_coords,
+    extend_toward_anchor,
     fetch_overpass,
     parse_ways,
     round_coords,
@@ -41,8 +42,8 @@ SCRIPT_NAME = "fetch_camas_slough_waterway.py"
 CAMAS_SLOUGH_WAY_ID = 130204446
 CAMAS_SLOUGH_BBOX = (45.55, -122.46, 45.60, -122.38)
 CAMAS_SPLIT = (-122.4300244, 45.5659948)
-PORT_OF_CAMAS = (-122.4244, 45.5856)
-ROUTE_SNAP_MAX_M = 900.0
+PORT_OF_CAMAS = (-122.380485, 45.578770)
+CATALOG_SNAP_MAX_M = 200.0
 SLOUGH_SPUR_REACH_ID = "camas_slough_spur"
 
 
@@ -134,14 +135,19 @@ def _build_spur_coords(
 
     slough_body = list(reversed(slough_coords))
     merged = prune_backtrack_loops(concat_polylines(connector, slough_body))
+    merged = extend_toward_anchor(
+        merged,
+        PORT_OF_CAMAS,
+        max_connector_m=2500.0,
+    )
     marina_gap = min(
         haversine_meters(PORT_OF_CAMAS[1], PORT_OF_CAMAS[0], point[1], point[0])
         for point in merged
     )
-    if marina_gap > ROUTE_SNAP_MAX_M:
+    if marina_gap > CATALOG_SNAP_MAX_M:
         raise RuntimeError(
             f"Port of Camas marina is {marina_gap:.1f} m from Camas Slough spur; "
-            f"expected within {ROUTE_SNAP_MAX_M:.0f} m route snap threshold."
+            f"expected within {CATALOG_SNAP_MAX_M:.0f} m catalog snap threshold."
         )
     return merged
 
