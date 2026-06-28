@@ -4,6 +4,7 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/src/data/confluence_bridges.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_debug_log.dart';
 import 'package:eddyscout_hydro_routing/src/data/hydro_geojson_merge.dart';
+import 'package:eddyscout_hydro_routing/src/data/launch_water_entry_snap_generator.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_graph.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_graph_binary_codec.dart';
@@ -100,6 +101,32 @@ class RiverRoutePlanner {
   /// Underlying graph for tests and offline encoders.
   @visibleForTesting
   RiverLineGraph get graphForTesting => _graph;
+
+  /// Snaps each catalog launch to bundled geometry (build-time report/CI).
+  List<LaunchWaterEntrySnapRow> generateLaunchWaterEntrySnaps(
+    List<LaunchPoint> catalog,
+  ) {
+    return LaunchWaterEntrySnapGenerator.generate(
+      graph: _graph,
+      catalog: catalog,
+    );
+  }
+
+  /// Launches exceeding [maxSnapMeters], excluding [allowlist].
+  List<LaunchWaterEntrySnapRow> launchWaterEntrySnapViolations({
+    required List<LaunchPoint> catalog,
+    Set<String> allowlist = const {},
+    double maxSnapMeters = kLaunchWaterEntrySnapMaxMeters,
+    bool waterEntryOnly = false,
+  }) {
+    return LaunchWaterEntrySnapGenerator.violations(
+      graph: _graph,
+      catalog: catalog,
+      allowlist: allowlist,
+      maxSnapMeters: maxSnapMeters,
+      waterEntryOnly: waterEntryOnly,
+    );
+  }
 
   /// Vertex count in the unified routing graph.
   int get unifiedGraphVertexCount => _graph.vertexCount;

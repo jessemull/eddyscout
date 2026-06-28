@@ -10,8 +10,9 @@ INTEGRATION_DEVICE := $(shell uname -s | grep -q Darwin && echo macos || echo li
 .PHONY: help analyze bootstrap ci clean coverage coverage-check dev ensure-husky \
 	format format-fix gen gen-check gen-reachability gen-reachability-check \
 	gen-suggested-trips gen-suggested-trips-check gen-hydro-graph gen-hydro-graph-check \
+	gen-launch-snap-check \
 	hydro-check hydro-fetch hydro-fetch-willamette hydro-fetch-columbia \
-	hydro-fetch-camas-slough hydro-fetch-clackamas hydro-fetch-slough \
+	hydro-fetch-camas-slough hydro-fetch-washougal hydro-fetch-clackamas hydro-fetch-slough \
 	hydro-fetch-tualatin hydro-fetch-sandy hydro-sync-fixtures \
 	hydro-nhd-venv hydro-nhd-download hydro-nhd-convert hydro-nhd-validate \
 	hydro-nhd-compare hydro-nhd-run \
@@ -81,6 +82,9 @@ gen-hydro-graph: ## Quality@generate unified hydro graph binary
 gen-hydro-graph-check: ## Quality@verify hydro graph binary is fresh
 	cd scripts && flutter pub get && dart run generate_hydro_graph_binary.dart --check
 
+gen-launch-snap-check: ## Quality@verify catalog water-entry snaps within 200 m
+	cd scripts && flutter pub get && dart run generate_launch_water_entry_snaps.dart --check
+
 hydro-check: ## Quality@validate bundled hydro geometry (edges + confluences)
 	./scripts/check_hydro_geometry.sh
 
@@ -95,6 +99,9 @@ hydro-fetch-clackamas: ## Dev@Overpass import Clackamas
 
 hydro-fetch-camas-slough: ## Dev@Overpass import Camas Slough spur into columbia_lower
 	python3 scripts/overpass/fetch_camas_slough_waterway.py
+
+hydro-fetch-washougal: ## Dev@Overpass import Washougal Waterfront spur into columbia_lower
+	python3 scripts/overpass/fetch_washougal_waterfront_spur.py
 
 hydro-fetch-slough: ## Dev@Overpass import slough network
 	python3 scripts/overpass/fetch_slough_waterway.py

@@ -52,11 +52,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'No connected river path between these river systems in bundled data.';
 
   @override
-  String mapRouteFailureNoBundledLine(String river) {
-    return 'No bundled river line for \"$river\" yet — routing is only available where hydro GeoJSON exists.';
-  }
-
-  @override
   String get mapRouteFailureNoData => 'River route data is not available yet.';
 
   @override

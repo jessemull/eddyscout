@@ -458,6 +458,25 @@
     "chinook_landing_marine_park": {
       "oneWay": [
         {
+          "destination": "port_of_camas",
+          "distanceKm": 8.0,
+          "estimatedMinutes": 121,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 8.3,
+          "estimatedMinutes": 124,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "port_of_camas",
+            "washougal_waterfront"
+          ]
+        },
+        {
           "destination": "glenn_otto_troutdale",
           "distanceKm": 8.4,
           "estimatedMinutes": 127,
@@ -511,6 +530,27 @@
       ],
       "roundTrips": [
         {
+          "destination": "port_of_camas",
+          "distanceKm": 16.1,
+          "estimatedMinutes": 242,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "port_of_camas",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 16.5,
+          "estimatedMinutes": 248,
+          "waypoints": [
+            "chinook_landing_marine_park",
+            "port_of_camas",
+            "washougal_waterfront",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
           "destination": "glenn_otto_troutdale",
           "distanceKm": 16.9,
           "estimatedMinutes": 254,
@@ -538,31 +578,6 @@
             "chinook_landing_marine_park",
             "vancouver_wintler",
             "gleason_memorial_boat_ramp",
-            "chinook_landing_marine_park"
-          ]
-        },
-        {
-          "destination": "kelley_point",
-          "distanceKm": 64.3,
-          "estimatedMinutes": 964,
-          "waypoints": [
-            "chinook_landing_marine_park",
-            "vancouver_wintler",
-            "gleason_memorial_boat_ramp",
-            "kelley_point",
-            "chinook_landing_marine_park"
-          ]
-        },
-        {
-          "destination": "frenchmans_bar",
-          "distanceKm": 64.3,
-          "estimatedMinutes": 966,
-          "waypoints": [
-            "chinook_landing_marine_park",
-            "vancouver_wintler",
-            "gleason_memorial_boat_ramp",
-            "kelley_point",
-            "frenchmans_bar",
             "chinook_landing_marine_park"
           ]
         }
@@ -1048,6 +1063,29 @@
           ]
         },
         {
+          "destination": "port_of_camas",
+          "distanceKm": 22.0,
+          "estimatedMinutes": 330,
+          "waypoints": [
+            "gleason_memorial_boat_ramp",
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 22.2,
+          "estimatedMinutes": 333,
+          "waypoints": [
+            "gleason_memorial_boat_ramp",
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "port_of_camas",
+            "washougal_waterfront"
+          ]
+        },
+        {
           "destination": "glenn_otto_troutdale",
           "distanceKm": 22.8,
           "estimatedMinutes": 342,
@@ -1056,26 +1094,6 @@
             "vancouver_wintler",
             "chinook_landing_marine_park",
             "glenn_otto_troutdale"
-          ]
-        },
-        {
-          "destination": "cathedral_park",
-          "distanceKm": 23.8,
-          "estimatedMinutes": 356,
-          "waypoints": [
-            "gleason_memorial_boat_ramp",
-            "kelley_point",
-            "cathedral_park"
-          ]
-        },
-        {
-          "destination": "smith_lake_canoe_ramp",
-          "distanceKm": 24.3,
-          "estimatedMinutes": 365,
-          "waypoints": [
-            "gleason_memorial_boat_ramp",
-            "kelley_point",
-            "smith_lake_canoe_ramp"
           ]
         }
       ],
@@ -1147,6 +1165,27 @@
           ]
         },
         {
+          "destination": "port_of_camas",
+          "distanceKm": 14.9,
+          "estimatedMinutes": 224,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "chinook_landing_marine_park",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 15.2,
+          "estimatedMinutes": 227,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "chinook_landing_marine_park",
+            "port_of_camas",
+            "washougal_waterfront"
+          ]
+        },
+        {
           "destination": "vancouver_wintler",
           "distanceKm": 22.2,
           "estimatedMinutes": 333,
@@ -1176,6 +1215,29 @@
           "waypoints": [
             "glenn_otto_troutdale",
             "chinook_landing_marine_park",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 29.9,
+          "estimatedMinutes": 448,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "chinook_landing_marine_park",
+            "port_of_camas",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 30.3,
+          "estimatedMinutes": 454,
+          "waypoints": [
+            "glenn_otto_troutdale",
+            "chinook_landing_marine_park",
+            "port_of_camas",
+            "washougal_waterfront",
             "glenn_otto_troutdale"
           ]
         },
@@ -1482,8 +1544,113 @@
       ]
     },
     "port_of_camas": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 0.2,
+          "estimatedMinutes": 3,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 8.0,
+          "estimatedMinutes": 121,
+          "waypoints": [
+            "port_of_camas",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 14.9,
+          "estimatedMinutes": 224,
+          "waypoints": [
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 21.4,
+          "estimatedMinutes": 321,
+          "waypoints": [
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "vancouver_wintler"
+          ]
+        },
+        {
+          "destination": "gleason_memorial_boat_ramp",
+          "distanceKm": 22.0,
+          "estimatedMinutes": 330,
+          "waypoints": [
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
+            "gleason_memorial_boat_ramp"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "washougal_waterfront",
+          "distanceKm": 0.4,
+          "estimatedMinutes": 6,
+          "waypoints": [
+            "port_of_camas",
+            "washougal_waterfront",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 16.1,
+          "estimatedMinutes": 242,
+          "waypoints": [
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 29.9,
+          "estimatedMinutes": 448,
+          "waypoints": [
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "glenn_otto_troutdale",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 42.8,
+          "estimatedMinutes": 642,
+          "waypoints": [
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "gleason_memorial_boat_ramp",
+          "distanceKm": 44.0,
+          "estimatedMinutes": 660,
+          "waypoints": [
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
+            "gleason_memorial_boat_ramp",
+            "port_of_camas"
+          ]
+        }
+      ]
     },
     "river_place_marina": {
       "oneWay": [
@@ -1703,15 +1870,12 @@
           ]
         },
         {
-          "destination": "tom_mccall_waterfront",
-          "distanceKm": 26.9,
-          "estimatedMinutes": 403,
+          "destination": "scappoose_bay_marina",
+          "distanceKm": 24.9,
+          "estimatedMinutes": 374,
           "waypoints": [
             "sauvie_island_boat_ramp",
-            "kelley_point",
-            "cathedral_park",
-            "swan_island_boat_ramp",
-            "tom_mccall_waterfront"
+            "scappoose_bay_marina"
           ]
         }
       ],
@@ -1772,8 +1936,29 @@
       ]
     },
     "scappoose_bay_marina": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "sauvie_island_boat_ramp",
+          "distanceKm": 24.9,
+          "estimatedMinutes": 374,
+          "waypoints": [
+            "scappoose_bay_marina",
+            "sauvie_island_boat_ramp"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "sauvie_island_boat_ramp",
+          "distanceKm": 49.9,
+          "estimatedMinutes": 748,
+          "waypoints": [
+            "scappoose_bay_marina",
+            "sauvie_island_boat_ramp",
+            "scappoose_bay_marina"
+          ]
+        }
+      ]
     },
     "sellwood_riverfront": {
       "oneWay": [
@@ -2425,6 +2610,16 @@
           ]
         },
         {
+          "destination": "port_of_camas",
+          "distanceKm": 21.4,
+          "estimatedMinutes": 321,
+          "waypoints": [
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "port_of_camas"
+          ]
+        },
+        {
           "destination": "sauvie_island_boat_ramp",
           "distanceKm": 21.4,
           "estimatedMinutes": 322,
@@ -2436,6 +2631,17 @@
           ]
         },
         {
+          "destination": "washougal_waterfront",
+          "distanceKm": 21.6,
+          "estimatedMinutes": 324,
+          "waypoints": [
+            "vancouver_wintler",
+            "chinook_landing_marine_park",
+            "port_of_camas",
+            "washougal_waterfront"
+          ]
+        },
+        {
           "destination": "glenn_otto_troutdale",
           "distanceKm": 22.2,
           "estimatedMinutes": 333,
@@ -2443,28 +2649,6 @@
             "vancouver_wintler",
             "chinook_landing_marine_park",
             "glenn_otto_troutdale"
-          ]
-        },
-        {
-          "destination": "cathedral_park",
-          "distanceKm": 25.0,
-          "estimatedMinutes": 375,
-          "waypoints": [
-            "vancouver_wintler",
-            "gleason_memorial_boat_ramp",
-            "kelley_point",
-            "cathedral_park"
-          ]
-        },
-        {
-          "destination": "smith_lake_canoe_ramp",
-          "distanceKm": 25.6,
-          "estimatedMinutes": 383,
-          "waypoints": [
-            "vancouver_wintler",
-            "gleason_memorial_boat_ramp",
-            "kelley_point",
-            "smith_lake_canoe_ramp"
           ]
         }
       ],
@@ -2513,22 +2697,134 @@
           ]
         },
         {
-          "destination": "sauvie_island_boat_ramp",
-          "distanceKm": 42.9,
-          "estimatedMinutes": 644,
+          "destination": "port_of_camas",
+          "distanceKm": 42.8,
+          "estimatedMinutes": 642,
           "waypoints": [
             "vancouver_wintler",
-            "gleason_memorial_boat_ramp",
-            "kelley_point",
-            "sauvie_island_boat_ramp",
+            "chinook_landing_marine_park",
+            "port_of_camas",
             "vancouver_wintler"
           ]
         }
       ]
     },
     "washougal_waterfront": {
-      "oneWay": [],
-      "roundTrips": []
+      "oneWay": [
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 0.2,
+          "estimatedMinutes": 3,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 8.3,
+          "estimatedMinutes": 124,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "chinook_landing_marine_park"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 15.2,
+          "estimatedMinutes": 227,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "glenn_otto_troutdale"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 21.6,
+          "estimatedMinutes": 324,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "vancouver_wintler"
+          ]
+        },
+        {
+          "destination": "gleason_memorial_boat_ramp",
+          "distanceKm": 22.2,
+          "estimatedMinutes": 333,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
+            "gleason_memorial_boat_ramp"
+          ]
+        }
+      ],
+      "roundTrips": [
+        {
+          "destination": "port_of_camas",
+          "distanceKm": 0.4,
+          "estimatedMinutes": 6,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "chinook_landing_marine_park",
+          "distanceKm": 16.5,
+          "estimatedMinutes": 248,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "glenn_otto_troutdale",
+          "distanceKm": 30.3,
+          "estimatedMinutes": 454,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "glenn_otto_troutdale",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "vancouver_wintler",
+          "distanceKm": 43.2,
+          "estimatedMinutes": 648,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
+            "washougal_waterfront"
+          ]
+        },
+        {
+          "destination": "gleason_memorial_boat_ramp",
+          "distanceKm": 44.5,
+          "estimatedMinutes": 666,
+          "waypoints": [
+            "washougal_waterfront",
+            "port_of_camas",
+            "chinook_landing_marine_park",
+            "vancouver_wintler",
+            "gleason_memorial_boat_ramp",
+            "washougal_waterfront"
+          ]
+        }
+      ]
     },
     "willamette_park_sw": {
       "oneWay": [

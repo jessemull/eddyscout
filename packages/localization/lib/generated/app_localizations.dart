@@ -178,12 +178,6 @@ abstract class AppLocalizations {
   /// **'No connected river path between these river systems in bundled data.'**
   String get mapRouteFailureDifferentSystem;
 
-  /// No description provided for @mapRouteFailureNoBundledLine.
-  ///
-  /// In en, this message translates to:
-  /// **'No bundled river line for \"{river}\" yet — routing is only available where hydro GeoJSON exists.'**
-  String mapRouteFailureNoBundledLine(String river);
-
   /// No description provided for @mapRouteFailureNoData.
   ///
   /// In en, this message translates to:
