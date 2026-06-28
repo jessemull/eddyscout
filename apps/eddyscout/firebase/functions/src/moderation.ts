@@ -356,6 +356,8 @@ export async function moderateHeldReport(
     moderationReviewed: true,
     reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
     reviewedBy: reviewedBy,
+    reopenedBy: admin.firestore.FieldValue.delete(),
+    reopenedAt: admin.firestore.FieldValue.delete(),
   });
 
   await invalidateLaunchDigest(db, launchId);
