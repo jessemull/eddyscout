@@ -19,11 +19,22 @@ class ConditionReportModerationRepositoryImpl
 
   @override
   FutureResult<List<ModerationQueueReport>, AppFailure> listPendingReports({
-    int limit = 25,
+    ModerationQueueQuery query = const ModerationQueueQuery(),
     CancelToken? cancelToken,
   }) {
     return callListPendingConditionReports(
-      limit: limit,
+      query: query,
+      cancelToken: cancelToken,
+    );
+  }
+
+  @override
+  FutureResult<List<ModerationHistoryReport>, AppFailure> listHistory({
+    ModerationHistoryQuery query = const ModerationHistoryQuery(),
+    CancelToken? cancelToken,
+  }) {
+    return callListModerationHistory(
+      query: query,
       cancelToken: cancelToken,
     );
   }
@@ -36,6 +47,19 @@ class ConditionReportModerationRepositoryImpl
   }) {
     return callModerateConditionReport(
       reportId: reportId,
+      approve: approve,
+      cancelToken: cancelToken,
+    );
+  }
+
+  @override
+  FutureResult<ModerationBatchModerateResult, AppFailure> moderateReportsBatch({
+    required List<String> reportIds,
+    required bool approve,
+    CancelToken? cancelToken,
+  }) {
+    return callModerateConditionReportsBatch(
+      reportIds: reportIds,
       approve: approve,
       cancelToken: cancelToken,
     );

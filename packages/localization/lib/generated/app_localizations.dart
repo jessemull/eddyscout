@@ -2054,6 +2054,204 @@ abstract class AppLocalizations {
   /// **'Could not update that report. Try again.'**
   String get moderationActionError;
 
+  /// No description provided for @moderationTabPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get moderationTabPending;
+
+  /// No description provided for @moderationTabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get moderationTabHistory;
+
+  /// No description provided for @moderationHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No moderation history yet.'**
+  String get moderationHistoryEmpty;
+
+  /// No description provided for @moderationHistoryLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load moderation history.'**
+  String get moderationHistoryLoadError;
+
+  /// No description provided for @moderationLaunchSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch id or name'**
+  String get moderationLaunchSearchHint;
+
+  /// No description provided for @moderationSortOldestWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest waiting'**
+  String get moderationSortOldestWaiting;
+
+  /// No description provided for @moderationSortMostRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Most recent'**
+  String get moderationSortMostRecent;
+
+  /// No description provided for @moderationSortRecentAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent action'**
+  String get moderationSortRecentAction;
+
+  /// No description provided for @moderationSortOldestAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest action'**
+  String get moderationSortOldestAction;
+
+  /// No description provided for @moderationDateFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All dates'**
+  String get moderationDateFilterAll;
+
+  /// No description provided for @moderationDateFilter7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get moderationDateFilter7Days;
+
+  /// No description provided for @moderationDateFilter30Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get moderationDateFilter30Days;
+
+  /// No description provided for @moderationStatusFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All outcomes'**
+  String get moderationStatusFilterAll;
+
+  /// No description provided for @moderationStatusFilterApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get moderationStatusFilterApproved;
+
+  /// No description provided for @moderationStatusFilterRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get moderationStatusFilterRejected;
+
+  /// No description provided for @moderationSubmitterUid.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitter'**
+  String get moderationSubmitterUid;
+
+  /// No description provided for @moderationModeratorUid.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderator'**
+  String get moderationModeratorUid;
+
+  /// No description provided for @moderationSystemActor.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get moderationSystemActor;
+
+  /// No description provided for @moderationHoldReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold reason'**
+  String get moderationHoldReason;
+
+  /// No description provided for @moderationSubmittedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get moderationSubmittedAt;
+
+  /// No description provided for @moderationReviewedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed'**
+  String get moderationReviewedAt;
+
+  /// No description provided for @moderationWaitingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting {days} days'**
+  String moderationWaitingDays(int days);
+
+  /// No description provided for @moderationCopyUid.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy UID'**
+  String get moderationCopyUid;
+
+  /// No description provided for @moderationUidCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'UID copied'**
+  String get moderationUidCopied;
+
+  /// No description provided for @moderationSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get moderationSelectAll;
+
+  /// No description provided for @moderationClearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get moderationClearSelection;
+
+  /// No description provided for @moderationBulkApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve selected'**
+  String get moderationBulkApprove;
+
+  /// No description provided for @moderationBulkReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject selected'**
+  String get moderationBulkReject;
+
+  /// No description provided for @moderationBulkApproveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve selected reports?'**
+  String get moderationBulkApproveConfirmTitle;
+
+  /// No description provided for @moderationBulkApproveConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These reports will become visible to paddlers.'**
+  String get moderationBulkApproveConfirmBody;
+
+  /// No description provided for @moderationBulkRejectConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject selected reports?'**
+  String get moderationBulkRejectConfirmTitle;
+
+  /// No description provided for @moderationBulkRejectConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These reports will stay hidden from the public list.'**
+  String get moderationBulkRejectConfirmBody;
+
+  /// No description provided for @moderationBatchPartialFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update {count} selected reports.'**
+  String moderationBatchPartialFailure(int count);
+
   /// No description provided for @launchDetailReviewReportsButton.
   ///
   /// In en, this message translates to:

@@ -11,13 +11,26 @@ abstract interface class ConditionReportModerationRepository {
 
   /// Lists reports awaiting moderator review.
   FutureResult<List<ModerationQueueReport>, AppFailure> listPendingReports({
-    int limit = 25,
+    ModerationQueueQuery query = const ModerationQueueQuery(),
+    CancelToken? cancelToken,
+  });
+
+  /// Lists moderated report history for audit.
+  FutureResult<List<ModerationHistoryReport>, AppFailure> listHistory({
+    ModerationHistoryQuery query = const ModerationHistoryQuery(),
     CancelToken? cancelToken,
   });
 
   /// Approves or rejects a held report.
   FutureResult<ConditionReportModerationStatus, AppFailure> moderateReport({
     required String reportId,
+    required bool approve,
+    CancelToken? cancelToken,
+  });
+
+  /// Approves or rejects multiple held reports.
+  FutureResult<ModerationBatchModerateResult, AppFailure> moderateReportsBatch({
+    required List<String> reportIds,
     required bool approve,
     CancelToken? cancelToken,
   });

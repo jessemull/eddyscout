@@ -21,6 +21,7 @@ const projectId =
 const moderationDoc = {
   fields: {
     retentionDays: { integerValue: '90' },
+    holdMaxDays: { integerValue: '30' },
     adminUids: { arrayValue: { values: [] } },
     keywords: {
       arrayValue: { values: [{ stringValue: 'testhold' }] },
@@ -51,7 +52,7 @@ async function firestoreRequest(path, { method = 'GET', body } = {}) {
 
 async function seedModerationConfig() {
   const mask =
-    'updateMask.fieldPaths=retentionDays&updateMask.fieldPaths=adminUids&updateMask.fieldPaths=keywords';
+    'updateMask.fieldPaths=retentionDays&updateMask.fieldPaths=holdMaxDays&updateMask.fieldPaths=adminUids&updateMask.fieldPaths=keywords';
   const url =
     `https://firestore.googleapis.com/v1/projects/${projectId}` +
     `/databases/(default)/documents/config/moderation?${mask}`;

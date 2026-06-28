@@ -31,6 +31,9 @@ targets:
             - lib/src/domain/go_no_go_profile_repository_provider.dart
             - lib/src/domain/launch_go_no_go_provider.dart
             - lib/src/presentation/moderation/moderator_access_provider.dart
+            - lib/src/presentation/moderation/moderation_history_provider.dart
+            - lib/src/presentation/moderation/moderation_queue_filters_provider.dart
+            - lib/src/presentation/moderation/moderation_selection_provider.dart
             - lib/src/presentation/moderation/pending_reports_provider.dart
             - lib/src/presentation/condition_report_submit_provider.dart
             - lib/src/presentation/condition_reports_list_provider.dart

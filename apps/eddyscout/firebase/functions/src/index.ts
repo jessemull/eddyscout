@@ -8,10 +8,14 @@ import { defineSecret } from "firebase-functions/params";
 import * as logger from "firebase-functions/logger";
 import { z } from "zod";
 import {
+  BATCH_MODERATE_MAX,
   MODERATION_STATUS_APPROVED,
   MODERATION_STATUS_HELD,
   MODERATION_STATUS_REJECTED,
+  STALE_HOLD_RELEASE_BATCH_SIZE,
   assertModerator,
+  buildHistoryReportsQuery,
+  buildPendingReportsQuery,
   computeExpiresAt,
   evaluateKeywordHold,
   firestoreSafeLaunchKey,
@@ -19,7 +23,13 @@ import {
   isModerator,
   isPubliclyVisibleStatus,
   loadModerationConfig,
+  mapHistoryReportDoc,
+  mapPendingReportDoc,
+  moderateHeldReport,
+  moderateHeldReportsBatch,
+  parseIsoDate,
   resolveModerationStatus,
+  staleHoldCutoff,
 } from "./moderation.js";
 
 admin.initializeApp();
@@ -505,7 +515,11 @@ export const checkModeratorAccess = onCall(
 );
 
 const listPendingReportsSchema = z.object({
-  limit: z.number().int().min(1).max(50).optional(),
+  limit: z.number().int().min(1).max(100).optional(),
+  launchId: z.string().min(1).max(120).optional(),
+  createdAfter: z.string().optional(),
+  createdBefore: z.string().optional(),
+  sort: z.enum(["createdAt_asc", "createdAt_desc"]).optional(),
 });
 
 export const listPendingConditionReports = onCall(
@@ -519,16 +533,33 @@ export const listPendingConditionReports = onCall(
     if (!parsed.success) {
       throw new HttpsError("invalid-argument", "Invalid request.");
     }
-    const limit = Math.min(50, Math.max(1, parsed.data.limit ?? 25));
+    const limit = Math.min(100, Math.max(1, parsed.data.limit ?? 25));
+    const sort = parsed.data.sort ?? "createdAt_asc";
+    let createdAfter: Date | undefined;
+    let createdBefore: Date | undefined;
+    try {
+      if (parsed.data.createdAfter) {
+        createdAfter = parseIsoDate(parsed.data.createdAfter);
+      }
+      if (parsed.data.createdBefore) {
+        createdBefore = parseIsoDate(parsed.data.createdBefore);
+      }
+    } catch (error: unknown) {
+      if (error instanceof HttpsError) {
+        throw error;
+      }
+      throw new HttpsError("invalid-argument", "Invalid date.");
+    }
 
     let snap;
     try {
-      snap = await db
-        .collection("conditionReports")
-        .where("moderationStatus", "==", MODERATION_STATUS_HELD)
-        .orderBy("createdAt", "asc")
-        .limit(limit)
-        .get();
+      snap = await buildPendingReportsQuery(db, {
+        launchId: parsed.data.launchId,
+        createdAfter,
+        createdBefore,
+        sort,
+        limit,
+      }).get();
     } catch (e: unknown) {
       logger.error("listPendingConditionReports query failed", {
         err: String(e),
@@ -536,25 +567,73 @@ export const listPendingConditionReports = onCall(
       throw new HttpsError("internal", "Could not load pending reports.");
     }
 
+    const now = admin.firestore.Timestamp.now();
     const reports = snap.docs
-      .map((doc) => {
-        const d = doc.data();
-        const ts = d.createdAt;
-        if (!(ts instanceof admin.firestore.Timestamp)) {
-          return null;
-        }
-        if (typeof d.message !== "string" || typeof d.launchId !== "string") {
-          return null;
-        }
-        return {
-          id: doc.id,
-          launchId: d.launchId,
-          message: d.message,
-          createdAt: ts.toDate().toISOString(),
-          moderationReason:
-            typeof d.moderationReason === "string" ? d.moderationReason : null,
-        };
-      })
+      .map((doc) => mapPendingReportDoc(doc, now))
+      .filter((row): row is NonNullable<typeof row> => row !== null);
+
+    return { reports };
+  },
+);
+
+const listModerationHistorySchema = z.object({
+  limit: z.number().int().min(1).max(100).optional(),
+  launchId: z.string().min(1).max(120).optional(),
+  status: z.enum(["approved", "rejected", "all"]).optional(),
+  reviewedAfter: z.string().optional(),
+  reviewedBefore: z.string().optional(),
+  sort: z.enum(["reviewedAt_desc", "reviewedAt_asc"]).optional(),
+});
+
+export const listModerationHistory = onCall(
+  { cors: true, invoker: "public" },
+  async (request) => {
+    const db = admin.firestore();
+    const config = await loadModerationConfig(db);
+    assertModerator(request, config);
+
+    const parsed = listModerationHistorySchema.safeParse(request.data ?? {});
+    if (!parsed.success) {
+      throw new HttpsError("invalid-argument", "Invalid request.");
+    }
+    const limit = Math.min(100, Math.max(1, parsed.data.limit ?? 25));
+    const sort = parsed.data.sort ?? "reviewedAt_desc";
+    const status = parsed.data.status ?? "all";
+    let reviewedAfter: Date | undefined;
+    let reviewedBefore: Date | undefined;
+    try {
+      if (parsed.data.reviewedAfter) {
+        reviewedAfter = parseIsoDate(parsed.data.reviewedAfter);
+      }
+      if (parsed.data.reviewedBefore) {
+        reviewedBefore = parseIsoDate(parsed.data.reviewedBefore);
+      }
+    } catch (error: unknown) {
+      if (error instanceof HttpsError) {
+        throw error;
+      }
+      throw new HttpsError("invalid-argument", "Invalid date.");
+    }
+
+    let snap;
+    try {
+      snap = await buildHistoryReportsQuery(db, {
+        launchId: parsed.data.launchId,
+        status,
+        reviewedAfter,
+        reviewedBefore,
+        sort,
+        limit,
+      }).get();
+    } catch (e: unknown) {
+      logger.error("listModerationHistory query failed", {
+        err: String(e),
+      });
+      throw new HttpsError("internal", "Could not load moderation history.");
+    }
+
+    const reports = snap.docs
+      .map((doc) => mapHistoryReportDoc(doc))
       .filter((row): row is NonNullable<typeof row> => row !== null);
 
     return { reports };
@@ -578,51 +657,97 @@ export const moderateConditionReport = onCall(
       throw new HttpsError("invalid-argument", "Invalid request.");
     }
     const { reportId, action } = parsed.data;
-    const reportRef = db.collection("conditionReports").doc(reportId);
-    const reportSnap = await reportRef.get();
-    if (!reportSnap.exists) {
-      throw new HttpsError("not-found", "Report not found.");
-    }
 
-    const data = reportSnap.data()!;
-    const currentStatus = resolveModerationStatus(data.moderationStatus);
-    if (currentStatus !== MODERATION_STATUS_HELD) {
-      throw new HttpsError(
-        "failed-precondition",
-        "Report is not pending moderation.",
-      );
-    }
-
-    const launchId =
-      typeof data.launchId === "string" ? data.launchId : undefined;
-    if (!launchId) {
-      throw new HttpsError("failed-precondition", "Report missing launchId.");
-    }
-
-    const moderationStatus =
-      action === "approve"
-        ? MODERATION_STATUS_APPROVED
-        : MODERATION_STATUS_REJECTED;
-    const moderationReason =
-      action === "approve" ? "admin_approve" : "admin_reject";
-
-    await reportRef.update({
-      moderationStatus,
-      moderationReason,
-      reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
-      reviewedBy: moderatorUid,
-    });
-
-    await invalidateLaunchDigest(db, launchId);
+    const result = await moderateHeldReport(db, reportId, action, moderatorUid);
 
     logger.info("moderateConditionReport", {
       reportId,
-      launchId,
+      launchId: result.launchId,
       action,
-      moderationStatus,
+      moderationStatus: result.moderationStatus,
     });
 
-    return { ok: true, moderationStatus };
+    return { ok: true, moderationStatus: result.moderationStatus };
+  },
+);
+
+const moderateReportsBatchSchema = z.object({
+  reportIds: z.array(z.string().min(1).max(200)).min(1).max(BATCH_MODERATE_MAX),
+  action: z.enum(["approve", "reject"]),
+});
+
+export const moderateConditionReportsBatch = onCall(
+  { cors: true, invoker: "public" },
+  async (request) => {
+    const db = admin.firestore();
+    const config = await loadModerationConfig(db);
+    const moderatorUid = assertModerator(request, config);
+
+    const parsed = moderateReportsBatchSchema.safeParse(request.data);
+    if (!parsed.success) {
+      throw new HttpsError("invalid-argument", "Invalid request.");
+    }
+
+    const { succeeded, failed } = await moderateHeldReportsBatch(
+      db,
+      parsed.data.reportIds,
+      parsed.data.action,
+      moderatorUid,
+    );
+
+    logger.info("moderateConditionReportsBatch", {
+      action: parsed.data.action,
+      succeeded: succeeded.length,
+      failed: failed.length,
+    });
+
+    return { succeeded, failed };
+  },
+);
+
+export const releaseStaleHeldConditionReports = onSchedule(
+  "every 24 hours",
+  async () => {
+    const db = admin.firestore();
+    const config = await loadModerationConfig(db);
+    const now = admin.firestore.Timestamp.now();
+    const cutoff = staleHoldCutoff(config.holdMaxDays, now);
+
+    let snap;
+    try {
+      snap = await db
+        .collection("conditionReports")
+        .where("moderationStatus", "==", MODERATION_STATUS_HELD)
+        .where("createdAt", "<=", cutoff)
+        .orderBy("createdAt", "asc")
+        .limit(STALE_HOLD_RELEASE_BATCH_SIZE)
+        .get();
+    } catch (e: unknown) {
+      logger.error("releaseStaleHeldConditionReports query failed", {
+        err: String(e),
+      });
+      return;
+    }
+
+    if (snap.empty) {
+      logger.info("releaseStaleHeldConditionReports", { released: 0 });
+      return;
+    }
+
+    let released = 0;
+    for (const doc of snap.docs) {
+      try {
+        await moderateHeldReport(db, doc.id, "approve", null);
+        released += 1;
+      } catch (e: unknown) {
+        logger.error("releaseStaleHeldConditionReports item failed", {
+          reportId: doc.id,
+          err: String(e),
+        });
+      }
+    }
+
+    logger.info("releaseStaleHeldConditionReports", { released });
   },
 );
 

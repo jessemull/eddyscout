@@ -1211,5 +1211,110 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not update that report. Try again.';
 
   @override
+  String get moderationTabPending => 'Pending';
+
+  @override
+  String get moderationTabHistory => 'History';
+
+  @override
+  String get moderationHistoryEmpty => 'No moderation history yet.';
+
+  @override
+  String get moderationHistoryLoadError => 'Could not load moderation history.';
+
+  @override
+  String get moderationLaunchSearchHint => 'Launch id or name';
+
+  @override
+  String get moderationSortOldestWaiting => 'Oldest waiting';
+
+  @override
+  String get moderationSortMostRecent => 'Most recent';
+
+  @override
+  String get moderationSortRecentAction => 'Recent action';
+
+  @override
+  String get moderationSortOldestAction => 'Oldest action';
+
+  @override
+  String get moderationDateFilterAll => 'All dates';
+
+  @override
+  String get moderationDateFilter7Days => 'Last 7 days';
+
+  @override
+  String get moderationDateFilter30Days => 'Last 30 days';
+
+  @override
+  String get moderationStatusFilterAll => 'All outcomes';
+
+  @override
+  String get moderationStatusFilterApproved => 'Approved';
+
+  @override
+  String get moderationStatusFilterRejected => 'Rejected';
+
+  @override
+  String get moderationSubmitterUid => 'Submitter';
+
+  @override
+  String get moderationModeratorUid => 'Moderator';
+
+  @override
+  String get moderationSystemActor => 'System';
+
+  @override
+  String get moderationHoldReason => 'Hold reason';
+
+  @override
+  String get moderationSubmittedAt => 'Submitted';
+
+  @override
+  String get moderationReviewedAt => 'Reviewed';
+
+  @override
+  String moderationWaitingDays(int days) {
+    return 'Waiting $days days';
+  }
+
+  @override
+  String get moderationCopyUid => 'Copy UID';
+
+  @override
+  String get moderationUidCopied => 'UID copied';
+
+  @override
+  String get moderationSelectAll => 'Select all';
+
+  @override
+  String get moderationClearSelection => 'Clear';
+
+  @override
+  String get moderationBulkApprove => 'Approve selected';
+
+  @override
+  String get moderationBulkReject => 'Reject selected';
+
+  @override
+  String get moderationBulkApproveConfirmTitle => 'Approve selected reports?';
+
+  @override
+  String get moderationBulkApproveConfirmBody =>
+      'These reports will become visible to paddlers.';
+
+  @override
+  String get moderationBulkRejectConfirmTitle => 'Reject selected reports?';
+
+  @override
+  String get moderationBulkRejectConfirmBody =>
+      'These reports will stay hidden from the public list.';
+
+  @override
+  String moderationBatchPartialFailure(int count) {
+    return 'Could not update $count selected reports.';
+  }
+
+  @override
   String get launchDetailReviewReportsButton => 'Review reports';
 }

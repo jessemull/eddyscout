@@ -43,11 +43,51 @@ void main() {
         'launchId': 'sellwood',
         'message': 'Held note',
         'createdAt': '2026-06-15T12:00:00-07:00',
+        'submitterUid': 'uid-123',
         'moderationReason': 'keyword_hold',
+        'holdAgeDays': 2,
       });
 
       expect(report.id, 'abc');
+      expect(report.submitterUid, 'uid-123');
+      expect(report.holdAgeDays, 2);
       expect(report.moderationReason, 'keyword_hold');
+    });
+  });
+
+  group('ModerationHistoryReport.fromJson', () {
+    test('parses audit row', () {
+      final report = ModerationHistoryReport.fromJson({
+        'id': 'abc',
+        'launchId': 'sellwood',
+        'message': 'Held note',
+        'createdAt': '2026-06-15T12:00:00-07:00',
+        'submitterUid': 'uid-123',
+        'moderationStatus': 'approved',
+        'moderationReason': 'admin_approve',
+        'reviewedAt': '2026-06-16T12:00:00-07:00',
+        'reviewedBy': 'mod-1',
+      });
+
+      expect(report.reviewedBy, 'mod-1');
+      expect(
+        report.moderationStatus,
+        ConditionReportModerationStatus.approved,
+      );
+    });
+  });
+
+  group('ModerationBatchModerateResult.fromJson', () {
+    test('parses succeeded and failed ids', () {
+      final result = ModerationBatchModerateResult.fromJson({
+        'succeeded': ['a'],
+        'failed': [
+          {'reportId': 'b', 'code': 'not-found'},
+        ],
+      });
+
+      expect(result.succeeded, ['a']);
+      expect(result.failed.single.reportId, 'b');
     });
   });
 }

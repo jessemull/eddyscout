@@ -18,17 +18,20 @@ void main() {
     launchId: 'sellwood',
     message: 'First',
     createdAt: DateTime.utc(2026, 6, 15),
+    submitterUid: 'user-a',
   );
   final reportB = ModerationQueueReport(
     id: 'b',
     launchId: 'cathedral',
     message: 'Second',
     createdAt: DateTime.utc(2026, 6, 16),
+    submitterUid: 'user-b',
   );
 
   setUp(() {
     repo = _MockConditionReportModerationRepository();
     registerFallbackValue(CancelToken());
+    registerFallbackValue(const ModerationQueueQuery());
   });
 
   Future<ProviderContainer> pumpContainer() async {
@@ -45,7 +48,7 @@ void main() {
   test('moderate success removes item without refetching the queue', () async {
     when(
       () => repo.listPendingReports(
-        limit: any(named: 'limit'),
+        query: any(named: 'query'),
         cancelToken: any(named: 'cancelToken'),
       ),
     ).thenAnswer((_) async => Result.success([reportA, reportB]));
@@ -74,7 +77,7 @@ void main() {
     );
     verifyNever(
       () => repo.listPendingReports(
-        limit: any(named: 'limit'),
+        query: any(named: 'query'),
         cancelToken: any(named: 'cancelToken'),
       ),
     );
@@ -84,7 +87,7 @@ void main() {
   test('moderate failure rolls back optimistic removal', () async {
     when(
       () => repo.listPendingReports(
-        limit: any(named: 'limit'),
+        query: any(named: 'query'),
         cancelToken: any(named: 'cancelToken'),
       ),
     ).thenAnswer((_) async => Result.success([reportA, reportB]));
@@ -122,7 +125,7 @@ void main() {
     () async {
       when(
         () => repo.listPendingReports(
-          limit: any(named: 'limit'),
+          query: any(named: 'query'),
           cancelToken: any(named: 'cancelToken'),
         ),
       ).thenAnswer((_) async => Result.success([reportA, reportB]));

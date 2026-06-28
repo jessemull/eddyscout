@@ -3,12 +3,15 @@ import { describe, test } from "node:test";
 import * as admin from "firebase-admin";
 import {
   computeExpiresAt,
+  computeHoldAgeDays,
   defaultModerationConfig,
   evaluateKeywordHold,
   isModerator,
   isPubliclyVisibleStatus,
+  isStaleHold,
   parseModerationConfig,
   resolveModerationStatus,
+  staleHoldCutoff,
 } from "./moderation.js";
 
 describe("evaluateKeywordHold", () => {
@@ -38,6 +41,7 @@ describe("parseModerationConfig", () => {
   test("uses defaults when doc missing", () => {
     const config = parseModerationConfig(undefined);
     assert.equal(config.retentionDays, 90);
+    assert.equal(config.holdMaxDays, 30);
     assert.deepEqual(config.adminUids, []);
     assert.deepEqual(config.keywords, []);
   });
@@ -45,10 +49,12 @@ describe("parseModerationConfig", () => {
   test("parses valid fields", () => {
     const config = parseModerationConfig({
       retentionDays: 30,
+      holdMaxDays: 14,
       adminUids: ["uid-a", 1],
       keywords: ["spam", null],
     });
     assert.equal(config.retentionDays, 30);
+    assert.equal(config.holdMaxDays, 14);
     assert.deepEqual(config.adminUids, ["uid-a"]);
     assert.deepEqual(config.keywords, ["spam"]);
   });
@@ -89,5 +95,25 @@ describe("computeExpiresAt", () => {
     const createdAt = admin.firestore.Timestamp.fromMillis(0);
     const expiresAt = computeExpiresAt(createdAt, 90);
     assert.equal(expiresAt.toMillis(), 90 * 24 * 60 * 60 * 1000);
+  });
+});
+
+describe("hold timeout helpers", () => {
+  test("computeHoldAgeDays counts full days", () => {
+    const createdAt = admin.firestore.Timestamp.fromMillis(0);
+    const now = admin.firestore.Timestamp.fromMillis(3 * 24 * 60 * 60 * 1000);
+    assert.equal(computeHoldAgeDays(createdAt, now), 3);
+  });
+
+  test("isStaleHold is true at holdMaxDays", () => {
+    const createdAt = admin.firestore.Timestamp.fromMillis(0);
+    const now = admin.firestore.Timestamp.fromMillis(30 * 24 * 60 * 60 * 1000);
+    assert.equal(isStaleHold(createdAt, 30, now), true);
+  });
+
+  test("staleHoldCutoff subtracts holdMaxDays from now", () => {
+    const now = admin.firestore.Timestamp.fromMillis(60 * 24 * 60 * 60 * 1000);
+    const cutoff = staleHoldCutoff(30, now);
+    assert.equal(cutoff.toMillis(), 30 * 24 * 60 * 60 * 1000);
   });
 });

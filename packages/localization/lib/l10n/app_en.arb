@@ -764,5 +764,48 @@
   "moderationApprove": "Approve",
   "moderationReject": "Reject",
   "moderationActionError": "Could not update that report. Try again.",
+  "moderationTabPending": "Pending",
+  "moderationTabHistory": "History",
+  "moderationHistoryEmpty": "No moderation history yet.",
+  "moderationHistoryLoadError": "Could not load moderation history.",
+  "moderationLaunchSearchHint": "Launch id or name",
+  "moderationSortOldestWaiting": "Oldest waiting",
+  "moderationSortMostRecent": "Most recent",
+  "moderationSortRecentAction": "Recent action",
+  "moderationSortOldestAction": "Oldest action",
+  "moderationDateFilterAll": "All dates",
+  "moderationDateFilter7Days": "Last 7 days",
+  "moderationDateFilter30Days": "Last 30 days",
+  "moderationStatusFilterAll": "All outcomes",
+  "moderationStatusFilterApproved": "Approved",
+  "moderationStatusFilterRejected": "Rejected",
+  "moderationSubmitterUid": "Submitter",
+  "moderationModeratorUid": "Moderator",
+  "moderationSystemActor": "System",
+  "moderationHoldReason": "Hold reason",
+  "moderationSubmittedAt": "Submitted",
+  "moderationReviewedAt": "Reviewed",
+  "moderationWaitingDays": "Waiting {days} days",
+  "@moderationWaitingDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "moderationCopyUid": "Copy UID",
+  "moderationUidCopied": "UID copied",
+  "moderationSelectAll": "Select all",
+  "moderationClearSelection": "Clear",
+  "moderationBulkApprove": "Approve selected",
+  "moderationBulkReject": "Reject selected",
+  "moderationBulkApproveConfirmTitle": "Approve selected reports?",
+  "moderationBulkApproveConfirmBody": "These reports will become visible to paddlers.",
+  "moderationBulkRejectConfirmTitle": "Reject selected reports?",
+  "moderationBulkRejectConfirmBody": "These reports will stay hidden from the public list.",
+  "moderationBatchPartialFailure": "Could not update {count} selected reports.",
+  "@moderationBatchPartialFailure": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
   "launchDetailReviewReportsButton": "Review reports"
 }
