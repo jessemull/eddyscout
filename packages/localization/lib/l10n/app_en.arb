@@ -141,6 +141,9 @@
   "launchDetailRiverClackamas": "Clackamas",
   "launchDetailRiverSlough": "Slough / confluence",
   "launchDetailReportThanks": "Thanks—report submitted.",
+  "launchDetailReportPendingReview": "Thanks—your report is being reviewed and will appear once approved.",
+  "launchDetailReportsPendingReviewHint": "You have a report pending review for this launch.",
+  "launchDetailReportsModerationTrustLine": "Community notes are reviewed before they appear—not official conditions or river status.",
   "launchDetailReportAddMessageFirst": "Add a short message first.",
   "launchDetailReportsLoadError": "Could not load reports: {message}",
   "@launchDetailReportsLoadError": {
@@ -202,7 +205,7 @@
   "launchDetailDigestFromCache": "From cache (same reports; regenerate if someone just posted).",
   "launchDetailDigestReadIndividualHint": "Read individual reports below—summaries can miss nuance.",
   "launchDetailRecentReportsTitle": "Recent reports",
-  "launchDetailRecentReportsSubtitle": "Raw messages (newest first). Compare with the digest above.",
+  "launchDetailRecentReportsSubtitle": "Approved paddler messages (newest first). Compare with the digest above.",
   "launchDetailNoPaddlerReports": "No paddler reports yet.",
   "launchDetailReportYou": "You",
   "launchDetailReportAnonymous": "Anonymous paddler",
@@ -754,5 +757,66 @@
       "verdict": {"type": "String"},
       "stopName": {"type": "String"}
     }
-  }
+  },
+  "moderationQueueTitle": "Review Reports",
+  "moderationQueueEmpty": "No reports waiting for review.",
+  "moderationQueueLoadError": "Could not load the review queue.",
+  "moderationApprove": "Approve",
+  "moderationReject": "Reject",
+  "moderationActionError": "Could not update that report. Try again.",
+  "moderationTabPending": "Pending",
+  "moderationTabHistory": "History",
+  "moderationHistoryEmpty": "No moderation history yet.",
+  "moderationHistoryLoadError": "Could not load moderation history.",
+  "moderationLaunchSearchHint": "Search by ID or name...",
+  "moderationSortOldestWaiting": "Oldest waiting",
+  "moderationSortMostRecent": "Most recent",
+  "moderationSortRecentAction": "Recent action",
+  "moderationSortOldestAction": "Oldest action",
+  "moderationDateFilterAll": "All dates",
+  "moderationDateFilter7Days": "Last 7 days",
+  "moderationDateFilter30Days": "Last 30 days",
+  "moderationStatusFilterAll": "All outcomes",
+  "moderationStatusFilterApproved": "Approved",
+  "moderationStatusFilterRejected": "Rejected",
+  "moderationSubmitterUid": "Submitter",
+  "moderationModeratorUid": "Moderator",
+  "moderationSystemActor": "System",
+  "moderationHoldReason": "Hold Reason",
+  "moderationMessage": "Message",
+  "moderationSubmittedAt": "Submitted",
+  "moderationReviewedAt": "Reviewed",
+  "moderationWaitingDays": "Waiting {days} days",
+  "@moderationWaitingDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "moderationCopyUid": "Copy UID",
+  "moderationUidCopied": "UID copied",
+  "moderationSelectAll": "Select all",
+  "moderationClearSelection": "Clear",
+  "moderationBulkSelect": "Select",
+  "moderationBulkSelectDone": "Done",
+  "moderationReasonKeywordHold": "Matched moderation keyword",
+  "moderationReasonAdminApprove": "Approved by moderator",
+  "moderationReasonAdminReject": "Rejected by moderator",
+  "moderationReasonAdminReopen": "Returned to pending by moderator",
+  "moderationReasonHoldTimeout": "Auto-approved after hold period",
+  "moderationBulkApprove": "Approve selected",
+  "moderationBulkReject": "Reject selected",
+  "moderationBulkApproveConfirmTitle": "Approve selected reports?",
+  "moderationBulkApproveConfirmBody": "These reports will become visible to paddlers.",
+  "moderationBulkRejectConfirmTitle": "Reject selected reports?",
+  "moderationBulkRejectConfirmBody": "These reports will stay hidden from the public list.",
+  "moderationBatchPartialFailure": "Could not update {count} selected reports.",
+  "@moderationBatchPartialFailure": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "moderationReturnToPending": "Return to pending",
+  "moderationReturnToPendingConfirmTitle": "Return report to pending?",
+  "moderationReturnToPendingConfirmBody": "This report will reappear on the pending tab for review. If it was approved, it will be removed from the public list.",
+  "launchDetailReviewReportsButton": "Review Reports"
 }

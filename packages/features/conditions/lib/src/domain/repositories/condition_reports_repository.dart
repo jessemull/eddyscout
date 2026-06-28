@@ -4,8 +4,8 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 
 /// Community condition reports and AI digest (Firebase Callables).
 abstract interface class ConditionReportsRepository {
-  /// Lists recent paddler reports for [launchId].
-  FutureResult<List<ConditionReportListItem>, AppFailure> listReports(
+  /// Lists recent approved paddler reports for [launchId].
+  FutureResult<ConditionReportsListResult, AppFailure> listReports(
     String launchId, {
     CancelToken? cancelToken,
   });

@@ -71,7 +71,10 @@ void main() {
     });
 
     test('ConditionReportSubmitRepositoryImpl submits successfully', () async {
-      when(() => result.data).thenReturn(<String, dynamic>{});
+      when(() => result.data).thenReturn({
+        'ok': true,
+        'moderationStatus': 'approved',
+      });
       when(
         () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
       ).thenAnswer((_) async => result);
@@ -79,6 +82,7 @@ void main() {
       final repo = const ConditionReportSubmitRepositoryImpl();
       final res = await repo.submit(launchId: 'l', message: 'm');
       expect(res.isSuccess, isTrue);
+      expect(res.valueOrNull?.isPubliclyVisible, isTrue);
     });
 
     test('ConditionReportsRepositoryImpl lists reports', () async {
@@ -90,6 +94,7 @@ void main() {
             'isMine': false,
           },
         ],
+        'viewerHasPendingReport': false,
       });
       when(
         () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
@@ -98,7 +103,7 @@ void main() {
       final repo = const ConditionReportsRepositoryImpl();
       final res = await repo.listReports('l');
       expect(res.isSuccess, isTrue);
-      expect(res.valueOrNull, hasLength(1));
+      expect(res.valueOrNull?.reports, hasLength(1));
     });
 
     test('ConditionReportsRepositoryImpl summarizes launch reports', () async {

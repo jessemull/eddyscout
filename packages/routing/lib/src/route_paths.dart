@@ -29,4 +29,7 @@ abstract final class RoutePaths {
 
   /// Menu tab (GPX, settings, about).
   static const menu = '/menu';
+
+  /// Hidden moderator review queue (not linked in tab nav).
+  static const moderationReports = '/moderation/reports';
 }

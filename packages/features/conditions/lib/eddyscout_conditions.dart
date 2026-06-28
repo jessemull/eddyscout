@@ -2,6 +2,7 @@
 library;
 
 export 'src/domain/condition_report_models.dart';
+export 'src/domain/condition_report_moderation_repository_provider.dart';
 export 'src/domain/condition_report_submit_repository_provider.dart';
 export 'src/domain/condition_reports_repository_provider.dart';
 export 'src/domain/conditions_ai_summary_repository_provider.dart';
@@ -12,6 +13,7 @@ export 'src/domain/go_no_go.dart';
 export 'src/domain/go_no_go_profile_repository_provider.dart';
 export 'src/domain/go_no_go_thresholds.dart';
 export 'src/domain/launch_go_no_go_provider.dart';
+export 'src/domain/repositories/condition_report_moderation_repository.dart';
 export 'src/domain/repositories/condition_report_submit_repository.dart';
 export 'src/domain/repositories/condition_reports_repository.dart';
 export 'src/domain/repositories/conditions_ai_summary_repository.dart';
@@ -27,5 +29,11 @@ export 'src/presentation/firebase_bootstrap_provider.dart';
 export 'src/presentation/go_no_go_profile_provider.dart';
 export 'src/presentation/launch_detail/launch_detail_screen.dart';
 export 'src/presentation/launch_reports_digest_provider.dart';
+export 'src/presentation/moderation/moderation_history_provider.dart';
+export 'src/presentation/moderation/moderation_queue_filters_provider.dart';
+export 'src/presentation/moderation/moderation_queue_screen.dart';
+export 'src/presentation/moderation/moderation_selection_provider.dart';
+export 'src/presentation/moderation/moderator_access_provider.dart';
+export 'src/presentation/moderation/pending_reports_provider.dart';
 export 'src/presentation/route_go_no_go_rollup_provider.dart';
 export 'src/presentation/route_go_no_go_summary_section.dart';

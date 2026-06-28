@@ -17,6 +17,7 @@ List<RouteBase> get $appRoutes => [
   $savedRouteDetailRoute,
   $missingMapboxTokenRoute,
   $webMapPlaceholderRoute,
+  $moderationReportsRoute,
 ];
 
 RouteBase get $appShellRouteData => StatefulShellRouteData.$route(
@@ -314,6 +315,32 @@ mixin $WebMapPlaceholderRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/web');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $moderationReportsRoute => GoRouteData.$route(
+  path: '/moderation/reports',
+  factory: $ModerationReportsRoute._fromState,
+);
+
+mixin $ModerationReportsRoute on GoRouteData {
+  static ModerationReportsRoute _fromState(GoRouterState state) =>
+      const ModerationReportsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/moderation/reports');
 
   @override
   void go(BuildContext context) => context.go(location);

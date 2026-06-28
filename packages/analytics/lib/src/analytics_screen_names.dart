@@ -27,6 +27,9 @@ abstract final class AnalyticsScreenNames {
   /// Menu tab.
   static const menu = 'screen_menu';
 
+  /// Moderator review queue.
+  static const moderationReports = 'screen_moderation_reports';
+
   /// Saved route detail screen.
   static const savedRouteDetail = 'screen_saved_route_detail';
 
@@ -44,6 +47,9 @@ abstract final class AnalyticsScreenNames {
     }
     if (matchedLocation == '/menu') {
       return menu;
+    }
+    if (matchedLocation == '/moderation/reports') {
+      return moderationReports;
     }
     if (matchedLocation == '/missing-token') {
       return missingMapboxToken;
