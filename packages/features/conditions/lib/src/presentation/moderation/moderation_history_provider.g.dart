@@ -40,7 +40,7 @@ final class ModerationHistoryProvider
   ModerationHistory create() => ModerationHistory();
 }
 
-String _$moderationHistoryHash() => r'308bf1aa2ea127f7b4926b1e92af7decbda2c9e0';
+String _$moderationHistoryHash() => r'7af2fc22831433e1036c8017d2c894333bf4b07c';
 
 /// Moderation audit history rows.
 

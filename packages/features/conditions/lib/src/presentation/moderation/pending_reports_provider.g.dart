@@ -41,7 +41,7 @@ final class ModerationPendingReportsProvider
 }
 
 String _$moderationPendingReportsHash() =>
-    r'08990d61f8b0aaef254e1e8c2489ccc26ca7736c';
+    r'019bfe88152c32c7649a4b96e51a8486d13eedb2';
 
 /// Held condition reports awaiting moderator action.
 
