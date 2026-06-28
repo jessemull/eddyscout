@@ -424,7 +424,8 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [x] **(Phase C / R3)** Route planner: "Trips from here" UI on place peek and launch detail (`feat/trips-from-here-ui`, PR #66)
 - [x] **(Phase C)** Route planner: **personalized paddling speed** at sign-up / profile for trip-time estimates (default 4 km/h until set; optional learning from trip log)
 - [ ] **(Phase C)** **Metric / imperial units** — user preference for distance (km/mi) and speed (km/h/mph) across settings, route planner, and saved routes
-- [ ] **(Phase C / R4)** Route editing: arbitrary waypoints (drop pin on waterway, snap to graph)
+- [x] **(Phase C / R4)** Route editing: arbitrary waypoints (drop pin on waterway, snap to graph) — **saved routes persist catalog + snap stops**; GPX still exports track + catalog put-in/take-out wpts only (see R4 GPX follow-up below)
+- [ ] **(Phase C / R4)** Route editing: **GPX multi-stop round-trip** — export/import ordered stops (catalog launches + custom snap pins) via GPX 1.1 `<wpt>` + EddyScout metadata; re-snap custom wpts to bundled hydro on import; track-only import from other apps unchanged
 - [ ] **(Phase C / R4)** Route editing: drag-to-edit polyline mid-points to reroute through alternate channels
 - [ ] **(Phase C / R4)** Route editing: loop routes, island hopping, multi-day expedition waypoints
 - [ ] **(Phase C / R4)** Route editing: route alternatives (shortest, most sheltered, scenic)
@@ -737,7 +738,8 @@ Until both exist, default water entry to access for backward compatibility. Migr
 **Improvements:**
 
 - [x] **Cross-system routing** — route across Willamette → Columbia confluence; unified multi-system graph (R2)
-- [ ] **Arbitrary waypoints** — allow user to drop a pin on any waterway (snap to nearest graph vertex); not just catalog launches
+- [x] **Arbitrary waypoints** — drop pin on waterway (snap to graph); catalog + snap stops in planner and saved routes
+- [ ] **GPX multi-stop round-trip** — export ordered `<wpt>` per stop (catalog + custom snap); import restores stop list when EddyScout metadata present; otherwise fall back to track + catalog endpoint snap (today’s behavior)
 - [ ] **Loop routes** — detect same start/end; offer "out-and-back" or "loop via alternate channel"
 - [ ] **Island hopping / archipelago routes** — multiple segments with portage indicators between disconnected water bodies
 - [ ] **Multi-day expedition support** — save waypoints as overnight stops; segment time estimates per day
