@@ -9,7 +9,7 @@ environment:
   sdk: ^3.11.4
 
 dependencies:
-  cloud_functions: ^6.3.2
+  cloud_functions: ^6.3.3
   dio: ^5.7.0
   eddyscout_analytics:
     path: ../../analytics
