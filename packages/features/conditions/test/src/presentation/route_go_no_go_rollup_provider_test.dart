@@ -328,4 +328,48 @@ void main() {
       throwsA(isA<UnexpectedFailure>()),
     );
   });
+
+  test('reuses cached conditions snapshot when available', () async {
+    var loadCount = 0;
+    when(
+      () => repository.load(
+        any(),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer((invocation) async {
+      loadCount++;
+      final launch = invocation.positionalArguments[0] as LaunchPoint;
+      if (launch.id == testKelleyPointLaunch.id) {
+        return Success(_windySnapshot());
+      }
+      return Success(_calmSnapshot());
+    });
+
+    final container = ProviderContainer(
+      overrides: [
+        conditionsRepositoryProvider.overrideWithValue(repository),
+        goNoGoProfileRepositoryProvider.overrideWithValue(profileRepository),
+        conditionsSnapshotProvider(testCathedralParkLaunch).overrideWith(
+          (_) async => _calmSnapshot(),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(
+      conditionsSnapshotProvider(testCathedralParkLaunch).future,
+    );
+
+    final result = await container.read(
+      routeGoNoGoRollupProvider(
+        _waypointsKey([
+          testCathedralParkLaunch.id,
+          testKelleyPointLaunch.id,
+        ]),
+      ).future,
+    );
+
+    expect(result.waypointResults, hasLength(2));
+    expect(loadCount, 1);
+  });
 }

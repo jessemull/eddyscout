@@ -110,5 +110,58 @@ void main() {
               .error;
       expect(failure.code, RouteFailureCode.sameLaunch);
     });
+
+    test('snapToWaterway returns failure when point is off hydro graph', () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(mapRoutePlannerProvider.future);
+      final result = await planner.snapToWaterway(0, 0);
+
+      expect(
+        result,
+        isA<Failure<WaterwaySnapPoint, RoutePlanningFailure>>(),
+      );
+      expect(
+        (result as Failure<WaterwaySnapPoint, RoutePlanningFailure>).error.code,
+        RouteFailureCode.putInTooFar,
+      );
+    });
+
+    test('validateStop accepts catalog launch on bundled hydro', () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(mapRoutePlannerProvider.future);
+      final launch = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
+      final result = await planner.validateStop(
+        RoutePlanningStop.catalog(launch),
+      );
+
+      expect(result, isA<Success<void, RoutePlanningFailure>>());
+    });
+
+    test('validateSegmentStops accepts connected catalog launches', () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(mapRoutePlannerProvider.future);
+      final putIn = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
+      final takeOut = kLaunchPoints.firstWhere(
+        (l) => l.id == 'glenn_otto_troutdale',
+      );
+      final result = await planner.validateSegmentStops(
+        RoutePlanningStop.catalog(putIn),
+        RoutePlanningStop.catalog(takeOut),
+      );
+
+      expect(result, isA<Success<void, RoutePlanningFailure>>());
+    });
   });
 }
