@@ -291,7 +291,28 @@ void main() {
     );
   });
 
-  test('throws when fewer than two waypoints', () async {
+  test('evaluates single catalog launch', () async {
+    stubLoad(
+      onLoad: (_) async => Success(_calmSnapshot()),
+    );
+
+    final container = ProviderContainer(
+      overrides: [
+        conditionsRepositoryProvider.overrideWithValue(repository),
+        goNoGoProfileRepositoryProvider.overrideWithValue(profileRepository),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final result = await container.read(
+      routeGoNoGoRollupProvider(_waypointsKey(['cathedral_park'])).future,
+    );
+
+    expect(result.waypointResults, hasLength(1));
+    expect(result.verdict, GoNoGoVerdict.go);
+  });
+
+  test('throws when no catalog launches', () async {
     final container = ProviderContainer(
       overrides: [
         conditionsRepositoryProvider.overrideWithValue(repository),
@@ -302,7 +323,7 @@ void main() {
 
     expect(
       container.read(
-        routeGoNoGoRollupProvider(_waypointsKey(['only_one'])).future,
+        routeGoNoGoRollupProvider(_waypointsKey([])).future,
       ),
       throwsA(isA<UnexpectedFailure>()),
     );

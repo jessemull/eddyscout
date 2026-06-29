@@ -170,7 +170,8 @@ class _MapRouteHost extends ConsumerWidget {
     final goNoGoMetadata = routeGoNoGoStopMetadataFromPlanningStops(
       planning.stops,
     );
-    if (goNoGoMetadata.catalogLaunchIds.length >= 2) {
+    final goNoGoStopCount = routeGoNoGoTotalStopCount(goNoGoMetadata);
+    if (goNoGoMetadata.catalogLaunchIds.isNotEmpty && goNoGoStopCount >= 2) {
       ref.watch(
         routeGoNoGoRollupProvider(
           RouteGoNoGoWaypointsKey.fromOrdered(goNoGoMetadata.catalogLaunchIds),
@@ -178,7 +179,7 @@ class _MapRouteHost extends ConsumerWidget {
       );
     }
 
-    final routeGoNoGoSection = goNoGoMetadata.catalogLaunchIds.length >= 2
+    final routeGoNoGoSection = goNoGoStopCount >= 2
         ? MapRouteGoNoGoSection(
             catalogLaunchIds: goNoGoMetadata.catalogLaunchIds,
             catalogStopOrderIndices: goNoGoMetadata.catalogStopOrderIndices,

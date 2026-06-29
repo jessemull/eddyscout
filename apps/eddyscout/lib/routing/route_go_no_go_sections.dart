@@ -11,6 +11,10 @@ typedef RouteGoNoGoStopMetadata = ({
   List<RouteGoNoGoSnapStop> snapStops,
 });
 
+/// Total route stops (catalog launches + custom snap stops).
+int routeGoNoGoTotalStopCount(RouteGoNoGoStopMetadata metadata) =>
+    metadata.catalogLaunchIds.length + metadata.snapStops.length;
+
 /// Builds stop metadata from ordered [RouteWaypoint]s.
 RouteGoNoGoStopMetadata routeGoNoGoStopMetadataFromWaypoints(
   List<RouteWaypoint> waypoints,
@@ -99,7 +103,7 @@ class SavedRouteGoNoGoSection extends ConsumerWidget {
     }
 
     final metadata = routeGoNoGoStopMetadataFromWaypoints(route.waypoints);
-    if (metadata.catalogLaunchIds.length < 2) {
+    if (routeGoNoGoTotalStopCount(metadata) < 2) {
       return const SizedBox.shrink();
     }
 
@@ -132,7 +136,7 @@ class MapRouteGoNoGoSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (catalogLaunchIds.length < 2) {
+    if (catalogLaunchIds.length + snapStops.length < 2) {
       return const SizedBox.shrink();
     }
 

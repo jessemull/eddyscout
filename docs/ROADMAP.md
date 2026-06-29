@@ -425,6 +425,8 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [x] **(Phase C)** Route planner: **personalized paddling speed** at sign-up / profile for trip-time estimates (default 4 km/h until set; optional learning from trip log)
 - [ ] **(Phase C)** **Metric / imperial units** — user preference for distance (km/mi) and speed (km/h/mph) across settings, route planner, and saved routes
 - [x] **(Phase C / R4)** Route editing: arbitrary waypoints (drop pin on waterway, snap to graph) — **saved routes persist catalog + snap stops**; GPX still exports track + catalog put-in/take-out wpts only (see R4 GPX follow-up below)
+- [x] **(Phase C / R4)** Route Go/No-Go on snap-heavy routes — show conditions accordion when route has ≥2 stops total (custom-only or one catalog + snaps); evaluate catalog stops; custom stops show “No conditions data” in expanded timeline
+- [ ] **(Phase C / R4)** Route planner: **map-first put-in** — start planning by choosing a point on the map (snap to bundled waterway) without requiring a catalog launch as the first stop; entry from browse map or empty planner (“Choose on map” / long-press as put-in, not only as mid-route stop)
 - [ ] **(Phase C / R4)** Route editing: **GPX multi-stop round-trip** — export/import ordered stops (catalog launches + custom snap pins) via GPX 1.1 `<wpt>` + EddyScout metadata; re-snap custom wpts to bundled hydro on import; track-only import from other apps unchanged
 - [ ] **(Phase C / R4)** Route editing: drag-to-edit polyline mid-points to reroute through alternate channels
 - [ ] **(Phase C / R4)** Route editing: loop routes, island hopping, multi-day expedition waypoints
@@ -453,7 +455,7 @@ Single list of **everything** tracked for build progress. Tags show the original
 - [ ] **(Phase E)** **Ops** — quotas, logging, cost dashboards
 - [x] **(Phase E)** Go / No-go typed reasons → localized labels (enum/codes + ARB; no raw reason strings in UI)
 - [ ] **(Phase E)** **Route Go / No-Go (v1, hybrid)** — rules-first rollup across planned-route waypoints; polyline segment exposure sampling remains a later item
-  - **Layer 1 (v1 core — ship gate):** Run existing `GoNoGoEvaluator` at each catalog waypoint (put-in / stops / take-out); roll up **worst** verdict (`noGo` > `marginal` > `insufficientData` > `go`); show rolled badge, **triggering stop name**, and localized reason chips on **map route preview** and **saved route detail**; reuse skill profile + launch-detail-style informational disclaimers (not a safety guarantee).
+  - **Layer 1 (v1 core — ship gate):** Run existing `GoNoGoEvaluator` at each catalog waypoint (put-in / stops / take-out); roll up **worst** verdict (`noGo` > `marginal` > `insufficientData` > `go`); show rolled badge, **triggering stop name**, and localized reason chips on **map route preview** and **saved route detail**; reuse skill profile + launch-detail-style informational disclaimers (not a safety guarantee). **Snap-heavy routes:** accordion appears when ≥2 stops total; routes with zero or one catalog launch show custom stops in the timeline (no conditions API for snap-only legs).
   - **Layer 2 (v1 optional stretch / default v1.1):** User-initiated **“Summarize route conditions”** button; LLM narrative card **grounded in Layer 1 JSON** + per-stop structured snapshots (same grounding rules as launch-detail `summarizeConditions`); narrative is **not** the verdict source—the Layer 1 badge always remains visible.
   - **Boundary:** **Route validation (LLM)** stays a separate Phase E item—plausibility coaching (leg length, segment fit), **not** cfs/wind verdict rollup.
   - **Later:** Sample exposure along polyline segments (roadmap “later”; out of v1 scope).
@@ -739,6 +741,8 @@ Until both exist, default water entry to access for backward compatibility. Migr
 
 - [x] **Cross-system routing** — route across Willamette → Columbia confluence; unified multi-system graph (R2)
 - [x] **Arbitrary waypoints** — drop pin on waterway (snap to graph); catalog + snap stops in planner and saved routes
+- [x] **Route Go/No-Go snap-heavy routes** — conditions accordion for routes with ≥2 stops when catalog count is 0–1; snap stops in timeline without conditions fetch
+- [ ] **Map-first put-in** — begin route planning from a map-chosen point (choose-on-map / long-press as first stop) without a catalog launch prerequisite
 - [ ] **GPX multi-stop round-trip** — export ordered `<wpt>` per stop (catalog + custom snap); import restores stop list when EddyScout metadata present; otherwise fall back to track + catalog endpoint snap (today’s behavior)
 - [ ] **Loop routes** — detect same start/end; offer "out-and-back" or "loop via alternate channel"
 - [ ] **Island hopping / archipelago routes** — multiple segments with portage indicators between disconnected water bodies

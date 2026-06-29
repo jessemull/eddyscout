@@ -62,9 +62,9 @@ Future<RouteGoNoGoResult> routeGoNoGoRollup(
   conditionsDebugLog(
     'rollup START waypoints=${launchIdsInOrder.join(' → ')}',
   );
-  if (launchIdsInOrder.length < 2) {
+  if (launchIdsInOrder.isEmpty) {
     throw const UnexpectedFailure(
-      message: 'Route go/no-go requires at least two waypoints.',
+      message: 'Route go/no-go requires at least one catalog launch.',
     );
   }
 

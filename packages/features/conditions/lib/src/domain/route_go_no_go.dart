@@ -112,6 +112,18 @@ class RouteGoNoGoRollup {
         .toList();
   }
 
+  /// Result when the route has custom snap stops but no catalog launches
+  /// with conditions data.
+  static RouteGoNoGoResult snapStopsOnly({required DateTime computedAt}) {
+    return RouteGoNoGoResult(
+      verdict: GoNoGoVerdict.insufficientData,
+      computedAt: computedAt,
+      waypointResults: const [],
+      waypointFailures: const [],
+      triggeringReasons: const [],
+    );
+  }
+
   /// Rolls up waypoint results using worst-verdict-wins ordering.
   ///
   /// Throws [UnexpectedFailure] when [evaluated] is empty.

@@ -42,11 +42,16 @@ class RouteGoNoGoSummarySection extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    if (launchIdsInOrder.length < 2) {
-      return const SizedBox.shrink();
+    final l10n = context.l10n;
+
+    if (launchIdsInOrder.isEmpty) {
+      return _RouteGoNoGoSummaryStrip(
+        result: RouteGoNoGoRollup.snapStopsOnly(computedAt: DateTime.now()),
+        catalogStopOrderIndices: catalogStopOrderIndices,
+        snapStops: snapStops,
+      );
     }
 
-    final l10n = context.l10n;
     final waypointsKey = RouteGoNoGoWaypointsKey.fromOrdered(launchIdsInOrder);
     final rollupAsync = ref.watch(routeGoNoGoRollupProvider(waypointsKey));
 
