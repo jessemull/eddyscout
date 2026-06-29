@@ -687,6 +687,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapRouteChooseDestination => 'Choose destination';
 
   @override
+  String get mapRouteChooseOnMap => 'Choose on map';
+
+  @override
+  String get mapRouteChooseOnMapHint =>
+      'Tap the river on the map to add a custom stop';
+
+  @override
+  String get mapRoutePickStopPrompt => 'Tap the river to add a stop';
+
+  @override
+  String get mapRouteRenameSnapStop => 'Rename custom stop';
+
+  @override
   String get mapRouteAddStopHint =>
       'Tap another launch on the map to set your destination or add a stop.';
 

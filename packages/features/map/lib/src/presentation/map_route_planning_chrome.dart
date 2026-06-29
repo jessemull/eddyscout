@@ -24,6 +24,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
     required this.onDone,
     required this.onRemoveStop,
     required this.onReorderStop,
+    required this.onChooseOnMap,
     super.key,
   });
 
@@ -34,6 +35,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
   final VoidCallback onDone;
   final ValueChanged<int> onRemoveStop;
   final void Function(int oldIndex, int newIndex) onReorderStop;
+  final VoidCallback onChooseOnMap;
 
   static const double _chromeInset = Spacing.sm;
   static const double _footerVerticalInset = Spacing.sm;
@@ -130,6 +132,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
                         .renameSnapStop(stopId, newLabel),
                     onInlineSearchChanged: (value) =>
                         _onInlineSearchChanged(ref, value),
+                    onChooseOnMap: onChooseOnMap,
                   ),
                 ),
               ],
@@ -196,6 +199,7 @@ class _PlanningStopListSection extends StatelessWidget {
     required this.onReorderStop,
     required this.onRenameSnapStop,
     required this.onInlineSearchChanged,
+    required this.onChooseOnMap,
   });
 
   final List<RoutePlanningStop> stops;
@@ -206,6 +210,7 @@ class _PlanningStopListSection extends StatelessWidget {
   final void Function(int oldIndex, int newIndex) onReorderStop;
   final void Function(String stopId, String newLabel) onRenameSnapStop;
   final ValueChanged<String> onInlineSearchChanged;
+  final VoidCallback onChooseOnMap;
 
   @override
   Widget build(BuildContext context) {
@@ -256,6 +261,11 @@ class _PlanningStopListSection extends StatelessWidget {
               : const Key('map_destination_search_field'),
           hintText: searchHintText,
           onChanged: onInlineSearchChanged,
+        ),
+        _ChooseOnMapRow(
+          label: l10n.mapRouteChooseOnMap,
+          semanticsHint: l10n.mapRouteChooseOnMapHint,
+          onTap: onChooseOnMap,
         ),
       ],
     );
@@ -395,9 +405,11 @@ class _EditStopRow extends StatelessWidget {
                 const SizedBox(width: Spacing.xs),
                 Expanded(
                   child: isSnap && onRenameSnapStop != null
-                      ? _SnapStopInlineLabelField(
+                      ? _SnapStopEditableLabel(
                           key: ValueKey('snap_label_$stopId'),
                           label: label,
+                          renameSemanticsLabel:
+                              context.l10n.mapRouteRenameSnapStop,
                           onCommit: onRenameSnapStop!,
                         )
                       : Text(
@@ -566,22 +578,24 @@ class _VerticalDotConnector extends StatelessWidget {
   }
 }
 
-class _SnapStopInlineLabelField extends StatefulWidget {
-  const _SnapStopInlineLabelField({
+class _SnapStopEditableLabel extends StatefulWidget {
+  const _SnapStopEditableLabel({
     required this.label,
+    required this.renameSemanticsLabel,
     required this.onCommit,
     super.key,
   });
 
   final String label;
+  final String renameSemanticsLabel;
   final ValueChanged<String> onCommit;
 
   @override
-  State<_SnapStopInlineLabelField> createState() =>
-      _SnapStopInlineLabelFieldState();
+  State<_SnapStopEditableLabel> createState() => _SnapStopEditableLabelState();
 }
 
-class _SnapStopInlineLabelFieldState extends State<_SnapStopInlineLabelField> {
+class _SnapStopEditableLabelState extends State<_SnapStopEditableLabel> {
+  bool _editing = false;
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
 
@@ -593,7 +607,7 @@ class _SnapStopInlineLabelFieldState extends State<_SnapStopInlineLabelField> {
   }
 
   @override
-  void didUpdateWidget(covariant _SnapStopInlineLabelField oldWidget) {
+  void didUpdateWidget(covariant _SnapStopEditableLabel oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.label != widget.label && !_focusNode.hasFocus) {
       _controller.text = widget.label;
@@ -601,9 +615,24 @@ class _SnapStopInlineLabelFieldState extends State<_SnapStopInlineLabelField> {
   }
 
   void _handleFocusChange() {
-    if (!_focusNode.hasFocus) {
+    if (!_focusNode.hasFocus && _editing) {
       _commit();
+      setState(() => _editing = false);
     }
+  }
+
+  void _startEditing() {
+    setState(() => _editing = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _focusNode.requestFocus();
+      _controller.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _controller.text.length,
+      );
+    });
   }
 
   void _commit() {
@@ -629,20 +658,8 @@ class _SnapStopInlineLabelFieldState extends State<_SnapStopInlineLabelField> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Theme(
-      data: Theme.of(context).copyWith(
-        inputDecorationTheme: const InputDecorationTheme(
-          filled: false,
-          fillColor: Colors.transparent,
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          contentPadding: EdgeInsets.zero,
-          isDense: true,
-          isCollapsed: true,
-        ),
-      ),
-      child: TextField(
+    if (_editing) {
+      return TextField(
         controller: _controller,
         focusNode: _focusNode,
         style: Theme.of(context).textTheme.bodyMedium,
@@ -655,11 +672,106 @@ class _SnapStopInlineLabelFieldState extends State<_SnapStopInlineLabelField> {
               maxLength,
             }) => null,
         textInputAction: TextInputAction.done,
-        onSubmitted: (_) => _commit(),
+        onSubmitted: (_) {
+          _commit();
+          setState(() => _editing = false);
+        },
         decoration: InputDecoration(
-          hintText: context.l10n.mapRouteNameStopHint,
-          hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: scheme.onSurfaceVariant,
+          isDense: true,
+          contentPadding: EdgeInsets.zero,
+          counterText: '',
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: scheme.primary),
+          ),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: scheme.primary, width: 2),
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            widget.label,
+            style: Theme.of(context).textTheme.bodyMedium,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Semantics(
+          button: true,
+          label: widget.renameSemanticsLabel,
+          child: SizedBox(
+            width: MapRoutePlanningChrome._actionWidth,
+            height: MapRoutePlanningChrome._rowHeight,
+            child: IconButton(
+              tooltip: widget.renameSemanticsLabel,
+              onPressed: _startEditing,
+              icon: Icon(
+                Icons.edit_outlined,
+                size: 18,
+                color: scheme.onSurfaceVariant,
+              ),
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ChooseOnMapRow extends StatelessWidget {
+  const _ChooseOnMapRow({
+    required this.label,
+    required this.semanticsHint,
+    required this.onTap,
+  });
+
+  final String label;
+  final String semanticsHint;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      label: label,
+      hint: semanticsHint,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          height: MapRoutePlanningChrome._rowHeight,
+          child: Row(
+            children: [
+              SizedBox(
+                width: MapRoutePlanningChrome._timelineWidth,
+                child: Icon(
+                  Icons.map_outlined,
+                  size: 16,
+                  color: scheme.primary,
+                ),
+              ),
+              const SizedBox(width: Spacing.xs),
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: scheme.primary,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                size: 18,
+                color: scheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: MapRoutePlanningChrome._actionWidth * 2),
+            ],
           ),
         ),
       ),

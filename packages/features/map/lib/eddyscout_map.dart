@@ -42,6 +42,8 @@ export 'src/presentation/launch_lookup.dart';
 export 'src/presentation/map_constants.dart';
 export 'src/presentation/map_key_value_store_provider.dart';
 export 'src/presentation/map_planning_phase.dart';
+export 'src/presentation/map_planning_pick_stop_banner.dart';
+export 'src/presentation/map_planning_pick_stop_provider.dart';
 export 'src/presentation/map_planning_provider.dart';
 export 'src/presentation/map_route_failure_l10n.dart';
 export 'src/presentation/map_screen.dart';

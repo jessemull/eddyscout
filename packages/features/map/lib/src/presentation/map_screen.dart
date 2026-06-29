@@ -13,6 +13,8 @@ import '../domain/map_trip_duration.dart';
 import 'map_constants.dart';
 import 'map_floating_controls.dart';
 import 'map_place_peek_bar.dart';
+import 'map_planning_pick_stop_banner.dart';
+import 'map_planning_pick_stop_provider.dart';
 import 'map_planning_provider.dart';
 import 'map_route_failure_l10n.dart';
 import 'map_route_planning_chrome.dart';
@@ -297,6 +299,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Future<void> _exitPlanningToPlacePeek() async {
+    ref.read(mapPlanningPickStopActiveProvider.notifier).exit();
     ref.read(mapPlanningInlineAddStopProvider.notifier).hide();
     ref.read(mapSearchExpandedProvider.notifier).collapse();
     final putInLaunch = ref.read(routePlanningProvider).putIn?.catalogLaunch;
@@ -312,7 +315,22 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlacePeek();
   }
 
-  Future<void> _backFromPlanningEdit() => _exitPlanningToPlacePeek();
+  void _enterPlanningPickStopMode() {
+    ref.read(mapSearchExpandedProvider.notifier).collapse();
+    ref.read(mapPlanningPickStopActiveProvider.notifier).enter();
+  }
+
+  void _exitPlanningPickStopMode() {
+    ref.read(mapPlanningPickStopActiveProvider.notifier).exit();
+  }
+
+  Future<void> _backFromPlanningEdit() async {
+    if (ref.read(mapPlanningPickStopActiveProvider)) {
+      _exitPlanningPickStopMode();
+      return;
+    }
+    await _exitPlanningToPlacePeek();
+  }
 
   void _returnToPlanningEditFromPreview() {
     _beginPlanningEditSession();
@@ -337,6 +355,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     if (!ref.read(routePlanningProvider).canFinishPlanning) {
       return;
     }
+    ref.read(mapPlanningPickStopActiveProvider.notifier).exit();
     ref.read(mapSheetVisibilityStateProvider.notifier).showPlanningPreview();
     final polyline = ref.read(routePlanningProvider).polylineLonLat;
     if (polyline != null && polyline.length >= 2) {
@@ -395,6 +414,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final planning = ref.watch(routePlanningProvider);
     final mapInteractive = ref.watch(mapInteractiveProvider);
     final sheetVisibility = ref.watch(mapSheetVisibilityStateProvider);
+    final pickStopActive = ref.watch(mapPlanningPickStopActiveProvider);
     final selectedLaunch = ref.watch(mapPlaceSelectionProvider);
     final searchExpanded = ref.watch(mapSearchExpandedProvider);
     final searchQuery = ref.watch(mapSearchQueryProvider);
@@ -442,6 +462,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return PopScope(
       canPop: !interceptPlanningBack && !showNearbyTripsSearch,
       onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && pickStopActive) {
+          _exitPlanningPickStopMode();
+          return;
+        }
         if (!didPop && showNearbyTripsSearch) {
           _closeSuggestedTripsSearch();
           return;
@@ -463,7 +487,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           children: [
             mapChild,
             if (sheetVisibility == MapSheetVisibility.planningEdit &&
-                !showFullScreenSearch)
+                !showFullScreenSearch &&
+                !pickStopActive)
               Positioned(
                 top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
                 left: Spacing.md,
@@ -479,6 +504,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     onRemoveStop: (index) => unawaited(_removeStop(index)),
                     onReorderStop: (oldIndex, newIndex) =>
                         unawaited(_reorderStop(oldIndex, newIndex)),
+                    onChooseOnMap: _enterPlanningPickStopMode,
+                  ),
+                ),
+              ),
+            if (sheetVisibility == MapSheetVisibility.planningEdit &&
+                pickStopActive &&
+                !showFullScreenSearch)
+              Positioned(
+                top: MediaQuery.viewPaddingOf(context).top + Spacing.sm,
+                left: Spacing.md,
+                right: Spacing.md,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: MapPlanningPickStopBanner(
+                    onCancel: _exitPlanningPickStopMode,
                   ),
                 ),
               ),

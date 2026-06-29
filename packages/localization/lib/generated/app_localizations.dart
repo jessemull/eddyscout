@@ -1201,6 +1201,30 @@ abstract class AppLocalizations {
   /// **'Choose destination'**
   String get mapRouteChooseDestination;
 
+  /// No description provided for @mapRouteChooseOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose on map'**
+  String get mapRouteChooseOnMap;
+
+  /// No description provided for @mapRouteChooseOnMapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the river on the map to add a custom stop'**
+  String get mapRouteChooseOnMapHint;
+
+  /// No description provided for @mapRoutePickStopPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the river to add a stop'**
+  String get mapRoutePickStopPrompt;
+
+  /// No description provided for @mapRouteRenameSnapStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename custom stop'**
+  String get mapRouteRenameSnapStop;
+
   /// No description provided for @mapRouteAddStopHint.
   ///
   /// In en, this message translates to:

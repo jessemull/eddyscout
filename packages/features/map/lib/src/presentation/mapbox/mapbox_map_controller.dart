@@ -9,6 +9,7 @@ import '../../domain/map_route_planner.dart';
 import '../../domain/map_route_planner_provider.dart';
 import '../launch_lookup.dart';
 import '../map_constants.dart';
+import '../map_planning_pick_stop_provider.dart';
 import '../map_planning_provider.dart';
 import '../map_session_provider.dart';
 import '../map_sheet_provider.dart';
@@ -126,6 +127,12 @@ final class MapboxMapController extends _$MapboxMapController
     if (!alive || !ref.read(mapInteractiveProvider)) {
       return;
     }
+    if (ref.read(mapPlanningPickStopActiveProvider) &&
+        ref.read(mapSheetVisibilityStateProvider) ==
+            MapSheetVisibility.planningEdit) {
+      await _handlePlanningMapPick(context);
+      return;
+    }
     final launch = await nearestLaunchAtTap(context.touchPosition);
     if (launch == null) {
       return;
@@ -141,6 +148,10 @@ final class MapboxMapController extends _$MapboxMapController
         MapSheetVisibility.planningEdit) {
       return;
     }
+    await _handlePlanningMapPick(context);
+  }
+
+  Future<void> _handlePlanningMapPick(MapContentGestureContext context) async {
     final launch = await nearestLaunchAtTap(context.touchPosition);
     if (launch != null) {
       return;
@@ -152,12 +163,15 @@ final class MapboxMapController extends _$MapboxMapController
     try {
       final point = await map.coordinateForPixel(context.touchPosition);
       final coords = point.coordinates;
-      await tryAddPlanningSnapStop(
+      final result = await tryAddPlanningSnapStop(
         coords.lat.toDouble(),
         coords.lng.toDouble(),
       );
+      if (result != null) {
+        ref.read(mapPlanningPickStopActiveProvider.notifier).exit();
+      }
     } on Object catch (e, st) {
-      mapDebugLog('_handleMapLongPress failed: $e\n$st');
+      mapDebugLog('_handlePlanningMapPick failed: $e\n$st');
     }
   }
 

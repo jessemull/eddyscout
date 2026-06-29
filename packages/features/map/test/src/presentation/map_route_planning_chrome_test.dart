@@ -77,6 +77,7 @@ void main() {
             onDone: () {},
             onRemoveStop: (_) {},
             onReorderStop: (_, _) {},
+            onChooseOnMap: () {},
           ),
         ),
       ),
@@ -161,7 +162,7 @@ void main() {
     expect(find.text('Total trip: 150 min (6.2 mi)'), findsOneWidget);
   });
 
-  testWidgets('shows snap stop label with place indicator', (tester) async {
+  testWidgets('shows snap stop label with edit affordance', (tester) async {
     await pumpChrome(
       tester,
       stops: [
@@ -176,12 +177,32 @@ void main() {
       routeLengthKm: 8,
     );
 
-    expect(find.widgetWithText(TextField, 'Custom stop 2'), findsOneWidget);
-    expect(find.byIcon(Icons.edit_outlined), findsNothing);
+    expect(find.text('Custom stop 2'), findsOneWidget);
+    expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
     expect(find.byIcon(Icons.place_outlined), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('snap_label_snap_1')),
+        matching: find.byType(TextField),
+      ),
+      findsNothing,
+    );
   });
 
-  testWidgets('commits inline snap stop rename on blur', (tester) async {
+  testWidgets('shows choose on map row below search', (tester) async {
+    await pumpChrome(
+      tester,
+      stops: _catalogStops([kLaunchPoints.first]),
+      routeLengthKm: null,
+    );
+
+    expect(find.text('Choose on map'), findsOneWidget);
+    expect(find.byIcon(Icons.map_outlined), findsOneWidget);
+  });
+
+  testWidgets('commits snap stop rename after tapping edit icon', (
+    tester,
+  ) async {
     final container = ProviderContainer(
       overrides: [
         mapKeyValueStoreProvider.overrideWith((ref) async => store),
@@ -223,6 +244,7 @@ void main() {
                 onDone: () {},
                 onRemoveStop: (_) {},
                 onReorderStop: (_, _) {},
+                onChooseOnMap: () {},
               );
             },
           ),
@@ -231,8 +253,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    final snapStopId = container.read(routePlanningProvider).stops[1].stopId;
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pumpAndSettle();
+
     await tester.enterText(
-      find.widgetWithText(TextField, 'Custom stop 2'),
+      find.descendant(
+        of: find.byKey(ValueKey('snap_label_$snapStopId')),
+        matching: find.byType(TextField),
+      ),
       'Lunch spot',
     );
     FocusManager.instance.primaryFocus?.unfocus();
@@ -263,6 +292,7 @@ void main() {
             onDone: () => doneTapped = true,
             onRemoveStop: (_) {},
             onReorderStop: (_, _) {},
+            onChooseOnMap: () {},
           ),
         ),
       ),
