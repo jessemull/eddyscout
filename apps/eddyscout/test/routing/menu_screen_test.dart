@@ -154,6 +154,59 @@ void main() {
     expect(find.text(l10n.mapGpxExportSuccess), findsOneWidget);
   });
 
+  testWidgets('MenuScreen export shows failure snackbar when share fails', (
+    tester,
+  ) async {
+    when(
+      () => gateway.writeAndShareGpx(
+        filename: any(named: 'filename'),
+        gpxXml: any(named: 'gpxXml'),
+      ),
+    ).thenAnswer(
+      (_) async => const Result.failure(
+        StorageFailure(message: 'gpx_file_write_failed'),
+      ),
+    );
+
+    await pumpMenuWidget(
+      tester,
+      extra: [
+        routePlanningProvider.overrideWith(
+          () => _PlannedRoutePlanning(const [
+            [-122.73, 45.56],
+            [-122.66, 45.47],
+          ]),
+        ),
+      ],
+    );
+
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(MenuScreen)),
+    );
+    await tester.tap(find.text(l10n.menuExportGpx));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.mapGpxFailureFileWrite), findsOneWidget);
+  });
+
+  testWidgets('MenuScreen import failure shows snackbar', (tester) async {
+    when(() => gateway.pickAndReadGpx()).thenAnswer(
+      (_) async => const Result.failure(
+        StorageFailure(message: 'gpx_file_read_failed'),
+      ),
+    );
+
+    await pumpMenuWidget(tester);
+
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(MenuScreen)),
+    );
+    await tester.tap(find.text(l10n.menuImportGpx));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.mapGpxFailureFileRead), findsOneWidget);
+  });
+
   testWidgets('MenuScreen import success navigates to map preview', (
     tester,
   ) async {

@@ -157,4 +157,69 @@ void main() {
       expect(await moderateFuture, isTrue);
     },
   );
+
+  test(
+    'moderateBatch restores failed ids and keeps successes removed',
+    () async {
+      when(
+        () => repo.listPendingReports(
+          query: any(named: 'query'),
+          cancelToken: any(named: 'cancelToken'),
+        ),
+      ).thenAnswer((_) async => Result.success([reportA, reportB]));
+      when(
+        () => repo.moderateReportsBatch(
+          reportIds: any(named: 'reportIds'),
+          approve: any(named: 'approve'),
+          cancelToken: any(named: 'cancelToken'),
+        ),
+      ).thenAnswer(
+        (_) async => const Result.success(
+          ModerationBatchModerateResult(
+            succeeded: ['a'],
+            failed: [
+              ModerationBatchFailure(reportId: 'b', code: 'conflict'),
+            ],
+          ),
+        ),
+      );
+
+      final container = await pumpContainer();
+      final batch = await container
+          .read(moderationPendingReportsProvider.notifier)
+          .moderateBatch(reportIds: const ['a', 'b'], approve: true);
+
+      expect(batch?.succeeded, ['a']);
+      expect(
+        container.read(moderationPendingReportsProvider).requireValue,
+        [reportB],
+      );
+      expect(container.read(conditionReportsRefreshTokenProvider), 1);
+    },
+  );
+
+  test('refresh keeps previous data when reload fails', () async {
+    var calls = 0;
+    when(
+      () => repo.listPendingReports(
+        query: any(named: 'query'),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer((_) async {
+      calls++;
+      if (calls == 1) {
+        return Result.success([reportA]);
+      }
+      return const Result.failure(NetworkFailure(message: 'offline'));
+    });
+
+    final container = await pumpContainer();
+    await container.read(moderationPendingReportsProvider.notifier).refresh();
+
+    expect(
+      container.read(moderationPendingReportsProvider).requireValue,
+      [reportA],
+    );
+    expect(container.read(moderationPendingReportsProvider).hasError, isFalse);
+  });
 }

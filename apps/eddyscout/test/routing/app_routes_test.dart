@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:eddyscout/bootstrap/app_provider_overrides.dart';
 import 'package:eddyscout/main.dart';
 import 'package:eddyscout/routing/app_routes.dart';
+import 'package:eddyscout/routing/home_screen.dart';
+import 'package:eddyscout/routing/menu_screen.dart';
+import 'package:eddyscout/routing/settings_screen.dart';
 import 'package:eddyscout_analytics/eddyscout_analytics.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -222,6 +225,22 @@ void main() {
     await pumpAt(tester, location: '/web');
     await tester.pumpAndSettle();
     expect(find.byType(WebMapPlaceholderScreen), findsOneWidget);
+  });
+
+  testWidgets('home and menu shell routes render tab screens', (tester) async {
+    await pumpAt(tester, location: RoutePaths.home);
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeScreen), findsOneWidget);
+
+    await pumpAt(tester, location: RoutePaths.menu);
+    await tester.pumpAndSettle();
+    expect(find.byType(MenuScreen), findsOneWidget);
+  });
+
+  testWidgets('settings route renders settings screen', (tester) async {
+    await pumpAt(tester, location: '/settings');
+    await tester.pumpAndSettle();
+    expect(find.byType(SettingsScreen), findsOneWidget);
   });
 
   testWidgets('EddyScoutApp builds MaterialApp.router shell', (tester) async {

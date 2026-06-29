@@ -302,4 +302,66 @@ void main() {
       localizeGoNoGoReason(l10n, reason),
     );
   });
+
+  test('goNoGoReasonFallbackMessage covers remaining reason codes', () {
+    const cases = <GoNoGoReason>[
+      GoNoGoReason(
+        code: GoNoGoReasonCode.coldWaterSeason,
+        severity: GoNoGoReasonSeverity.info,
+      ),
+      GoNoGoReason(
+        code: GoNoGoReasonCode.weatherMissing,
+        severity: GoNoGoReasonSeverity.info,
+      ),
+      GoNoGoReason(
+        code: GoNoGoReasonCode.weatherMissing,
+        severity: GoNoGoReasonSeverity.info,
+        weatherError: 'timeout',
+      ),
+      GoNoGoReason(
+        code: GoNoGoReasonCode.windUnknown,
+        severity: GoNoGoReasonSeverity.marginal,
+      ),
+      GoNoGoReason(
+        code: GoNoGoReasonCode.windElevated,
+        severity: GoNoGoReasonSeverity.marginal,
+        windMph: 18,
+        exposure: 'exposed',
+      ),
+      GoNoGoReason(
+        code: GoNoGoReasonCode.marineSevere,
+        severity: GoNoGoReasonSeverity.noGo,
+        pattern: 'gale warning',
+      ),
+      GoNoGoReason(
+        code: GoNoGoReasonCode.marineAdvisory,
+        severity: GoNoGoReasonSeverity.marginal,
+        pattern: 'small craft advisory',
+      ),
+      GoNoGoReason(
+        code: GoNoGoReasonCode.forecastLowLightHours,
+        severity: GoNoGoReasonSeverity.info,
+      ),
+      GoNoGoReason(
+        code: GoNoGoReasonCode.flowVeryHigh,
+        severity: GoNoGoReasonSeverity.noGo,
+        cfs: '12000',
+        siteId: '14211720',
+      ),
+      GoNoGoReason(
+        code: GoNoGoReasonCode.flowHigh,
+        severity: GoNoGoReasonSeverity.marginal,
+        cfs: '8000',
+      ),
+      GoNoGoReason(
+        code: GoNoGoReasonCode.flowLow,
+        severity: GoNoGoReasonSeverity.marginal,
+        cfs: '1200',
+      ),
+    ];
+
+    for (final reason in cases) {
+      expect(goNoGoReasonFallbackMessage(reason), isNotEmpty);
+    }
+  });
 }

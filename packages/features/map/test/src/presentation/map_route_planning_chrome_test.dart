@@ -190,4 +190,42 @@ void main() {
       ),
     );
   });
+
+  testWidgets('invokes remove and done callbacks', (tester) async {
+    var removedIndex = -1;
+    var doneTapped = false;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mapKeyValueStoreProvider.overrideWith((ref) async => store),
+          effectiveDisplayUnitSystemProvider.overrideWithValue(
+            DisplayUnitSystem.metric,
+          ),
+        ],
+        child: testLocalizedApp(
+          child: MapRoutePlanningChrome(
+            waypoints: [kLaunchPoints[0], kLaunchPoints[1], kLaunchPoints[2]],
+            routeLengthKm: 8,
+            canFinishPlanning: true,
+            onBack: () {},
+            onDone: () => doneTapped = true,
+            onRemoveStop: (index) => removedIndex = index,
+            onReorderStop: (_, _) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('A'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.close).first);
+    await tester.pumpAndSettle();
+    expect(removedIndex, 0);
+
+    await tester.tap(find.text('Done'));
+    await tester.pump();
+    expect(doneTapped, isTrue);
+  });
 }

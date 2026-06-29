@@ -104,5 +104,36 @@ void main() {
               .error;
       expect(failure.code, RouteFailureCode.sameLaunch);
     });
+
+    test('validateLaunch succeeds for catalog launch', () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(mapRoutePlannerProvider.future);
+      final launch = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
+      final result = await planner.validateLaunch(launch);
+
+      expect(result.isSuccess, isTrue);
+    });
+
+    test('validateSegment returns failure when segment is invalid', () async {
+      final container = ProviderContainer(
+        overrides: buildAppProviderOverrides(keyValueStore: store),
+      );
+      addTearDown(container.dispose);
+
+      final planner = await container.read(mapRoutePlannerProvider.future);
+      final putIn = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
+      final takeOut = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
+      final result = await planner.validateSegment(putIn, takeOut);
+
+      expect(result.isFailure, isTrue);
+      expect(
+        result.errorOrNull?.code,
+        RouteFailureCode.sameLaunch,
+      );
+    });
   });
 }

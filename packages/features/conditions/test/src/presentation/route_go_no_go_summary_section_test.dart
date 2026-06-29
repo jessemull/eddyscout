@@ -318,4 +318,53 @@ void main() {
     expect(find.textContaining('Launch not found in catalog.'), findsOneWidget);
     expect(find.textContaining('Launch not found:'), findsNothing);
   });
+
+  testWidgets('shows go verdict headline when route is clear', (tester) async {
+    final launchIds = ['cathedral_park', 'kelley_point'];
+    final waypointsKey = _waypointsKey(launchIds);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          routeGoNoGoRollupProvider(waypointsKey).overrideWith(
+            (_) async => _rollupResult(verdict: GoNoGoVerdict.go),
+          ),
+        ],
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: RouteGoNoGoSummarySection(launchIdsInOrder: launchIds),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Favorable conditions'), findsWidgets);
+  });
+
+  testWidgets('shows insufficient data verdict copy', (tester) async {
+    final launchIds = ['cathedral_park', 'kelley_point'];
+    final waypointsKey = _waypointsKey(launchIds);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          routeGoNoGoRollupProvider(waypointsKey).overrideWith(
+            (_) async => _rollupResult(
+              verdict: GoNoGoVerdict.insufficientData,
+              reasons: const [],
+            ),
+          ),
+        ],
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: RouteGoNoGoSummarySection(launchIdsInOrder: launchIds),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Unknown conditions'), findsWidgets);
+  });
 }
