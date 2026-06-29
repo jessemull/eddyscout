@@ -4,6 +4,7 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 class MapUiCallbacks {
   const MapUiCallbacks({
     required this.pickDifferentTakeOutMessage,
+    required this.pickStopLaunchBlockedMessage,
     required this.riverDataLoadingMessage,
     required this.riverDataLoadFailedMessage,
     this.customStopLabel,
@@ -26,6 +27,9 @@ class MapUiCallbacks {
 
   /// Localized snack bar when take-out equals put-in.
   final String pickDifferentTakeOutMessage;
+
+  /// Localized snack bar when pick-on-map mode taps a catalog launch pin.
+  final String pickStopLaunchBlockedMessage;
 
   /// Localized snack bar when hydro data is not ready.
   final String riverDataLoadingMessage;

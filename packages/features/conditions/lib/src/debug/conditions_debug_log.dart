@@ -13,9 +13,12 @@ import 'package:flutter/foundation.dart';
 /// Enable in profile/release builds with dart-define CONDITIONS_DEBUG=true
 const String kConditionsDebugLogName = 'eddyscout.conditions';
 
+/// Whether conditions debug logging is enabled (debug builds or
+/// CONDITIONS_DEBUG).
 const bool kConditionsDebugEnabled =
     kDebugMode || bool.fromEnvironment('CONDITIONS_DEBUG');
 
+/// Logs a conditions debug message when [kConditionsDebugEnabled].
 void conditionsDebugLog(String message) {
   if (kConditionsDebugEnabled) {
     debugPrint('[$kConditionsDebugLogName] $message');
@@ -23,12 +26,14 @@ void conditionsDebugLog(String message) {
   }
 }
 
+/// Logs a timestamped phase marker for conditions debugging.
 void conditionsDebugLogTs(String phase) {
   if (kConditionsDebugEnabled) {
     conditionsDebugLog('TS ${DateTime.now().millisecondsSinceEpoch} | $phase');
   }
 }
 
+/// Logs launch metadata used when fetching conditions.
 void conditionsDebugLogLaunch(String context, LaunchPoint launch) {
   if (!kConditionsDebugEnabled) {
     return;
@@ -41,6 +46,7 @@ void conditionsDebugLogLaunch(String context, LaunchPoint launch) {
   );
 }
 
+/// Logs a fetched conditions snapshot summary for a launch.
 void conditionsDebugLogSnapshot(
   String context,
   LaunchPoint launch,
@@ -67,6 +73,7 @@ void conditionsDebugLogSnapshot(
   );
 }
 
+/// Logs go/no-go evaluation output for a launch.
 void conditionsDebugLogGoNoGo(
   String context,
   LaunchPoint launch,

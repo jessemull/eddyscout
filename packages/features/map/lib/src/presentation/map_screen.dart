@@ -83,6 +83,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         .bindUiCallbacks(
           MapUiCallbacks(
             pickDifferentTakeOutMessage: l10n.mapPickDifferentTakeOut,
+            pickStopLaunchBlockedMessage: l10n.mapRoutePickStopLaunchBlocked,
             riverDataLoadingMessage: l10n.mapRiverDataLoading,
             riverDataLoadFailedMessage: l10n.mapRiverDataUnavailable,
             customStopLabel: l10n.mapRouteCustomStopLabel,

@@ -155,6 +155,7 @@ final class MapboxMapController extends _$MapboxMapController
   Future<void> _handlePlanningMapPick(MapContentGestureContext context) async {
     final launch = await nearestLaunchAtTap(context.touchPosition);
     if (launch != null) {
+      ui.showSnackBar?.call(ui.pickStopLaunchBlockedMessage);
       return;
     }
     final map = mapboxMap;

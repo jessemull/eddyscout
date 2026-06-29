@@ -112,6 +112,8 @@ void main() {
     map.bindUiCallbacks(
       MapUiCallbacks(
         pickDifferentTakeOutMessage: 'Pick a different launch for take-out.',
+        pickStopLaunchBlockedMessage:
+            'Tap the river to add a custom stop, not a launch pin.',
         riverDataLoadingMessage: 'Loading',
         riverDataLoadFailedMessage: 'Unavailable',
         showSnackBar: snackbarMessages.add,

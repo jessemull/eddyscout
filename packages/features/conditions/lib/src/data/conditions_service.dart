@@ -8,9 +8,9 @@ import 'package:eddyscout_conditions/src/data/parsing/nws_marine_cwf.dart';
 import 'package:eddyscout_conditions/src/data/parsing/nws_marine_json.dart';
 import 'package:eddyscout_conditions/src/data/parsing/open_meteo_json.dart';
 import 'package:eddyscout_conditions/src/data/parsing/usgs_iv_json.dart';
+import 'package:eddyscout_conditions/src/debug/conditions_debug_log.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/conditions_repository.dart';
-import 'package:eddyscout_conditions/src/presentation/conditions_debug_log.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_networking/eddyscout_networking.dart';
 

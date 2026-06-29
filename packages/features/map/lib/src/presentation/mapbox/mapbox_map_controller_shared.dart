@@ -12,6 +12,7 @@ mixin MapboxMapControllerBase {
   Ref get mapControllerRef;
   MapUiCallbacks _ui = const MapUiCallbacks(
     pickDifferentTakeOutMessage: '',
+    pickStopLaunchBlockedMessage: '',
     riverDataLoadingMessage: '',
     riverDataLoadFailedMessage: '',
   );

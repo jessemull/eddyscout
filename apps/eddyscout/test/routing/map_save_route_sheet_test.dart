@@ -45,6 +45,34 @@ class _NoRoutePlanning extends RoutePlanning {
   RoutePlanningState build() => const RoutePlanningState();
 }
 
+class _MixedSnapRoutePlanning extends RoutePlanning {
+  @override
+  RoutePlanningState build() {
+    final putIn = findLaunchPointById('cathedral_park');
+    return RoutePlanningState(
+      phase: MapPlanningPhase.routeReady,
+      stops: [
+        RoutePlanningStop.catalog(putIn!),
+        const RoutePlanningStop.snap(
+          id: 'snap_test_1',
+          latitude: 45.5512,
+          longitude: -122.6789,
+          label: 'Lunch spot',
+        ),
+      ],
+      routeLengthKm: 3.0,
+      activeGeometry: RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.73, 45.56],
+          [-122.67, 45.55],
+        ],
+        lengthMeters: 3000,
+        computedAt: DateTime.utc(2026),
+      ),
+    );
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -190,6 +218,40 @@ void main() {
 
     expect(find.text('Route saved.'), findsOneWidget);
     verify(() => repository.upsert(any(that: isA<SavedRoute>()))).called(1);
+  });
+
+  testWidgets('showMapSaveRouteSheet persists snap waypoints on save', (
+    tester,
+  ) async {
+    SavedRoute? captured;
+    when(() => repository.upsert(any())).thenAnswer((invocation) async {
+      captured = invocation.positionalArguments.first as SavedRoute;
+      return Result.success(captured!);
+    });
+
+    await pumpHost(
+      tester,
+      overrides: [
+        routePlanningProvider.overrideWith(_MixedSnapRoutePlanning.new),
+      ],
+    );
+
+    await tester.tap(find.text('Open sheet'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).first, 'Snap route');
+    await tester.tap(find.text('Save'));
+    await sheetFuture;
+    await tester.pumpAndSettle();
+
+    expect(captured, isNotNull);
+    expect(captured!.waypoints, hasLength(2));
+    expect(captured!.waypoints[0], isA<CatalogRouteWaypoint>());
+    final snap = captured!.waypoints[1];
+    expect(snap, isA<SnapRouteWaypoint>());
+    expect((snap as SnapRouteWaypoint).label, 'Lunch spot');
+    expect(snap.latitude, closeTo(45.5512, 0.0001));
+    expect(snap.longitude, closeTo(-122.6789, 0.0001));
   });
 
   testWidgets(
@@ -346,6 +408,86 @@ void main() {
     expect(planning.catalogLaunches, [putIn, takeOut]);
     expect(planning.routeLengthKm, closeTo(5.2, 0.01));
     expect(planning.polylineLonLat, route.geometrySnapshot!.polylineLonLat);
+  });
+
+  testWidgets('handlePendingSavedRouteLoad restores snap waypoints', (
+    tester,
+  ) async {
+    final putIn = findLaunchPointById('cathedral_park')!;
+    final route = SavedRoute(
+      id: 'sr_snap_load',
+      name: 'Snap load',
+      waypoints: const [
+        RouteWaypoint.catalog(launchId: 'cathedral_park', order: 0),
+        RouteWaypoint.snap(
+          latitude: 45.5512,
+          longitude: -122.6789,
+          order: 1,
+          label: 'Lunch spot',
+        ),
+      ],
+      metadata: const SavedRouteMetadata(distanceMeters: 3000),
+      geometrySnapshot: RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.73, 45.56],
+          [-122.67, 45.55],
+        ],
+        lengthMeters: 3000,
+        computedAt: DateTime.utc(2026),
+      ),
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
+    );
+
+    when(() => repository.getById('sr_snap_load')).thenAnswer(
+      (_) async => Result.success(route),
+    );
+
+    late ProviderContainer container;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          launchPointLookupProvider.overrideWithValue(findLaunchPointById),
+          savedRouteRepositoryProvider.overrideWithValue(repository),
+        ],
+        child: testLocalizedApp(
+          child: Consumer(
+            builder: (context, ref, _) {
+              container = ProviderScope.containerOf(context);
+              return Scaffold(
+                body: FilledButton(
+                  onPressed: () {
+                    unawaited(() async {
+                      container
+                              .read(pendingSavedRouteLoadProvider.notifier)
+                              .state =
+                          route;
+                      await handlePendingSavedRouteLoad(context, ref);
+                    }());
+                  },
+                  child: const Text('Load pending'),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Load pending'));
+    await tester.pumpAndSettle();
+
+    final planning = container.read(routePlanningProvider);
+    expect(planning.planningMode, isTrue);
+    expect(planning.stops, hasLength(2));
+    expect(planning.stops[0], RoutePlanningStop.catalog(putIn));
+    expect(planning.stops[1], isA<SnapRoutePlanningStop>());
+    final snap = planning.stops[1] as SnapRoutePlanningStop;
+    expect(snap.label, 'Lunch spot');
+    expect(snap.latitude, closeTo(45.5512, 0.0001));
+    expect(snap.longitude, closeTo(-122.6789, 0.0001));
   });
 
   testWidgets(

@@ -1219,6 +1219,12 @@ abstract class AppLocalizations {
   /// **'Tap the river to add a stop'**
   String get mapRoutePickStopPrompt;
 
+  /// No description provided for @mapRoutePickStopLaunchBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the river to add a custom stop, not a launch pin.'**
+  String get mapRoutePickStopLaunchBlocked;
+
   /// No description provided for @mapRouteRenameSnapStop.
   ///
   /// In en, this message translates to:

@@ -697,6 +697,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapRoutePickStopPrompt => 'Tap the river to add a stop';
 
   @override
+  String get mapRoutePickStopLaunchBlocked =>
+      'Tap the river to add a custom stop, not a launch pin.';
+
+  @override
   String get mapRouteRenameSnapStop => 'Rename custom stop';
 
   @override

@@ -433,6 +433,7 @@
   "mapRouteChooseOnMap": "Choose on map",
   "mapRouteChooseOnMapHint": "Tap the river on the map to add a custom stop",
   "mapRoutePickStopPrompt": "Tap the river to add a stop",
+  "mapRoutePickStopLaunchBlocked": "Tap the river to add a custom stop, not a launch pin.",
   "mapRouteRenameSnapStop": "Rename custom stop",
   "mapRouteAddStopHint": "Tap another launch on the map to set your destination or add a stop.",
   "mapRouteEditStopsTitle": "Edit stops",

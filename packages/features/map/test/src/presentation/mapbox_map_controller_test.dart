@@ -71,6 +71,8 @@ void main() {
                         MapUiCallbacks(
                           pickDifferentTakeOutMessage:
                               'Pick different take-out',
+                          pickStopLaunchBlockedMessage:
+                              'Tap the river, not a launch pin',
                           riverDataLoadingMessage: 'Loading',
                           riverDataLoadFailedMessage: 'Unavailable',
                           showSnackBar: snackbarMessages.add,
@@ -129,6 +131,8 @@ void main() {
                         MapUiCallbacks(
                           pickDifferentTakeOutMessage:
                               'Pick different take-out',
+                          pickStopLaunchBlockedMessage:
+                              'Tap the river, not a launch pin',
                           riverDataLoadingMessage: 'Loading',
                           riverDataLoadFailedMessage: 'Unavailable',
                           showSnackBar: snackbarMessages.add,
