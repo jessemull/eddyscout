@@ -95,7 +95,10 @@ main() {
 
   mkdir -p "$SECRETS_DIR"
   out_file="$(cd "$SECRETS_DIR" && pwd)/google-services-${project_id}.json"
-  tmp_file="$(mktemp "${TMPDIR:-/tmp}/google-services.XXXXXX.json")"
+  # mktemp creates an empty file; firebase apps:sdkconfig refuses -o if it exists.
+  # Template must end in XXXXXX only (no .json suffix — BSD mktemp breaks otherwise).
+  tmp_file="$(mktemp "${TMPDIR:-/tmp}/google-services-XXXXXX")"
+  rm -f "$tmp_file"
   trap 'rm -f "$tmp_file"' EXIT
 
   echo "fetch-google-services: project=$project_id app=$app_id" >&2

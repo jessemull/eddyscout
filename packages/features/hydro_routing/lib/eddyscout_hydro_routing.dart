@@ -12,6 +12,7 @@ export 'src/data/launch_reachability_index_provider.dart';
 export 'src/data/launch_suggested_trips_index_codec.dart';
 export 'src/data/launch_suggested_trips_index_generator.dart';
 export 'src/data/launch_suggested_trips_index_provider.dart';
+export 'src/data/launch_water_entry_snap_generator.dart';
 export 'src/data/river_multi_segment_route.dart';
 export 'src/data/river_route_planner.dart';
 export 'src/data/river_route_planner_provider.dart';
