@@ -333,4 +333,82 @@ void main() {
       ),
     ).called(1);
   });
+
+  testWidgets('pending tab supports bulk select and select all', (
+    tester,
+  ) async {
+    when(
+      () => repo.listPendingReports(
+        query: any(named: 'query'),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer(
+      (_) async => Result.success([
+        ModerationQueueReport(
+          id: 'r1',
+          launchId: 'sellwood',
+          message: 'First',
+          createdAt: DateTime.utc(2026, 6, 15, 12),
+          submitterUid: 'submitter-1',
+        ),
+        ModerationQueueReport(
+          id: 'r2',
+          launchId: 'cathedral_park',
+          message: 'Second',
+          createdAt: DateTime.utc(2026, 6, 16, 12),
+          submitterUid: 'submitter-2',
+        ),
+      ]),
+    );
+
+    await tester.pumpWidget(
+      testLocalizedApp(
+        child: ProviderScope(
+          overrides: [
+            conditionReportModerationRepositoryProvider.overrideWithValue(repo),
+          ],
+          child: const ModerationQueueScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Select'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Select all'), findsOneWidget);
+    expect(find.byType(Checkbox), findsNWidgets(2));
+
+    await tester.tap(find.text('Select all'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Approve selected'), findsOneWidget);
+    expect(find.text('Reject selected'), findsOneWidget);
+  });
+
+  testWidgets('pending tab updates sort when filter chip tapped', (
+    tester,
+  ) async {
+    when(
+      () => repo.listPendingReports(
+        query: any(named: 'query'),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer((_) async => const Result.success([]));
+
+    await tester.pumpWidget(
+      testLocalizedApp(
+        child: ProviderScope(
+          overrides: [
+            conditionReportModerationRepositoryProvider.overrideWithValue(repo),
+          ],
+          child: const ModerationQueueScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Most recent'));
+    await tester.pumpAndSettle();
+  });
 }

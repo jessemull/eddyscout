@@ -2,6 +2,39 @@ import 'package:eddyscout_conditions/src/domain/condition_report_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('parseConditionReportModerationStatus', () {
+    test('parses held and rejected', () {
+      expect(
+        parseConditionReportModerationStatus('held'),
+        ConditionReportModerationStatus.held,
+      );
+      expect(
+        parseConditionReportModerationStatus('rejected'),
+        ConditionReportModerationStatus.rejected,
+      );
+    });
+
+    test('defaults unknown values to approved', () {
+      expect(
+        parseConditionReportModerationStatus('approved'),
+        ConditionReportModerationStatus.approved,
+      );
+      expect(
+        parseConditionReportModerationStatus('other'),
+        ConditionReportModerationStatus.approved,
+      );
+    });
+  });
+
+  group('ModerationBatchFailure.fromJson', () {
+    test('throws on invalid payload', () {
+      expect(
+        () => ModerationBatchFailure.fromJson({'reportId': 1, 'code': 'x'}),
+        throwsA(isA<FormatException>()),
+      );
+    });
+  });
+
   group('ConditionReportSubmitResult.fromJson', () {
     test('defaults to approved when status missing', () {
       final result = ConditionReportSubmitResult.fromJson({'ok': true});

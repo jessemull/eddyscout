@@ -1,5 +1,6 @@
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions_data.dart';
+import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -44,6 +45,39 @@ class _MemoryKeyValueStore implements KeyValueStore {
   }
 }
 
+class _ThrowingKeyValueStore implements KeyValueStore {
+  @override
+  Future<String?> getString(String key) async => throw Exception('read fail');
+
+  @override
+  Future<bool> setString(String key, String value) async =>
+      throw Exception('write fail');
+
+  @override
+  Future<bool?> getBool(String key) async => null;
+
+  @override
+  Future<bool> setBool(String key, {required bool value}) async => true;
+
+  @override
+  Future<int?> getInt(String key) async => null;
+
+  @override
+  Future<bool> setInt(String key, int value) async => true;
+
+  @override
+  Future<double?> getDouble(String key) async => null;
+
+  @override
+  Future<bool> setDouble(String key, double value) async => true;
+
+  @override
+  Future<bool> remove(String key) async => true;
+
+  @override
+  Future<bool> clear() async => true;
+}
+
 void main() {
   group('GoNoGoProfileRepositoryImpl', () {
     late GoNoGoProfileRepositoryImpl repository;
@@ -70,6 +104,22 @@ void main() {
       final repo = GoNoGoProfileRepositoryImpl(store);
       final result = await repo.read();
       expect(result.valueOrNull, GoNoGoProfile.intermediate);
+    });
+
+    test('read returns failure when store throws', () async {
+      final store = _ThrowingKeyValueStore();
+      final repo = GoNoGoProfileRepositoryImpl(store);
+      final result = await repo.read();
+      expect(result.isFailure, isTrue);
+      expect(result.errorOrNull, isA<StorageFailure>());
+    });
+
+    test('write returns failure when store throws', () async {
+      final store = _ThrowingKeyValueStore();
+      final repo = GoNoGoProfileRepositoryImpl(store);
+      final result = await repo.write(GoNoGoProfile.beginner);
+      expect(result.isFailure, isTrue);
+      expect(result.errorOrNull, isA<StorageFailure>());
     });
   });
 
