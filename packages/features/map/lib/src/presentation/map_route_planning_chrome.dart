@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'map_planning_provider.dart';
+import 'map_planning_snap_stop_pending_rename_provider.dart';
 import 'map_search_provider.dart';
 import 'map_sheet_header_icon_button.dart';
 import 'paddle_speed_provider.dart';
@@ -43,7 +44,7 @@ class MapRoutePlanningChrome extends ConsumerWidget {
   static const double _timelineWidth = 18;
   static const double _rowHeight = 32;
   static const double _rowGap = 10;
-  static const double _actionWidth = 36;
+  static const double _actionWidth = 30;
   static const double _actionIconSize = MapSheetHeaderIconButton.iconSize;
   static const int _connectorDotCount = 3;
   static const double _backIconSize = 20;
@@ -97,6 +98,9 @@ class MapRoutePlanningChrome extends ConsumerWidget {
     );
     final showTotalTrip =
         canDone && tripMinutes != null && tripDistance != null;
+    final pendingRenameStopId = ref.watch(
+      mapPlanningSnapStopPendingRenameProvider,
+    );
 
     return Material(
       elevation: 4,
@@ -133,6 +137,10 @@ class MapRoutePlanningChrome extends ConsumerWidget {
                     onInlineSearchChanged: (value) =>
                         _onInlineSearchChanged(ref, value),
                     onChooseOnMap: onChooseOnMap,
+                    pendingRenameStopId: pendingRenameStopId,
+                    onClearPendingRename: () => ref
+                        .read(mapPlanningSnapStopPendingRenameProvider.notifier)
+                        .clear(),
                   ),
                 ),
               ],
@@ -200,6 +208,8 @@ class _PlanningStopListSection extends StatelessWidget {
     required this.onRenameSnapStop,
     required this.onInlineSearchChanged,
     required this.onChooseOnMap,
+    required this.pendingRenameStopId,
+    required this.onClearPendingRename,
   });
 
   final List<RoutePlanningStop> stops;
@@ -211,6 +221,8 @@ class _PlanningStopListSection extends StatelessWidget {
   final void Function(String stopId, String newLabel) onRenameSnapStop;
   final ValueChanged<String> onInlineSearchChanged;
   final VoidCallback onChooseOnMap;
+  final String? pendingRenameStopId;
+  final VoidCallback onClearPendingRename;
 
   @override
   Widget build(BuildContext context) {
@@ -233,6 +245,7 @@ class _PlanningStopListSection extends StatelessWidget {
                 label: stopSemanticsLabel(index, stop),
                 hint: l10n.mapRouteReorderStopHint,
                 child: _EditStopRow(
+                  key: ValueKey('edit_stop_${stop.stopId}'),
                   showConnectorBelow: true,
                   indicator: _StopIndicator(
                     index: index,
@@ -251,6 +264,9 @@ class _PlanningStopListSection extends StatelessWidget {
                   ),
                   reorderHint: l10n.mapRouteReorderStopHint,
                   dragIndex: index,
+                  startInEditMode:
+                      stop.isSnap && stop.stopId == pendingRenameStopId,
+                  onEditSessionStarted: onClearPendingRename,
                 ),
               );
             },
@@ -262,6 +278,7 @@ class _PlanningStopListSection extends StatelessWidget {
           hintText: searchHintText,
           onChanged: onInlineSearchChanged,
         ),
+        const SizedBox(height: Spacing.sm),
         _ChooseOnMapRow(
           label: l10n.mapRouteChooseOnMap,
           semanticsHint: l10n.mapRouteChooseOnMapHint,
@@ -360,7 +377,7 @@ class _PlanningChromeFooter extends StatelessWidget {
   }
 }
 
-class _EditStopRow extends StatelessWidget {
+class _EditStopRow extends StatefulWidget {
   const _EditStopRow({
     required this.showConnectorBelow,
     required this.indicator,
@@ -372,6 +389,9 @@ class _EditStopRow extends StatelessWidget {
     this.onRenameSnapStop,
     this.onRemove,
     this.removeSemanticsLabel,
+    this.startInEditMode = false,
+    this.onEditSessionStarted,
+    super.key,
   });
 
   final bool showConnectorBelow;
@@ -384,12 +404,153 @@ class _EditStopRow extends StatelessWidget {
   final ValueChanged<String>? onRenameSnapStop;
   final VoidCallback? onRemove;
   final String? removeSemanticsLabel;
+  final bool startInEditMode;
+  final VoidCallback? onEditSessionStarted;
+
+  @override
+  State<_EditStopRow> createState() => _EditStopRowState();
+}
+
+class _EditStopRowState extends State<_EditStopRow> {
+  bool _editing = false;
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+
+  bool get _canRename => widget.isSnap && widget.onRenameSnapStop != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.label);
+    _focusNode = FocusNode()..addListener(_handleFocusChange);
+    if (widget.startInEditMode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _maybeStartPendingEdit();
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _EditStopRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.label != widget.label && !_focusNode.hasFocus) {
+      _controller.text = widget.label;
+    }
+    if (widget.startInEditMode && !oldWidget.startInEditMode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _maybeStartPendingEdit();
+      });
+    }
+  }
+
+  void _maybeStartPendingEdit() {
+    if (!mounted || !widget.startInEditMode || _editing || !_canRename) {
+      return;
+    }
+    _startEditing();
+    widget.onEditSessionStarted?.call();
+  }
+
+  void _handleFocusChange() {
+    if (!_focusNode.hasFocus && _editing) {
+      _commit();
+      setState(() => _editing = false);
+    }
+  }
+
+  void _startEditing() {
+    setState(() => _editing = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _focusNode.requestFocus();
+      _controller.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _controller.text.length,
+      );
+    });
+  }
+
+  void _finishEditing() {
+    _commit();
+    _focusNode.unfocus();
+    if (_editing) {
+      setState(() => _editing = false);
+    }
+  }
+
+  void _commit() {
+    final trimmed = _controller.text.trim();
+    if (trimmed.isEmpty) {
+      _controller.text = widget.label;
+      return;
+    }
+    if (trimmed != widget.label) {
+      widget.onRenameSnapStop?.call(trimmed);
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode
+      ..removeListener(_handleFocusChange)
+      ..dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  TextStyle? _labelStyle(BuildContext context) {
+    return Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.2);
+  }
+
+  Widget _labelContent(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final labelStyle = _labelStyle(context);
+    if (_canRename && _editing) {
+      return TapRegion(
+        onTapOutside: (_) => _finishEditing(),
+        child: TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          style: labelStyle,
+          maxLength: kSnapStopLabelMaxLength,
+          buildCounter:
+              (
+                context, {
+                required currentLength,
+                required isFocused,
+                maxLength,
+              }) => null,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _finishEditing(),
+          decoration: InputDecoration(
+            isDense: true,
+            contentPadding: const EdgeInsets.only(bottom: 6),
+            counterText: '',
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: scheme.primary),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: scheme.primary),
+            ),
+          ),
+        ),
+      );
+    }
+    return Text(
+      widget.label,
+      style: labelStyle,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return SizedBox(
-      height: showConnectorBelow
+      height: widget.showConnectorBelow
           ? MapRoutePlanningChrome._rowHeight + MapRoutePlanningChrome._rowGap
           : MapRoutePlanningChrome._rowHeight,
       child: Column(
@@ -400,30 +561,37 @@ class _EditStopRow extends StatelessWidget {
               children: [
                 SizedBox(
                   width: MapRoutePlanningChrome._timelineWidth,
-                  child: Center(child: indicator),
+                  child: Center(child: widget.indicator),
                 ),
                 const SizedBox(width: Spacing.xs),
-                Expanded(
-                  child: isSnap && onRenameSnapStop != null
-                      ? _SnapStopEditableLabel(
-                          key: ValueKey('snap_label_$stopId'),
-                          label: label,
-                          renameSemanticsLabel:
-                              context.l10n.mapRouteRenameSnapStop,
-                          onCommit: onRenameSnapStop!,
-                        )
-                      : Text(
-                          label,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                Expanded(child: _labelContent(context)),
+                if (_canRename && !_editing)
+                  Semantics(
+                    button: true,
+                    label: context.l10n.mapRouteRenameSnapStop,
+                    child: SizedBox(
+                      width: MapRoutePlanningChrome._actionWidth,
+                      height: MapRoutePlanningChrome._rowHeight,
+                      child: IconButton(
+                        tooltip: context.l10n.mapRouteRenameSnapStop,
+                        onPressed: _startEditing,
+                        icon: Icon(
+                          Icons.edit_outlined,
+                          size: 18,
+                          color: scheme.onSurfaceVariant,
                         ),
-                ),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox(width: MapRoutePlanningChrome._actionWidth),
                 ReorderableDragStartListener(
-                  index: dragIndex,
+                  index: widget.dragIndex,
                   child: Semantics(
                     button: true,
-                    label: reorderHint,
+                    label: widget.reorderHint,
                     child: const SizedBox(
                       width: MapRoutePlanningChrome._actionWidth,
                       height: MapRoutePlanningChrome._rowHeight,
@@ -431,10 +599,10 @@ class _EditStopRow extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (onRemove != null)
+                if (widget.onRemove != null)
                   Semantics(
                     button: true,
-                    label: removeSemanticsLabel,
+                    label: widget.removeSemanticsLabel,
                     child: SizedBox(
                       width: MapRoutePlanningChrome._actionWidth,
                       height: MapRoutePlanningChrome._rowHeight,
@@ -442,7 +610,7 @@ class _EditStopRow extends StatelessWidget {
                         tooltip: MaterialLocalizations.of(
                           context,
                         ).deleteButtonTooltip,
-                        onPressed: onRemove,
+                        onPressed: widget.onRemove,
                         icon: Icon(
                           Icons.close,
                           size: 18,
@@ -458,7 +626,7 @@ class _EditStopRow extends StatelessWidget {
               ],
             ),
           ),
-          if (showConnectorBelow)
+          if (widget.showConnectorBelow)
             const Row(
               children: [
                 SizedBox(
@@ -578,152 +746,6 @@ class _VerticalDotConnector extends StatelessWidget {
   }
 }
 
-class _SnapStopEditableLabel extends StatefulWidget {
-  const _SnapStopEditableLabel({
-    required this.label,
-    required this.renameSemanticsLabel,
-    required this.onCommit,
-    super.key,
-  });
-
-  final String label;
-  final String renameSemanticsLabel;
-  final ValueChanged<String> onCommit;
-
-  @override
-  State<_SnapStopEditableLabel> createState() => _SnapStopEditableLabelState();
-}
-
-class _SnapStopEditableLabelState extends State<_SnapStopEditableLabel> {
-  bool _editing = false;
-  late final TextEditingController _controller;
-  late final FocusNode _focusNode;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.label);
-    _focusNode = FocusNode()..addListener(_handleFocusChange);
-  }
-
-  @override
-  void didUpdateWidget(covariant _SnapStopEditableLabel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.label != widget.label && !_focusNode.hasFocus) {
-      _controller.text = widget.label;
-    }
-  }
-
-  void _handleFocusChange() {
-    if (!_focusNode.hasFocus && _editing) {
-      _commit();
-      setState(() => _editing = false);
-    }
-  }
-
-  void _startEditing() {
-    setState(() => _editing = true);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      _focusNode.requestFocus();
-      _controller.selection = TextSelection(
-        baseOffset: 0,
-        extentOffset: _controller.text.length,
-      );
-    });
-  }
-
-  void _commit() {
-    final trimmed = _controller.text.trim();
-    if (trimmed.isEmpty) {
-      _controller.text = widget.label;
-      return;
-    }
-    if (trimmed != widget.label) {
-      widget.onCommit(trimmed);
-    }
-  }
-
-  @override
-  void dispose() {
-    _focusNode
-      ..removeListener(_handleFocusChange)
-      ..dispose();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    if (_editing) {
-      return TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        style: Theme.of(context).textTheme.bodyMedium,
-        maxLength: kSnapStopLabelMaxLength,
-        buildCounter:
-            (
-              context, {
-              required currentLength,
-              required isFocused,
-              maxLength,
-            }) => null,
-        textInputAction: TextInputAction.done,
-        onSubmitted: (_) {
-          _commit();
-          setState(() => _editing = false);
-        },
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding: EdgeInsets.zero,
-          counterText: '',
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: scheme.primary),
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: scheme.primary, width: 2),
-          ),
-        ),
-      );
-    }
-
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            widget.label,
-            style: Theme.of(context).textTheme.bodyMedium,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Semantics(
-          button: true,
-          label: widget.renameSemanticsLabel,
-          child: SizedBox(
-            width: MapRoutePlanningChrome._actionWidth,
-            height: MapRoutePlanningChrome._rowHeight,
-            child: IconButton(
-              tooltip: widget.renameSemanticsLabel,
-              onPressed: _startEditing,
-              icon: Icon(
-                Icons.edit_outlined,
-                size: 18,
-                color: scheme.onSurfaceVariant,
-              ),
-              visualDensity: VisualDensity.compact,
-              padding: EdgeInsets.zero,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _ChooseOnMapRow extends StatelessWidget {
   const _ChooseOnMapRow({
     required this.label,
@@ -765,12 +787,7 @@ class _ChooseOnMapRow extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                size: 18,
-                color: scheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: MapRoutePlanningChrome._actionWidth * 2),
+              const SizedBox(width: MapRoutePlanningChrome._actionWidth * 3),
             ],
           ),
         ),
@@ -833,7 +850,7 @@ class _InlineSearchRow extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: MapRoutePlanningChrome._actionWidth * 2),
+          const SizedBox(width: MapRoutePlanningChrome._actionWidth * 3),
         ],
       ),
     );

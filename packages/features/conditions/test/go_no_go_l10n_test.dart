@@ -302,4 +302,49 @@ void main() {
       localizeGoNoGoReason(l10n, reason),
     );
   });
+
+  testWidgets('waypointGoNoGoSummarySentences prefers wind over shared flow', (
+    tester,
+  ) async {
+    late AppLocalizations l10n;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SizedBox.shrink(),
+      ),
+    );
+    l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+    final result = GoNoGoResult(
+      verdict: GoNoGoVerdict.noGo,
+      computedAt: DateTime.parse('2026-06-15T12:00:00-07:00'),
+      reasons: const [
+        GoNoGoReason(
+          code: GoNoGoReasonCode.windHigh,
+          severity: GoNoGoReasonSeverity.noGo,
+          windMph: 28,
+          exposure: 'exposed',
+        ),
+        GoNoGoReason(
+          code: GoNoGoReasonCode.flowLow,
+          severity: GoNoGoReasonSeverity.marginal,
+          cfs: '2k',
+          siteId: '14211720',
+        ),
+      ],
+    );
+
+    final lines = waypointGoNoGoSummarySentences(l10n, result);
+    expect(
+      lines,
+      localizeGoNoGoReasonSentences(l10n, result.reasons.first),
+    );
+  });
 }

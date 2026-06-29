@@ -11,6 +11,7 @@ import '../launch_lookup.dart';
 import '../map_constants.dart';
 import '../map_planning_pick_stop_provider.dart';
 import '../map_planning_provider.dart';
+import '../map_planning_snap_stop_pending_rename_provider.dart';
 import '../map_session_provider.dart';
 import '../map_sheet_provider.dart';
 import 'map_debug_log.dart';
@@ -163,12 +164,22 @@ final class MapboxMapController extends _$MapboxMapController
     try {
       final point = await map.coordinateForPixel(context.touchPosition);
       final coords = point.coordinates;
+      final wasPickMode = ref.read(mapPlanningPickStopActiveProvider);
       final result = await tryAddPlanningSnapStop(
         coords.lat.toDouble(),
         coords.lng.toDouble(),
       );
       if (result != null) {
-        ref.read(mapPlanningPickStopActiveProvider.notifier).exit();
+        if (wasPickMode) {
+          ref.read(mapPlanningPickStopActiveProvider.notifier).exit();
+        }
+        final addedStop = ref.read(routePlanningProvider).stops.lastOrNull;
+        if (addedStop != null && addedStop.isSnap) {
+          ref
+                  .read(mapPlanningSnapStopPendingRenameProvider.notifier)
+                  .pendingStopId =
+              addedStop.stopId;
+        }
       }
     } on Object catch (e, st) {
       mapDebugLog('_handlePlanningMapPick failed: $e\n$st');

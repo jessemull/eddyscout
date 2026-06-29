@@ -232,6 +232,65 @@ void main() {
     expect(loadCount, 2);
   });
 
+  test('loads distinct snapshots for each waypoint', () async {
+    stubLoad(
+      onLoad: (launch) async => switch (launch.id) {
+        'cathedral_park' => Success(
+          ConditionsSnapshot(
+            fetchedAt: DateTime.parse('2026-06-15T12:00:00-07:00'),
+            weather: WeatherConditions(
+              temperatureF: 55,
+              windSpeedMph: 5,
+              windGustMph: 6,
+              windDirection: 'N',
+              shortForecast: 'Fair',
+              periodStart: DateTime.parse('2026-06-15T12:00:00-07:00'),
+              source: WeatherDataSource.nws,
+            ),
+            riverFlow: RiverFlowReading(
+              siteId: '14211720',
+              cfs: 2000,
+              observedAt: DateTime.parse('2026-06-15T12:00:00-07:00'),
+            ),
+          ),
+        ),
+        'kelley_point' => Success(_windySnapshot()),
+        _ => Failure(UnexpectedFailure(message: 'unexpected ${launch.id}')),
+      },
+    );
+
+    final container = ProviderContainer(
+      overrides: [
+        conditionsRepositoryProvider.overrideWithValue(repository),
+        goNoGoProfileRepositoryProvider.overrideWithValue(profileRepository),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final result = await container.read(
+      routeGoNoGoRollupProvider(
+        _waypointsKey([
+          testCathedralParkLaunch.id,
+          testKelleyPointLaunch.id,
+        ]),
+      ).future,
+    );
+
+    expect(result.waypointResults.length, 2);
+    expect(
+      result.waypointResults[0].result.reasons.any(
+        (reason) => reason.code == GoNoGoReasonCode.flowLow,
+      ),
+      isTrue,
+    );
+    expect(
+      result.waypointResults[1].result.reasons.any(
+        (reason) => reason.code == GoNoGoReasonCode.windHigh,
+      ),
+      isTrue,
+    );
+  });
+
   test('throws when fewer than two waypoints', () async {
     final container = ProviderContainer(
       overrides: [

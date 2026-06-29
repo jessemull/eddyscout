@@ -16,6 +16,7 @@ import 'map_place_peek_bar.dart';
 import 'map_planning_pick_stop_banner.dart';
 import 'map_planning_pick_stop_provider.dart';
 import 'map_planning_provider.dart';
+import 'map_planning_snap_stop_pending_rename_provider.dart';
 import 'map_route_failure_l10n.dart';
 import 'map_route_planning_chrome.dart';
 import 'map_route_preview_bar.dart';
@@ -300,6 +301,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Future<void> _exitPlanningToPlacePeek() async {
     ref.read(mapPlanningPickStopActiveProvider.notifier).exit();
+    ref.read(mapPlanningSnapStopPendingRenameProvider.notifier).clear();
     ref.read(mapPlanningInlineAddStopProvider.notifier).hide();
     ref.read(mapSearchExpandedProvider.notifier).collapse();
     final putInLaunch = ref.read(routePlanningProvider).putIn?.catalogLaunch;

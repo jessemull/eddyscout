@@ -751,7 +751,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String mapRouteCustomStopLabel(int index) {
-    return 'Custom stop $index';
+    return 'Custom Stop $index';
   }
 
   @override

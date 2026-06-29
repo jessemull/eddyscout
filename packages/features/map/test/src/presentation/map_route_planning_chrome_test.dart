@@ -171,18 +171,18 @@ void main() {
           id: 'snap_1',
           latitude: 45.55,
           longitude: -122.55,
-          label: 'Custom stop 2',
+          label: 'Custom Stop 2',
         ),
       ],
       routeLengthKm: 8,
     );
 
-    expect(find.text('Custom stop 2'), findsOneWidget);
+    expect(find.text('Custom Stop 2'), findsOneWidget);
     expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
     expect(find.byIcon(Icons.place_outlined), findsOneWidget);
     expect(
       find.descendant(
-        of: find.byKey(const ValueKey('snap_label_snap_1')),
+        of: find.byKey(const ValueKey('edit_stop_snap_1')),
         matching: find.byType(TextField),
       ),
       findsNothing,
@@ -223,7 +223,7 @@ void main() {
             longitude: -122.55,
             distanceMeters: 12,
           ),
-          label: 'Custom stop 2',
+          label: 'Custom Stop 2',
         );
     container
         .read(routePlanningProvider.notifier)
@@ -259,7 +259,7 @@ void main() {
 
     await tester.enterText(
       find.descendant(
-        of: find.byKey(ValueKey('snap_label_$snapStopId')),
+        of: find.byKey(ValueKey('edit_stop_$snapStopId')),
         matching: find.byType(TextField),
       ),
       'Lunch spot',
@@ -270,6 +270,59 @@ void main() {
     expect(
       container.read(routePlanningProvider).stops[1].displayLabel,
       'Lunch spot',
+    );
+  });
+
+  testWidgets('auto enters edit mode when pending rename is scheduled', (
+    tester,
+  ) async {
+    final container = ProviderContainer(
+      overrides: [
+        mapKeyValueStoreProvider.overrideWith((ref) async => store),
+        effectiveDisplayUnitSystemProvider.overrideWithValue(
+          DisplayUnitSystem.metric,
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    container
+            .read(mapPlanningSnapStopPendingRenameProvider.notifier)
+            .pendingStopId =
+        'snap_1';
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: testLocalizedApp(
+          child: MapRoutePlanningChrome(
+            stops: [
+              const RoutePlanningStop.catalog(_origin),
+              const RoutePlanningStop.snap(
+                id: 'snap_1',
+                latitude: 45.55,
+                longitude: -122.55,
+                label: 'Custom Stop 2',
+              ),
+            ],
+            routeLengthKm: 8,
+            canFinishPlanning: true,
+            onBack: () {},
+            onDone: () {},
+            onRemoveStop: (_) {},
+            onReorderStop: (_, _) {},
+            onChooseOnMap: () {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('edit_stop_snap_1')),
+        matching: find.byType(TextField),
+      ),
+      findsOneWidget,
     );
   });
 

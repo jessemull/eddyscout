@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_repository_provider.dart';
-import 'package:eddyscout_conditions/src/domain/launch_go_no_go_provider.dart';
+import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/conditions_repository.dart';
 import 'package:eddyscout_conditions/src/domain/route_go_no_go.dart';
+import 'package:eddyscout_conditions/src/presentation/conditions_debug_log.dart';
 import 'package:eddyscout_conditions/src/presentation/conditions_snapshot_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/go_no_go_profile_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/provider_result.dart';
@@ -12,30 +13,43 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'route_go_no_go_rollup_provider.g.dart';
 
-/// Loads conditions for route rollup without cancelling in-flight autoDispose
-/// snapshot providers (see launch detail [conditionsSnapshotProvider]).
+/// Loads conditions for one launch during route rollup.
+///
+/// Reuses a completed [conditionsSnapshotProvider] cache when present;
+/// otherwise loads via [ConditionsRepository] with a per-launch cancel token
+/// so one waypoint fetch cannot cancel another.
 Future<ConditionsSnapshot> _conditionsSnapshotForRouteRollup(
   Ref ref,
   ConditionsRepository repository,
   LaunchPoint launch,
-  CancelToken cancelToken,
 ) async {
   final snapshotProvider = conditionsSnapshotProvider(launch);
   if (ref.exists(snapshotProvider)) {
     final cached = ref.read(snapshotProvider);
-    switch (cached) {
-      case AsyncData(:final value):
-        return value;
-      case AsyncLoading():
-        return ref.watch(snapshotProvider.future);
-      case AsyncError():
-        break;
+    if (cached case AsyncData(:final value)) {
+      conditionsDebugLog(
+        'rollup CACHE HIT launch=${launch.id} '
+        'river=${value.riverFlow?.cfs ?? 'null'}',
+      );
+      return value;
     }
+    conditionsDebugLog(
+      'rollup CACHE SKIP launch=${launch.id} state=${cached.runtimeType}',
+    );
+  } else {
+    conditionsDebugLog('rollup CACHE MISS launch=${launch.id}');
   }
 
-  return unwrapResultForAsyncProvider(
-    await repository.load(launch, cancelToken: cancelToken),
-  );
+  final cancelToken = CancelToken();
+  try {
+    return unwrapResultForAsyncProvider(
+      await repository.load(launch, cancelToken: cancelToken),
+    );
+  } finally {
+    if (!cancelToken.isCancelled) {
+      cancelToken.cancel('routeGoNoGoRollup launch load complete');
+    }
+  }
 }
 
 /// Evaluates and rolls up go/no-go across ordered route waypoint launch ids.
@@ -45,6 +59,9 @@ Future<RouteGoNoGoResult> routeGoNoGoRollup(
   RouteGoNoGoWaypointsKey waypointsKey,
 ) async {
   final launchIdsInOrder = waypointsKey.launchIdsInOrder;
+  conditionsDebugLog(
+    'rollup START waypoints=${launchIdsInOrder.join(' → ')}',
+  );
   if (launchIdsInOrder.length < 2) {
     throw const UnexpectedFailure(
       message: 'Route go/no-go requires at least two waypoints.',
@@ -53,12 +70,6 @@ Future<RouteGoNoGoResult> routeGoNoGoRollup(
 
   final profile = await ref.watch(goNoGoProfileProvider.future);
   final repository = ref.read(conditionsRepositoryProvider);
-  final cancelToken = CancelToken();
-  ref.onDispose(() {
-    if (!cancelToken.isCancelled) {
-      cancelToken.cancel('routeGoNoGoRollup disposed');
-    }
-  });
 
   final evaluated = <RouteWaypointGoNoGoResult>[];
   final failures = <RouteWaypointGoNoGoFailure>[];
@@ -86,15 +97,13 @@ Future<RouteGoNoGoResult> routeGoNoGoRollup(
         ref,
         repository,
         launch,
-        cancelToken,
       );
-      final result = ref.read(
-        launchGoNoGoResultProvider((
-          launch: launch,
-          snapshot: snapshot,
-          profile: profile,
-        )),
+      final result = GoNoGoEvaluator.evaluate(
+        launch,
+        snapshot,
+        profile: profile,
       );
+      conditionsDebugLogGoNoGo('rollup', launch, result);
       evaluated.add(
         RouteWaypointGoNoGoResult(
           orderIndex: orderIndex,
@@ -104,6 +113,9 @@ Future<RouteGoNoGoResult> routeGoNoGoRollup(
         ),
       );
     } on AppFailure catch (failure) {
+      conditionsDebugLog(
+        'rollup FAIL launch=${launch.id} failure=${failure.message}',
+      );
       failures.add(
         RouteWaypointGoNoGoFailure(
           orderIndex: orderIndex,

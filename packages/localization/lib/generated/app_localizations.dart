@@ -1300,7 +1300,7 @@ abstract class AppLocalizations {
   /// No description provided for @mapRouteCustomStopLabel.
   ///
   /// In en, this message translates to:
-  /// **'Custom stop {index}'**
+  /// **'Custom Stop {index}'**
   String mapRouteCustomStopLabel(int index);
 
   /// No description provided for @mapRouteCustomStopSemantics.

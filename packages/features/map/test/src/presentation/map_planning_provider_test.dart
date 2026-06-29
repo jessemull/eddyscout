@@ -72,7 +72,7 @@ void main() {
 
       final result = container
           .read(routePlanningProvider.notifier)
-          .handleSnapStop(snap, label: 'Custom stop 1');
+          .handleSnapStop(snap, label: 'Custom Stop 1');
 
       expect(result, RoutePlanningTapResult.putInSelected);
       expect(container.read(routePlanningProvider).stops, hasLength(1));
@@ -89,7 +89,7 @@ void main() {
 
       container
           .read(routePlanningProvider.notifier)
-          .handleSnapStop(snap, label: 'Custom stop 1');
+          .handleSnapStop(snap, label: 'Custom Stop 1');
       final stopId = container.read(routePlanningProvider).stops.first.stopId;
 
       container

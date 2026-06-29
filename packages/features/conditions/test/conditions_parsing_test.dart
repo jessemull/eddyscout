@@ -65,6 +65,19 @@ void main() {
     expect(r.siteId, '14211720');
   });
 
+  test('riverFlowFromUsgsIv rejects non-positive cfs', () {
+    final json = Map<String, dynamic>.from(_fixture('usgs_iv.json'));
+    final values =
+        (json['value'] as Map<String, dynamic>)['timeSeries'] as List<dynamic>;
+    final block =
+        (values.first as Map<String, dynamic>)['values'] as List<dynamic>;
+    final inner =
+        (block.first as Map<String, dynamic>)['value'] as List<dynamic>;
+    (inner.last as Map<String, dynamic>)['value'] = '-15800';
+
+    expect(riverFlowFromUsgsIv(json, siteId: '14211720'), isNull);
+  });
+
   test('marineFromNwsZoneForecast collects periods', () {
     final m = marineFromNwsZoneForecast(
       _fixture('nws_marine.json'),
