@@ -23,7 +23,7 @@ dependencies:
     path: ../../networking
   eddyscout_persistence:
     path: ../../persistence
-  firebase_auth: ^6.5.2
+  firebase_auth: ^6.5.4
   firebase_core: ^4.11.0
   flutter:
     sdk: flutter
