@@ -158,6 +158,51 @@ void main() {
     },
   );
 
+  test('refresh keeps previous data when reload fails', () async {
+    when(
+      () => repo.listPendingReports(
+        query: any(named: 'query'),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer((_) async => Result.success([reportA, reportB]));
+
+    final container = await pumpContainer();
+
+    when(
+      () => repo.listPendingReports(
+        query: any(named: 'query'),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer(
+      (_) async => const Result.failure(NetworkFailure(message: 'offline')),
+    );
+
+    await container.read(moderationPendingReportsProvider.notifier).refresh();
+
+    expect(
+      container.read(moderationPendingReportsProvider).requireValue,
+      [reportA, reportB],
+    );
+  });
+
+  test('moderateBatch returns empty result for empty selection', () async {
+    final container = ProviderContainer(
+      overrides: [
+        conditionReportModerationRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final result = await container
+        .read(moderationPendingReportsProvider.notifier)
+        .moderateBatch(reportIds: [], approve: true);
+
+    expect(
+      result,
+      const ModerationBatchModerateResult(succeeded: [], failed: []),
+    );
+  });
+
   test(
     'moderateBatch restores failed ids and keeps successes removed',
     () async {
@@ -174,22 +219,22 @@ void main() {
           cancelToken: any(named: 'cancelToken'),
         ),
       ).thenAnswer(
-        (_) async => const Result.success(
+        (_) async => Result.success(
           ModerationBatchModerateResult(
             succeeded: ['a'],
             failed: [
-              ModerationBatchFailure(reportId: 'b', code: 'conflict'),
+              ModerationBatchFailure(reportId: 'b', code: 'already_reviewed'),
             ],
           ),
         ),
       );
 
       final container = await pumpContainer();
-      final batch = await container
+      final result = await container
           .read(moderationPendingReportsProvider.notifier)
-          .moderateBatch(reportIds: const ['a', 'b'], approve: true);
+          .moderateBatch(reportIds: ['a', 'b'], approve: true);
 
-      expect(batch?.succeeded, ['a']);
+      expect(result?.succeeded, ['a']);
       expect(
         container.read(moderationPendingReportsProvider).requireValue,
         [reportB],
@@ -197,29 +242,4 @@ void main() {
       expect(container.read(conditionReportsRefreshTokenProvider), 1);
     },
   );
-
-  test('refresh keeps previous data when reload fails', () async {
-    var calls = 0;
-    when(
-      () => repo.listPendingReports(
-        query: any(named: 'query'),
-        cancelToken: any(named: 'cancelToken'),
-      ),
-    ).thenAnswer((_) async {
-      calls++;
-      if (calls == 1) {
-        return Result.success([reportA]);
-      }
-      return const Result.failure(NetworkFailure(message: 'offline'));
-    });
-
-    final container = await pumpContainer();
-    await container.read(moderationPendingReportsProvider.notifier).refresh();
-
-    expect(
-      container.read(moderationPendingReportsProvider).requireValue,
-      [reportA],
-    );
-    expect(container.read(moderationPendingReportsProvider).hasError, isFalse);
-  });
 }

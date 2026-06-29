@@ -24,8 +24,8 @@ void main() {
       id: 'sr_lazy',
       name: 'Lazy Route',
       waypoints: const [
-        RouteWaypoint(launchId: 'a', order: 0),
-        RouteWaypoint(launchId: 'b', order: 1),
+        RouteWaypoint.catalog(launchId: 'a', order: 0),
+        RouteWaypoint.catalog(launchId: 'b', order: 1),
       ],
       metadata: const SavedRouteMetadata(distanceMeters: 1000),
       createdAt: DateTime.utc(2026),
@@ -63,8 +63,8 @@ void main() {
         id: 'sr_lazy_fav',
         name: 'Favorite Route',
         waypoints: const [
-          RouteWaypoint(launchId: 'a', order: 0),
-          RouteWaypoint(launchId: 'b', order: 1),
+          RouteWaypoint.catalog(launchId: 'a', order: 0),
+          RouteWaypoint.catalog(launchId: 'b', order: 1),
         ],
         metadata: const SavedRouteMetadata(distanceMeters: 1000),
         isFavorite: true,

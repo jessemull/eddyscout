@@ -213,5 +213,29 @@ void main() {
       final ok = result as RouteSuccess;
       expect(ok.lengthMeters, greaterThan(1000));
     });
+
+    test('committed binary loads and routes cross-system', () async {
+      final bytes = await readBundledHydroGraphBinary();
+      final planner = RiverRoutePlanner.fromBinary(bytes);
+
+      expect(planner.unifiedGraphVertexCount, greaterThan(0));
+
+      final result = planner.plan(
+        _launch(
+          id: 'cathedral_park',
+          river: RiverSystem.willamette,
+          lat: 45.5621,
+          lon: -122.7328,
+        ),
+        _launch(
+          id: 'glenn_otto_troutdale',
+          river: RiverSystem.columbia,
+          lat: 45.5365,
+          lon: -122.3858,
+        ),
+      );
+
+      expect(result, isA<RouteSuccess>());
+    });
   });
 }

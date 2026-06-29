@@ -153,39 +153,57 @@ void main() {
           'reports': [
             {
               'id': 'r1',
-              'launchId': 'sellwood',
-              'message': 'Choppy',
-              'createdAt': '2026-06-15T10:00:00-07:00',
-              'submitterUid': 'uid-1',
+              'launchId': 'cathedral_park',
+              'message': 'Windy',
+              'createdAt': '2026-06-15T12:00:00-07:00',
+              'submitterUid': 'user-a',
             },
           ],
         });
         final pending = await repo.listPendingReports();
         expect(pending.valueOrNull, hasLength(1));
 
+        when(() => result.data).thenReturn({
+          'reports': [
+            {
+              'id': 'h1',
+              'launchId': 'cathedral_park',
+              'message': 'Windy',
+              'createdAt': '2026-06-15T12:00:00-07:00',
+              'submitterUid': 'user-a',
+              'moderationStatus': 'approved',
+              'moderationReason': 'admin_approve',
+              'reviewedAt': '2026-06-16T12:00:00-07:00',
+              'reviewedBy': 'mod-a',
+            },
+          ],
+        });
+        final history = await repo.listHistory();
+        expect(history.valueOrNull, hasLength(1));
+
         when(() => result.data).thenReturn({'moderationStatus': 'approved'});
-        final moderated = await repo.moderateReport(
+        final moderate = await repo.moderateReport(
           reportId: 'r1',
           approve: true,
         );
         expect(
-          moderated.valueOrNull,
+          moderate.valueOrNull,
           ConditionReportModerationStatus.approved,
         );
 
         when(() => result.data).thenReturn({
           'succeeded': ['r1'],
-          'failed': const <Map<String, dynamic>>[],
+          'failed': <Object?>[],
         });
         final batch = await repo.moderateReportsBatch(
-          reportIds: const ['r1'],
+          reportIds: ['r1'],
           approve: true,
         );
         expect(batch.valueOrNull?.succeeded, ['r1']);
 
-        when(() => result.data).thenReturn({});
-        final reopened = await repo.reopenReport(reportId: 'r1');
-        expect(reopened.isSuccess, isTrue);
+        when(() => result.data).thenReturn({'ok': true});
+        final reopen = await repo.reopenReport(reportId: 'h1');
+        expect(reopen.isSuccess, isTrue);
       },
     );
   });

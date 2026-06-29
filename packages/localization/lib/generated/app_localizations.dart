@@ -178,12 +178,6 @@ abstract class AppLocalizations {
   /// **'No connected river path between these river systems in bundled data.'**
   String get mapRouteFailureDifferentSystem;
 
-  /// No description provided for @mapRouteFailureNoBundledLine.
-  ///
-  /// In en, this message translates to:
-  /// **'No bundled river line for \"{river}\" yet — routing is only available where hydro GeoJSON exists.'**
-  String mapRouteFailureNoBundledLine(String river);
-
   /// No description provided for @mapRouteFailureNoData.
   ///
   /// In en, this message translates to:
@@ -1201,6 +1195,36 @@ abstract class AppLocalizations {
   /// **'Choose destination'**
   String get mapRouteChooseDestination;
 
+  /// No description provided for @mapRouteChooseOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose on map'**
+  String get mapRouteChooseOnMap;
+
+  /// No description provided for @mapRouteChooseOnMapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the river on the map to add a custom stop'**
+  String get mapRouteChooseOnMapHint;
+
+  /// No description provided for @mapRoutePickStopPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the river to add a stop'**
+  String get mapRoutePickStopPrompt;
+
+  /// No description provided for @mapRoutePickStopLaunchBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the river to add a custom stop, not a launch pin.'**
+  String get mapRoutePickStopLaunchBlocked;
+
+  /// No description provided for @mapRouteRenameSnapStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename custom stop'**
+  String get mapRouteRenameSnapStop;
+
   /// No description provided for @mapRouteAddStopHint.
   ///
   /// In en, this message translates to:
@@ -1272,6 +1296,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop {letter}, {name}'**
   String mapRouteMiddleStopSemantics(String letter, String name);
+
+  /// No description provided for @mapRouteCustomStopLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Stop {index}'**
+  String mapRouteCustomStopLabel(int index);
+
+  /// No description provided for @mapRouteCustomStopSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom stop, {name}'**
+  String mapRouteCustomStopSemantics(String name);
+
+  /// No description provided for @mapRouteNameStopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name this stop'**
+  String get mapRouteNameStopTitle;
+
+  /// No description provided for @mapRouteNameStopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Lunch spot, Fishing hole'**
+  String get mapRouteNameStopHint;
+
+  /// No description provided for @mapRouteNameStopSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get mapRouteNameStopSave;
+
+  /// No description provided for @mapRouteNameStopCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get mapRouteNameStopCancel;
 
   /// No description provided for @mapRouteStartComingSoon.
   ///
@@ -1993,6 +2053,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Conditions could not be loaded for this stop.'**
   String get routeGoNoGoStopConditionsUnavailable;
+
+  /// Go/no-go timeline placeholder for custom snap stops without catalog conditions
+  ///
+  /// In en, this message translates to:
+  /// **'No conditions data available'**
+  String get conditionsCustomStopNoData;
 
   /// No description provided for @routeGoNoGoStopFailureLine.
   ///

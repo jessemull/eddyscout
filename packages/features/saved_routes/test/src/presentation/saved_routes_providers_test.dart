@@ -34,8 +34,8 @@ void main() {
       id: 'sr_pending',
       name: 'Pending',
       waypoints: const [
-        RouteWaypoint(launchId: 'a', order: 0),
-        RouteWaypoint(launchId: 'b', order: 1),
+        RouteWaypoint.catalog(launchId: 'a', order: 0),
+        RouteWaypoint.catalog(launchId: 'b', order: 1),
       ],
       metadata: const SavedRouteMetadata(),
       createdAt: DateTime.utc(2026),

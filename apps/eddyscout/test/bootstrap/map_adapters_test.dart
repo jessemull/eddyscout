@@ -77,7 +77,10 @@ void main() {
       final takeOut = kLaunchPoints.firstWhere(
         (l) => l.id == 'glenn_otto_troutdale',
       );
-      final result = await planner.planMultiSegment([putIn, takeOut]);
+      final result = await planner.planMultiSegment([
+        RoutePlanningStop.catalog(putIn),
+        RoutePlanningStop.catalog(takeOut),
+      ]);
 
       expect(
         result,
@@ -93,7 +96,10 @@ void main() {
 
       final planner = await container.read(mapRoutePlannerProvider.future);
       final launch = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
-      final result = await planner.planMultiSegment([launch, launch]);
+      final result = await planner.planMultiSegment([
+        RoutePlanningStop.catalog(launch),
+        RoutePlanningStop.catalog(launch),
+      ]);
 
       expect(
         result,
@@ -105,7 +111,31 @@ void main() {
       expect(failure.code, RouteFailureCode.sameLaunch);
     });
 
-    test('validateLaunch succeeds for catalog launch', () async {
+    test(
+      'snapToWaterway returns failure when point is off hydro graph',
+      () async {
+        final container = ProviderContainer(
+          overrides: buildAppProviderOverrides(keyValueStore: store),
+        );
+        addTearDown(container.dispose);
+
+        final planner = await container.read(mapRoutePlannerProvider.future);
+        final result = await planner.snapToWaterway(0, 0);
+
+        expect(
+          result,
+          isA<Failure<WaterwaySnapPoint, RoutePlanningFailure>>(),
+        );
+        expect(
+          (result as Failure<WaterwaySnapPoint, RoutePlanningFailure>)
+              .error
+              .code,
+          RouteFailureCode.putInTooFar,
+        );
+      },
+    );
+
+    test('validateStop accepts catalog launch on bundled hydro', () async {
       final container = ProviderContainer(
         overrides: buildAppProviderOverrides(keyValueStore: store),
       );
@@ -113,12 +143,14 @@ void main() {
 
       final planner = await container.read(mapRoutePlannerProvider.future);
       final launch = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
-      final result = await planner.validateLaunch(launch);
+      final result = await planner.validateStop(
+        RoutePlanningStop.catalog(launch),
+      );
 
-      expect(result.isSuccess, isTrue);
+      expect(result, isA<Success<void, RoutePlanningFailure>>());
     });
 
-    test('validateSegment returns failure when segment is invalid', () async {
+    test('validateSegmentStops accepts connected catalog launches', () async {
       final container = ProviderContainer(
         overrides: buildAppProviderOverrides(keyValueStore: store),
       );
@@ -126,14 +158,15 @@ void main() {
 
       final planner = await container.read(mapRoutePlannerProvider.future);
       final putIn = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
-      final takeOut = kLaunchPoints.firstWhere((l) => l.id == 'cathedral_park');
-      final result = await planner.validateSegment(putIn, takeOut);
-
-      expect(result.isFailure, isTrue);
-      expect(
-        result.errorOrNull?.code,
-        RouteFailureCode.sameLaunch,
+      final takeOut = kLaunchPoints.firstWhere(
+        (l) => l.id == 'glenn_otto_troutdale',
       );
+      final result = await planner.validateSegmentStops(
+        RoutePlanningStop.catalog(putIn),
+        RoutePlanningStop.catalog(takeOut),
+      );
+
+      expect(result, isA<Success<void, RoutePlanningFailure>>());
     });
   });
 }

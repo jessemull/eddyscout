@@ -10,6 +10,10 @@ from typing import Any
 
 EARTH_RADIUS_M = 6371000.0
 
+ROUTE_SNAP_MAX_M = 900.0
+
+_LAUNCH_ANCHORS_PATH = Path(__file__).resolve().parent / "launch_anchors.json"
+
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -242,6 +246,53 @@ def detect_backtrack_errors(
                     continue
                 seen.append(current)
     return errors
+
+
+def load_launch_anchors() -> dict[str, dict[str, Any]]:
+    with _LAUNCH_ANCHORS_PATH.open(encoding="utf-8") as handle:
+        payload = json.load(handle)
+    if not isinstance(payload, dict):
+        raise ValueError(f"Expected object in {_LAUNCH_ANCHORS_PATH}")
+    return payload
+
+
+def launch_anchor_lonlat(launch_id: str) -> tuple[float, float]:
+    anchors = load_launch_anchors()
+    if launch_id not in anchors:
+        raise KeyError(f"Unknown launch anchor id: {launch_id}")
+    entry = anchors[launch_id]
+    return (float(entry["lon"]), float(entry["lat"]))
+
+
+def min_snap_distance_meters(
+    coords: Sequence[Sequence[float]],
+    anchor_lonlat: tuple[float, float],
+) -> float:
+    if not coords:
+        return float("inf")
+    anchor_lon, anchor_lat = anchor_lonlat
+    return min(
+        haversine_meters(anchor_lat, anchor_lon, point[1], point[0])
+        for point in coords
+    )
+
+
+def assert_launch_snap_within(
+    coords: Sequence[Sequence[float]],
+    launch_id: str,
+    *,
+    max_m: float = ROUTE_SNAP_MAX_M,
+    context: str = "",
+) -> float:
+    anchor = launch_anchor_lonlat(launch_id)
+    gap = min_snap_distance_meters(coords, anchor)
+    if gap > max_m:
+        label = f"{context} " if context else ""
+        raise RuntimeError(
+            f"{label}{launch_id} is {gap:.1f} m from spur geometry; "
+            f"expected within {max_m:.0f} m."
+        )
+    return gap
 
 
 def line_endpoints(

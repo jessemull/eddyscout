@@ -12,19 +12,33 @@ class _AcceptAllMapRoutePlanner implements MapRoutePlanner {
   const _AcceptAllMapRoutePlanner();
 
   @override
-  Future<Result<RouteGeometrySnapshot?, RoutePlanningFailure>> planMultiSegment(
-    List<LaunchPoint> waypoints,
+  Future<Result<WaterwaySnapPoint, RoutePlanningFailure>> snapToWaterway(
+    double latitude,
+    double longitude,
   ) async {
-    if (waypoints.length < 2) {
+    return Result.success(
+      WaterwaySnapPoint(
+        latitude: latitude,
+        longitude: longitude,
+        distanceMeters: 0,
+      ),
+    );
+  }
+
+  @override
+  Future<Result<RouteGeometrySnapshot?, RoutePlanningFailure>> planMultiSegment(
+    List<RoutePlanningStop> stops,
+  ) async {
+    if (stops.length < 2) {
       return const Result.success(null);
     }
-    final putIn = waypoints.first;
-    final takeOut = waypoints.last;
+    final putIn = stops.first;
+    final takeOut = stops.last;
     return Result.success(
       RouteGeometrySnapshot(
         polylineLonLat: [
-          [putIn.longitude, putIn.latitude],
-          [takeOut.longitude, takeOut.latitude],
+          [putIn.routingLongitude, putIn.routingLatitude],
+          [takeOut.routingLongitude, takeOut.routingLatitude],
         ],
         lengthMeters: 4200,
         computedAt: DateTime.utc(2026),
@@ -33,14 +47,14 @@ class _AcceptAllMapRoutePlanner implements MapRoutePlanner {
   }
 
   @override
-  Future<Result<void, RoutePlanningFailure>> validateLaunch(
-    LaunchPoint launch,
+  Future<Result<void, RoutePlanningFailure>> validateStop(
+    RoutePlanningStop stop,
   ) async => const Result.success(null);
 
   @override
-  Future<Result<void, RoutePlanningFailure>> validateSegment(
-    LaunchPoint from,
-    LaunchPoint to,
+  Future<Result<void, RoutePlanningFailure>> validateSegmentStops(
+    RoutePlanningStop from,
+    RoutePlanningStop to,
   ) async => const Result.success(null);
 }
 
@@ -192,7 +206,7 @@ void main() {
     );
     final planning = container.read(routePlanningProvider);
     expect(planning.phase, MapPlanningPhase.routeReady);
-    expect(planning.waypoints, hasLength(2));
+    expect(planning.stops, hasLength(2));
     expect(planning.activeGeometry, isNotNull);
   });
 
@@ -369,7 +383,7 @@ void main() {
     );
     final planning = container.read(routePlanningProvider);
     expect(planning.phase, MapPlanningPhase.placeSelected);
-    expect(planning.waypoints, isEmpty);
+    expect(planning.stops, isEmpty);
     expect(planning.activeGeometry, isNull);
     expect(planning.routeLengthKm, isNull);
     expect(
@@ -448,7 +462,10 @@ class _TwoStopPlanning extends RoutePlanning {
   @override
   RoutePlanningState build() => RoutePlanningState(
     phase: MapPlanningPhase.planning,
-    waypoints: [kLaunchPoints.first, kLaunchPoints[1]],
+    stops: [
+      RoutePlanningStop.catalog(kLaunchPoints.first),
+      RoutePlanningStop.catalog(kLaunchPoints[1]),
+    ],
   );
 }
 
@@ -459,7 +476,10 @@ class _RoutedTwoStopPlanning extends RoutePlanning {
     final takeOut = kLaunchPoints[1];
     return RoutePlanningState(
       phase: MapPlanningPhase.routeReady,
-      waypoints: [putIn, takeOut],
+      stops: [
+        RoutePlanningStop.catalog(putIn),
+        RoutePlanningStop.catalog(takeOut),
+      ],
       routeLengthKm: 4.2,
       activeGeometry: RouteGeometrySnapshot(
         polylineLonLat: [
@@ -478,7 +498,7 @@ class _SingleStopPlanning extends RoutePlanning {
   @override
   RoutePlanningState build() => RoutePlanningState(
     phase: MapPlanningPhase.planning,
-    waypoints: [kLaunchPoints.first],
+    stops: [RoutePlanningStop.catalog(kLaunchPoints.first)],
   );
 }
 
@@ -494,7 +514,10 @@ class _FixedRoutePlanning extends RoutePlanning {
     final takeOut = kLaunchPoints[1];
     return RoutePlanningState(
       phase: MapPlanningPhase.routeReady,
-      waypoints: [putIn, takeOut],
+      stops: [
+        RoutePlanningStop.catalog(putIn),
+        RoutePlanningStop.catalog(takeOut),
+      ],
       routeLengthKm: 12.5,
       activeGeometry: RouteGeometrySnapshot(
         polylineLonLat: [

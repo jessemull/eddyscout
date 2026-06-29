@@ -29,8 +29,8 @@ void main() {
 
   test('savedRouteOrderedWaypoints reindexes order fields', () {
     final waypoints = [
-      const RouteWaypoint(launchId: 'a', order: 9),
-      const RouteWaypoint(launchId: 'b', order: 4),
+      const RouteWaypoint.catalog(launchId: 'a', order: 9),
+      const RouteWaypoint.catalog(launchId: 'b', order: 4),
     ];
 
     final ordered = savedRouteOrderedWaypoints(waypoints);

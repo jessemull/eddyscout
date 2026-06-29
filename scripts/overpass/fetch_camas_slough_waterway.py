@@ -14,9 +14,11 @@ sys.path.insert(0, str(HYRO_DIR))
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from _common import (  # noqa: E402
+    assert_launch_snap_within,
     bundled_hydro_dir,
     haversine_meters,
     hydro_fixture_dir,
+    launch_anchor_lonlat,
     load_feature_collection,
     nearest_point_on_polyline,
     polyline_length_meters,
@@ -30,6 +32,7 @@ from _overpass_common import (  # noqa: E402
     build_graph,
     concat_polylines,
     densify_coords,
+    extend_toward_anchor,
     fetch_overpass,
     parse_ways,
     round_coords,
@@ -39,10 +42,9 @@ from _overpass_common import (  # noqa: E402
 SCRIPT_NAME = "fetch_camas_slough_waterway.py"
 
 CAMAS_SLOUGH_WAY_ID = 130204446
-CAMAS_SLOUGH_BBOX = (45.55, -122.46, 45.60, -122.38)
+CAMAS_SLOUGH_BBOX = (45.55, -122.46, 45.60, -122.37)
 CAMAS_SPLIT = (-122.4300244, 45.5659948)
-PORT_OF_CAMAS = (-122.4244, 45.5856)
-ROUTE_SNAP_MAX_M = 900.0
+MARINA_CONNECTOR_MAX_M = 3000.0
 SLOUGH_SPUR_REACH_ID = "camas_slough_spur"
 
 
@@ -134,15 +136,17 @@ def _build_spur_coords(
 
     slough_body = list(reversed(slough_coords))
     merged = prune_backtrack_loops(concat_polylines(connector, slough_body))
-    marina_gap = min(
-        haversine_meters(PORT_OF_CAMAS[1], PORT_OF_CAMAS[0], point[1], point[0])
-        for point in merged
+    marina = launch_anchor_lonlat("port_of_camas")
+    merged = extend_toward_anchor(
+        merged,
+        marina,
+        max_connector_m=MARINA_CONNECTOR_MAX_M,
     )
-    if marina_gap > ROUTE_SNAP_MAX_M:
-        raise RuntimeError(
-            f"Port of Camas marina is {marina_gap:.1f} m from Camas Slough spur; "
-            f"expected within {ROUTE_SNAP_MAX_M:.0f} m route snap threshold."
-        )
+    assert_launch_snap_within(
+        merged,
+        "port_of_camas",
+        context="Camas Slough spur",
+    )
     return merged
 
 
@@ -153,15 +157,12 @@ def _build_slough_feature(mainstem_coords: list[list[float]]) -> dict[str, Any]:
     rounded = round_coords(densify_coords(connected))
     validate_coords("camas_slough_spur", rounded)
 
-    marina_gap = min(
-        haversine_meters(
-            PORT_OF_CAMAS[1],
-            PORT_OF_CAMAS[0],
-            point[1],
-            point[0],
-        )
-        for point in rounded
+    marina_gap = assert_launch_snap_within(
+        rounded,
+        "port_of_camas",
+        context="Camas Slough spur",
     )
+
     print(
         f"Camas Slough way {slough_way.way_id} ({slough_way.name or 'unnamed'}): "
         f"{len(rounded)} points, {polyline_length_meters(rounded)/1000:.2f} km, "
@@ -174,7 +175,8 @@ def _build_slough_feature(mainstem_coords: list[list[float]]) -> dict[str, Any]:
         source=(
             f"OpenStreetMap ODbL. Way {slough_way.way_id} "
             f"({slough_way.name or 'Camas Slough'}) plus local OSM connector to "
-            "columbia_lower mainstem at Camas split."
+            "columbia_lower mainstem at Camas split; densified extension to "
+            "Port of Camas catalog launch anchor."
         ),
         coordinates=rounded,
     )

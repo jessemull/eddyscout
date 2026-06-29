@@ -6,14 +6,39 @@ part of 'saved_route_models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_RouteWaypoint _$RouteWaypointFromJson(Map<String, dynamic> json) =>
-    _RouteWaypoint(
-      launchId: json['launchId'] as String,
+CatalogRouteWaypoint _$CatalogRouteWaypointFromJson(
+  Map<String, dynamic> json,
+) => CatalogRouteWaypoint(
+  launchId: json['launchId'] as String,
+  order: (json['order'] as num).toInt(),
+  $type: json['type'] as String?,
+);
+
+Map<String, dynamic> _$CatalogRouteWaypointToJson(
+  CatalogRouteWaypoint instance,
+) => <String, dynamic>{
+  'launchId': instance.launchId,
+  'order': instance.order,
+  'type': instance.$type,
+};
+
+SnapRouteWaypoint _$SnapRouteWaypointFromJson(Map<String, dynamic> json) =>
+    SnapRouteWaypoint(
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
       order: (json['order'] as num).toInt(),
+      label: json['label'] as String?,
+      $type: json['type'] as String?,
     );
 
-Map<String, dynamic> _$RouteWaypointToJson(_RouteWaypoint instance) =>
-    <String, dynamic>{'launchId': instance.launchId, 'order': instance.order};
+Map<String, dynamic> _$SnapRouteWaypointToJson(SnapRouteWaypoint instance) =>
+    <String, dynamic>{
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+      'order': instance.order,
+      'label': instance.label,
+      'type': instance.$type,
+    };
 
 _RouteGeometrySnapshot _$RouteGeometrySnapshotFromJson(
   Map<String, dynamic> json,

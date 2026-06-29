@@ -16,7 +16,7 @@ void main() {
     registerFallbackValue(CancelToken());
   });
 
-  test('returns true when moderator access check succeeds', () async {
+  test('moderatorAccess returns true when repository grants access', () async {
     when(
       () => repo.checkModeratorAccess(cancelToken: any(named: 'cancelToken')),
     ).thenAnswer((_) async => const Result.success(true));

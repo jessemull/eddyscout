@@ -1,52 +1,27 @@
-import 'package:eddyscout_conditions/src/presentation/moderation/moderation_selection_provider.dart';
+import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('toggle adds and removes report ids', () {
+  test('ModerationSelection toggles, selects all, clears, and retains', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
     final notifier = container.read(moderationSelectionProvider.notifier);
-    expect(container.read(moderationSelectionProvider), isEmpty);
 
-    notifier.toggle('a');
-    expect(container.read(moderationSelectionProvider), {'a'});
+    notifier
+      ..toggle('a')
+      ..toggle('b')
+      ..toggle('a');
+    expect(container.read(moderationSelectionProvider), {'b'});
 
-    notifier.toggle('a');
-    expect(container.read(moderationSelectionProvider), isEmpty);
-  });
+    notifier.selectAll(['x', 'y', 'z']);
+    expect(container.read(moderationSelectionProvider), {'x', 'y', 'z'});
 
-  test('selectAll replaces selection', () {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
+    notifier.retainOnly(['y', 'z', 'missing']);
+    expect(container.read(moderationSelectionProvider), {'y', 'z'});
 
-    final notifier = container.read(moderationSelectionProvider.notifier);
-    notifier.toggle('old');
-    notifier.selectAll(['a', 'b']);
-
-    expect(container.read(moderationSelectionProvider), {'a', 'b'});
-  });
-
-  test('clear empties selection', () {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
-
-    final notifier = container.read(moderationSelectionProvider.notifier);
-    notifier.selectAll(['a']);
     notifier.clear();
-
     expect(container.read(moderationSelectionProvider), isEmpty);
-  });
-
-  test('retainOnly keeps visible ids', () {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
-
-    final notifier = container.read(moderationSelectionProvider.notifier);
-    notifier.selectAll(['a', 'b', 'c']);
-    notifier.retainOnly(['b', 'c', 'd']);
-
-    expect(container.read(moderationSelectionProvider), {'b', 'c'});
   });
 }

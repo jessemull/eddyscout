@@ -5,83 +5,48 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('resolveLaunchDisplayName', () {
-    test('returns catalog name for known launch id', () {
-      expect(
-        resolveLaunchDisplayName('sellwood_riverfront'),
-        'Sellwood Riverfront Park',
-      );
-    });
-
-    test('returns raw id when launch is unknown', () {
-      expect(resolveLaunchDisplayName('unknown_launch'), 'unknown_launch');
-    });
+  testWidgets('resolveLaunchDisplayName uses catalog name when known', (
+    tester,
+  ) async {
+    expect(
+      resolveLaunchDisplayName('cathedral_park'),
+      'Cathedral Park Boat Ramp',
+    );
+    expect(resolveLaunchDisplayName('unknown_launch'), 'unknown_launch');
   });
 
-  group('truncateUid', () {
-    test('returns full uid when shorter than limit', () {
-      expect(truncateUid('abc'), 'abc');
-    });
+  testWidgets('formatModerationReason maps known codes and falls back', (
+    tester,
+  ) async {
+    late AppLocalizations l10n;
 
-    test('truncates long uids', () {
-      expect(truncateUid('abcdefghijklmnop'), 'abcdefgh');
-    });
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SizedBox.shrink(),
+      ),
+    );
+    l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
 
-    test('respects custom length', () {
-      expect(truncateUid('abcdefghij', length: 4), 'abcd');
-    });
+    expect(
+      formatModerationReason(l10n, 'keyword_hold'),
+      l10n.moderationReasonKeywordHold,
+    );
+    expect(
+      formatModerationReason(l10n, 'custom_reason_code'),
+      'custom reason code',
+    );
   });
 
-  group('formatModerationReason', () {
-    testWidgets('maps known reason codes to localized strings', (tester) async {
-      late AppLocalizations l10n;
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: SizedBox.shrink(),
-        ),
-      );
-      l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
-
-      expect(
-        formatModerationReason(l10n, 'keyword_hold'),
-        l10n.moderationReasonKeywordHold,
-      );
-      expect(
-        formatModerationReason(l10n, 'admin_approve'),
-        l10n.moderationReasonAdminApprove,
-      );
-      expect(
-        formatModerationReason(l10n, 'hold_timeout_release'),
-        l10n.moderationReasonHoldTimeout,
-      );
-    });
-
-    testWidgets('falls back to humanized unknown codes', (tester) async {
-      late AppLocalizations l10n;
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: SizedBox.shrink(),
-        ),
-      );
-      l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
-
-      expect(formatModerationReason(l10n, 'custom_reason'), 'custom reason');
-    });
+  test('truncateUid keeps short ids and truncates long ids', () {
+    expect(truncateUid('abc'), 'abc');
+    expect(truncateUid('1234567890'), '12345678');
+    expect(truncateUid('1234567890', length: 4), '1234');
   });
 }

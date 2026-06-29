@@ -7,7 +7,9 @@ import unittest
 
 from _common import (
     DEFAULT_MERGE_M,
+    assert_launch_snap_within,
     detect_backtrack_errors,
+    launch_anchor_lonlat,
     nearest_point_on_polyline,
     prune_backtrack_loops,
     spur_feature,
@@ -54,6 +56,17 @@ class CommonGeometryTest(unittest.TestCase):
             "camas_slough_spur",
         )
         self.assertEqual(feature["geometry"]["type"], "LineString")
+
+    def test_launch_anchor_lonlat_matches_catalog(self) -> None:
+        lon, lat = launch_anchor_lonlat("port_of_camas")
+        self.assertAlmostEqual(lon, -122.380485, places=6)
+        self.assertAlmostEqual(lat, 45.57877, places=6)
+
+    def test_assert_launch_snap_within_passes_near_geometry(self) -> None:
+        anchor = launch_anchor_lonlat("washougal_waterfront")
+        coords = [[anchor[0], anchor[1]], [anchor[0] + 0.001, anchor[1]]]
+        gap = assert_launch_snap_within(coords, "washougal_waterfront")
+        self.assertLess(gap, 1.0)
 
     def test_detect_backtrack_errors_flags_revisit(self) -> None:
         import json

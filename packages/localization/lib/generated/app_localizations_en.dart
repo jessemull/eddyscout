@@ -52,11 +52,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'No connected river path between these river systems in bundled data.';
 
   @override
-  String mapRouteFailureNoBundledLine(String river) {
-    return 'No bundled river line for \"$river\" yet — routing is only available where hydro GeoJSON exists.';
-  }
-
-  @override
   String get mapRouteFailureNoData => 'River route data is not available yet.';
 
   @override
@@ -687,6 +682,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapRouteChooseDestination => 'Choose destination';
 
   @override
+  String get mapRouteChooseOnMap => 'Choose on map';
+
+  @override
+  String get mapRouteChooseOnMapHint =>
+      'Tap the river on the map to add a custom stop';
+
+  @override
+  String get mapRoutePickStopPrompt => 'Tap the river to add a stop';
+
+  @override
+  String get mapRoutePickStopLaunchBlocked =>
+      'Tap the river to add a custom stop, not a launch pin.';
+
+  @override
+  String get mapRouteRenameSnapStop => 'Rename custom stop';
+
+  @override
   String get mapRouteAddStopHint =>
       'Tap another launch on the map to set your destination or add a stop.';
 
@@ -735,6 +747,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String mapRouteMiddleStopSemantics(String letter, String name) {
     return 'Stop $letter, $name';
   }
+
+  @override
+  String mapRouteCustomStopLabel(int index) {
+    return 'Custom Stop $index';
+  }
+
+  @override
+  String mapRouteCustomStopSemantics(String name) {
+    return 'Custom stop, $name';
+  }
+
+  @override
+  String get mapRouteNameStopTitle => 'Name this stop';
+
+  @override
+  String get mapRouteNameStopHint => 'e.g. Lunch spot, Fishing hole';
+
+  @override
+  String get mapRouteNameStopSave => 'Save';
+
+  @override
+  String get mapRouteNameStopCancel => 'Cancel';
 
   @override
   String get mapRouteStartComingSoon => 'On-water navigation is coming soon.';
@@ -1171,6 +1205,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get routeGoNoGoStopConditionsUnavailable =>
       'Conditions could not be loaded for this stop.';
+
+  @override
+  String get conditionsCustomStopNoData => 'No conditions data available';
 
   @override
   String routeGoNoGoStopFailureLine(int position, String name, String message) {

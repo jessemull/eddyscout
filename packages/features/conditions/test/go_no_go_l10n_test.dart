@@ -199,6 +199,74 @@ void main() {
     expect(message, contains('exposed'));
   });
 
+  test('goNoGoReasonFallbackMessage covers all reason codes', () {
+    final reasons = <GoNoGoReason>[
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.coldWaterSeason,
+        severity: GoNoGoReasonSeverity.info,
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.weatherMissing,
+        severity: GoNoGoReasonSeverity.info,
+        weatherError: 'timeout',
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.weatherMissing,
+        severity: GoNoGoReasonSeverity.info,
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.windUnknown,
+        severity: GoNoGoReasonSeverity.info,
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.windHigh,
+        severity: GoNoGoReasonSeverity.noGo,
+        windMph: 30,
+        exposure: 'exposed',
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.windElevated,
+        severity: GoNoGoReasonSeverity.marginal,
+        windMph: 18,
+        exposure: 'sheltered',
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.marineSevere,
+        severity: GoNoGoReasonSeverity.noGo,
+        pattern: 'GALE WARNING',
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.marineAdvisory,
+        severity: GoNoGoReasonSeverity.marginal,
+        pattern: 'Small Craft Advisory',
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.forecastLowLightHours,
+        severity: GoNoGoReasonSeverity.info,
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.flowVeryHigh,
+        severity: GoNoGoReasonSeverity.noGo,
+        cfs: '120000',
+        siteId: '14211720',
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.flowHigh,
+        severity: GoNoGoReasonSeverity.marginal,
+        cfs: '25000',
+      ),
+      const GoNoGoReason(
+        code: GoNoGoReasonCode.flowLow,
+        severity: GoNoGoReasonSeverity.marginal,
+        cfs: '800',
+      ),
+    ];
+
+    for (final reason in reasons) {
+      expect(goNoGoReasonFallbackMessage(reason), isNotEmpty);
+    }
+  });
+
   testWidgets('localizeRouteGoNoGoRollupErrorMessage returns generic copy', (
     tester,
   ) async {
@@ -300,6 +368,51 @@ void main() {
     expect(
       goNoGoReasonFallbackMessage(reason),
       localizeGoNoGoReason(l10n, reason),
+    );
+  });
+
+  testWidgets('waypointGoNoGoSummarySentences prefers wind over shared flow', (
+    tester,
+  ) async {
+    late AppLocalizations l10n;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SizedBox.shrink(),
+      ),
+    );
+    l10n = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+
+    final result = GoNoGoResult(
+      verdict: GoNoGoVerdict.noGo,
+      computedAt: DateTime.parse('2026-06-15T12:00:00-07:00'),
+      reasons: const [
+        GoNoGoReason(
+          code: GoNoGoReasonCode.windHigh,
+          severity: GoNoGoReasonSeverity.noGo,
+          windMph: 28,
+          exposure: 'exposed',
+        ),
+        GoNoGoReason(
+          code: GoNoGoReasonCode.flowLow,
+          severity: GoNoGoReasonSeverity.marginal,
+          cfs: '2k',
+          siteId: '14211720',
+        ),
+      ],
+    );
+
+    final lines = waypointGoNoGoSummarySentences(l10n, result);
+    expect(
+      lines,
+      localizeGoNoGoReasonSentences(l10n, result.reasons.first),
     );
   });
 

@@ -1,166 +1,134 @@
 import 'package:eddyscout/routing/route_go_no_go_sections.dart';
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
-import 'package:eddyscout_localization/eddyscout_localization.dart';
 import 'package:eddyscout_saved_routes/eddyscout_saved_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../test_localized_app.dart';
+
 void main() {
-  testWidgets('MapRouteGoNoGoSection hides when fewer than two stops', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: MapRouteGoNoGoSection(launchIdsInOrder: ['only-one']),
+  group('routeGoNoGoStopMetadata helpers', () {
+    test('builds metadata from mixed catalog and snap waypoints', () {
+      const waypoints = [
+        RouteWaypoint.catalog(launchId: 'cathedral_park', order: 1),
+        RouteWaypoint.snap(
+          latitude: 45.55,
+          longitude: -122.67,
+          order: 0,
+          label: 'Early snap',
+        ),
+      ];
+
+      final metadata = routeGoNoGoStopMetadataFromWaypoints(waypoints);
+
+      expect(metadata.catalogLaunchIds, ['cathedral_park']);
+      expect(metadata.catalogStopOrderIndices, [1]);
+      expect(metadata.snapStops.single.label, 'Early snap');
+      expect(routeGoNoGoTotalStopCount(metadata), 2);
+    });
+
+    test('builds metadata from planning stops with default snap label', () {
+      const stops = [
+        RoutePlanningStop.snap(
+          id: 'snap_a',
+          latitude: 45.5512,
+          longitude: -122.6789,
+          label: '45.5512, -122.6789',
+        ),
+        RoutePlanningStop.catalog(
+          LaunchPoint(
+            id: 'cathedral_park',
+            name: 'Cathedral Park Boat Ramp',
+            latitude: 45.5621,
+            longitude: -122.7328,
+            shortNote: 'note',
+            riverSystem: RiverSystem.willamette,
+            windExposure: WindExposure.moderate,
+            tideRelevance: TideRelevance.none,
           ),
         ),
-      ),
-    );
+      ];
 
-    expect(find.byType(RouteGoNoGoSummarySection), findsNothing);
-    expect(find.byType(SizedBox), findsWidgets);
+      final metadata = routeGoNoGoStopMetadataFromPlanningStops(stops);
+
+      expect(metadata.catalogLaunchIds, ['cathedral_park']);
+      expect(metadata.catalogStopOrderIndices, [1]);
+      expect(metadata.snapStops.single.orderIndex, 0);
+    });
   });
 
-  testWidgets('MapRouteGoNoGoSection shows summary for two stops', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          routeGoNoGoRollupProvider(
-            RouteGoNoGoWaypointsKey.fromOrdered([
-              'cathedral_park',
-              'sellwood_riverfront',
-            ]),
-          ).overrideWith(
-            (_) async => RouteGoNoGoResult(
-              verdict: GoNoGoVerdict.go,
-              computedAt: DateTime.utc(2026, 6, 15),
-              waypointResults: const [],
-              waypointFailures: const [],
-              triggeringReasons: const [],
-            ),
-          ),
-        ],
-        child: const MaterialApp(
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: MapRouteGoNoGoSection(
-              launchIdsInOrder: ['cathedral_park', 'sellwood_riverfront'],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.pump();
-    expect(find.byType(RouteGoNoGoSummarySection), findsOneWidget);
-  });
-
-  testWidgets('SavedRouteGoNoGoSection hides for single-waypoint route', (
+  testWidgets('SavedRouteGoNoGoSection shows snap-only unknown conditions', (
     tester,
   ) async {
     final route = SavedRoute(
-      id: 'sr-1',
-      name: 'Short',
-      waypoints: const [RouteWaypoint(launchId: 'a', order: 0)],
-      metadata: const SavedRouteMetadata(),
-      createdAt: DateTime.utc(2026, 6, 1),
-      updatedAt: DateTime.utc(2026, 6, 1),
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          savedRouteByIdProvider(route.id).overrideWith((_) async => route),
-        ],
-        child: MaterialApp(
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: SavedRouteGoNoGoSection(routeId: route.id),
-          ),
-        ),
-      ),
-    );
-
-    await tester.pump();
-    expect(find.byType(RouteGoNoGoSummarySection), findsNothing);
-  });
-
-  testWidgets('SavedRouteGoNoGoSection shows summary for multi-stop route', (
-    tester,
-  ) async {
-    final route = SavedRoute(
-      id: 'sr-2',
-      name: 'Shuttle',
+      id: 'sr_snap_only',
+      name: 'Custom only',
       waypoints: const [
-        RouteWaypoint(launchId: 'cathedral_park', order: 1),
-        RouteWaypoint(launchId: 'sellwood_riverfront', order: 0),
+        RouteWaypoint.snap(
+          latitude: 45.5512,
+          longitude: -122.6789,
+          order: 0,
+          label: 'Put-in bend',
+        ),
+        RouteWaypoint.snap(
+          latitude: 45.5612,
+          longitude: -122.6689,
+          order: 1,
+          label: 'Take-out eddy',
+        ),
       ],
-      metadata: const SavedRouteMetadata(distanceMeters: 5000),
-      createdAt: DateTime.utc(2026, 6, 1),
-      updatedAt: DateTime.utc(2026, 6, 1),
+      metadata: const SavedRouteMetadata(),
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
     );
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          savedRouteByIdProvider(route.id).overrideWith((_) async => route),
-          routeGoNoGoRollupProvider(
-            RouteGoNoGoWaypointsKey.fromOrdered([
-              'sellwood_riverfront',
-              'cathedral_park',
-            ]),
-          ).overrideWith(
-            (_) async => RouteGoNoGoResult(
-              verdict: GoNoGoVerdict.marginal,
-              computedAt: DateTime.utc(2026, 6, 15),
-              waypointResults: const [],
-              waypointFailures: const [],
-              triggeringReasons: const [],
-            ),
+          savedRouteByIdProvider('sr_snap_only').overrideWith(
+            (ref) async => route,
           ),
         ],
-        child: MaterialApp(
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: SavedRouteGoNoGoSection(routeId: route.id),
+        child: testLocalizedApp(
+          child: const Scaffold(
+            body: SavedRouteGoNoGoSection(routeId: 'sr_snap_only'),
           ),
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
-    await tester.pump();
-    expect(find.byType(RouteGoNoGoSummarySection), findsOneWidget);
+    expect(find.text('Unknown conditions'), findsOneWidget);
+
+    await tester.tap(find.byType(ExpansionTile));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Put-in bend'), findsOneWidget);
+    expect(find.text('Take-out eddy'), findsOneWidget);
+    expect(find.text('No conditions data available'), findsNWidgets(2));
+  });
+
+  testWidgets('MapRouteGoNoGoSection shows snap-only unknown conditions', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      testLocalizedApp(
+        child: const Scaffold(
+          body: MapRouteGoNoGoSection(
+            catalogLaunchIds: [],
+            catalogStopOrderIndices: [],
+            snapStops: [
+              RouteGoNoGoSnapStop(orderIndex: 0, label: 'Put-in bend'),
+              RouteGoNoGoSnapStop(orderIndex: 1, label: 'Take-out eddy'),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Unknown conditions'), findsOneWidget);
   });
 }

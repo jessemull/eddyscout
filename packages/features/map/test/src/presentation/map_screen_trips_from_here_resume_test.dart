@@ -14,22 +14,36 @@ class _RecordingMapRoutePlanner implements MapRoutePlanner {
   final ValueNotifier<int> planCalls;
 
   @override
+  Future<Result<WaterwaySnapPoint, RoutePlanningFailure>> snapToWaterway(
+    double latitude,
+    double longitude,
+  ) async {
+    return Result.success(
+      WaterwaySnapPoint(
+        latitude: latitude,
+        longitude: longitude,
+        distanceMeters: 0,
+      ),
+    );
+  }
+
+  @override
   Future<Result<RouteGeometrySnapshot?, RoutePlanningFailure>> planMultiSegment(
-    List<LaunchPoint> waypoints,
+    List<RoutePlanningStop> stops,
   ) async {
     planCalls.value++;
     return const Result.success(null);
   }
 
   @override
-  Future<Result<void, RoutePlanningFailure>> validateLaunch(
-    LaunchPoint launch,
+  Future<Result<void, RoutePlanningFailure>> validateStop(
+    RoutePlanningStop stop,
   ) async => const Result.success(null);
 
   @override
-  Future<Result<void, RoutePlanningFailure>> validateSegment(
-    LaunchPoint from,
-    LaunchPoint to,
+  Future<Result<void, RoutePlanningFailure>> validateSegmentStops(
+    RoutePlanningStop from,
+    RoutePlanningStop to,
   ) async => const Result.success(null);
 }
 
