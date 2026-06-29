@@ -184,4 +184,16 @@ void main() {
       expect(result.waypointFailures.length, 1);
     });
   });
+
+  group('RouteGoNoGoRollup.snapStopsOnly', () {
+    test('returns insufficientData with empty waypoint results', () {
+      final result = RouteGoNoGoRollup.snapStopsOnly(computedAt: computedAt);
+
+      expect(result.verdict, GoNoGoVerdict.insufficientData);
+      expect(result.computedAt, computedAt);
+      expect(result.waypointResults, isEmpty);
+      expect(result.waypointFailures, isEmpty);
+      expect(result.triggeringReasons, isEmpty);
+    });
+  });
 }

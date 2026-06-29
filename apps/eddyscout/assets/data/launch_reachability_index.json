@@ -113,7 +113,6 @@
       "20mi": [
         "vancouver_wintler",
         "swan_island_boat_ramp",
-        "scappoose_bay_marina",
         "tom_mccall_waterfront",
         "columbia_slough_paddle_launch",
         "river_place_marina",
@@ -206,7 +205,6 @@
         "tom_mccall_waterfront",
         "river_place_marina",
         "willamette_park_sw",
-        "scappoose_bay_marina",
         "sellwood_riverfront",
         "chinook_landing_marine_park",
         "jefferson_st_milwaukie"
@@ -258,10 +256,10 @@
         "gleason_memorial_boat_ramp",
         "vancouver_wintler",
         "swan_island_boat_ramp",
+        "scappoose_bay_marina",
         "tom_mccall_waterfront",
         "columbia_slough_paddle_launch",
         "river_place_marina",
-        "scappoose_bay_marina",
         "willamette_park_sw"
       ]
     },
@@ -269,8 +267,6 @@
       "5mi": [],
       "10mi": [],
       "20mi": [
-        "frenchmans_bar",
-        "kelley_point",
         "sauvie_island_boat_ramp"
       ]
     },

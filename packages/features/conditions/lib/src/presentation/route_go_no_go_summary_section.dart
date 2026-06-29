@@ -14,24 +14,79 @@ part 'route_go_no_go_summary_verdict_panel.dart';
 part 'route_go_no_go_summary_strip.dart';
 part 'route_go_no_go_summary_stop_timeline.dart';
 
+/// Snap-only routes: freeze rollup timestamp once so rebuilds do not
+/// shift time.
+class _SnapOnlyRouteGoNoGoSummary extends StatefulWidget {
+  const _SnapOnlyRouteGoNoGoSummary({
+    required this.catalogStopOrderIndices,
+    required this.snapStops,
+  });
+
+  final List<int> catalogStopOrderIndices;
+  final List<RouteGoNoGoSnapStop> snapStops;
+
+  @override
+  State<_SnapOnlyRouteGoNoGoSummary> createState() =>
+      _SnapOnlyRouteGoNoGoSummaryState();
+}
+
+class _SnapOnlyRouteGoNoGoSummaryState
+    extends State<_SnapOnlyRouteGoNoGoSummary> {
+  late final RouteGoNoGoResult _result;
+
+  @override
+  void initState() {
+    super.initState();
+    _result = RouteGoNoGoRollup.snapStopsOnly(computedAt: DateTime.now());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _RouteGoNoGoSummaryStrip(
+      result: _result,
+      catalogStopOrderIndices: widget.catalogStopOrderIndices,
+      snapStops: widget.snapStops,
+    );
+  }
+}
+
 /// Route-level go/no-go rollup for map preview and saved route detail.
 class RouteGoNoGoSummarySection extends ConsumerWidget {
   /// Creates a section that loads rollup for [launchIdsInOrder].
   const RouteGoNoGoSummarySection({
     required this.launchIdsInOrder,
+    this.catalogStopOrderIndices = const [],
+    this.snapStops = const [],
     super.key,
   });
 
   /// Ordered catalog launch ids along the route.
   final List<String> launchIdsInOrder;
 
+  /// Full-route order index for each entry in [launchIdsInOrder].
+  ///
+  /// When empty, [RouteWaypointGoNoGoResult.orderIndex] from the rollup is
+  /// used.
+  final List<int> catalogStopOrderIndices;
+
+  /// Custom snap stops interleaved in the timeline (no conditions data).
+  final List<RouteGoNoGoSnapStop> snapStops;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (launchIdsInOrder.length < 2) {
+    if (launchIdsInOrder.length + snapStops.length < 2) {
       return const SizedBox.shrink();
     }
 
     final l10n = context.l10n;
+
+    if (launchIdsInOrder.isEmpty) {
+      return _SnapOnlyRouteGoNoGoSummary(
+        catalogStopOrderIndices: catalogStopOrderIndices,
+        snapStops: snapStops,
+      );
+    }
+
     final waypointsKey = RouteGoNoGoWaypointsKey.fromOrdered(launchIdsInOrder);
     final rollupAsync = ref.watch(routeGoNoGoRollupProvider(waypointsKey));
 
@@ -43,7 +98,11 @@ class RouteGoNoGoSummarySection extends ConsumerWidget {
         message: localizeRouteGoNoGoRollupErrorMessage(l10n, error),
         onRetry: () => ref.invalidate(routeGoNoGoRollupProvider(waypointsKey)),
       ),
-      data: (result) => _RouteGoNoGoSummaryStrip(result: result),
+      data: (result) => _RouteGoNoGoSummaryStrip(
+        result: result,
+        catalogStopOrderIndices: catalogStopOrderIndices,
+        snapStops: snapStops,
+      ),
     );
   }
 }

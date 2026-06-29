@@ -400,4 +400,74 @@ void main() {
     expect(snapshot.tides, isNull);
     expect(snapshot.tideError, isNotNull);
   });
+
+  test('load falls back when NWS hourly request fails', () async {
+    const launch = LaunchPoint(
+      id: 'test',
+      name: 'Test',
+      latitude: 45.5,
+      longitude: -122.6,
+      shortNote: 'note',
+      riverSystem: RiverSystem.willamette,
+      windExposure: WindExposure.moderate,
+      tideRelevance: TideRelevance.none,
+    );
+
+    when(() => http.getNwsJson(any())).thenAnswer((invocation) async {
+      final uri = invocation.positionalArguments.first as Uri;
+      if (uri.path.startsWith('/points/')) {
+        return _fixture('nws_points.json');
+      }
+      return null;
+    });
+    when(
+      () => http.getJson(any(), cancelToken: any(named: 'cancelToken')),
+    ).thenAnswer((_) async => _fixture('open_meteo_current.json'));
+
+    final result = await service.load(launch);
+    expect(result.isSuccess, isTrue);
+    expect(result.valueOrNull!.weather?.source, WeatherDataSource.openMeteo);
+  });
+
+  test('load sets riverError when USGS returns zero cfs', () async {
+    const launch = LaunchPoint(
+      id: 'test',
+      name: 'Test',
+      latitude: 45.5,
+      longitude: -122.6,
+      shortNote: 'note',
+      riverSystem: RiverSystem.willamette,
+      windExposure: WindExposure.moderate,
+      tideRelevance: TideRelevance.none,
+      usgsSiteId: '14211720',
+    );
+
+    when(() => http.getNwsJson(any())).thenAnswer((_) async => null);
+    when(
+      () => http.getJson(any(), cancelToken: any(named: 'cancelToken')),
+    ).thenAnswer((_) async => _fixture('open_meteo_current.json'));
+
+    final json = Map<String, dynamic>.from(_fixture('usgs_iv.json'));
+    final values =
+        (json['value'] as Map<String, dynamic>)['timeSeries'] as List<dynamic>;
+    final block =
+        (values.first as Map<String, dynamic>)['values'] as List<dynamic>;
+    final inner =
+        (block.first as Map<String, dynamic>)['value'] as List<dynamic>;
+    (inner.last as Map<String, dynamic>)['value'] = '0';
+
+    when(
+      () => http.get(any(), cancelToken: any(named: 'cancelToken')),
+    ).thenAnswer(
+      (_) async => EddyScoutHttpResponse(
+        statusCode: 200,
+        body: jsonEncode(json),
+      ),
+    );
+
+    final result = await service.load(launch);
+    expect(result.isSuccess, isTrue);
+    expect(result.valueOrNull!.riverFlow, isNull);
+    expect(result.valueOrNull!.riverError, isNotNull);
+  });
 }

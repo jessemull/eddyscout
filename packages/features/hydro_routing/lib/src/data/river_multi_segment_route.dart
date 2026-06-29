@@ -24,23 +24,74 @@ RouteGeometrySnapshot? mergeRouteSegments(List<RouteSuccess> segments) {
   );
 }
 
-/// Plans all consecutive waypoint pairs; returns failures on first error.
-Result<List<RouteSuccess>, RouteFailure> planMultiSegmentRoute(
+/// Plans all consecutive coordinate pairs; returns failures on first error.
+Result<List<RouteSuccess>, RouteFailure> planMultiSegmentCoordinates(
   RiverRoutePlanner planner,
-  List<LaunchPoint> waypoints,
+  List<({double lat, double lon})> endpoints,
 ) {
-  if (waypoints.length < 2) {
+  if (endpoints.length < 2) {
     return const Result.failure(
       RouteFailure(code: RouteFailureCode.sameLaunch),
     );
   }
   final successes = <RouteSuccess>[];
-  for (var i = 0; i < waypoints.length - 1; i++) {
-    final result = planner.plan(waypoints[i], waypoints[i + 1]);
+  for (var i = 0; i < endpoints.length - 1; i++) {
+    final from = endpoints[i];
+    final to = endpoints[i + 1];
+    final result = planner.planBetween(from.lat, from.lon, to.lat, to.lon);
     if (result case final RouteFailure failure) {
       return Result.failure(failure);
     }
     successes.add(result as RouteSuccess);
   }
   return Result.success(successes);
+}
+
+/// Plans all consecutive [stops]; returns failures on first error.
+Result<List<RouteSuccess>, RouteFailure> planMultiSegmentStops(
+  RiverRoutePlanner planner,
+  List<RoutePlanningStop> stops,
+) {
+  if (stops.length < 2) {
+    return const Result.failure(
+      RouteFailure(code: RouteFailureCode.sameLaunch),
+    );
+  }
+  final successes = <RouteSuccess>[];
+  for (var i = 0; i < stops.length - 1; i++) {
+    final from = stops[i];
+    final to = stops[i + 1];
+    if (from.sameStopAs(to)) {
+      return const Result.failure(
+        RouteFailure(code: RouteFailureCode.sameLaunch),
+      );
+    }
+    final result = planner.planBetween(
+      from.routingLatitude,
+      from.routingLongitude,
+      to.routingLatitude,
+      to.routingLongitude,
+      putIn: from.catalogLaunch,
+      takeOut: to.catalogLaunch,
+    );
+    if (result case final RouteFailure failure) {
+      return Result.failure(failure);
+    }
+    successes.add(result as RouteSuccess);
+  }
+  return Result.success(successes);
+}
+
+/// Plans all consecutive waypoint pairs; returns failures on first error.
+Result<List<RouteSuccess>, RouteFailure> planMultiSegmentRoute(
+  RiverRoutePlanner planner,
+  List<LaunchPoint> waypoints,
+) {
+  return planMultiSegmentCoordinates(
+    planner,
+    [
+      for (final waypoint in waypoints)
+        (lat: waypoint.routingLatitude, lon: waypoint.routingLongitude),
+    ],
+  );
 }

@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 SavedRoute _sampleRoute({
   List<RouteWaypoint> waypoints = const [
-    RouteWaypoint(launchId: 'a', order: 0),
-    RouteWaypoint(launchId: 'b', order: 1),
+    RouteWaypoint.catalog(launchId: 'a', order: 0),
+    RouteWaypoint.catalog(launchId: 'b', order: 1),
   ],
 }) {
   final now = DateTime.utc(2026);
@@ -42,8 +42,8 @@ void main() {
       savedRouteWaypointsChanged(
         route,
         const [
-          RouteWaypoint(launchId: 'b', order: 0),
-          RouteWaypoint(launchId: 'a', order: 1),
+          RouteWaypoint.catalog(launchId: 'b', order: 0),
+          RouteWaypoint.catalog(launchId: 'a', order: 1),
         ],
       ),
       isTrue,
@@ -56,7 +56,7 @@ void main() {
       savedRouteWaypointsChanged(
         route,
         const [
-          RouteWaypoint(launchId: 'a', order: 0),
+          RouteWaypoint.catalog(launchId: 'a', order: 0),
         ],
       ),
       isTrue,

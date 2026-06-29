@@ -39,7 +39,7 @@ Launch anchor extensions (Willamette Park, Sportcraft, Vancouver Wintler, Scappo
 
 ### Launch snap gaps (known)
 
-All catalog launches use **access** + **water-entry** coordinates. Water-entry snap is gated at 200 m in CI. Side spurs for Port of Camas, Scappoose Bay Marina, and Washougal Waterfront are maintained via `scripts/hydro/patch_launch_spurs.py` (also run after Camas Slough Overpass import).
+All catalog launches use **access** + **water-entry** coordinates. Water-entry snap is gated at 200 m in CI; routability validation uses the 900 m reachability threshold. Side spurs for Port of Camas, Scappoose Bay Marina, and Washougal Waterfront are maintained via `scripts/hydro/patch_launch_spurs.py` (also run after Camas Slough Overpass import).
 
 | Launch | Notes |
 |--------|-------|
@@ -56,6 +56,7 @@ Requires network access. Fetchers overwrite assets and mirror copies to `package
 | `make hydro-fetch-willamette` | `scripts/overpass/fetch_willamette_waterway.py` |
 | `make hydro-fetch-columbia` | `scripts/overpass/fetch_columbia_waterway.py` |
 | `make hydro-fetch-camas-slough` | `scripts/overpass/fetch_camas_slough_waterway.py` (run after Columbia) |
+| `make hydro-fetch-washougal` | `scripts/overpass/fetch_washougal_waterfront_spur.py` (run after Camas Slough) |
 | `make hydro-fetch-clackamas` | `scripts/overpass/fetch_clackamas_waterway.py` |
 | `make hydro-fetch-slough` | `scripts/overpass/fetch_slough_waterway.py` (Multnomah / Smith & Bybee) |
 | `make hydro-fetch-tualatin` | `scripts/overpass/fetch_tualatin_waterway.py` |
@@ -70,13 +71,19 @@ Columbia import (`fetch_columbia_waterway.py`):
 3. Routes mouth → Camas on the merged graph and **prunes backtrack loops** (Hayden Island / side-channel detours).
 4. Builds lower-pool launch spurs (Vancouver Wintler side branch, Multnomah/Scappoose, St Helens/Frenchman's Bar).
 5. Builds the gorge reach as a **through-channel** subline on OSM way `163917830` (Camas → Sandy junction) plus Sandy River way `128946456` — launch pins are not inlined into mainstem geometry.
-6. Preserves an existing `camas_slough_spur` feature when re-running Columbia-only.
+6. Preserves existing `camas_slough_spur` and `washougal_waterfront_spur` features when re-running Columbia-only.
 
 Camas Slough import (`fetch_camas_slough_waterway.py`):
 
 1. Fetches OSM way `130204446` (Camas Slough) plus local connector ways.
-2. Builds a spur from **Camas split** on `columbia_lower` mainstem through the slough toward Port of Camas marina (~890 m snap).
+2. Builds a spur from **Camas split** on `columbia_lower` mainstem through the slough toward Port of Camas marina (catalog anchor via `scripts/hydro/launch_anchors.json`).
 3. Appends the spur as feature `camas_slough_spur` in `columbia_lower_waterway.geojson`.
+
+Washougal Waterfront import (`fetch_washougal_waterfront_spur.py`):
+
+1. Requires `camas_slough_spur` in `columbia_lower_waterway.geojson`.
+2. Builds a side spur from the nearest point on `camas_slough_spur` to the Washougal Waterfront catalog anchor (~220 m; not inlined into mainstem).
+3. Appends feature `washougal_waterfront_spur` in `columbia_lower_waterway.geojson`.
 
 After changing geometry locally, run `make hydro-check` before committing.
 
@@ -145,6 +152,19 @@ make gen-hydro-graph-check   # CI-friendly stale check
 ```
 
 The generator loads all files in `bundledHydroGeoJsonAssetFileNames` plus `confluence_bridges.json`, builds the unified graph, and writes a versioned binary (`EDHY` magic). The app prefers binary via `hydroGraphBinaryLoaderProvider` and falls back to GeoJSON when the asset is missing or corrupt.
+
+## Launch water-entry snap validation
+
+Build-time validation for catalog routing coordinates (`make gen-launch-snap-check`, wired into `make gen-check`):
+
+```bash
+make gen-launch-snap-check   # CI: 200 m gate for launches with water-entry coords
+dart run scripts/generate_launch_water_entry_snaps.dart   # audit report (all launches)
+```
+
+Until catalog launches have explicit `waterEntryLatitude` / `waterEntryLongitude`, the CI gate is a no-op; the report lists snap distances for manual pin realignment (R3).
+
+**200 m allowlist** (access pins inland of spur geometry; exempt from strict gate until R3): `washougal_waterfront`, `port_of_camas`, `scappoose_bay_marina`. Single source of truth: `kLaunchWaterEntrySnapAllowlist` in `packages/features/hydro_routing/lib/src/data/launch_water_entry_snap_generator.dart`.
 
 ## Disclaimer
 

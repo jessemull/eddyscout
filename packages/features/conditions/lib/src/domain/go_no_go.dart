@@ -339,6 +339,9 @@ class GoNoGoEvaluator {
     List<GoNoGoReason> reasons,
   ) {
     final cfs = reading.cfs;
+    if (cfs <= 0) {
+      return;
+    }
     final bands = launch.flowBands;
     if (bands != null) {
       final noGoAt = bands.cfsNoGoAbove;

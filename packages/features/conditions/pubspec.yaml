@@ -9,7 +9,7 @@ environment:
   sdk: ^3.11.4
 
 dependencies:
-  cloud_functions: ^6.3.2
+  cloud_functions: ^6.3.3
   dio: ^5.7.0
   eddyscout_analytics:
     path: ../../analytics
@@ -23,7 +23,7 @@ dependencies:
     path: ../../networking
   eddyscout_persistence:
     path: ../../persistence
-  firebase_auth: ^6.5.2
+  firebase_auth: ^6.5.4
   firebase_core: ^4.11.0
   flutter:
     sdk: flutter

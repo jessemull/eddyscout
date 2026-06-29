@@ -105,7 +105,10 @@ class _FixedRoutePlanning extends RoutePlanning {
     final takeOut = kLaunchPoints[1];
     return RoutePlanningState(
       phase: MapPlanningPhase.routeReady,
-      waypoints: [putIn, takeOut],
+      stops: [
+        RoutePlanningStop.catalog(putIn),
+        RoutePlanningStop.catalog(takeOut),
+      ],
       routeLengthKm: 12.5,
       activeGeometry: RouteGeometrySnapshot(
         polylineLonLat: [
@@ -125,7 +128,7 @@ class _PlanningWithStart extends RoutePlanning {
   RoutePlanningState build() {
     return RoutePlanningState(
       phase: MapPlanningPhase.planning,
-      waypoints: [kLaunchPoints.first],
+      stops: [RoutePlanningStop.catalog(kLaunchPoints.first)],
     );
   }
 }

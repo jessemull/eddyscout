@@ -153,5 +153,28 @@ List<String> waypointGoNoGoSummarySentences(
         ? [l10n.launchDetailGoNoGoNoWarnings]
         : const [];
   }
-  return localizeGoNoGoReasonSentences(l10n, reasons.first);
+  final primary = _primaryWaypointSummaryReason(reasons);
+  if (primary == null) {
+    return const [];
+  }
+  return localizeGoNoGoReasonSentences(l10n, primary);
+}
+
+/// Picks the most useful single reason for a route stop row.
+///
+/// Flow often comes from a shared upstream gauge shared by many launches on
+/// the same river; prefer wind or marine when both are present.
+GoNoGoReason? _primaryWaypointSummaryReason(List<GoNoGoReason> reasons) {
+  if (reasons.isEmpty) {
+    return null;
+  }
+  for (final reason in reasons) {
+    if (reason.code == GoNoGoReasonCode.flowVeryHigh ||
+        reason.code == GoNoGoReasonCode.flowHigh ||
+        reason.code == GoNoGoReasonCode.flowLow) {
+      continue;
+    }
+    return reason;
+  }
+  return reasons.first;
 }

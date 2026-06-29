@@ -830,12 +830,15 @@
           ]
         },
         {
-          "destination": "scappoose_bay_marina",
-          "distanceKm": 19.9,
-          "estimatedMinutes": 298,
+          "destination": "tom_mccall_waterfront",
+          "distanceKm": 23.0,
+          "estimatedMinutes": 344,
           "waypoints": [
             "frenchmans_bar",
-            "scappoose_bay_marina"
+            "kelley_point",
+            "cathedral_park",
+            "swan_island_boat_ramp",
+            "tom_mccall_waterfront"
           ]
         }
       ],
@@ -1904,15 +1907,12 @@
           ]
         },
         {
-          "destination": "tom_mccall_waterfront",
-          "distanceKm": 26.6,
-          "estimatedMinutes": 399,
+          "destination": "scappoose_bay_marina",
+          "distanceKm": 24.8,
+          "estimatedMinutes": 373,
           "waypoints": [
             "sauvie_island_boat_ramp",
-            "kelley_point",
-            "cathedral_park",
-            "swan_island_boat_ramp",
-            "tom_mccall_waterfront"
+            "scappoose_bay_marina"
           ]
         }
       ],
@@ -1975,64 +1975,22 @@
     "scappoose_bay_marina": {
       "oneWay": [
         {
-          "destination": "frenchmans_bar",
-          "distanceKm": 19.9,
-          "estimatedMinutes": 298,
-          "waypoints": [
-            "scappoose_bay_marina",
-            "frenchmans_bar"
-          ]
-        },
-        {
-          "destination": "kelley_point",
-          "distanceKm": 26.1,
-          "estimatedMinutes": 392,
-          "waypoints": [
-            "scappoose_bay_marina",
-            "frenchmans_bar",
-            "kelley_point"
-          ]
-        },
-        {
           "destination": "sauvie_island_boat_ramp",
-          "distanceKm": 29.3,
-          "estimatedMinutes": 439,
+          "distanceKm": 24.8,
+          "estimatedMinutes": 373,
           "waypoints": [
             "scappoose_bay_marina",
-            "frenchmans_bar",
             "sauvie_island_boat_ramp"
           ]
         }
       ],
       "roundTrips": [
         {
-          "destination": "frenchmans_bar",
-          "distanceKm": 39.7,
-          "estimatedMinutes": 596,
-          "waypoints": [
-            "scappoose_bay_marina",
-            "frenchmans_bar",
-            "scappoose_bay_marina"
-          ]
-        },
-        {
-          "destination": "kelley_point",
-          "distanceKm": 52.2,
-          "estimatedMinutes": 784,
-          "waypoints": [
-            "scappoose_bay_marina",
-            "frenchmans_bar",
-            "kelley_point",
-            "scappoose_bay_marina"
-          ]
-        },
-        {
           "destination": "sauvie_island_boat_ramp",
-          "distanceKm": 58.5,
-          "estimatedMinutes": 878,
+          "distanceKm": 49.7,
+          "estimatedMinutes": 746,
           "waypoints": [
             "scappoose_bay_marina",
-            "frenchmans_bar",
             "sauvie_island_boat_ramp",
             "scappoose_bay_marina"
           ]

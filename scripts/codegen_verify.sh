@@ -29,3 +29,6 @@ make gen-suggested-trips-check
 
 echo "--- Verifying unified hydro graph binary is up to date ---"
 make gen-hydro-graph-check
+
+echo "--- Verifying catalog water-entry snaps ---"
+make gen-launch-snap-check

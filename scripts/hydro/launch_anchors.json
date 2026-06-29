@@ -1,0 +1,17 @@
+{
+  "port_of_camas": {
+    "lon": -122.380485,
+    "lat": 45.57877,
+    "note": "Matches packages/core/lib/src/launch_catalog.dart access pin"
+  },
+  "washougal_waterfront": {
+    "lon": -122.377814,
+    "lat": 45.578087,
+    "note": "Matches packages/core/lib/src/launch_catalog.dart access pin"
+  },
+  "scappoose_bay_marina": {
+    "lon": -122.839828,
+    "lat": 45.828824,
+    "note": "Matches packages/core/lib/src/launch_catalog.dart access pin"
+  }
+}
