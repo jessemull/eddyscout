@@ -91,7 +91,7 @@ void main() {
       expect(offLine, isA<RouteSuccess>());
     });
 
-    test('polyline connects launch coords to river graph snap', () {
+    test('polyline follows graph snap only without inland launch chords', () {
       const json = '''
 {
   "type": "FeatureCollection",
@@ -130,6 +130,11 @@ void main() {
       final last = ok.polylineLonLat.last;
       expect(
         haversineMeters(inlandLat, inlandLon, first[1], first[0]),
+        greaterThan(50),
+        reason: 'polyline must not start at inland launch coords',
+      );
+      expect(
+        haversineMeters(onRiverLat, onRiverLon, first[1], first[0]),
         lessThan(20),
       );
       expect(

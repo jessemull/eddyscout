@@ -1019,7 +1019,7 @@
         "river_system": "columbia",
         "reach_id": "camas_slough_spur",
         "name": "Camas Slough \u2014 Port of Camas marina spur (OSM)",
-        "source": "OpenStreetMap ODbL. Way 130204446 (Camas Slough) plus local OSM connector to columbia_lower mainstem at Camas split; densified extension to Port of Camas catalog launch anchor."
+        "source": "OpenStreetMap ODbL. Way 130204446 (Camas Slough) plus local OSM connector to columbia_lower mainstem at Camas split."
       },
       "geometry": {
         "type": "LineString",
@@ -1143,20 +1143,20 @@
       "type": "Feature",
       "properties": {
         "river_system": "columbia",
-        "reach_id": "washougal_waterfront_spur",
-        "name": "Washougal River \u2014 Waterfront Park spur",
-        "source": "Side spur branching from camas_slough_spur toward Washougal Waterfront catalog launch anchor; not inlined into Columbia mainstem."
+        "reach_id": "scappoose_marina_spur",
+        "name": "Scappoose Bay Marina launch spur",
+        "source": "Curated connector from columbia_lower_pool_north geometry to Scappoose Bay Marina catalog water-entry anchor."
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
           [
-            -122.380485,
-            45.57877
+            -122.839828,
+            45.828824
           ],
           [
-            -122.377814,
-            45.578087
+            -122.839828,
+            45.828824
           ]
         ]
       }

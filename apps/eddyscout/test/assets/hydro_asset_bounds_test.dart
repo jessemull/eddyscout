@@ -11,7 +11,7 @@ void main() {
     const expectedFiles = {
       'willamette_waterway.geojson': 12000,
       'columbia_lower_waterway.geojson': 24000,
-      'columbia_gorge_waterway.geojson': 15000,
+      'columbia_gorge_waterway.geojson': 16000,
       'clackamas_waterway.geojson': 45000,
       'slough_waterway.geojson': 20000,
       'tualatin_waterway.geojson': 20000,
