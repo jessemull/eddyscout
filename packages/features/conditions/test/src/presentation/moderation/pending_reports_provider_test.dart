@@ -203,40 +203,43 @@ void main() {
     );
   });
 
-  test('moderateBatch restores failed ids and keeps successes removed', () async {
-    when(
-      () => repo.listPendingReports(
-        query: any(named: 'query'),
-        cancelToken: any(named: 'cancelToken'),
-      ),
-    ).thenAnswer((_) async => Result.success([reportA, reportB]));
-    when(
-      () => repo.moderateReportsBatch(
-        reportIds: any(named: 'reportIds'),
-        approve: any(named: 'approve'),
-        cancelToken: any(named: 'cancelToken'),
-      ),
-    ).thenAnswer(
-      (_) async => Result.success(
-        ModerationBatchModerateResult(
-          succeeded: ['a'],
-          failed: [
-            ModerationBatchFailure(reportId: 'b', code: 'already_reviewed'),
-          ],
+  test(
+    'moderateBatch restores failed ids and keeps successes removed',
+    () async {
+      when(
+        () => repo.listPendingReports(
+          query: any(named: 'query'),
+          cancelToken: any(named: 'cancelToken'),
         ),
-      ),
-    );
+      ).thenAnswer((_) async => Result.success([reportA, reportB]));
+      when(
+        () => repo.moderateReportsBatch(
+          reportIds: any(named: 'reportIds'),
+          approve: any(named: 'approve'),
+          cancelToken: any(named: 'cancelToken'),
+        ),
+      ).thenAnswer(
+        (_) async => Result.success(
+          ModerationBatchModerateResult(
+            succeeded: ['a'],
+            failed: [
+              ModerationBatchFailure(reportId: 'b', code: 'already_reviewed'),
+            ],
+          ),
+        ),
+      );
 
-    final container = await pumpContainer();
-    final result = await container
-        .read(moderationPendingReportsProvider.notifier)
-        .moderateBatch(reportIds: ['a', 'b'], approve: true);
+      final container = await pumpContainer();
+      final result = await container
+          .read(moderationPendingReportsProvider.notifier)
+          .moderateBatch(reportIds: ['a', 'b'], approve: true);
 
-    expect(result?.succeeded, ['a']);
-    expect(
-      container.read(moderationPendingReportsProvider).requireValue,
-      [reportB],
-    );
-    expect(container.read(conditionReportsRefreshTokenProvider), 1);
-  });
+      expect(result?.succeeded, ['a']);
+      expect(
+        container.read(moderationPendingReportsProvider).requireValue,
+        [reportB],
+      );
+      expect(container.read(conditionReportsRefreshTokenProvider), 1);
+    },
+  );
 }

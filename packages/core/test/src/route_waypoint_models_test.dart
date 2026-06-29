@@ -59,10 +59,13 @@ void main() {
 
       final stop = routePlanningStopFromWaypoint(waypoint, (_) => null);
 
-      expect(stop, isA<SnapRoutePlanningStop>());
       expect(
-        (stop as SnapRoutePlanningStop).label,
-        '45.5123, -122.6789',
+        stop,
+        isA<SnapRoutePlanningStop>().having(
+          (snap) => snap.label,
+          'label',
+          '45.5123, -122.6789',
+        ),
       );
     });
   });

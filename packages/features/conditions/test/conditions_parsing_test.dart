@@ -102,25 +102,28 @@ void main() {
     expect(rawCfsStringFromUsgsIv(const {}), isNull);
   });
 
-  test('tidesFromNoaaPredictions skips malformed rows and parses local time', () {
-    final summary = tidesFromNoaaPredictions(
-      {
-        'predictions': [
-          {'t': '2026-04-12 02:34', 'v': '2.1', 'type': 'H'},
-          {'t': 'bad-time', 'v': '1.0', 'type': 'L'},
-          'not-a-map',
-        ],
-      },
-      stationId: '9439221',
-      datumLabel: 'MLLW',
-      referenceNote: 'note',
-    );
+  test(
+    'tidesFromNoaaPredictions skips malformed rows and parses local time',
+    () {
+      final summary = tidesFromNoaaPredictions(
+        {
+          'predictions': [
+            {'t': '2026-04-12 02:34', 'v': '2.1', 'type': 'H'},
+            {'t': 'bad-time', 'v': '1.0', 'type': 'L'},
+            'not-a-map',
+          ],
+        },
+        stationId: '9439221',
+        datumLabel: 'MLLW',
+        referenceNote: 'note',
+      );
 
-    expect(summary, isNotNull);
-    expect(summary!.events, hasLength(1));
-    expect(summary.events.first.type, 'H');
-    expect(summary.referenceNote, 'note');
-  });
+      expect(summary, isNotNull);
+      expect(summary!.events, hasLength(1));
+      expect(summary.events.first.type, 'H');
+      expect(summary.referenceNote, 'note');
+    },
+  );
 
   test('tidesFromNoaaPredictions returns null when predictions missing', () {
     expect(

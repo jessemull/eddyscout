@@ -35,33 +35,39 @@ void main() {
     );
   });
 
-  test('conditionReportModerationRepositoryProvider throws when not overridden', () {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
+  test(
+    'conditionReportModerationRepositoryProvider throws when not overridden',
+    () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
 
-    expect(
-      () => container.read(conditionReportModerationRepositoryProvider),
-      throwsA(
-        predicate(
-          (Object? e) => e.toString().contains('UnimplementedError'),
+      expect(
+        () => container.read(conditionReportModerationRepositoryProvider),
+        throwsA(
+          predicate(
+            (e) => e.toString().contains('UnimplementedError'),
+          ),
         ),
-      ),
-    );
-  });
+      );
+    },
+  );
 
-  test('conditionReportSubmitRepositoryProvider throws when not overridden', () {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
+  test(
+    'conditionReportSubmitRepositoryProvider throws when not overridden',
+    () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
 
-    expect(
-      () => container.read(conditionReportSubmitRepositoryProvider),
-      throwsA(
-        predicate(
-          (Object? e) => e.toString().contains('UnimplementedError'),
+      expect(
+        () => container.read(conditionReportSubmitRepositoryProvider),
+        throwsA(
+          predicate(
+            (e) => e.toString().contains('UnimplementedError'),
+          ),
         ),
-      ),
-    );
-  });
+      );
+    },
+  );
 
   test('conditionsAiSummaryRepositoryProvider throws when not overridden', () {
     final container = ProviderContainer();
@@ -71,7 +77,7 @@ void main() {
       () => container.read(conditionsAiSummaryRepositoryProvider),
       throwsA(
         predicate(
-          (Object? e) => e.toString().contains('UnimplementedError'),
+          (e) => e.toString().contains('UnimplementedError'),
         ),
       ),
     );

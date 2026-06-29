@@ -111,24 +111,29 @@ void main() {
       expect(failure.code, RouteFailureCode.sameLaunch);
     });
 
-    test('snapToWaterway returns failure when point is off hydro graph', () async {
-      final container = ProviderContainer(
-        overrides: buildAppProviderOverrides(keyValueStore: store),
-      );
-      addTearDown(container.dispose);
+    test(
+      'snapToWaterway returns failure when point is off hydro graph',
+      () async {
+        final container = ProviderContainer(
+          overrides: buildAppProviderOverrides(keyValueStore: store),
+        );
+        addTearDown(container.dispose);
 
-      final planner = await container.read(mapRoutePlannerProvider.future);
-      final result = await planner.snapToWaterway(0, 0);
+        final planner = await container.read(mapRoutePlannerProvider.future);
+        final result = await planner.snapToWaterway(0, 0);
 
-      expect(
-        result,
-        isA<Failure<WaterwaySnapPoint, RoutePlanningFailure>>(),
-      );
-      expect(
-        (result as Failure<WaterwaySnapPoint, RoutePlanningFailure>).error.code,
-        RouteFailureCode.putInTooFar,
-      );
-    });
+        expect(
+          result,
+          isA<Failure<WaterwaySnapPoint, RoutePlanningFailure>>(),
+        );
+        expect(
+          (result as Failure<WaterwaySnapPoint, RoutePlanningFailure>)
+              .error
+              .code,
+          RouteFailureCode.putInTooFar,
+        );
+      },
+    );
 
     test('validateStop accepts catalog launch on bundled hydro', () async {
       final container = ProviderContainer(

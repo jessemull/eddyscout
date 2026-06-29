@@ -1,5 +1,4 @@
 import 'package:eddyscout_conditions/eddyscout_conditions.dart';
-import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -32,7 +31,10 @@ void main() {
 
   group('date filter helpers', () {
     test('submittedAfterForFilter returns null or recent cutoff', () {
-      expect(submittedAfterForFilter(ModerationSubmittedDateFilter.all), isNull);
+      expect(
+        submittedAfterForFilter(ModerationSubmittedDateFilter.all),
+        isNull,
+      );
       final last7 = submittedAfterForFilter(
         ModerationSubmittedDateFilter.last7Days,
       );
@@ -72,7 +74,10 @@ void main() {
   group('client-side filters', () {
     test('filterPendingReportsClientSide matches id and display name', () {
       expect(
-        filterPendingReportsClientSide(reports: [reportA, reportB], launchQuery: ''),
+        filterPendingReportsClientSide(
+          reports: [reportA, reportB],
+          launchQuery: '',
+        ),
         [reportA, reportB],
       );
       expect(
@@ -93,11 +98,17 @@ void main() {
 
     test('filterHistoryReportsClientSide matches id and display name', () {
       expect(
-        filterHistoryReportsClientSide(reports: [historyA], launchQuery: 'sellwood'),
+        filterHistoryReportsClientSide(
+          reports: [historyA],
+          launchQuery: 'sellwood',
+        ),
         isEmpty,
       );
       expect(
-        filterHistoryReportsClientSide(reports: [historyA], launchQuery: 'cathedral'),
+        filterHistoryReportsClientSide(
+          reports: [historyA],
+          launchQuery: 'cathedral',
+        ),
         [historyA],
       );
     });
@@ -108,7 +119,9 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(moderationPendingFiltersProvider.notifier);
+      final notifier = container.read(
+        moderationPendingFiltersProvider.notifier,
+      );
       notifier
         ..setLaunchQuery('  cathedral_park  ')
         ..setSubmittedDateFilter(ModerationSubmittedDateFilter.last7Days)
@@ -116,7 +129,10 @@ void main() {
 
       final state = container.read(moderationPendingFiltersProvider);
       expect(state.launchQuery, 'cathedral_park');
-      expect(state.submittedDateFilter, ModerationSubmittedDateFilter.last7Days);
+      expect(
+        state.submittedDateFilter,
+        ModerationSubmittedDateFilter.last7Days,
+      );
       expect(state.sort, ModerationQueueSort.createdAtDesc);
     });
 
@@ -124,7 +140,9 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(moderationHistoryFiltersProvider.notifier);
+      final notifier = container.read(
+        moderationHistoryFiltersProvider.notifier,
+      );
       notifier
         ..setLaunchQuery(' sellwood ')
         ..setStatus(ModerationHistoryStatusFilter.approved)

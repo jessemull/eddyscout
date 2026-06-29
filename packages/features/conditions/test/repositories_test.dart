@@ -136,71 +136,75 @@ void main() {
       expect(res.errorOrNull, isA<AppFailure>());
     });
 
-    test('ConditionReportModerationRepositoryImpl delegates to callables', () async {
-      when(() => result.data).thenReturn({'isModerator': true});
-      when(
-        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
-      ).thenAnswer((_) async => result);
+    test(
+      'ConditionReportModerationRepositoryImpl delegates to callables',
+      () async {
+        when(() => result.data).thenReturn({'isModerator': true});
+        when(
+          () =>
+              callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+        ).thenAnswer((_) async => result);
 
-      const repo = ConditionReportModerationRepositoryImpl();
-      final access = await repo.checkModeratorAccess();
-      expect(access.valueOrNull, isTrue);
+        const repo = ConditionReportModerationRepositoryImpl();
+        final access = await repo.checkModeratorAccess();
+        expect(access.valueOrNull, isTrue);
 
-      when(() => result.data).thenReturn({
-        'reports': [
-          {
-            'id': 'r1',
-            'launchId': 'cathedral_park',
-            'message': 'Windy',
-            'createdAt': '2026-06-15T12:00:00-07:00',
-            'submitterUid': 'user-a',
-          },
-        ],
-      });
-      final pending = await repo.listPendingReports();
-      expect(pending.valueOrNull, hasLength(1));
+        when(() => result.data).thenReturn({
+          'reports': [
+            {
+              'id': 'r1',
+              'launchId': 'cathedral_park',
+              'message': 'Windy',
+              'createdAt': '2026-06-15T12:00:00-07:00',
+              'submitterUid': 'user-a',
+            },
+          ],
+        });
+        final pending = await repo.listPendingReports();
+        expect(pending.valueOrNull, hasLength(1));
 
-      when(() => result.data).thenReturn({
-        'reports': [
-          {
-            'id': 'h1',
-            'launchId': 'cathedral_park',
-            'message': 'Windy',
-            'createdAt': '2026-06-15T12:00:00-07:00',
-            'submitterUid': 'user-a',
-            'moderationStatus': 'approved',
-            'moderationReason': 'admin_approve',
-            'reviewedAt': '2026-06-16T12:00:00-07:00',
-            'reviewedBy': 'mod-a',
-          },
-        ],
-      });
-      final history = await repo.listHistory();
-      expect(history.valueOrNull, hasLength(1));
+        when(() => result.data).thenReturn({
+          'reports': [
+            {
+              'id': 'h1',
+              'launchId': 'cathedral_park',
+              'message': 'Windy',
+              'createdAt': '2026-06-15T12:00:00-07:00',
+              'submitterUid': 'user-a',
+              'moderationStatus': 'approved',
+              'moderationReason': 'admin_approve',
+              'reviewedAt': '2026-06-16T12:00:00-07:00',
+              'reviewedBy': 'mod-a',
+            },
+          ],
+        });
+        final history = await repo.listHistory();
+        expect(history.valueOrNull, hasLength(1));
 
-      when(() => result.data).thenReturn({'moderationStatus': 'approved'});
-      final moderate = await repo.moderateReport(
-        reportId: 'r1',
-        approve: true,
-      );
-      expect(
-        moderate.valueOrNull,
-        ConditionReportModerationStatus.approved,
-      );
+        when(() => result.data).thenReturn({'moderationStatus': 'approved'});
+        final moderate = await repo.moderateReport(
+          reportId: 'r1',
+          approve: true,
+        );
+        expect(
+          moderate.valueOrNull,
+          ConditionReportModerationStatus.approved,
+        );
 
-      when(() => result.data).thenReturn({
-        'succeeded': ['r1'],
-        'failed': [],
-      });
-      final batch = await repo.moderateReportsBatch(
-        reportIds: ['r1'],
-        approve: true,
-      );
-      expect(batch.valueOrNull?.succeeded, ['r1']);
+        when(() => result.data).thenReturn({
+          'succeeded': ['r1'],
+          'failed': <Object?>[],
+        });
+        final batch = await repo.moderateReportsBatch(
+          reportIds: ['r1'],
+          approve: true,
+        );
+        expect(batch.valueOrNull?.succeeded, ['r1']);
 
-      when(() => result.data).thenReturn({'ok': true});
-      final reopen = await repo.reopenReport(reportId: 'h1');
-      expect(reopen.isSuccess, isTrue);
-    });
+        when(() => result.data).thenReturn({'ok': true});
+        final reopen = await repo.reopenReport(reportId: 'h1');
+        expect(reopen.isSuccess, isTrue);
+      },
+    );
   });
 }
