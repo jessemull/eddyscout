@@ -14,23 +14,31 @@ final class _RejectingMapRoutePlanner implements MapRoutePlanner {
   const _RejectingMapRoutePlanner();
 
   @override
-  Future<Result<RouteGeometrySnapshot?, RoutePlanningFailure>> planMultiSegment(
-    List<LaunchPoint> waypoints,
-  ) async {
-    return const Result.success(null);
-  }
-
-  @override
-  Future<Result<void, RoutePlanningFailure>> validateLaunch(
-    LaunchPoint launch,
+  Future<Result<WaterwaySnapPoint, RoutePlanningFailure>> snapToWaterway(
+    double latitude,
+    double longitude,
   ) async {
     return const Result.failure(_putInTooFarMessage);
   }
 
   @override
-  Future<Result<void, RoutePlanningFailure>> validateSegment(
-    LaunchPoint from,
-    LaunchPoint to,
+  Future<Result<RouteGeometrySnapshot?, RoutePlanningFailure>> planMultiSegment(
+    List<RoutePlanningStop> stops,
+  ) async {
+    return const Result.success(null);
+  }
+
+  @override
+  Future<Result<void, RoutePlanningFailure>> validateStop(
+    RoutePlanningStop stop,
+  ) async {
+    return const Result.failure(_putInTooFarMessage);
+  }
+
+  @override
+  Future<Result<void, RoutePlanningFailure>> validateSegmentStops(
+    RoutePlanningStop from,
+    RoutePlanningStop to,
   ) async {
     return const Result.failure(_putInTooFarMessage);
   }
@@ -40,7 +48,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets(
-    'tryAddPlanningWaypoint shows snackbar and skips waypoint on validateLaunch failure',
+    'tryAddPlanningWaypoint shows snackbar and skips stop on validateStop failure',
     (tester) async {
       final snackbarMessages = <Object>[];
 
@@ -63,6 +71,8 @@ void main() {
                         MapUiCallbacks(
                           pickDifferentTakeOutMessage:
                               'Pick different take-out',
+                          pickStopLaunchBlockedMessage:
+                              'Tap the river, not a launch pin',
                           riverDataLoadingMessage: 'Loading',
                           riverDataLoadFailedMessage: 'Unavailable',
                           showSnackBar: snackbarMessages.add,
@@ -92,13 +102,13 @@ void main() {
           .tryAddPlanningWaypoint(launch);
 
       expect(result, isNull);
-      expect(container.read(routePlanningProvider).waypoints, isEmpty);
+      expect(container.read(routePlanningProvider).stops, isEmpty);
       expect(snackbarMessages, contains(_putInTooFarMessage));
     },
   );
 
   testWidgets(
-    'tryAddPlanningWaypoint shows snackbar and skips waypoint on validateSegment failure',
+    'tryAddPlanningWaypoint shows snackbar and skips stop on validateSegmentStops failure',
     (tester) async {
       final snackbarMessages = <Object>[];
 
@@ -121,6 +131,8 @@ void main() {
                         MapUiCallbacks(
                           pickDifferentTakeOutMessage:
                               'Pick different take-out',
+                          pickStopLaunchBlockedMessage:
+                              'Tap the river, not a launch pin',
                           riverDataLoadingMessage: 'Loading',
                           riverDataLoadFailedMessage: 'Unavailable',
                           showSnackBar: snackbarMessages.add,
@@ -153,7 +165,10 @@ void main() {
           .tryAddPlanningWaypoint(takeOut);
 
       expect(result, isNull);
-      expect(container.read(routePlanningProvider).waypoints, [putIn]);
+      expect(
+        container.read(routePlanningProvider).stops,
+        [RoutePlanningStop.catalog(putIn)],
+      );
       expect(snackbarMessages, contains(_putInTooFarMessage));
     },
   );

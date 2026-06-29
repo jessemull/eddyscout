@@ -8,12 +8,6 @@ enum RouteFailureCode {
   /// Put-in and take-out are on different river systems with no connected path.
   differentSystem,
 
-  /// No bundled hydro line exists for the requested river system.
-  ///
-  /// Deprecated: unified multi-system graph uses [noRiverGeometryLoaded]
-  /// instead. Retained for localization of legacy failures.
-  noBundledLine,
-
   /// The graph has no vertices (e.g., asset missing/empty).
   noRiverGeometryLoaded,
 

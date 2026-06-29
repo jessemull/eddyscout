@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../domain/map_search_repository_provider.dart';
 import '../domain/map_search_result.dart';
+import 'map_planning_pick_stop_provider.dart';
 
 part 'map_search_provider.g.dart';
 
@@ -26,6 +27,7 @@ class MapSearchExpanded extends _$MapSearchExpanded {
     state = false;
     ref.read(mapSearchQueryProvider.notifier).clear();
     ref.read(mapPlanningInlineAddStopProvider.notifier).hide();
+    ref.read(mapPlanningPickStopActiveProvider.notifier).exit();
   }
 }
 

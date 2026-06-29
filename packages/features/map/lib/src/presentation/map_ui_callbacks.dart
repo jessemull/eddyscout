@@ -4,8 +4,10 @@ import 'package:eddyscout_core/eddyscout_core.dart';
 class MapUiCallbacks {
   const MapUiCallbacks({
     required this.pickDifferentTakeOutMessage,
+    required this.pickStopLaunchBlockedMessage,
     required this.riverDataLoadingMessage,
     required this.riverDataLoadFailedMessage,
+    this.customStopLabel,
     this.showSnackBar,
     this.openLaunchDetail,
     this.onLaunchPlaceSelected,
@@ -20,8 +22,14 @@ class MapUiCallbacks {
   /// Place-first flow: user tapped a launch pin while browsing the map.
   final void Function(LaunchPoint launch)? onLaunchPlaceSelected;
 
+  /// Localized label for a custom snap stop (one-based display index).
+  final String Function(int index)? customStopLabel;
+
   /// Localized snack bar when take-out equals put-in.
   final String pickDifferentTakeOutMessage;
+
+  /// Localized snack bar when pick-on-map mode taps a catalog launch pin.
+  final String pickStopLaunchBlockedMessage;
 
   /// Localized snack bar when hydro data is not ready.
   final String riverDataLoadingMessage;

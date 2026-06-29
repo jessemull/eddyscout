@@ -43,10 +43,26 @@ class SavedRouteDetailWaypointsSection extends ConsumerWidget {
           onReorder: onReorder,
           itemBuilder: (context, index) {
             final wp = waypoints[index];
-            final launch = ref.read(launchPointLookupProvider)(wp.launchId);
-            final label = launch?.name ?? l10n.savedRoutesUnknownLaunch;
+            final label = switch (wp) {
+              CatalogRouteWaypoint(:final launchId) =>
+                ref.read(launchPointLookupProvider)(launchId)?.name ??
+                    l10n.savedRoutesUnknownLaunch,
+              SnapRouteWaypoint(
+                :final label,
+                :final latitude,
+                :final longitude,
+              ) =>
+                label ??
+                    '${latitude.toStringAsFixed(4)}, '
+                        '${longitude.toStringAsFixed(4)}',
+            };
+            final keySuffix = switch (wp) {
+              CatalogRouteWaypoint(:final launchId) => launchId,
+              SnapRouteWaypoint(:final latitude, :final longitude) =>
+                '${latitude}_$longitude',
+            };
             return Semantics(
-              key: ValueKey('${wp.launchId}_$index'),
+              key: ValueKey('${keySuffix}_$index'),
               label: l10n.savedRoutesWaypointSemantics(index + 1, label),
               hint: l10n.savedRoutesReorderWaypointHint,
               child: ListTile(

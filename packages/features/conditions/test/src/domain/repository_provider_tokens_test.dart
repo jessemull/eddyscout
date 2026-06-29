@@ -34,4 +34,52 @@ void main() {
       ),
     );
   });
+
+  test(
+    'conditionReportModerationRepositoryProvider throws when not overridden',
+    () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      expect(
+        () => container.read(conditionReportModerationRepositoryProvider),
+        throwsA(
+          predicate(
+            (e) => e.toString().contains('UnimplementedError'),
+          ),
+        ),
+      );
+    },
+  );
+
+  test(
+    'conditionReportSubmitRepositoryProvider throws when not overridden',
+    () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      expect(
+        () => container.read(conditionReportSubmitRepositoryProvider),
+        throwsA(
+          predicate(
+            (e) => e.toString().contains('UnimplementedError'),
+          ),
+        ),
+      );
+    },
+  );
+
+  test('conditionsAiSummaryRepositoryProvider throws when not overridden', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    expect(
+      () => container.read(conditionsAiSummaryRepositoryProvider),
+      throwsA(
+        predicate(
+          (e) => e.toString().contains('UnimplementedError'),
+        ),
+      ),
+    );
+  });
 }

@@ -12,4 +12,15 @@ void main() {
       expect(first, isNot(equals(second)));
     });
   });
+
+  group('generatePlanningSnapId', () {
+    test('returns unique ids with snap_ prefix', () {
+      final first = generatePlanningSnapId();
+      final second = generatePlanningSnapId();
+
+      expect(first, startsWith('snap_'));
+      expect(second, startsWith('snap_'));
+      expect(first, isNot(equals(second)));
+    });
+  });
 }

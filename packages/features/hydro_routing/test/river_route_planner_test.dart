@@ -52,7 +52,7 @@ Future<RiverRoutePlanner> _plannerFromBundledAssets() async {
 
 void main() {
   group('RiverRoutePlanner.plan', () {
-    test('empty geometry returns noRiverGeometryLoaded not noBundledLine', () {
+    test('empty geometry returns noRiverGeometryLoaded', () {
       const json = '''
 {"type":"FeatureCollection","features":[]}
 ''';
@@ -73,7 +73,6 @@ void main() {
       expect(result, isA<RouteFailure>());
       final failure = result as RouteFailure;
       expect(failure.code, RouteFailureCode.noRiverGeometryLoaded);
-      expect(failure.code, isNot(RouteFailureCode.noBundledLine));
     });
 
     test('sameLaunch returns sameLaunch failure', () async {
@@ -389,23 +388,26 @@ void main() {
       'Port of Camas marina routes via Camas Slough spur geometry',
       () async {
         final planner = await _plannerFromBundledAssets();
-        final putIn = _launch(
-          id: 'port_of_camas',
-          river: RiverSystem.columbia,
-          lat: 45.5856,
-          lon: -122.4244,
-        );
-        final takeOut = _launch(
-          id: 'glenn_otto_troutdale',
-          river: RiverSystem.columbia,
-          lat: 45.5365,
-          lon: -122.3858,
-        );
+        final putIn = findLaunchPointById('port_of_camas')!;
+        final takeOut = findLaunchPointById('glenn_otto_troutdale')!;
         final result = planner.plan(putIn, takeOut);
         expect(result, isA<RouteSuccess>());
         final ok = result as RouteSuccess;
         expect(ok.lengthMeters, greaterThan(100));
         expect(ok.polylineLonLat.length, greaterThan(2));
+      },
+    );
+
+    test(
+      'Washougal Waterfront routes via side spur geometry',
+      () async {
+        final planner = await _plannerFromBundledAssets();
+        final putIn = findLaunchPointById('washougal_waterfront')!;
+        final takeOut = findLaunchPointById('glenn_otto_troutdale')!;
+        final result = planner.plan(putIn, takeOut);
+        expect(result, isA<RouteSuccess>());
+        final ok = result as RouteSuccess;
+        expect(ok.lengthMeters, greaterThan(100));
       },
     );
 
@@ -433,18 +435,8 @@ void main() {
 
     test('routes Columbia gorge launches along bundled geometry', () async {
       final planner = await _plannerFromFixtures();
-      final putIn = _launch(
-        id: 'port_of_camas',
-        river: RiverSystem.columbia,
-        lat: 45.5856,
-        lon: -122.4244,
-      );
-      final takeOut = _launch(
-        id: 'glenn_otto_troutdale',
-        river: RiverSystem.columbia,
-        lat: 45.5365,
-        lon: -122.3858,
-      );
+      final putIn = findLaunchPointById('port_of_camas')!;
+      final takeOut = findLaunchPointById('glenn_otto_troutdale')!;
       final result = planner.plan(putIn, takeOut);
       expect(result, isA<RouteSuccess>());
       final ok = result as RouteSuccess;
@@ -536,18 +528,8 @@ void main() {
   group('RiverRoutePlanner.planLaunches', () {
     test('returns result and planned route together on success', () async {
       final planner = await _plannerFromFixtures();
-      final putIn = _launch(
-        id: 'port_of_camas',
-        river: RiverSystem.columbia,
-        lat: 45.5856,
-        lon: -122.4244,
-      );
-      final takeOut = _launch(
-        id: 'glenn_otto_troutdale',
-        river: RiverSystem.columbia,
-        lat: 45.5365,
-        lon: -122.3858,
-      );
+      final putIn = findLaunchPointById('port_of_camas')!;
+      final takeOut = findLaunchPointById('glenn_otto_troutdale')!;
       final (:result, :planned) = planner.planLaunches(putIn, takeOut);
       expect(result, isA<RouteSuccess>());
       expect(planned, isNotNull);
@@ -560,18 +542,8 @@ void main() {
   group('RiverRoutePlanner.planRoute', () {
     test('returns PlannedRoute on success and null on failure', () async {
       final planner = await _plannerFromFixtures();
-      final putIn = _launch(
-        id: 'port_of_camas',
-        river: RiverSystem.columbia,
-        lat: 45.5856,
-        lon: -122.4244,
-      );
-      final takeOut = _launch(
-        id: 'glenn_otto_troutdale',
-        river: RiverSystem.columbia,
-        lat: 45.5365,
-        lon: -122.3858,
-      );
+      final putIn = findLaunchPointById('port_of_camas')!;
+      final takeOut = findLaunchPointById('glenn_otto_troutdale')!;
       final planned = planner.planRoute(putIn, takeOut);
       expect(planned, isNotNull);
       expect(planned!.putIn?.id, 'port_of_camas');
@@ -662,6 +634,9 @@ void main() {
       for (final id in [
         'frenchmans_bar',
         'st_helens_public_marina',
+        'port_of_camas',
+        'washougal_waterfront',
+        'scappoose_bay_marina',
       ]) {
         final launch = findLaunchPointById(id)!;
         expect(planner.validateLaunchSnap(launch), isNull, reason: id);
@@ -672,17 +647,6 @@ void main() {
       'validateLaunchSnap rejects launches far from bundled geometry',
       () async {
         final planner = await _plannerFromBundledAssets();
-        for (final id in [
-          'port_of_camas',
-          'scappoose_bay_marina',
-        ]) {
-          final launch = findLaunchPointById(id)!;
-          expect(
-            planner.validateLaunchSnap(launch)?.code,
-            RouteFailureCode.putInTooFar,
-            reason: id,
-          );
-        }
         final farLaunch = _launch(
           id: 'far',
           river: RiverSystem.willamette,

@@ -318,4 +318,128 @@ void main() {
     expect(find.textContaining('Launch not found in catalog.'), findsOneWidget);
     expect(find.textContaining('Launch not found:'), findsNothing);
   });
+
+  testWidgets('shows snap stops in expanded timeline with placeholder text', (
+    tester,
+  ) async {
+    final launchIds = ['cathedral_park', 'kelley_point'];
+    final waypointsKey = _waypointsKey(launchIds);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          routeGoNoGoRollupProvider(waypointsKey).overrideWith(
+            (_) async => _rollupResult(verdict: GoNoGoVerdict.marginal),
+          ),
+        ],
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: RouteGoNoGoSummarySection(
+              launchIdsInOrder: launchIds,
+              catalogStopOrderIndices: const [0, 2],
+              snapStops: const [
+                RouteGoNoGoSnapStop(
+                  orderIndex: 1,
+                  label: 'Lunch spot',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(ExpansionTile));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Lunch spot'), findsOneWidget);
+    expect(find.text('No conditions data available'), findsOneWidget);
+  });
+
+  testWidgets('shows snap-only route with unknown conditions header', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      testLocalizedApp(
+        child: const Scaffold(
+          body: RouteGoNoGoSummarySection(
+            launchIdsInOrder: [],
+            snapStops: [
+              RouteGoNoGoSnapStop(orderIndex: 0, label: 'Custom Stop 1'),
+              RouteGoNoGoSnapStop(orderIndex: 1, label: 'Custom Stop 2'),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Unknown conditions'), findsOneWidget);
+
+    await tester.tap(find.byType(ExpansionTile));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Custom Stop 1'), findsOneWidget);
+    expect(find.text('Custom Stop 2'), findsOneWidget);
+    expect(find.text('No conditions data available'), findsNWidgets(2));
+  });
+
+  testWidgets('shows single catalog launch with snap stops in timeline', (
+    tester,
+  ) async {
+    final launchIds = ['cathedral_park'];
+    final waypointsKey = _waypointsKey(launchIds);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          routeGoNoGoRollupProvider(waypointsKey).overrideWith(
+            (_) async => RouteGoNoGoResult(
+              verdict: GoNoGoVerdict.go,
+              computedAt: DateTime.parse('2026-06-15T12:00:00-07:00'),
+              waypointResults: [
+                RouteWaypointGoNoGoResult(
+                  orderIndex: 0,
+                  launchId: testCathedralParkLaunch.id,
+                  launchName: testCathedralParkLaunch.name,
+                  result: GoNoGoResult(
+                    verdict: GoNoGoVerdict.go,
+                    reasons: const [],
+                    computedAt: DateTime.parse('2026-06-15T12:00:00-07:00'),
+                  ),
+                ),
+              ],
+              waypointFailures: const [],
+              triggeringReasons: const [],
+            ),
+          ),
+        ],
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: RouteGoNoGoSummarySection(
+              launchIdsInOrder: launchIds,
+              catalogStopOrderIndices: const [0],
+              snapStops: const [
+                RouteGoNoGoSnapStop(
+                  orderIndex: 1,
+                  label: 'Lunch spot',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Favorable conditions'), findsWidgets);
+
+    await tester.tap(find.byType(ExpansionTile));
+    await tester.pumpAndSettle();
+
+    expect(find.text(testCathedralParkLaunch.name), findsOneWidget);
+    expect(find.text('Lunch spot'), findsOneWidget);
+    expect(find.text('No conditions data available'), findsOneWidget);
+  });
 }
