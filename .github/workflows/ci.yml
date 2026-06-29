@@ -56,21 +56,6 @@ jobs:
       - run: melos bootstrap
       - run: ./scripts/codegen_verify.sh
 
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version-file: .tool-versions
-          channel: stable
-          cache: true
-      - run: dart pub get
-      - run: dart pub global activate melos
-      - run: melos bootstrap
-      - run: ./scripts/run_tests.sh
-
   golden:
     name: Golden Tests
     # Pin macOS version: macos-latest mixes 14/26 runners; font rasterization
@@ -95,7 +80,7 @@ jobs:
         run: defaults -currentHost write -g AppleFontSmoothing -int 2
 
   coverage:
-    name: Coverage Thresholds
+    name: Tests and Coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

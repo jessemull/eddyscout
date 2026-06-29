@@ -208,7 +208,22 @@ final result = await container.read(launchPointsProvider.future);
 
 ## CI Enforcement
 
-- `make test` runs all tests across all packages
-- `make coverage` generates lcov reports
-- CI fails on any test failure
-- CI fails on coverage regression below threshold
+| When | What runs | Scope |
+|------|-----------|-------|
+| **`git push`** (husky) | Format, analyze, codegen, boundaries, **tests** (no coverage) | Affected packages vs `origin/main` when safe; full suite on global config changes |
+| **`make preflight`** | Same gates + **tests with coverage** + threshold check | Affected packages by default |
+| **`PUSH_VALIDATE_FULL_SUITE=1 make preflight`** | Full monorepo coverage | Parity with CI |
+| **CI** (`Tests and Coverage` job) | `run_coverage.sh` + `check_coverage.sh` | Full suite on every PR |
+| **Scheduled** (`preflight.yml --ci`) | Full `preflight.sh` | Full suite daily |
+
+- `make test` runs all tests across all packages (parallel, no coverage)
+- `make coverage` runs all tests with `--coverage` (parallel across packages, serial isolates per package)
+- CI fails on any test failure or coverage regression below threshold in `tooling/coverage.yaml`
+
+### Environment overrides
+
+| Variable | Effect |
+|----------|--------|
+| `PUSH_VALIDATE_AUTO_AFFECTED=1` | Default on push and local preflight — `--since=origin/main` with dependents/deps |
+| `PUSH_VALIDATE_FULL_SUITE=1` | Force full test/coverage suite |
+| `PUSH_VALIDATE_JOBS=N` | Cap melos package parallelism (default: `min(ncpu, 8)`) |

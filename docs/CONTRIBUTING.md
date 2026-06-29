@@ -150,7 +150,7 @@ chore(ci): add generated code freshness check to preflight
 
 ### Before opening a PR
 
-1. **Quality gates:** Commits run a fast staged format/analyze hook. **`git push` runs the full test + codegen + boundary checks.** Optionally run `make preflight` before opening a PR (includes coverage, same as CI minus parallel jobs).
+1. **Quality gates:** Commits run a fast staged format/analyze hook. **`git push` runs affected tests + codegen + boundary checks** (no coverage). Run `make preflight` before opening a PR for affected coverage + thresholds. Use `PUSH_VALIDATE_FULL_SUITE=1 make preflight` for full-suite parity with CI.
 
 2. **Keep PRs focused.** One logical change per PR. If you find yourself writing "also" in the PR description, consider splitting.
 
@@ -229,20 +229,19 @@ chore(ci): add generated code freshness check to preflight
 
 ## Preflight checks
 
-Run before every push:
+**`git push`** runs push validation (affected tests, no coverage). Before a PR, run:
 
 ```bash
-melos run preflight
+make preflight                    # affected coverage + thresholds
+PUSH_VALIDATE_FULL_SUITE=1 make preflight   # full suite (CI parity)
 ```
 
-This executes (in order):
+Preflight executes:
 
-1. `dart format --set-exit-if-changed .` — formatting
-2. `dart analyze --fatal-infos` — static analysis
-3. `flutter test` — all tests in packages with `test/` directories
-4. `melos run gen:check` — generated code freshness
+1. Format, analyze, import/architecture/hydro checks, and codegen verification (parallel where safe)
+2. Tests with coverage + threshold check (`make preflight`), or tests only (`git push` via `--no-coverage`)
 
-CI runs the same checks via `scripts/preflight.sh --ci`. If preflight passes locally, CI will pass.
+CI runs the full suite via `scripts/preflight.sh --ci` (scheduled daily) and the **Tests and Coverage** job on every PR.
 
 ### Individual checks
 
