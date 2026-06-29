@@ -158,6 +158,8 @@ dart run scripts/generate_launch_water_entry_snaps.dart   # audit report (all la
 
 Until catalog launches have explicit `waterEntryLatitude` / `waterEntryLongitude`, the CI gate is a no-op; the report lists snap distances for manual pin realignment (R3).
 
+**200 m allowlist** (access pins inland of spur geometry; exempt from strict gate until R3): `washougal_waterfront`, `port_of_camas`, `scappoose_bay_marina`. Single source of truth: `kLaunchWaterEntrySnapAllowlist` in `packages/features/hydro_routing/lib/src/data/launch_water_entry_snap_generator.dart`.
+
 ## Disclaimer
 
 These lines are for **planning visualization only**, not navigation. Verify flow direction, hazards, and access on the water.
