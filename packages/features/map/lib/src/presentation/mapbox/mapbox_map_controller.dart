@@ -270,7 +270,7 @@ final class MapboxMapController extends _$MapboxMapController
     }
     final snap = (snapResult as Success<WaterwaySnapPoint, Object>).value;
     final stopIndex = planning.stops.length + 1;
-    final label =
+    final defaultLabel =
         ui.customStopLabel?.call(stopIndex) ??
         '${snap.latitude.toStringAsFixed(4)}, '
             '${snap.longitude.toStringAsFixed(4)}';
@@ -279,7 +279,7 @@ final class MapboxMapController extends _$MapboxMapController
       id: generatePlanningSnapId(),
       latitude: snap.latitude,
       longitude: snap.longitude,
-      label: label,
+      label: defaultLabel,
       reachId: snap.reachId,
     );
 

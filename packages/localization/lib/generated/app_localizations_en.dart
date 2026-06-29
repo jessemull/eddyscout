@@ -747,6 +747,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get mapRouteNameStopTitle => 'Name this stop';
+
+  @override
+  String get mapRouteNameStopHint => 'e.g. Lunch spot, Fishing hole';
+
+  @override
+  String get mapRouteNameStopSave => 'Save';
+
+  @override
+  String get mapRouteNameStopCancel => 'Cancel';
+
+  @override
   String get mapRouteStartComingSoon => 'On-water navigation is coming soon.';
 
   @override
@@ -1181,6 +1193,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get routeGoNoGoStopConditionsUnavailable =>
       'Conditions could not be loaded for this stop.';
+
+  @override
+  String get conditionsCustomStopNoData => 'No conditions data available';
 
   @override
   String routeGoNoGoStopFailureLine(int position, String name, String message) {

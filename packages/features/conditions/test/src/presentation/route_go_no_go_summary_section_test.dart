@@ -318,4 +318,42 @@ void main() {
     expect(find.textContaining('Launch not found in catalog.'), findsOneWidget);
     expect(find.textContaining('Launch not found:'), findsNothing);
   });
+
+  testWidgets('shows snap stops in expanded timeline with placeholder text', (
+    tester,
+  ) async {
+    final launchIds = ['cathedral_park', 'kelley_point'];
+    final waypointsKey = _waypointsKey(launchIds);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          routeGoNoGoRollupProvider(waypointsKey).overrideWith(
+            (_) async => _rollupResult(verdict: GoNoGoVerdict.marginal),
+          ),
+        ],
+        child: testLocalizedApp(
+          child: Scaffold(
+            body: RouteGoNoGoSummarySection(
+              launchIdsInOrder: launchIds,
+              catalogStopOrderIndices: const [0, 2],
+              snapStops: const [
+                RouteGoNoGoSnapStop(
+                  orderIndex: 1,
+                  label: 'Lunch spot',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(ExpansionTile));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Lunch spot'), findsOneWidget);
+    expect(find.text('No conditions data available'), findsOneWidget);
+  });
 }

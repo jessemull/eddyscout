@@ -488,6 +488,10 @@
       "name": {"type": "String"}
     }
   },
+  "mapRouteNameStopTitle": "Name this stop",
+  "mapRouteNameStopHint": "e.g. Lunch spot, Fishing hole",
+  "mapRouteNameStopSave": "Save",
+  "mapRouteNameStopCancel": "Cancel",
   "mapRouteStartComingSoon": "On-water navigation is coming soon.",
   "mapLocateMeLabel": "Locate me",
   "mapCloseSheetLabel": "Close",
@@ -749,6 +753,10 @@
   "routeGoNoGoStopConditionsUnavailable": "Conditions could not be loaded for this stop.",
   "@routeGoNoGoStopConditionsUnavailable": {
     "description": "Partial-failure message when conditions for a route stop could not be loaded"
+  },
+  "conditionsCustomStopNoData": "No conditions data available",
+  "@conditionsCustomStopNoData": {
+    "description": "Go/no-go timeline placeholder for custom snap stops without catalog conditions"
   },
   "routeGoNoGoStopFailureLine": "{position}. {name}: {message}",
   "@routeGoNoGoStopFailureLine": {

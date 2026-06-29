@@ -43,6 +43,22 @@ abstract class RouteGoNoGoResult with _$RouteGoNoGoResult {
   }) = _RouteGoNoGoResult;
 }
 
+/// Custom snap stop shown in route go/no-go timeline (no conditions API).
+@immutable
+final class RouteGoNoGoSnapStop {
+  /// Creates metadata for one snap stop row in the go/no-go timeline.
+  const RouteGoNoGoSnapStop({
+    required this.orderIndex,
+    required this.label,
+  });
+
+  /// Zero-based position along the full route stop list.
+  final int orderIndex;
+
+  /// User-facing stop label.
+  final String label;
+}
+
 /// Stable cache key: ordered launch ids for a planned route (value equality).
 @immutable
 final class RouteGoNoGoWaypointsKey {

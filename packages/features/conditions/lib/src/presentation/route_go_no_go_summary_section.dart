@@ -19,14 +19,29 @@ class RouteGoNoGoSummarySection extends ConsumerWidget {
   /// Creates a section that loads rollup for [launchIdsInOrder].
   const RouteGoNoGoSummarySection({
     required this.launchIdsInOrder,
+    this.catalogStopOrderIndices = const [],
+    this.snapStops = const [],
     super.key,
   });
 
   /// Ordered catalog launch ids along the route.
   final List<String> launchIdsInOrder;
 
+  /// Full-route order index for each entry in [launchIdsInOrder].
+  ///
+  /// When empty, [RouteWaypointGoNoGoResult.orderIndex] from the rollup is
+  /// used.
+  final List<int> catalogStopOrderIndices;
+
+  /// Custom snap stops interleaved in the timeline (no conditions data).
+  final List<RouteGoNoGoSnapStop> snapStops;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (launchIdsInOrder.length + snapStops.length < 2) {
+      return const SizedBox.shrink();
+    }
+
     if (launchIdsInOrder.length < 2) {
       return const SizedBox.shrink();
     }
@@ -43,7 +58,11 @@ class RouteGoNoGoSummarySection extends ConsumerWidget {
         message: localizeRouteGoNoGoRollupErrorMessage(l10n, error),
         onRetry: () => ref.invalidate(routeGoNoGoRollupProvider(waypointsKey)),
       ),
-      data: (result) => _RouteGoNoGoSummaryStrip(result: result),
+      data: (result) => _RouteGoNoGoSummaryStrip(
+        result: result,
+        catalogStopOrderIndices: catalogStopOrderIndices,
+        snapStops: snapStops,
+      ),
     );
   }
 }

@@ -1285,6 +1285,30 @@ abstract class AppLocalizations {
   /// **'Custom stop, {name}'**
   String mapRouteCustomStopSemantics(String name);
 
+  /// No description provided for @mapRouteNameStopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name this stop'**
+  String get mapRouteNameStopTitle;
+
+  /// No description provided for @mapRouteNameStopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Lunch spot, Fishing hole'**
+  String get mapRouteNameStopHint;
+
+  /// No description provided for @mapRouteNameStopSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get mapRouteNameStopSave;
+
+  /// No description provided for @mapRouteNameStopCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get mapRouteNameStopCancel;
+
   /// No description provided for @mapRouteStartComingSoon.
   ///
   /// In en, this message translates to:
@@ -2005,6 +2029,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Conditions could not be loaded for this stop.'**
   String get routeGoNoGoStopConditionsUnavailable;
+
+  /// Go/no-go timeline placeholder for custom snap stops without catalog conditions
+  ///
+  /// In en, this message translates to:
+  /// **'No conditions data available'**
+  String get conditionsCustomStopNoData;
 
   /// No description provided for @routeGoNoGoStopFailureLine.
   ///

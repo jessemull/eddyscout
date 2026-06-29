@@ -79,6 +79,44 @@ void main() {
       expect(container.read(routePlanningProvider).stops.first.isSnap, isTrue);
     });
 
+    test('renameSnapStop updates snap label without rerouting', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      const snap = WaterwaySnapPoint(
+        latitude: 45.51,
+        longitude: -122.61,
+        distanceMeters: 12,
+      );
+
+      container
+          .read(routePlanningProvider.notifier)
+          .handleSnapStop(snap, label: 'Custom stop 1');
+      final stopId = container.read(routePlanningProvider).stops.first.stopId;
+
+      container
+          .read(routePlanningProvider.notifier)
+          .renameSnapStop(stopId, '  Lunch spot  ');
+
+      expect(
+        container.read(routePlanningProvider).stops.first.displayLabel,
+        'Lunch spot',
+      );
+    });
+
+    test('renameSnapStop ignores empty labels and catalog stops', () {
+      final launch = _launch(id: 'a');
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      container.read(routePlanningProvider.notifier).handleLaunchTap(launch);
+
+      container
+          .read(routePlanningProvider.notifier)
+          .renameSnapStop(launch.id, 'Ignored');
+
+      expect(
+        container.read(routePlanningProvider).stops.first.displayLabel,
+        launch.name,
+      );
+    });
+
     test('handleLaunchTap rejects same launch for take-out', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final launch = _launch(id: 'a');

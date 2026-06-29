@@ -176,8 +176,72 @@ void main() {
       routeLengthKm: 8,
     );
 
-    expect(find.text('Custom stop 2'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Custom stop 2'), findsOneWidget);
+    expect(find.byIcon(Icons.edit_outlined), findsNothing);
     expect(find.byIcon(Icons.place_outlined), findsOneWidget);
+  });
+
+  testWidgets('commits inline snap stop rename on blur', (tester) async {
+    final container = ProviderContainer(
+      overrides: [
+        mapKeyValueStoreProvider.overrideWith((ref) async => store),
+        effectiveDisplayUnitSystemProvider.overrideWithValue(
+          DisplayUnitSystem.metric,
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    container.read(routePlanningProvider.notifier).togglePlanningMode();
+    container.read(routePlanningProvider.notifier).handleLaunchTap(_origin);
+    container
+        .read(routePlanningProvider.notifier)
+        .handleSnapStop(
+          const WaterwaySnapPoint(
+            latitude: 45.55,
+            longitude: -122.55,
+            distanceMeters: 12,
+          ),
+          label: 'Custom stop 2',
+        );
+    container
+        .read(routePlanningProvider.notifier)
+        .handleLaunchTap(_destination);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: testLocalizedApp(
+          child: Consumer(
+            builder: (context, ref, _) {
+              final stops = ref.watch(routePlanningProvider).stops;
+              return MapRoutePlanningChrome(
+                stops: stops,
+                routeLengthKm: 8,
+                canFinishPlanning: true,
+                onBack: () {},
+                onDone: () {},
+                onRemoveStop: (_) {},
+                onReorderStop: (_, _) {},
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Custom stop 2'),
+      'Lunch spot',
+    );
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
+
+    expect(
+      container.read(routePlanningProvider).stops[1].displayLabel,
+      'Lunch spot',
+    );
   });
 
   testWidgets('disables Done when canFinishPlanning is false', (tester) async {

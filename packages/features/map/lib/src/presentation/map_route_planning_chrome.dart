@@ -6,9 +6,13 @@ import 'package:eddyscout_persistence/eddyscout_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'map_planning_provider.dart';
 import 'map_search_provider.dart';
 import 'map_sheet_header_icon_button.dart';
 import 'paddle_speed_provider.dart';
+
+/// Maximum length for a custom snap stop label in planning chrome.
+const int kSnapStopLabelMaxLength = 40;
 
 /// Floating edit-stops card (Google Maps directions style).
 class MapRoutePlanningChrome extends ConsumerWidget {
@@ -121,6 +125,9 @@ class MapRoutePlanningChrome extends ConsumerWidget {
                         _stopSemanticsLabel(l10n, index, stop),
                     onRemoveStop: onRemoveStop,
                     onReorderStop: onReorderStop,
+                    onRenameSnapStop: (stopId, newLabel) => ref
+                        .read(routePlanningProvider.notifier)
+                        .renameSnapStop(stopId, newLabel),
                     onInlineSearchChanged: (value) =>
                         _onInlineSearchChanged(ref, value),
                   ),
@@ -187,6 +194,7 @@ class _PlanningStopListSection extends StatelessWidget {
     required this.stopSemanticsLabel,
     required this.onRemoveStop,
     required this.onReorderStop,
+    required this.onRenameSnapStop,
     required this.onInlineSearchChanged,
   });
 
@@ -196,6 +204,7 @@ class _PlanningStopListSection extends StatelessWidget {
   final String Function(int index, RoutePlanningStop stop) stopSemanticsLabel;
   final ValueChanged<int> onRemoveStop;
   final void Function(int oldIndex, int newIndex) onReorderStop;
+  final void Function(String stopId, String newLabel) onRenameSnapStop;
   final ValueChanged<String> onInlineSearchChanged;
 
   @override
@@ -226,6 +235,11 @@ class _PlanningStopListSection extends StatelessWidget {
                     isSnap: stop.isSnap,
                   ),
                   label: stop.displayLabel,
+                  isSnap: stop.isSnap,
+                  stopId: stop.stopId,
+                  onRenameSnapStop: stop.isSnap
+                      ? (newLabel) => onRenameSnapStop(stop.stopId, newLabel)
+                      : null,
                   onRemove: canRemove ? () => onRemoveStop(index) : null,
                   removeSemanticsLabel: l10n.mapRouteDeleteStopSemantics(
                     stop.displayLabel,
@@ -341,8 +355,11 @@ class _EditStopRow extends StatelessWidget {
     required this.showConnectorBelow,
     required this.indicator,
     required this.label,
+    required this.isSnap,
+    required this.stopId,
     required this.dragIndex,
     required this.reorderHint,
+    this.onRenameSnapStop,
     this.onRemove,
     this.removeSemanticsLabel,
   });
@@ -350,8 +367,11 @@ class _EditStopRow extends StatelessWidget {
   final bool showConnectorBelow;
   final Widget indicator;
   final String label;
+  final bool isSnap;
+  final String stopId;
   final int dragIndex;
   final String reorderHint;
+  final ValueChanged<String>? onRenameSnapStop;
   final VoidCallback? onRemove;
   final String? removeSemanticsLabel;
 
@@ -374,12 +394,18 @@ class _EditStopRow extends StatelessWidget {
                 ),
                 const SizedBox(width: Spacing.xs),
                 Expanded(
-                  child: Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  child: isSnap && onRenameSnapStop != null
+                      ? _SnapStopInlineLabelField(
+                          key: ValueKey('snap_label_$stopId'),
+                          label: label,
+                          onCommit: onRenameSnapStop!,
+                        )
+                      : Text(
+                          label,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                 ),
                 ReorderableDragStartListener(
                   index: dragIndex,
@@ -533,6 +559,107 @@ class _VerticalDotConnector extends StatelessWidget {
           decoration: BoxDecoration(
             color: dotColor,
             shape: BoxShape.circle,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SnapStopInlineLabelField extends StatefulWidget {
+  const _SnapStopInlineLabelField({
+    required this.label,
+    required this.onCommit,
+    super.key,
+  });
+
+  final String label;
+  final ValueChanged<String> onCommit;
+
+  @override
+  State<_SnapStopInlineLabelField> createState() =>
+      _SnapStopInlineLabelFieldState();
+}
+
+class _SnapStopInlineLabelFieldState extends State<_SnapStopInlineLabelField> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.label);
+    _focusNode = FocusNode()..addListener(_handleFocusChange);
+  }
+
+  @override
+  void didUpdateWidget(covariant _SnapStopInlineLabelField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.label != widget.label && !_focusNode.hasFocus) {
+      _controller.text = widget.label;
+    }
+  }
+
+  void _handleFocusChange() {
+    if (!_focusNode.hasFocus) {
+      _commit();
+    }
+  }
+
+  void _commit() {
+    final trimmed = _controller.text.trim();
+    if (trimmed.isEmpty) {
+      _controller.text = widget.label;
+      return;
+    }
+    if (trimmed != widget.label) {
+      widget.onCommit(trimmed);
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode
+      ..removeListener(_handleFocusChange)
+      ..dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Theme(
+      data: Theme.of(context).copyWith(
+        inputDecorationTheme: const InputDecorationTheme(
+          filled: false,
+          fillColor: Colors.transparent,
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          contentPadding: EdgeInsets.zero,
+          isDense: true,
+          isCollapsed: true,
+        ),
+      ),
+      child: TextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        style: Theme.of(context).textTheme.bodyMedium,
+        maxLength: kSnapStopLabelMaxLength,
+        buildCounter:
+            (
+              context, {
+              required currentLength,
+              required isFocused,
+              maxLength,
+            }) => null,
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) => _commit(),
+        decoration: InputDecoration(
+          hintText: context.l10n.mapRouteNameStopHint,
+          hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: scheme.onSurfaceVariant,
           ),
         ),
       ),

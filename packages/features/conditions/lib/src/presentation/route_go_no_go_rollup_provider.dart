@@ -1,11 +1,42 @@
+import 'package:dio/dio.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
+import 'package:eddyscout_conditions/src/domain/conditions_repository_provider.dart';
 import 'package:eddyscout_conditions/src/domain/launch_go_no_go_provider.dart';
+import 'package:eddyscout_conditions/src/domain/repositories/conditions_repository.dart';
 import 'package:eddyscout_conditions/src/domain/route_go_no_go.dart';
 import 'package:eddyscout_conditions/src/presentation/conditions_snapshot_provider.dart';
 import 'package:eddyscout_conditions/src/presentation/go_no_go_profile_provider.dart';
+import 'package:eddyscout_conditions/src/presentation/provider_result.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'route_go_no_go_rollup_provider.g.dart';
+
+/// Loads conditions for route rollup without cancelling in-flight autoDispose
+/// snapshot providers (see launch detail [conditionsSnapshotProvider]).
+Future<ConditionsSnapshot> _conditionsSnapshotForRouteRollup(
+  Ref ref,
+  ConditionsRepository repository,
+  LaunchPoint launch,
+  CancelToken cancelToken,
+) async {
+  final snapshotProvider = conditionsSnapshotProvider(launch);
+  if (ref.exists(snapshotProvider)) {
+    final cached = ref.read(snapshotProvider);
+    switch (cached) {
+      case AsyncData(:final value):
+        return value;
+      case AsyncLoading():
+        return ref.watch(snapshotProvider.future);
+      case AsyncError():
+        break;
+    }
+  }
+
+  return unwrapResultForAsyncProvider(
+    await repository.load(launch, cancelToken: cancelToken),
+  );
+}
 
 /// Evaluates and rolls up go/no-go across ordered route waypoint launch ids.
 @Riverpod(retry: disableProviderRetry)
@@ -21,11 +52,19 @@ Future<RouteGoNoGoResult> routeGoNoGoRollup(
   }
 
   final profile = await ref.watch(goNoGoProfileProvider.future);
+  final repository = ref.read(conditionsRepositoryProvider);
+  final cancelToken = CancelToken();
+  ref.onDispose(() {
+    if (!cancelToken.isCancelled) {
+      cancelToken.cancel('routeGoNoGoRollup disposed');
+    }
+  });
+
   final evaluated = <RouteWaypointGoNoGoResult>[];
   final failures = <RouteWaypointGoNoGoFailure>[];
 
-  // Sequential fetch reuses [conditionsSnapshotProvider] cache (same as launch
-  // detail) and avoids parallel autoDispose cancel races on first load.
+  // Sequential fetch via repository avoids autoDispose cancel races on
+  // [conditionsSnapshotProvider] when read from this async provider.
   for (final entry in launchIdsInOrder.asMap().entries) {
     final orderIndex = entry.key;
     final launchId = entry.value;
@@ -43,10 +82,13 @@ Future<RouteGoNoGoResult> routeGoNoGoRollup(
     }
 
     try {
-      final snapshot = await ref.watch(
-        conditionsSnapshotProvider(launch).future,
+      final snapshot = await _conditionsSnapshotForRouteRollup(
+        ref,
+        repository,
+        launch,
+        cancelToken,
       );
-      final result = ref.watch(
+      final result = ref.read(
         launchGoNoGoResultProvider((
           launch: launch,
           snapshot: snapshot,

@@ -259,6 +259,37 @@ class RoutePlanning extends _$RoutePlanning {
     _applyStopList(stops);
   }
 
+  /// Updates the label of a custom snap stop identified by [stopId].
+  void renameSnapStop(String stopId, String newLabel) {
+    final trimmed = newLabel.trim();
+    if (trimmed.isEmpty) {
+      return;
+    }
+
+    final stops = <RoutePlanningStop>[];
+    var changed = false;
+    for (final stop in state.stops) {
+      if (stop case SnapRoutePlanningStop(:final id) when id == stopId) {
+        stops.add(stop.copyWith(label: trimmed));
+        changed = true;
+      } else {
+        stops.add(stop);
+      }
+    }
+    if (!changed) {
+      return;
+    }
+
+    state = RoutePlanningState(
+      phase: state.phase,
+      stops: stops,
+      routeLengthKm: state.routeLengthKm,
+      activeGeometry: state.activeGeometry,
+      loadedSavedRouteId: state.loadedSavedRouteId,
+      routeOrigin: state.routeOrigin,
+    );
+  }
+
   /// Removes the last stop after a failed route attempt.
   void removeLastStop() {
     if (state.stops.isEmpty) {
