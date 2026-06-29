@@ -39,6 +39,17 @@ void main() {
       expect(rows.single.vertexIndex, isNotNull);
     });
 
+    test('allowlist matches documented Columbia spur launches', () {
+      expect(
+        kLaunchWaterEntrySnapAllowlist,
+        {
+          'washougal_waterfront',
+          'port_of_camas',
+          'scappoose_bay_marina',
+        },
+      );
+    });
+
     test('violations excludes allowlisted launches', () {
       final graph = RiverLineGraph.forTesting(
         lat: [45.0],

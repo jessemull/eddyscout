@@ -8,6 +8,18 @@ import 'package:eddyscout_hydro_routing/src/domain/launch_reachability_index.dar
 /// gate.
 const kLaunchWaterEntrySnapMaxMeters = 200.0;
 
+/// Catalog launches exempt from the 200 m water-entry snap gate until R3
+/// water-entry coords land or geometry is tightened.
+///
+/// Documented in `apps/eddyscout/scripts/README-hydro.md` (Launch water-entry
+/// snap validation). All three route within [kReachabilitySnapMaxMeters]
+/// (900 m).
+const Set<String> kLaunchWaterEntrySnapAllowlist = {
+  'washougal_waterfront',
+  'port_of_camas',
+  'scappoose_bay_marina',
+};
+
 /// Snap result for a catalog launch against the unified hydro graph.
 class LaunchWaterEntrySnapRow {
   /// Creates a water-entry snap row.

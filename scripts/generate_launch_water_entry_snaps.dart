@@ -9,15 +9,6 @@ import 'dart:io';
 
 import 'package:eddyscout_core/eddyscout_core.dart';
 import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
-import 'package:eddyscout_hydro_routing/src/data/launch_water_entry_snap_generator.dart'
-    show kLaunchWaterEntrySnapMaxMeters;
-
-/// Launches beyond reachability threshold until geometry pass (see README-hydro).
-const _knownUnsnappedLaunchIds = {
-  'washougal_waterfront',
-  'port_of_camas',
-  'scappoose_bay_marina',
-};
 
 Future<void> main(List<String> args) async {
   final checkOnly = args.contains('--check');
@@ -54,7 +45,7 @@ Future<void> main(List<String> args) async {
   if (checkOnly) {
     final violations = planner.launchWaterEntrySnapViolations(
       catalog: kLaunchPoints,
-      allowlist: _knownUnsnappedLaunchIds,
+      allowlist: kLaunchWaterEntrySnapAllowlist,
       waterEntryOnly: true,
     );
     if (violations.isNotEmpty) {
