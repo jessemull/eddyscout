@@ -8,16 +8,19 @@ part of 'map_planning_snap_stop_pending_rename_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Snap stop id that should open in rename edit mode when planning chrome appears.
+/// Snap stop id that should open in rename edit mode when planning chrome
+/// appears.
 
 @ProviderFor(MapPlanningSnapStopPendingRename)
 final mapPlanningSnapStopPendingRenameProvider =
     MapPlanningSnapStopPendingRenameProvider._();
 
-/// Snap stop id that should open in rename edit mode when planning chrome appears.
+/// Snap stop id that should open in rename edit mode when planning chrome
+/// appears.
 final class MapPlanningSnapStopPendingRenameProvider
     extends $NotifierProvider<MapPlanningSnapStopPendingRename, String?> {
-  /// Snap stop id that should open in rename edit mode when planning chrome appears.
+  /// Snap stop id that should open in rename edit mode when planning chrome
+  /// appears.
   MapPlanningSnapStopPendingRenameProvider._()
     : super(
         from: null,
@@ -47,9 +50,10 @@ final class MapPlanningSnapStopPendingRenameProvider
 }
 
 String _$mapPlanningSnapStopPendingRenameHash() =>
-    r'6df4ecb4823f7f49605c6b66a5015d3fb977e3fa';
+    r'142efad486a2c0705882395487541d29d196e0da';
 
-/// Snap stop id that should open in rename edit mode when planning chrome appears.
+/// Snap stop id that should open in rename edit mode when planning chrome
+/// appears.
 
 abstract class _$MapPlanningSnapStopPendingRename extends $Notifier<String?> {
   String? build();
