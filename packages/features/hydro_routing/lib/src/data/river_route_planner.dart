@@ -187,25 +187,6 @@ class RiverRoutePlanner {
   bool hasSameUnifiedGraphAs(RiverRoutePlanner other) =>
       riverGraphsEqual(_graph, other._graph);
 
-  /// Build-time water-entry snap rows for [catalog] launches.
-  List<LaunchWaterEntrySnapRow> generateLaunchWaterEntrySnaps(
-    List<LaunchPoint> catalog,
-  ) => LaunchWaterEntrySnapGenerator.generate(graph: _graph, catalog: catalog);
-
-  /// Returns launches exceeding the water-entry snap threshold.
-  List<LaunchWaterEntrySnapRow> launchWaterEntrySnapViolations({
-    required List<LaunchPoint> catalog,
-    Set<String> allowlist = const {},
-    double maxSnapMeters = kLaunchWaterEntrySnapMaxMeters,
-    bool waterEntryOnly = false,
-  }) => LaunchWaterEntrySnapGenerator.violations(
-    graph: _graph,
-    catalog: catalog,
-    allowlist: allowlist,
-    maxSnapMeters: maxSnapMeters,
-    waterEntryOnly: waterEntryOnly,
-  );
-
   /// Plans a river-line path between [putIn] and [takeOut].
   RouteResult plan(LaunchPoint putIn, LaunchPoint takeOut) {
     if (putIn.id == takeOut.id) {
