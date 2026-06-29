@@ -3,6 +3,7 @@ import 'package:eddyscout_hydro_routing/eddyscout_hydro_routing.dart';
 import 'package:eddyscout_hydro_routing/src/data/confluence_bridges.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_geojson.dart';
 import 'package:eddyscout_hydro_routing/src/data/river_graph.dart';
+import 'package:eddyscout_hydro_routing/src/data/river_graph_binary_codec.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/dijkstra_reference.dart';
@@ -576,5 +577,52 @@ void main() {
         );
       },
     );
+
+    test('indexed vertex merge matches brute force on synthetic grid', () {
+      final features = buildSyntheticGridFeatures(500);
+      final indexed = RiverLineGraph.fromAllFeatures(features);
+      final brute = RiverLineGraph.buildFromFeaturesBruteForceForTesting(
+        features,
+      );
+      expect(
+        riverGraphsEqual(indexed, brute),
+        isTrue,
+        reason: 'VertexMergeIndex must produce identical topology',
+      );
+    });
+
+    test('indexed confluence bridge snap matches brute force', () {
+      const json = '''
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"river_system": "alpha"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0], [0, 0.01]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"river_system": "beta"},
+      "geometry": {"type": "LineString", "coordinates": [[0, 0.03], [0, 0.04]]}
+    }
+  ]
+}
+''';
+      final feats = parseHydroGeoJson(json);
+      final base = RiverLineGraph.fromAllFeatures(feats);
+      const bridges = [
+        ConfluenceBridge(
+          id: 'alpha_beta',
+          aLat: 0.01,
+          aLon: 0,
+          bLat: 0.03,
+          bLon: 0,
+        ),
+      ];
+      final indexed = base.addConfluenceBridges(bridges);
+      final brute = base.addConfluenceBridgesBruteForceForTesting(bridges);
+      expect(riverGraphsEqual(indexed, brute), isTrue);
+    });
   });
 }

@@ -30,7 +30,7 @@ dependencies:
     path: ../../packages/routing
   eddyscout_saved_routes:
     path: ../../packages/features/saved_routes
-  firebase_auth: ^6.5.2
+  firebase_auth: ^6.5.4
   firebase_core: ^4.11.0
   flutter:
     sdk: flutter

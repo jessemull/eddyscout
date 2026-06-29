@@ -274,4 +274,56 @@ mixin MapboxMapMarkersMixin
       mapDebugLog('highlightLaunch failed: $e\n$st');
     }
   }
+
+  /// Draws or clears markers for user-dropped snap stops during planning.
+  Future<void> syncPlanningSnapMarkers(List<RoutePlanningStop> stops) async {
+    final map = mapboxMap;
+    if (map == null || !alive) {
+      return;
+    }
+    try {
+      planningSnapManager ??= await map.annotations
+          .createCircleAnnotationManager();
+      final manager = planningSnapManager;
+      if (manager == null) {
+        return;
+      }
+      await manager.deleteAll();
+      final snapStops = stops.whereType<SnapRoutePlanningStop>().toList();
+      if (snapStops.isEmpty) {
+        return;
+      }
+      await manager.createMulti(
+        snapStops
+            .map(
+              (stop) => CircleAnnotationOptions(
+                geometry: Point(
+                  coordinates: Position(stop.longitude, stop.latitude),
+                ),
+                circleRadius: 12,
+                circleColor: kMapPlanningSnapMarkerColor,
+                circleStrokeWidth: 2,
+                circleStrokeColor: kMapPlanningSnapMarkerStroke,
+                customData: <String, Object>{'snapStopId': stop.id},
+              ),
+            )
+            .toList(),
+      );
+    } on Object catch (e, st) {
+      mapDebugLog('syncPlanningSnapMarkers failed: $e\n$st');
+    }
+  }
+
+  /// Removes all planning snap stop markers from the map.
+  Future<void> clearPlanningSnapMarkers() async {
+    final manager = planningSnapManager;
+    if (manager == null) {
+      return;
+    }
+    try {
+      await manager.deleteAll();
+    } on Object catch (e, st) {
+      mapDebugLog('clearPlanningSnapMarkers failed: $e\n$st');
+    }
+  }
 }

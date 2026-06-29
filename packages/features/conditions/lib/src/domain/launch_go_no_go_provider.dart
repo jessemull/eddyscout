@@ -1,3 +1,4 @@
+import 'package:eddyscout_conditions/src/debug/conditions_debug_log.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/go_no_go.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -15,9 +16,11 @@ typedef LaunchGoNoGoParams = ({
 /// Go/no-go evaluation for a launch and conditions snapshot.
 @riverpod
 GoNoGoResult launchGoNoGoResult(Ref ref, LaunchGoNoGoParams params) {
-  return GoNoGoEvaluator.evaluate(
+  final result = GoNoGoEvaluator.evaluate(
     params.launch,
     params.snapshot,
     profile: params.profile,
   );
+  conditionsDebugLogGoNoGo('evaluate', params.launch, result);
+  return result;
 }

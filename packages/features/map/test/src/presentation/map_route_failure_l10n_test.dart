@@ -31,12 +31,6 @@ void main() {
           l10n.mapRouteFailureSameLaunch,
       const RoutePlanningFailure(code: RouteFailureCode.differentSystem):
           l10n.mapRouteFailureDifferentSystem,
-      const RoutePlanningFailure(
-        code: RouteFailureCode.noBundledLine,
-        riverSystemName: 'Willamette',
-      ): l10n.mapRouteFailureNoBundledLine(
-        'Willamette',
-      ),
       const RoutePlanningFailure(code: RouteFailureCode.noRiverGeometryLoaded):
           l10n.mapRouteFailureNoData,
       const RoutePlanningFailure(code: RouteFailureCode.putInTooFar):

@@ -46,21 +46,53 @@ enum RecommendedSkillLevel {
   advanced,
 }
 
-/// Ordered stop on a saved route — launch catalog id only.
-@freezed
-abstract class RouteWaypoint with _$RouteWaypoint {
-  /// Creates a waypoint referencing a curated launch id.
-  const factory RouteWaypoint({
-    /// Stable launch id from the catalog.
+/// Ordered stop on a saved route — catalog launch or snapped map pin.
+@Freezed(unionKey: 'type', unionValueCase: FreezedUnionCase.snake)
+sealed class RouteWaypoint with _$RouteWaypoint {
+  const RouteWaypoint._();
+
+  /// Curated launch id from the catalog.
+  const factory RouteWaypoint.catalog({
     required String launchId,
-
-    /// Zero-based order along the route.
     required int order,
-  }) = _RouteWaypoint;
+  }) = CatalogRouteWaypoint;
 
-  /// Parses from JSON storage.
+  /// Ad-hoc stop snapped to bundled hydro geometry.
+  const factory RouteWaypoint.snap({
+    required double latitude,
+    required double longitude,
+    required int order,
+    String? label,
+  }) = SnapRouteWaypoint;
+
+  /// Parses from JSON storage (legacy rows omit `type` when `launchId` is set).
   factory RouteWaypoint.fromJson(Map<String, dynamic> json) =>
-      _$RouteWaypointFromJson(json);
+      _$RouteWaypointFromJson(_migrateRouteWaypointJson(json));
+}
+
+Map<String, dynamic> _migrateRouteWaypointJson(Map<String, dynamic> json) {
+  if (!json.containsKey('type') && json.containsKey('launchId')) {
+    return {...json, 'type': 'catalog'};
+  }
+  return json;
+}
+
+/// Persistence accessors for [RouteWaypoint].
+extension RouteWaypointX on RouteWaypoint {
+  /// Zero-based order along the route.
+  int get order => switch (this) {
+    CatalogRouteWaypoint(:final order) => order,
+    SnapRouteWaypoint(:final order) => order,
+  };
+
+  /// Catalog launch id when this waypoint references the launch catalog.
+  String? get launchId => switch (this) {
+    CatalogRouteWaypoint(:final launchId) => launchId,
+    SnapRouteWaypoint() => null,
+  };
+
+  /// Whether this waypoint is a snapped map pin.
+  bool get isSnap => this is SnapRouteWaypoint;
 }
 
 /// Optional cached geometry from the last successful hydro plan.

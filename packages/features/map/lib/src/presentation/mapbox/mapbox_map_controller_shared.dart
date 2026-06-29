@@ -10,9 +10,9 @@ mixin MapboxMapControllerBase {
   /// use `mixin on Notifier<void>`. The map controller implements this getter
   /// with `ref` and mixins read other providers through it.
   Ref get mapControllerRef;
-  // Initialized with empty strings; the MapScreen binds localized values.
   MapUiCallbacks _ui = const MapUiCallbacks(
     pickDifferentTakeOutMessage: '',
+    pickStopLaunchBlockedMessage: '',
     riverDataLoadingMessage: '',
     riverDataLoadFailedMessage: '',
   );
@@ -27,9 +27,11 @@ mixin MapboxMapControllerBase {
 
   MapboxMap? _mapboxMap;
   Cancelable? _tapCancelable;
+  Cancelable? _longTapCancelable;
   Cancelable? _waterEntryTapCancelable;
   Cancelable? _selectionTapCancelable;
   CircleAnnotationManager? _launchCircleManager;
+  CircleAnnotationManager? _planningSnapManager;
   CircleAnnotationManager? _waterEntryCircleManager;
   PolylineAnnotationManager? _waterEntryConnectorManager;
   CircleAnnotationManager? _selectionManager;
@@ -55,6 +57,12 @@ mixin MapboxMapControllerBase {
 
   @protected
   set tapCancelable(Cancelable? value) => _tapCancelable = value;
+
+  @protected
+  Cancelable? get longTapCancelable => _longTapCancelable;
+
+  @protected
+  set longTapCancelable(Cancelable? value) => _longTapCancelable = value;
 
   @protected
   Cancelable? get waterEntryTapCancelable => _waterEntryTapCancelable;
@@ -92,6 +100,13 @@ mixin MapboxMapControllerBase {
   @protected
   set launchCircleManager(CircleAnnotationManager? value) =>
       _launchCircleManager = value;
+
+  @protected
+  CircleAnnotationManager? get planningSnapManager => _planningSnapManager;
+
+  @protected
+  set planningSnapManager(CircleAnnotationManager? value) =>
+      _planningSnapManager = value;
 
   @protected
   CircleAnnotationManager? get selectionManager => _selectionManager;

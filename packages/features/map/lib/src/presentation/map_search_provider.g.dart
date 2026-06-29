@@ -44,7 +44,7 @@ final class MapSearchExpandedProvider
   }
 }
 
-String _$mapSearchExpandedHash() => r'd9e3b1588ec63502d548307892cf59123316ad57';
+String _$mapSearchExpandedHash() => r'09da1ea13b0af66a089744f1d05fe92aae7b7606';
 
 /// Whether inline map search is expanded at the top of the map.
 

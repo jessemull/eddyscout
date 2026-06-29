@@ -13,8 +13,8 @@ SavedRoute testSavedRoute({
     name: name,
     isFavorite: isFavorite,
     waypoints: const [
-      RouteWaypoint(launchId: 'launch-a', order: 0),
-      RouteWaypoint(launchId: 'launch-b', order: 1),
+      RouteWaypoint.catalog(launchId: 'launch-a', order: 0),
+      RouteWaypoint.catalog(launchId: 'launch-b', order: 1),
     ],
     metadata: SavedRouteMetadata(distanceMeters: distanceMeters),
     createdAt: now,

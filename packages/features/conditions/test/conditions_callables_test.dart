@@ -264,5 +264,116 @@ void main() {
         expect(res.errorOrNull, isA<NetworkFailure>());
       },
     );
+
+    test('callCheckModeratorAccess parses isModerator flag', () async {
+      when(() => result.data).thenReturn({'isModerator': true});
+      when(
+        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+      ).thenAnswer((_) async => result);
+
+      final res = await callCheckModeratorAccess();
+
+      expect(res.valueOrNull, isTrue);
+      verify(() => functions.httpsCallable('checkModeratorAccess')).called(1);
+    });
+
+    test('callListPendingConditionReports maps queue rows', () async {
+      when(() => result.data).thenReturn({
+        'reports': [
+          {
+            'id': 'r1',
+            'launchId': 'cathedral_park',
+            'message': 'Windy',
+            'createdAt': '2026-06-15T12:00:00-07:00',
+            'submitterUid': 'user-a',
+          },
+        ],
+      });
+      when(
+        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+      ).thenAnswer((_) async => result);
+
+      final res = await callListPendingConditionReports(
+        query: ModerationQueueQuery(
+          launchId: 'cathedral_park',
+          createdAfter: DateTime.utc(2026, 6, 1),
+          sort: ModerationQueueSort.createdAtDesc,
+        ),
+      );
+
+      expect(res.valueOrNull, hasLength(1));
+      verify(
+        () => functions.httpsCallable('listPendingConditionReports'),
+      ).called(1);
+    });
+
+    test('callListModerationHistory maps history rows', () async {
+      when(() => result.data).thenReturn({
+        'reports': [
+          {
+            'id': 'h1',
+            'launchId': 'cathedral_park',
+            'message': 'Windy',
+            'createdAt': '2026-06-15T12:00:00-07:00',
+            'submitterUid': 'user-a',
+            'moderationStatus': 'approved',
+            'moderationReason': 'admin_approve',
+            'reviewedAt': '2026-06-16T12:00:00-07:00',
+            'reviewedBy': 'mod-a',
+          },
+        ],
+      });
+      when(
+        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+      ).thenAnswer((_) async => result);
+
+      final res = await callListModerationHistory(
+        query: ModerationHistoryQuery(
+          status: ModerationHistoryStatusFilter.approved,
+          reviewedAfter: DateTime.utc(2026, 6, 1),
+          sort: ModerationHistorySort.reviewedAtAsc,
+        ),
+      );
+
+      expect(res.valueOrNull, hasLength(1));
+      verify(() => functions.httpsCallable('listModerationHistory')).called(1);
+    });
+
+    test('callModerateConditionReport parses moderation status', () async {
+      when(() => result.data).thenReturn({'moderationStatus': 'rejected'});
+      when(
+        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+      ).thenAnswer((_) async => result);
+
+      final res = await callModerateConditionReport(
+        reportId: 'r1',
+        approve: false,
+      );
+
+      expect(
+        res.valueOrNull,
+        ConditionReportModerationStatus.rejected,
+      );
+    });
+
+    test('callModerateConditionReportsBatch parses batch result', () async {
+      when(() => result.data).thenReturn({
+        'succeeded': ['r1'],
+        'failed': [
+          {'reportId': 'r2', 'code': 'already_reviewed'},
+        ],
+      });
+      when(
+        () => callable.call<Map<String, dynamic>>(any<Map<String, dynamic>>()),
+      ).thenAnswer((_) async => result);
+
+      final res = await callModerateConditionReportsBatch(
+        reportIds: ['r1', 'r2'],
+        approve: true,
+      );
+
+      expect(res.valueOrNull?.succeeded, ['r1']);
+      expect(res.valueOrNull?.failed.single.reportId, 'r2');
+    });
   });
 }

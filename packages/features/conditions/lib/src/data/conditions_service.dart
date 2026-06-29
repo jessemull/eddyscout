@@ -8,6 +8,7 @@ import 'package:eddyscout_conditions/src/data/parsing/nws_marine_cwf.dart';
 import 'package:eddyscout_conditions/src/data/parsing/nws_marine_json.dart';
 import 'package:eddyscout_conditions/src/data/parsing/open_meteo_json.dart';
 import 'package:eddyscout_conditions/src/data/parsing/usgs_iv_json.dart';
+import 'package:eddyscout_conditions/src/debug/conditions_debug_log.dart';
 import 'package:eddyscout_conditions/src/domain/conditions_models.dart';
 import 'package:eddyscout_conditions/src/domain/repositories/conditions_repository.dart';
 import 'package:eddyscout_core/eddyscout_core.dart';
@@ -58,6 +59,7 @@ class ConditionsService implements ConditionsRepository {
     LaunchPoint launch, {
     CancelToken? cancelToken,
   }) async {
+    conditionsDebugLogLaunch('load START', launch);
     final fetchedAt = DateTime.now();
 
     final weatherFuture = _loadWeather(
@@ -82,7 +84,7 @@ class ConditionsService implements ConditionsRepository {
     final m = results[2] as _MarineResult;
     final r = results[3] as _RiverResult;
 
-    return ConditionsSnapshot(
+    final snapshot = ConditionsSnapshot(
       fetchedAt: fetchedAt,
       weather: w.weather,
       weatherError: w.error,
@@ -93,6 +95,8 @@ class ConditionsService implements ConditionsRepository {
       riverFlow: r.flow,
       riverError: r.error,
     );
+    conditionsDebugLogSnapshot('load DONE', launch, snapshot);
+    return snapshot;
   }
 
   Future<_WeatherResult> _loadWeather(
@@ -323,6 +327,17 @@ class ConditionsService implements ConditionsRepository {
         return _RiverResult(null, _riverUnexpectedResponseCode);
       }
       final reading = riverFlowFromUsgsIv(map, siteId: site);
+      if (reading == null) {
+        final rawCfs = rawCfsStringFromUsgsIv(map);
+        conditionsDebugLog(
+          'river REJECTED launch=${launch.id} site=$site '
+          'rawCfs=$rawCfs code=$_riverNoDischargeNowCode',
+        );
+      } else {
+        conditionsDebugLog(
+          'river OK launch=${launch.id} site=$site cfs=${reading.cfs}',
+        );
+      }
       return _RiverResult(
         reading,
         reading == null ? _riverNoDischargeNowCode : null,

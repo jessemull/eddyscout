@@ -271,6 +271,55 @@ mixin MapboxMapCameraMixin on MapboxMapControllerBase, MapboxMapStyleMixin {
     }
   }
 
+  /// Eases the camera to a planning stop coordinate with sheet-aware padding.
+  Future<void> flyToCoordinate({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final map = mapboxMap;
+    if (map == null || !alive) {
+      return;
+    }
+    final sheet = mapControllerRef.read(mapSheetVisibilityStateProvider);
+    final padding = switch (sheet) {
+      MapSheetVisibility.planningEdit => MbxEdgeInsets(
+        top: 220,
+        left: 48,
+        bottom: 120,
+        right: 48,
+      ),
+      MapSheetVisibility.planningPreview => MbxEdgeInsets(
+        top: 80,
+        left: 48,
+        bottom: 220,
+        right: 48,
+      ),
+      _ => MbxEdgeInsets(top: 100, left: 48, bottom: 120, right: 48),
+    };
+    try {
+      final point = Point(coordinates: Position(longitude, latitude));
+      final fitted = await map.cameraForCoordinatesPadding(
+        [point],
+        CameraOptions(
+          center: point,
+          zoom: kLaunchFocusZoom,
+          bearing: 0,
+          pitch: 0,
+        ),
+        padding,
+        kLaunchFocusZoom + 1,
+        null,
+      );
+      await instantEaseToCamera(
+        map,
+        fitted,
+        debugTag: 'flyToCoordinate',
+      );
+    } on Object catch (e, st) {
+      mapDebugLog('flyToCoordinate failed: $e\n$st');
+    }
+  }
+
   /// Fits camera padding around a route polyline.
   Future<void> fitCameraToRoute(List<List<double>> lonLat) async {
     final map = mapboxMap;
