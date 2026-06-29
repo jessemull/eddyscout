@@ -65,6 +65,73 @@ void main() {
     expect(r.siteId, '14211720');
   });
 
+  test('riverFlowFromUsgsIv rejects non-positive cfs', () {
+    final json = Map<String, dynamic>.from(_fixture('usgs_iv.json'));
+    final values =
+        (json['value'] as Map<String, dynamic>)['timeSeries'] as List<dynamic>;
+    final block =
+        (values.first as Map<String, dynamic>)['values'] as List<dynamic>;
+    final inner =
+        (block.first as Map<String, dynamic>)['value'] as List<dynamic>;
+    (inner.last as Map<String, dynamic>)['value'] = '-15800';
+
+    expect(riverFlowFromUsgsIv(json, siteId: '14211720'), isNull);
+  });
+
+  test('riverFlowFromUsgsIv rejects zero cfs', () {
+    final json = Map<String, dynamic>.from(_fixture('usgs_iv.json'));
+    final values =
+        (json['value'] as Map<String, dynamic>)['timeSeries'] as List<dynamic>;
+    final block =
+        (values.first as Map<String, dynamic>)['values'] as List<dynamic>;
+    final inner =
+        (block.first as Map<String, dynamic>)['value'] as List<dynamic>;
+    (inner.last as Map<String, dynamic>)['value'] = '0';
+
+    expect(riverFlowFromUsgsIv(json, siteId: '14211720'), isNull);
+  });
+
+  test('rawCfsStringFromUsgsIv reads latest cfs string', () {
+    expect(
+      rawCfsStringFromUsgsIv(_fixture('usgs_iv.json')),
+      '11000',
+    );
+  });
+
+  test('rawCfsStringFromUsgsIv returns null for malformed payload', () {
+    expect(rawCfsStringFromUsgsIv(const {}), isNull);
+  });
+
+  test(
+    'tidesFromNoaaPredictions skips malformed rows and parses local time',
+    () {
+      final summary = tidesFromNoaaPredictions(
+        {
+          'predictions': [
+            {'t': '2026-04-12 02:34', 'v': '2.1', 'type': 'H'},
+            {'t': 'bad-time', 'v': '1.0', 'type': 'L'},
+            'not-a-map',
+          ],
+        },
+        stationId: '9439221',
+        datumLabel: 'MLLW',
+        referenceNote: 'note',
+      );
+
+      expect(summary, isNotNull);
+      expect(summary!.events, hasLength(1));
+      expect(summary.events.first.type, 'H');
+      expect(summary.referenceNote, 'note');
+    },
+  );
+
+  test('tidesFromNoaaPredictions returns null when predictions missing', () {
+    expect(
+      tidesFromNoaaPredictions(const {}, stationId: 's', datumLabel: 'MLLW'),
+      isNull,
+    );
+  });
+
   test('marineFromNwsZoneForecast collects periods', () {
     final m = marineFromNwsZoneForecast(
       _fixture('nws_marine.json'),

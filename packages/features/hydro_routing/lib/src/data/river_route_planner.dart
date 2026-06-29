@@ -77,12 +77,15 @@ class RiverRoutePlanner {
 
   /// Returns a failure when [launch] does not snap to bundled geometry.
   RouteFailure? validateLaunchSnap(LaunchPoint launch) {
-    final result = _graph.route(
-      launch.routingLatitude,
-      launch.routingLongitude,
+    return validateCoordinateSnap(
       launch.routingLatitude,
       launch.routingLongitude,
     );
+  }
+
+  /// Returns a failure when raw coordinates do not snap to bundled geometry.
+  RouteFailure? validateCoordinateSnap(double lat, double lon) {
+    final result = _graph.route(lat, lon, lat, lon);
     if (result is RouteFailure) {
       if (result.code == RouteFailureCode.takeOutTooFar) {
         return const RouteFailure(code: RouteFailureCode.putInTooFar);
@@ -96,6 +99,50 @@ class RiverRoutePlanner {
   RouteFailure? validateSegment(LaunchPoint from, LaunchPoint to) {
     final result = plan(from, to);
     return result is RouteFailure ? result : null;
+  }
+
+  /// Returns a failure when [stop] does not snap to bundled geometry.
+  RouteFailure? validateStop(RoutePlanningStop stop) {
+    return validateCoordinateSnap(stop.routingLatitude, stop.routingLongitude);
+  }
+
+  /// Returns a failure when [from] and [to] cannot be routed together.
+  RouteFailure? validateSegmentStops(
+    RoutePlanningStop from,
+    RoutePlanningStop to,
+  ) {
+    if (from.sameStopAs(to)) {
+      return const RouteFailure(code: RouteFailureCode.sameLaunch);
+    }
+    final result = planBetween(
+      from.routingLatitude,
+      from.routingLongitude,
+      to.routingLatitude,
+      to.routingLongitude,
+    );
+    return result is RouteFailure ? result : null;
+  }
+
+  /// Snaps [lat]/[lon] to the nearest bundled hydro geometry point.
+  WaterwaySnapPoint? snapToWaterway(
+    double lat,
+    double lon, {
+    double maxSnapMeters = 900,
+  }) {
+    final snap = _graph.nearestSnapResult(
+      lat,
+      lon,
+      maxSnapMeters: maxSnapMeters,
+    );
+    if (snap == null) {
+      return null;
+    }
+    return WaterwaySnapPoint(
+      latitude: snap.lat,
+      longitude: snap.lon,
+      distanceMeters: snap.distanceMeters,
+      reachId: snap.reachId,
+    );
   }
 
   /// Underlying graph for tests and offline encoders.
@@ -140,23 +187,63 @@ class RiverRoutePlanner {
   bool hasSameUnifiedGraphAs(RiverRoutePlanner other) =>
       riverGraphsEqual(_graph, other._graph);
 
+  /// Build-time water-entry snap rows for [catalog] launches.
+  List<LaunchWaterEntrySnapRow> generateLaunchWaterEntrySnaps(
+    List<LaunchPoint> catalog,
+  ) => LaunchWaterEntrySnapGenerator.generate(graph: _graph, catalog: catalog);
+
+  /// Returns launches exceeding the water-entry snap threshold.
+  List<LaunchWaterEntrySnapRow> launchWaterEntrySnapViolations({
+    required List<LaunchPoint> catalog,
+    Set<String> allowlist = const {},
+    double maxSnapMeters = kLaunchWaterEntrySnapMaxMeters,
+    bool waterEntryOnly = false,
+  }) => LaunchWaterEntrySnapGenerator.violations(
+    graph: _graph,
+    catalog: catalog,
+    allowlist: allowlist,
+    maxSnapMeters: maxSnapMeters,
+    waterEntryOnly: waterEntryOnly,
+  );
+
   /// Plans a river-line path between [putIn] and [takeOut].
   RouteResult plan(LaunchPoint putIn, LaunchPoint takeOut) {
     if (putIn.id == takeOut.id) {
+      return const RouteFailure(code: RouteFailureCode.sameLaunch);
+    }
+    return planBetween(
+      putIn.routingLatitude,
+      putIn.routingLongitude,
+      takeOut.routingLatitude,
+      takeOut.routingLongitude,
+      putIn: putIn,
+      takeOut: takeOut,
+    );
+  }
+
+  /// Plans a river-line path between two coordinate pairs.
+  RouteResult planBetween(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2, {
+    LaunchPoint? putIn,
+    LaunchPoint? takeOut,
+  }) {
+    if (lat1 == lat2 && lon1 == lon2) {
       return const RouteFailure(code: RouteFailureCode.sameLaunch);
     }
     if (_graph.vertexCount == 0) {
       return const RouteFailure(code: RouteFailureCode.noRiverGeometryLoaded);
     }
 
-    final result = _graph.route(
-      putIn.routingLatitude,
-      putIn.routingLongitude,
-      takeOut.routingLatitude,
-      takeOut.routingLongitude,
-    );
+    final result = _graph.route(lat1, lon1, lat2, lon2);
 
     if (result is! RouteFailure) {
+      return result;
+    }
+
+    if (putIn == null || takeOut == null) {
       return result;
     }
 
@@ -165,6 +252,40 @@ class RiverRoutePlanner {
       putIn: putIn,
       takeOut: takeOut,
     );
+  }
+
+  /// Plans all consecutive [stops] and returns segment successes.
+  Result<List<RouteSuccess>, RouteFailure> planStops(
+    List<RoutePlanningStop> stops,
+  ) {
+    if (stops.length < 2) {
+      return const Result.failure(
+        RouteFailure(code: RouteFailureCode.sameLaunch),
+      );
+    }
+    final successes = <RouteSuccess>[];
+    for (var i = 0; i < stops.length - 1; i++) {
+      final from = stops[i];
+      final to = stops[i + 1];
+      if (from.sameStopAs(to)) {
+        return const Result.failure(
+          RouteFailure(code: RouteFailureCode.sameLaunch),
+        );
+      }
+      final result = planBetween(
+        from.routingLatitude,
+        from.routingLongitude,
+        to.routingLatitude,
+        to.routingLongitude,
+        putIn: from.catalogLaunch,
+        takeOut: to.catalogLaunch,
+      );
+      if (result case final RouteFailure failure) {
+        return Result.failure(failure);
+      }
+      successes.add(result as RouteSuccess);
+    }
+    return Result.success(successes);
   }
 
   RouteFailure _mapDisconnectFailure(

@@ -80,8 +80,8 @@ class GpxActions extends _$GpxActions {
     if (!ref.mounted) {
       return const GpxActionCancelled();
     }
-    final putIn = planning.putIn;
-    final takeOut = planning.takeOut;
+    final putIn = planning.putIn?.catalogLaunch;
+    final takeOut = planning.takeOut?.catalogLaunch;
     final route = PlannedRoute(
       points: polyline
           .map(

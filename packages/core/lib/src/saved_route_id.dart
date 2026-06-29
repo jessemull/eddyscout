@@ -1,5 +1,12 @@
 import 'dart:math';
 
+/// Generates a unique local id for an ad-hoc planning snap stop.
+String generatePlanningSnapId() {
+  final timestamp = DateTime.now().microsecondsSinceEpoch;
+  final suffix = _secureRandomHex(6);
+  return 'snap_${timestamp}_$suffix';
+}
+
 /// Generates a unique local id for a saved route (no external uuid package).
 String generateSavedRouteId() {
   final timestamp = DateTime.now().microsecondsSinceEpoch;

@@ -25,8 +25,8 @@ void main() {
       id: routeId,
       name: routeName,
       waypoints: const [
-        RouteWaypoint(launchId: 'a', order: 0),
-        RouteWaypoint(launchId: 'b', order: 1),
+        RouteWaypoint.catalog(launchId: 'a', order: 0),
+        RouteWaypoint.catalog(launchId: 'b', order: 1),
       ],
       metadata: const SavedRouteMetadata(),
       createdAt: now,

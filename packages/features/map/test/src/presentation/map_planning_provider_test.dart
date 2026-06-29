@@ -16,6 +16,9 @@ LaunchPoint _launch({required String id, String name = 'Test Launch'}) {
   );
 }
 
+RoutePlanningStop _catalog(LaunchPoint launch) =>
+    RoutePlanningStop.catalog(launch);
+
 void main() {
   group('routePlanningProvider', () {
     late ProviderContainer container;
@@ -49,14 +52,69 @@ void main() {
           .read(routePlanningProvider.notifier)
           .handleLaunchTap(putIn);
       expect(first, RoutePlanningTapResult.putInSelected);
-      expect(container.read(routePlanningProvider).putIn, putIn);
+      expect(container.read(routePlanningProvider).putIn, _catalog(putIn));
       expect(container.read(routePlanningProvider).takeOut, isNull);
 
       final second = container
           .read(routePlanningProvider.notifier)
           .handleLaunchTap(takeOut);
       expect(second, RoutePlanningTapResult.takeOutSelected);
-      expect(container.read(routePlanningProvider).takeOut, takeOut);
+      expect(container.read(routePlanningProvider).takeOut, _catalog(takeOut));
+    });
+
+    test('handleSnapStop adds custom stop', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      const snap = WaterwaySnapPoint(
+        latitude: 45.51,
+        longitude: -122.61,
+        distanceMeters: 12,
+      );
+
+      final result = container
+          .read(routePlanningProvider.notifier)
+          .handleSnapStop(snap, label: 'Custom Stop 1');
+
+      expect(result, RoutePlanningTapResult.putInSelected);
+      expect(container.read(routePlanningProvider).stops, hasLength(1));
+      expect(container.read(routePlanningProvider).stops.first.isSnap, isTrue);
+    });
+
+    test('renameSnapStop updates snap label without rerouting', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      const snap = WaterwaySnapPoint(
+        latitude: 45.51,
+        longitude: -122.61,
+        distanceMeters: 12,
+      );
+
+      container
+          .read(routePlanningProvider.notifier)
+          .handleSnapStop(snap, label: 'Custom Stop 1');
+      final stopId = container.read(routePlanningProvider).stops.first.stopId;
+
+      container
+          .read(routePlanningProvider.notifier)
+          .renameSnapStop(stopId, '  Lunch spot  ');
+
+      expect(
+        container.read(routePlanningProvider).stops.first.displayLabel,
+        'Lunch spot',
+      );
+    });
+
+    test('renameSnapStop ignores empty labels and catalog stops', () {
+      final launch = _launch(id: 'a');
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      container.read(routePlanningProvider.notifier).handleLaunchTap(launch);
+
+      container
+          .read(routePlanningProvider.notifier)
+          .renameSnapStop(launch.id, 'Ignored');
+
+      expect(
+        container.read(routePlanningProvider).stops.first.displayLabel,
+        launch.name,
+      );
     });
 
     test('handleLaunchTap rejects same launch for take-out', () {
@@ -72,7 +130,7 @@ void main() {
       expect(container.read(routePlanningProvider).takeOut, isNull);
     });
 
-    test('clearSelection clears route geometry but keeps start waypoint', () {
+    test('clearSelection clears route geometry but keeps start stop', () {
       final putIn = _launch(id: 'a');
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
@@ -97,7 +155,7 @@ void main() {
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
-      expect(state.waypoints, [putIn]);
+      expect(state.stops, [_catalog(putIn)]);
       expect(state.routeLengthKm, isNull);
       expect(state.polylineLonLat, isNull);
     });
@@ -125,8 +183,8 @@ void main() {
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
-      expect(state.putIn, putIn);
-      expect(state.takeOut, takeOut);
+      expect(state.putIn, _catalog(putIn));
+      expect(state.takeOut, _catalog(takeOut));
       expect(state.routeLengthKm, closeTo(8.0, 0.01));
       expect(state.polylineLonLat?.length, 2);
       expect(state.routeOrigin, RouteOrigin.imported);
@@ -198,13 +256,13 @@ void main() {
           .captureForSave();
       container.read(routePlanningProvider.notifier).togglePlanningMode();
 
-      expect(container.read(routePlanningProvider).waypoints, isEmpty);
+      expect(container.read(routePlanningProvider).stops, isEmpty);
 
       container.read(routePlanningProvider.notifier).restoreCapture(capture);
 
       final restored = container.read(routePlanningProvider);
       expect(restored.planningMode, isTrue);
-      expect(restored.waypoints, [putIn, takeOut]);
+      expect(restored.stops, [_catalog(putIn), _catalog(takeOut)]);
       expect(restored.routeLengthKm, closeTo(12.5, 0.01));
       expect(restored.activeGeometry, geometry);
     });
@@ -245,7 +303,49 @@ void main() {
       expect(draft.geometrySnapshot, geometry);
     });
 
-    test('loadFromSavedRoute restores waypoints and geometry', () {
+    test('snapshotForSaveFromCapture persists snap stops', () {
+      container.read(routePlanningProvider.notifier).togglePlanningMode();
+      final putIn = _launch(id: 'a');
+      container.read(routePlanningProvider.notifier).handleLaunchTap(putIn);
+      container
+          .read(routePlanningProvider.notifier)
+          .handleSnapStop(
+            const WaterwaySnapPoint(
+              latitude: 45.51,
+              longitude: -122.61,
+              distanceMeters: 10,
+            ),
+            label: 'Mid-river',
+          );
+      final geometry = RouteGeometrySnapshot(
+        polylineLonLat: const [
+          [-122.6, 45.5],
+          [-122.61, 45.51],
+        ],
+        lengthMeters: 5000,
+        computedAt: DateTime.utc(2026),
+      );
+      container
+          .read(routePlanningProvider.notifier)
+          .setActiveGeometry(
+            geometry: geometry,
+            routeLengthKm: 5,
+          );
+
+      final capture = container
+          .read(routePlanningProvider.notifier)
+          .captureForSave();
+      final draft = container
+          .read(routePlanningProvider.notifier)
+          .snapshotForSaveFromCapture(capture, name: 'Snap route');
+
+      expect(draft, isNotNull);
+      expect(draft!.waypoints, hasLength(2));
+      expect(draft.waypoints.first, isA<CatalogRouteWaypoint>());
+      expect(draft.waypoints.last, isA<SnapRouteWaypoint>());
+    });
+
+    test('loadFromSavedRoute restores stops and geometry', () {
       final putIn = _launch(id: 'a', name: 'Put-in');
       final takeOut = _launch(id: 'b', name: 'Take-out');
       final geometry = RouteGeometrySnapshot(
@@ -260,8 +360,8 @@ void main() {
         id: 'sr_1',
         name: 'Saved',
         waypoints: const [
-          RouteWaypoint(launchId: 'a', order: 0),
-          RouteWaypoint(launchId: 'b', order: 1),
+          RouteWaypoint.catalog(launchId: 'a', order: 0),
+          RouteWaypoint.catalog(launchId: 'b', order: 1),
         ],
         metadata: const SavedRouteMetadata(distanceMeters: 5000),
         geometrySnapshot: geometry,
@@ -269,20 +369,20 @@ void main() {
         updatedAt: DateTime.utc(2026),
       );
 
-      container.read(routePlanningProvider.notifier).loadFromSavedRoute(saved, [
-        putIn,
-        takeOut,
-      ]);
+      container.read(routePlanningProvider.notifier).loadFromSavedRoute(
+        saved,
+        [_catalog(putIn), _catalog(takeOut)],
+      );
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
-      expect(state.waypoints, [putIn, takeOut]);
+      expect(state.stops, [_catalog(putIn), _catalog(takeOut)]);
       expect(state.loadedSavedRouteId, 'sr_1');
       expect(state.routeLengthKm, closeTo(5.0, 0.01));
       expect(state.activeGeometry, geometry);
     });
 
-    test('removeWaypoint drops a stop while planning', () {
+    test('removeStop drops a stop while planning', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final a = _launch(id: 'a');
       final b = _launch(id: 'b');
@@ -291,15 +391,15 @@ void main() {
       container.read(routePlanningProvider.notifier).handleLaunchTap(b);
       container.read(routePlanningProvider.notifier).handleLaunchTap(c);
 
-      container.read(routePlanningProvider.notifier).removeWaypoint(1);
+      container.read(routePlanningProvider.notifier).removeStop(1);
 
       expect(
-        container.read(routePlanningProvider).waypoints.map((w) => w.id),
+        container.read(routePlanningProvider).stops.map((s) => s.stopId),
         ['a', 'c'],
       );
     });
 
-    test('reorderWaypoints changes stop order', () {
+    test('reorderStops changes stop order', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final a = _launch(id: 'a');
       final b = _launch(id: 'b');
@@ -308,15 +408,15 @@ void main() {
       container.read(routePlanningProvider.notifier).handleLaunchTap(b);
       container.read(routePlanningProvider.notifier).handleLaunchTap(c);
 
-      container.read(routePlanningProvider.notifier).reorderWaypoints(0, 2);
+      container.read(routePlanningProvider.notifier).reorderStops(0, 2);
 
       expect(
-        container.read(routePlanningProvider).waypoints.map((w) => w.id),
+        container.read(routePlanningProvider).stops.map((s) => s.stopId),
         ['b', 'c', 'a'],
       );
     });
 
-    test('restoreWaypoints reverts a failed reorder attempt', () {
+    test('restoreStops reverts a failed reorder attempt', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final a = _launch(id: 'a');
       final b = _launch(id: 'b');
@@ -324,13 +424,13 @@ void main() {
       container.read(routePlanningProvider.notifier).handleLaunchTap(a);
       container.read(routePlanningProvider.notifier).handleLaunchTap(b);
       container.read(routePlanningProvider.notifier).handleLaunchTap(c);
-      final previous = container.read(routePlanningProvider).waypoints;
+      final previous = container.read(routePlanningProvider).stops;
 
-      container.read(routePlanningProvider.notifier).reorderWaypoints(0, 2);
-      container.read(routePlanningProvider.notifier).restoreWaypoints(previous);
+      container.read(routePlanningProvider.notifier).reorderStops(0, 2);
+      container.read(routePlanningProvider.notifier).restoreStops(previous);
 
       expect(
-        container.read(routePlanningProvider).waypoints.map((w) => w.id),
+        container.read(routePlanningProvider).stops.map((s) => s.stopId),
         ['a', 'b', 'c'],
       );
     });
@@ -348,8 +448,8 @@ void main() {
 
       final state = container.read(routePlanningProvider);
       expect(state.planningMode, isTrue);
-      expect(state.putIn, putIn);
-      expect(state.takeOut, takeOut);
+      expect(state.putIn, _catalog(putIn));
+      expect(state.takeOut, _catalog(takeOut));
       expect(state.activeGeometry, isNull);
     });
 
@@ -359,50 +459,50 @@ void main() {
 
       final state = container.read(routePlanningProvider);
       expect(state.phase, MapPlanningPhase.planning);
-      expect(state.putIn, launch);
+      expect(state.putIn, _catalog(launch));
       expect(state.loadedSavedRouteId, isNull);
     });
 
-    test('selectPlace moves to placeSelected without waypoints', () {
+    test('selectPlace moves to placeSelected without stops', () {
       final launch = _launch(id: 'a');
       container.read(routePlanningProvider.notifier).selectPlace(launch);
 
       final state = container.read(routePlanningProvider);
       expect(state.phase, MapPlanningPhase.placeSelected);
-      expect(state.waypoints, isEmpty);
+      expect(state.stops, isEmpty);
       expect(state.planningMode, isFalse);
     });
 
-    test('restoreWaypoints ignores mismatched waypoint counts', () {
+    test('restoreStops ignores mismatched stop counts', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final a = _launch(id: 'a');
       final b = _launch(id: 'b');
       container.read(routePlanningProvider.notifier).handleLaunchTap(a);
       container.read(routePlanningProvider.notifier).handleLaunchTap(b);
-      container.read(routePlanningProvider.notifier).reorderWaypoints(0, 1);
+      container.read(routePlanningProvider.notifier).reorderStops(0, 1);
 
-      container.read(routePlanningProvider.notifier).restoreWaypoints([
-        a,
-        b,
-        _launch(id: 'c'),
+      container.read(routePlanningProvider.notifier).restoreStops([
+        _catalog(a),
+        _catalog(b),
+        _catalog(_launch(id: 'c')),
       ]);
 
       expect(
-        container.read(routePlanningProvider).waypoints.map((w) => w.id),
+        container.read(routePlanningProvider).stops.map((s) => s.stopId),
         ['b', 'a'],
       );
     });
 
-    test('removeLastWaypoint drops the final stop', () {
+    test('removeLastStop drops the final stop', () {
       container.read(routePlanningProvider.notifier).togglePlanningMode();
       final a = _launch(id: 'a');
       final b = _launch(id: 'b');
       container.read(routePlanningProvider.notifier).handleLaunchTap(a);
       container.read(routePlanningProvider.notifier).handleLaunchTap(b);
 
-      container.read(routePlanningProvider.notifier).removeLastWaypoint();
+      container.read(routePlanningProvider.notifier).removeLastStop();
 
-      expect(container.read(routePlanningProvider).waypoints, [a]);
+      expect(container.read(routePlanningProvider).stops, [_catalog(a)]);
     });
 
     test('captureForSave throws when geometry is missing', () {
@@ -496,7 +596,7 @@ void main() {
   });
 
   group('RoutePlanningState', () {
-    test('canFinishPlanning requires geometry and two waypoints', () {
+    test('canFinishPlanning requires geometry and two stops', () {
       const empty = RoutePlanningState();
       expect(empty.canFinishPlanning, isFalse);
       expect(empty.hasRunnableRoute, isFalse);
@@ -504,14 +604,14 @@ void main() {
       final putIn = _launch(id: 'a');
       final takeOut = _launch(id: 'b');
       final withoutGeometry = RoutePlanningState(
-        waypoints: [putIn, takeOut],
+        stops: [_catalog(putIn), _catalog(takeOut)],
       );
       expect(withoutGeometry.hasRunnableRoute, isTrue);
       expect(withoutGeometry.canFinishPlanning, isFalse);
 
       final ready = RoutePlanningState(
         phase: MapPlanningPhase.routeReady,
-        waypoints: [putIn, takeOut],
+        stops: [_catalog(putIn), _catalog(takeOut)],
         activeGeometry: RouteGeometrySnapshot(
           polylineLonLat: const [
             [-122.6, 45.5],
@@ -522,8 +622,26 @@ void main() {
         ),
       );
       expect(ready.canFinishPlanning, isTrue);
-      expect(ready.putIn, putIn);
-      expect(ready.takeOut, takeOut);
+      expect(ready.putIn, _catalog(putIn));
+      expect(ready.takeOut, _catalog(takeOut));
+    });
+
+    test('catalogLaunches excludes snap stops', () {
+      const snap = RoutePlanningStop.snap(
+        id: 'snap_1',
+        latitude: 45.51,
+        longitude: -122.61,
+        label: 'Custom',
+      );
+      final state = RoutePlanningState(
+        stops: [
+          _catalog(_launch(id: 'a')),
+          snap,
+        ],
+      );
+
+      expect(state.catalogLaunches, hasLength(1));
+      expect(state.catalogLaunches.first.id, 'a');
     });
   });
 }

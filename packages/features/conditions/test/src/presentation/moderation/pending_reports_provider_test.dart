@@ -157,4 +157,89 @@ void main() {
       expect(await moderateFuture, isTrue);
     },
   );
+
+  test('refresh keeps previous data when reload fails', () async {
+    when(
+      () => repo.listPendingReports(
+        query: any(named: 'query'),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer((_) async => Result.success([reportA, reportB]));
+
+    final container = await pumpContainer();
+
+    when(
+      () => repo.listPendingReports(
+        query: any(named: 'query'),
+        cancelToken: any(named: 'cancelToken'),
+      ),
+    ).thenAnswer(
+      (_) async => const Result.failure(NetworkFailure(message: 'offline')),
+    );
+
+    await container.read(moderationPendingReportsProvider.notifier).refresh();
+
+    expect(
+      container.read(moderationPendingReportsProvider).requireValue,
+      [reportA, reportB],
+    );
+  });
+
+  test('moderateBatch returns empty result for empty selection', () async {
+    final container = ProviderContainer(
+      overrides: [
+        conditionReportModerationRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final result = await container
+        .read(moderationPendingReportsProvider.notifier)
+        .moderateBatch(reportIds: [], approve: true);
+
+    expect(
+      result,
+      const ModerationBatchModerateResult(succeeded: [], failed: []),
+    );
+  });
+
+  test(
+    'moderateBatch restores failed ids and keeps successes removed',
+    () async {
+      when(
+        () => repo.listPendingReports(
+          query: any(named: 'query'),
+          cancelToken: any(named: 'cancelToken'),
+        ),
+      ).thenAnswer((_) async => Result.success([reportA, reportB]));
+      when(
+        () => repo.moderateReportsBatch(
+          reportIds: any(named: 'reportIds'),
+          approve: any(named: 'approve'),
+          cancelToken: any(named: 'cancelToken'),
+        ),
+      ).thenAnswer(
+        (_) async => Result.success(
+          ModerationBatchModerateResult(
+            succeeded: ['a'],
+            failed: [
+              ModerationBatchFailure(reportId: 'b', code: 'already_reviewed'),
+            ],
+          ),
+        ),
+      );
+
+      final container = await pumpContainer();
+      final result = await container
+          .read(moderationPendingReportsProvider.notifier)
+          .moderateBatch(reportIds: ['a', 'b'], approve: true);
+
+      expect(result?.succeeded, ['a']);
+      expect(
+        container.read(moderationPendingReportsProvider).requireValue,
+        [reportB],
+      );
+      expect(container.read(conditionReportsRefreshTokenProvider), 1);
+    },
+  );
 }

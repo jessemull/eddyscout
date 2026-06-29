@@ -25,7 +25,10 @@ class _IntegrationRunnableRoutePlanning extends RoutePlanning {
     final takeOut = findLaunchPointById('sellwood_riverfront')!;
     return RoutePlanningState(
       phase: MapPlanningPhase.routeReady,
-      waypoints: [putIn, takeOut],
+      stops: [
+        RoutePlanningStop.catalog(putIn),
+        RoutePlanningStop.catalog(takeOut),
+      ],
       routeLengthKm: 5.2,
       activeGeometry: RouteGeometrySnapshot(
         polylineLonLat: const [

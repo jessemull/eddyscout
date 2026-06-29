@@ -33,13 +33,28 @@ class _RouteGoNoGoErrorStrip extends StatelessWidget {
 }
 
 class _RouteGoNoGoSummaryStrip extends StatelessWidget {
-  const _RouteGoNoGoSummaryStrip({required this.result});
+  const _RouteGoNoGoSummaryStrip({
+    required this.result,
+    this.catalogStopOrderIndices = const [],
+    this.snapStops = const [],
+  });
 
   final RouteGoNoGoResult result;
+  final List<int> catalogStopOrderIndices;
+  final List<RouteGoNoGoSnapStop> snapStops;
+
+  int _routeOrderIndex(int catalogOrderIndex) {
+    if (catalogOrderIndex < catalogStopOrderIndices.length) {
+      return catalogStopOrderIndices[catalogOrderIndex];
+    }
+    return catalogOrderIndex;
+  }
 
   bool _hasDetails(AppLocalizations l10n) {
     final timelineCount =
-        result.waypointResults.length + result.waypointFailures.length;
+        result.waypointResults.length +
+        result.waypointFailures.length +
+        snapStops.length;
     return result.triggeringReasons.length > 1 ||
         (result.verdict == GoNoGoVerdict.go &&
             result.triggeringReasons.isEmpty &&
@@ -52,20 +67,26 @@ class _RouteGoNoGoSummaryStrip extends StatelessWidget {
     final stops = <_TimelineStop>[
       for (final stop in result.waypointResults)
         _TimelineStop(
-          orderIndex: stop.orderIndex,
+          orderIndex: _routeOrderIndex(stop.orderIndex),
           launchName: stop.launchName,
           verdict: stop.result.verdict,
           detailText: waypointGoNoGoSummaryLine(l10n, stop.result),
         ),
       for (final failure in result.waypointFailures)
         _TimelineStop(
-          orderIndex: failure.orderIndex,
+          orderIndex: _routeOrderIndex(failure.orderIndex),
           launchName: failure.launchName,
           detailText: localizeRouteGoNoGoFailureMessage(
             l10n,
             failure.failure,
           ),
           isFailure: true,
+        ),
+      for (final snap in snapStops)
+        _TimelineStop(
+          orderIndex: snap.orderIndex,
+          launchName: snap.label,
+          detailText: l10n.conditionsCustomStopNoData,
         ),
     ]..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
     return stops;

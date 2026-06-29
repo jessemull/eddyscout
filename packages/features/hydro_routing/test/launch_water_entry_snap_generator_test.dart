@@ -31,10 +31,7 @@ void main() {
         tideRelevance: TideRelevance.none,
       );
 
-      final rows = LaunchWaterEntrySnapGenerator.generate(
-        graph: planner.graphForTesting,
-        catalog: [launch],
-      );
+      final rows = planner.generateLaunchWaterEntrySnaps([launch]);
 
       expect(rows, hasLength(1));
       expect(rows.single.launchId, 'near');
