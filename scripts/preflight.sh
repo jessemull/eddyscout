@@ -35,6 +35,9 @@ if $CI_MODE; then
   export CODEGEN_VERIFY_FULL=1
   export PUSH_VALIDATE_FULL_SUITE=1
   unset PUSH_VALIDATE_AFFECTED PUSH_VALIDATE_AUTO_AFFECTED
+elif [[ "${PUSH_VALIDATE_FULL_SUITE:-}" != "1" ]]; then
+  # Local preflight: affected coverage only (escape hatch: PUSH_VALIDATE_FULL_SUITE=1).
+  export PUSH_VALIDATE_AUTO_AFFECTED=1
 fi
 
 PREFLIGHT_START=$SECONDS
@@ -80,21 +83,18 @@ else
     "Analyze" _preflight_analyze \
     "Import boundaries" "$SCRIPT_DIR/check_imports.sh" \
     "Architecture" "$SCRIPT_DIR/check_architecture.sh" \
-    "Hydro geometry" "$SCRIPT_DIR/check_hydro_geometry.sh"
+    "Hydro geometry" "$SCRIPT_DIR/check_hydro_geometry.sh" \
+    "Codegen verification" "$SCRIPT_DIR/codegen_verify.sh"
 
-  preflight_phase_start "Codegen verification"
-  "$SCRIPT_DIR/codegen_verify.sh"
-  preflight_phase_end "Codegen verification"
-
-  preflight_phase_start "Tests"
-  "$SCRIPT_DIR/run_tests.sh"
-  preflight_phase_end "Tests"
-
-  if ! $SKIP_COVERAGE; then
-    preflight_phase_start "Coverage thresholds"
+  if $SKIP_COVERAGE; then
+    preflight_phase_start "Tests"
+    "$SCRIPT_DIR/run_tests.sh"
+    preflight_phase_end "Tests"
+  else
+    preflight_phase_start "Tests and coverage"
     "$SCRIPT_DIR/run_coverage.sh"
     "$SCRIPT_DIR/check_coverage.sh"
-    preflight_phase_end "Coverage thresholds"
+    preflight_phase_end "Tests and coverage"
   fi
 fi
 

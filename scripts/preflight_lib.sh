@@ -170,11 +170,11 @@ preflight_run_tests() {
     test_args+=("$@")
   fi
 
-  # Coverage lcov is unreliable when packages or test isolates run in parallel.
+  # Coverage lcov is unreliable when test isolates run in parallel within a package.
+  # Melos package-level parallelism is safe (each package writes its own lcov.info).
   local arg
   for arg in "${test_args[@]}"; do
     if [[ "$arg" == "--coverage" ]]; then
-      jobs=1
       flutter_j=1
       test_args=(--exclude-tags golden,benchmark --concurrency=1 --coverage)
       break

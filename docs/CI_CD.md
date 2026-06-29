@@ -20,9 +20,9 @@ Every pull request must pass the following checks before merge:
 | **Analyze** | `flutter analyze --fatal-infos` | Yes | Static analysis with zero warnings |
 | **Riverpod lint** | `riverpod_lint` via `analysis_server_plugin` in `tooling/analysis_options.base.yaml` | Yes (IDE/analyzer) | Riverpod-specific lint rules; `custom_lint` not wired (analyzer conflict) |
 | **Codegen drift** | `build_runner build` + `git diff --exit-code` | Yes | Ensure generated files are up to date |
-| **Test** | `flutter test` (all packages) | Yes | Unit and widget tests pass |
+| **Tests and Coverage** | `flutter test --coverage` + threshold check | Yes | Unit/widget tests pass; per-package coverage floors |
 | **Integration Test** | `flutter test integration_test/` on Linux desktop (`xvfb-run`, `-d linux`) | Yes | App token gate + map → launch detail journey |
-| **Coverage** | Coverage threshold check | No | Track coverage trends; do not gate on arbitrary % |
+| **Golden Tests** | Design system goldens on macOS | Yes | Visual regression |
 
 ### Blocking vs. Non-Blocking
 

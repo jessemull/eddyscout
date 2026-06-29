@@ -9,9 +9,10 @@ unset GIT_DIR GIT_WORK_TREE
 
 echo "=== Push Validation ==="
 
-# Optional: PUSH_VALIDATE_AUTO_AFFECTED=1 runs --since=origin/main tests when safe.
+# Affected tests vs origin/main when safe; full suite on global config changes.
 # Optional: PUSH_VALIDATE_AFFECTED=1 always uses affected tests (if origin/main exists).
 # Optional: PUSH_VALIDATE_JOBS=N caps parallel melos package jobs (default: min(ncpu, 8)).
+export PUSH_VALIDATE_AUTO_AFFECTED=1
 "$SCRIPT_DIR/preflight.sh" --no-coverage
 
 echo ""

@@ -35,6 +35,17 @@ const _destination = LaunchPoint(
   tideRelevance: TideRelevance.none,
 );
 
+const _middle = LaunchPoint(
+  id: 'launch-m',
+  name: 'Middle Launch',
+  latitude: 45.55,
+  longitude: -122.55,
+  shortNote: 'Test middle',
+  riverSystem: RiverSystem.willamette,
+  windExposure: WindExposure.sheltered,
+  tideRelevance: TideRelevance.none,
+);
+
 List<RoutePlanningStop> _catalogStops(List<LaunchPoint> launches) {
   return [
     for (final launch in launches) RoutePlanningStop.catalog(launch),
@@ -361,5 +372,44 @@ void main() {
         equals(Theme.of(tester.element(find.text('Done'))).colorScheme.primary),
       ),
     );
+  });
+
+  testWidgets('invokes remove and done callbacks', (tester) async {
+    var removedIndex = -1;
+    var doneTapped = false;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mapKeyValueStoreProvider.overrideWith((ref) async => store),
+          effectiveDisplayUnitSystemProvider.overrideWithValue(
+            DisplayUnitSystem.metric,
+          ),
+        ],
+        child: testLocalizedApp(
+          child: MapRoutePlanningChrome(
+            stops: _catalogStops(const [_origin, _middle, _destination]),
+            routeLengthKm: 8,
+            canFinishPlanning: true,
+            onBack: () {},
+            onDone: () => doneTapped = true,
+            onRemoveStop: (index) => removedIndex = index,
+            onReorderStop: (_, _) {},
+            onChooseOnMap: () {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('A'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.close).first);
+    await tester.pumpAndSettle();
+    expect(removedIndex, 0);
+
+    await tester.tap(find.text('Done'));
+    await tester.pump();
+    expect(doneTapped, isTrue);
   });
 }
